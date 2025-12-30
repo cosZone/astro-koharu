@@ -1,7 +1,6 @@
 export type AnimType = 'scale';
 export const clickableProps = (type: AnimType = 'scale', props?: { scale?: number }) => {
   switch (type) {
-    case 'scale':
     default: {
       const { scale } = props ?? {};
       return {

@@ -3,7 +3,12 @@ import sanitizeHtml from 'sanitize-html';
 export const getSanitizeHtml = (html: string) => {
   return sanitizeHtml(html, {
     // https://stackoverflow.com/questions/12229572/php-generated-xml-shows-invalid-char-value-27-message
-    textFilter: (text) => text.replace(/[^\x09\x0A\x0D\x20-\xFF\x85\xA0-\uD7FF\uE000-\uFDCF\uFDE0-\uFFFD]/gm, ''),
+    textFilter: (text) =>
+      text.replace(
+        // biome-ignore lint/suspicious/noControlCharactersInRegex: Intentional - filtering invalid XML characters
+        /[^\x09\x0A\x0D\x20-\xFF\x85\xA0-\uD7FF\uE000-\uFDCF\uFDE0-\uFFFD]/gm,
+        '',
+      ),
     allowedTags: sanitizeHtml.defaults.allowedTags.concat(['img']),
   });
 };
@@ -103,7 +108,7 @@ export const extractTextFromMarkdown = (content: string, maxLength: number = 150
     const minCut = Math.floor(maxLength * 0.8);
     // 向前找空格
     while (cutIdx > minCut && result.charCodeAt(cutIdx) !== 32) cutIdx--;
-    result = result.slice(0, cutIdx) + '...';
+    result = `${result.slice(0, cutIdx)}...`;
   }
 
   return result;

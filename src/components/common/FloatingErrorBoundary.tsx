@@ -29,7 +29,7 @@ export interface FloatingErrorBoundaryProps extends PropsWithChildren {
  * Floating UI components failing should not block the main content
  */
 const FloatingFallback: FC<FallbackProps & { fallback?: ReactNode }> = ({ fallback }) => {
-  return fallback ? <>{fallback}</> : null;
+  return fallback ? fallback : null;
 };
 
 /**

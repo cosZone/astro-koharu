@@ -35,63 +35,63 @@
 /* 2. 每个标题链接在递增自己的计数器时,重置所有子级计数器 */
 
 /* H1: "1. " (罕见,如果使用则作为根级别) */
-.heading-link[data-level='1'] {
+.heading-link[data-level="1"] {
   counter-increment: heading-h1;
   counter-reset: heading-h2;
 }
 
-.heading-link[data-level='1']::before {
-  content: counter(heading-h1) '. ';
+.heading-link[data-level="1"]::before {
+  content: counter(heading-h1) ". ";
 }
 
 /* H2: "1. " (作为根级别) */
-.heading-link[data-level='2'] {
+.heading-link[data-level="2"] {
   counter-increment: heading-h2;
   counter-reset: heading-h3;
 }
 
-.heading-link[data-level='2']::before {
-  content: counter(heading-h2) '. ';
+.heading-link[data-level="2"]::before {
+  content: counter(heading-h2) ". ";
 }
 
 /* H3: "1.1. " */
-.heading-link[data-level='3'] {
+.heading-link[data-level="3"] {
   counter-increment: heading-h3;
   counter-reset: heading-h4;
 }
 
-.heading-link[data-level='3']::before {
-  content: counter(heading-h2) '.' counter(heading-h3) '. ';
+.heading-link[data-level="3"]::before {
+  content: counter(heading-h2) "." counter(heading-h3) ". ";
 }
 
 /* H4: "1.1.1. " */
-.heading-link[data-level='4'] {
+.heading-link[data-level="4"] {
   counter-increment: heading-h4;
   counter-reset: heading-h5;
 }
 
-.heading-link[data-level='4']::before {
-  content: counter(heading-h2) '.' counter(heading-h3) '.' counter(heading-h4) '. ';
+.heading-link[data-level="4"]::before {
+  content: counter(heading-h2) "." counter(heading-h3) "." counter(heading-h4) ". ";
 }
 
 /* H5: "1.1.1.1. " */
-.heading-link[data-level='5'] {
+.heading-link[data-level="5"] {
   counter-increment: heading-h5;
   counter-reset: heading-h6;
 }
 
-.heading-link[data-level='5']::before {
-  content: counter(heading-h2) '.' counter(heading-h3) '.' counter(heading-h4) '.' counter(heading-h5) '. ';
+.heading-link[data-level="5"]::before {
+  content: counter(heading-h2) "." counter(heading-h3) "." counter(heading-h4) "." counter(heading-h5) ". ";
 }
 
 /* H6: "1.1.1.1.1. " */
-.heading-link[data-level='6'] {
+.heading-link[data-level="6"] {
   counter-increment: heading-h6;
 }
 
-.heading-link[data-level='6']::before {
-  content: counter(heading-h2) '.' counter(heading-h3) '.' counter(heading-h4) '.' counter(heading-h5) '.'
-    counter(heading-h6) '. ';
+.heading-link[data-level="6"]::before {
+  content: counter(heading-h2) "." counter(heading-h3) "." counter(heading-h4) "." counter(heading-h5) "." counter(heading-h6)
+    ". ";
 }
 
 /* 4. 编号样式:等宽数字,右侧间距,柔和颜色 */
@@ -120,7 +120,7 @@
 }
 
 .toc-item::before {
-  content: '';
+  content: "";
   position: absolute;
   left: 0;
   top: 0;

@@ -1,9 +1,9 @@
+import { type OptionType, Segmented } from '@components/ui/segmented';
 import type { HomeSiderSegmentType } from '@constants/enum';
 import { HomeSiderSegmentType as SegmentTypeEnum } from '@constants/enum';
 import { homeSiderSegmentType } from '@store/app';
-import { Segmented, type OptionType } from '@components/ui/segmented';
 import React from 'react';
-import { RiDashboard3Line, RiListOrdered2, RiArticleLine } from 'react-icons/ri';
+import { RiArticleLine, RiDashboard3Line, RiListOrdered2 } from 'react-icons/ri';
 import { cn } from '@/lib/utils';
 
 type HomeSiderSegmentedProps = {
@@ -39,7 +39,7 @@ export const HomeSiderSegmented = ({ className, ...props }: HomeSiderSegmentedPr
       {...props}
       options={options}
       className={cn(
-        'flex w-fit cursor-pointer rounded-sm bg-black/8 p-1 text-xs font-semibold backdrop-blur-lg select-none',
+        'flex w-fit cursor-pointer select-none rounded-sm bg-black/8 p-1 font-semibold text-xs backdrop-blur-lg',
         className,
       )}
       onChange={(value) => homeSiderSegmentType.set(value)}

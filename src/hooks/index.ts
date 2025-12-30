@@ -5,31 +5,22 @@
  * Import hooks from '@hooks' for convenience.
  */
 
-// Toggle state hook
-export { useToggle, type UseToggleOptions, type UseToggleReturn } from './useToggle';
+export { type UseActiveHeadingOptions, useActiveHeading } from './useActiveHeading';
 
 // Controlled/uncontrolled state pattern
-export { useControlledState, type UseControlledStateOptions } from './useControlledState';
-
+export { type UseControlledStateOptions, useControlledState } from './useControlledState';
+export { type CurrentHeading, type UseCurrentHeadingOptions, useCurrentHeading } from './useCurrentHeading';
+export { type UseExpandedStateOptions, type UseExpandedStateReturn, useExpandedState } from './useExpandedState';
 // Floating UI wrapper
-export { useFloatingUI, type UseFloatingUIOptions } from './useFloatingUI';
-
-// Media query hooks
-export { useMediaQuery, useIsMobile, useIsTablet, usePrefersColorSchemeDark, usePrefersReducedMotion } from './useMediaQuery';
-
+export { type UseFloatingUIOptions, useFloatingUI } from './useFloatingUI';
+export { type UseHeadingClickHandlerOptions, useHeadingClickHandler } from './useHeadingClickHandler';
+// TableOfContents-specific hooks
+export { findHeadingById, getParentIds, getSiblingIds, type Heading, useHeadingTree } from './useHeadingTree';
 // Theme state hook (monitors actual page theme, not system preference)
 export { useIsDarkTheme } from './useIsDarkTheme';
-
-// TableOfContents-specific hooks
-export { useHeadingTree, findHeadingById, getParentIds, getSiblingIds, type Heading } from './useHeadingTree';
-
-export { useActiveHeading, type UseActiveHeadingOptions } from './useActiveHeading';
-
-export { useExpandedState, type UseExpandedStateOptions, type UseExpandedStateReturn } from './useExpandedState';
-
-export { useHeadingClickHandler, type UseHeadingClickHandlerOptions } from './useHeadingClickHandler';
-
-export { useCurrentHeading, type CurrentHeading, type UseCurrentHeadingOptions } from './useCurrentHeading';
-
 // Utility hooks
 export { useIsMounted } from './useIsMounted';
+// Media query hooks
+export { useIsMobile, useIsTablet, useMediaQuery, usePrefersColorSchemeDark, usePrefersReducedMotion } from './useMediaQuery';
+// Toggle state hook
+export { type UseToggleOptions, type UseToggleReturn, useToggle } from './useToggle';

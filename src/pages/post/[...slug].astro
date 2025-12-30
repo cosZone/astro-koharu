@@ -1,5 +1,4 @@
 ---
-import { extractTextFromMarkdown } from '@/lib/sanitize';
 import CustomContent from '@components/common/CustomContent.astro';
 import Remark from '@components/common/Remark.astro';
 import HomeSider from '@components/layout/HomeSider.astro';
@@ -13,6 +12,7 @@ import TwoColumnLayout from '@layouts/TwoColumnLayout.astro';
 import { buildCategoryPath, getCategoryArr, getPostDescription, getPostSummary, getSortedPosts } from '@lib/content';
 import { Icon } from 'astro-icon/components';
 import { formatInTimeZone } from 'date-fns-tz';
+import { extractTextFromMarkdown } from '@/lib/sanitize';
 
 export async function getStaticPaths() {
   const postCollections = await getSortedPosts();

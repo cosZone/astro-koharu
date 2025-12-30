@@ -5,32 +5,33 @@
  * Import from '@types' instead of '@types/specific-file' when you need multiple types.
  */
 
-// UI types
+// Animation types
 export type {
-  Size,
-  ButtonVariant,
-  BadgeVariant,
-  OpenCloseState,
-  ControlledComponentProps,
-  OptionType,
-  FloatingPosition,
-  WithClassName,
-  WithChildren,
-  ForwardedRef,
-} from './ui';
+  AnimationDirection,
+  AnimationTiming,
+  AnimationTrigger,
+  AnimationVariantName,
+  ExpandProps,
+  FadeInProps,
+  MotionVariants,
+  SlideInProps,
+  SpringConfig,
+  SpringPreset,
+  StaggerProps,
+} from './animation';
 
 // Component props
 export type {
+  CoverProps,
+  DropdownNavProps,
+  ErrorBoundaryProps,
+  MenuIconProps,
+  NavItemProps,
+  PopoverProps,
   PostItemCardProps,
   SegmentedProps,
-  DropdownNavProps,
-  PopoverProps,
-  TooltipProps,
-  MenuIconProps,
   TableOfContentsProps,
-  NavItemProps,
-  ErrorBoundaryProps,
-  CoverProps,
+  TooltipProps,
 } from './components';
 
 // Content types
@@ -38,24 +39,22 @@ export type {
   BlogPost,
   BlogSchema,
   Category,
-  CategoryWithCount,
   CategoryListResult,
-  TagWithCount,
-  PostMetadata,
+  CategoryWithCount,
   PaginatedResult,
+  PostMetadata,
+  TagWithCount,
 } from './content';
-
-// Animation types
+// UI types
 export type {
-  SpringConfig,
-  AnimationDirection,
-  AnimationTrigger,
-  AnimationVariantName,
-  MotionVariants,
-  AnimationTiming,
-  FadeInProps,
-  SlideInProps,
-  ExpandProps,
-  StaggerProps,
-  SpringPreset,
-} from './animation';
+  BadgeVariant,
+  ButtonVariant,
+  ControlledComponentProps,
+  FloatingPosition,
+  ForwardedRef,
+  OpenCloseState,
+  OptionType,
+  Size,
+  WithChildren,
+  WithClassName,
+} from './ui';

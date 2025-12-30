@@ -14,7 +14,9 @@ export async function getStaticPaths() {
 
   posts.forEach((post) => {
     const postTags = post.data.tags || [];
-    postTags.forEach((tag) => tags.add(normalizeTag(tag)));
+    postTags.forEach((tag) => {
+      tags.add(normalizeTag(tag));
+    });
   });
 
   return Array.from(tags).map((tag) => ({

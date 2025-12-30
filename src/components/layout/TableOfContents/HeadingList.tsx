@@ -5,8 +5,8 @@
  * Handles the recursive rendering logic for nested headings.
  */
 
-import { memo, useCallback } from 'react';
 import type { Heading } from '@hooks/useHeadingTree';
+import { memo, useCallback } from 'react';
 import { HeadingTreeItem } from './HeadingTreeItem';
 
 interface HeadingListProps {

@@ -4,18 +4,18 @@
  * Uses metascraper to fetch OG data at build time for link previews (SSG approach)
  */
 
-import { visit } from 'unist-util-visit';
-import type { Root, Paragraph, Link } from 'mdast';
-import type { Parent } from 'unist';
-import { classifyLink, isStandaloneLinkParagraph } from './link-utils';
+import type { Link, Paragraph, Root } from 'mdast';
 import metascraper from 'metascraper';
 import metascraperDescription from 'metascraper-description';
 import metascraperImage from 'metascraper-image';
 import metascraperLogo from 'metascraper-logo';
+import metascraperLogoFavicon from 'metascraper-logo-favicon';
 import metascraperTitle from 'metascraper-title';
 import metascraperUrl from 'metascraper-url';
 import sanitizeHtml from 'sanitize-html';
-import metascraperLogoFavicon from 'metascraper-logo-favicon';
+import type { Parent } from 'unist';
+import { visit } from 'unist-util-visit';
+import { classifyLink, isStandaloneLinkParagraph } from './link-utils';
 
 interface OGData {
   originUrl: string;
@@ -200,7 +200,7 @@ function generateLinkPreviewHTML(ogData: OGData): string {
     const safeDisplayText = sanitizeText(displayText);
     const safeSubtitle = subtitle
       ? sanitizeText(subtitle)
-      : sanitizeText(originUrl.length > 60 ? originUrl.substring(0, 60) + '...' : originUrl);
+      : sanitizeText(originUrl.length > 60 ? `${originUrl.substring(0, 60)}...` : originUrl);
 
     return `<div class="link-preview-block not-prose" data-state="error">
   <a href="${safeUrl}" target="_blank" class="hover:border-primary/50 group block rounded-lg border bg-card p-4 transition-all hover:shadow-md" aria-label="${safeDisplayText}">
@@ -274,7 +274,7 @@ function generateCodePenEmbedHTML(user: string, penId: string, url: string): str
 export function remarkLinkEmbed(options: RemarkLinkEmbedOptions = {}) {
   const { enableTweetEmbed = true, enableCodePenEmbed = true, enableOGPreview = true } = options;
 
-  return async function (tree: Root) {
+  return async (tree: Root) => {
     const nodesToReplace: Array<{
       node: Paragraph;
       index: number;
@@ -339,7 +339,7 @@ export function remarkLinkEmbed(options: RemarkLinkEmbedOptions = {}) {
     const embedNodes = await Promise.all(fetchPromises);
 
     // Replace nodes with their embed counterparts
-    nodesToReplace.forEach(({ node, index, parent }, i) => {
+    nodesToReplace.forEach(({ index, parent }, i) => {
       const embedNode = embedNodes[i];
       if (embedNode) {
         parent.children[index] = embedNode;

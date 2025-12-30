@@ -5,7 +5,7 @@
  * Uses custom hooks for state management and sub-components for better organization.
  */
 
-import { useActiveHeading, useExpandedState, useHeadingTree, useHeadingClickHandler } from '@hooks/index';
+import { useActiveHeading, useExpandedState, useHeadingClickHandler, useHeadingTree } from '@hooks/index';
 import { HeadingList } from './HeadingList';
 
 // Constants
@@ -40,7 +40,7 @@ export function TableOfContents({ defaultExpanded = false, enableNumbering = tru
   // Empty state
   if (headings.length === 0) {
     return (
-      <div className="text-muted-foreground py-6 text-center">
+      <div className="py-6 text-center text-muted-foreground">
         <div className="text-sm">暂无目录</div>
       </div>
     );

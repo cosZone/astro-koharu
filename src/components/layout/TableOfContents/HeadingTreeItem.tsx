@@ -5,8 +5,8 @@
  * Supports nesting, active state highlighting, and recursive rendering of children.
  */
 
-import { memo } from 'react';
 import type { Heading } from '@hooks/useHeadingTree';
+import { memo } from 'react';
 import { cn } from '@/lib/utils';
 
 // Constants
@@ -50,9 +50,9 @@ const HeadingTreeItemComponent = ({
           onHeadingClick(heading.id);
         }}
         className={cn(
-          'heading-link group hover:bg-foreground/5 relative flex items-center rounded-md py-2 text-sm transition-all duration-200 hover:border-l-2',
+          'heading-link group relative flex items-center rounded-md py-2 text-sm transition-all duration-200 hover:border-l-2 hover:bg-foreground/5',
           {
-            'bg-primary/10 text-primary border-l-primary hover:text-primary hover:bg-primary/10 font-medium': isActive,
+            'border-l-primary bg-primary/10 font-medium text-primary hover:bg-primary/10 hover:text-primary': isActive,
           },
         )}
         style={{
@@ -66,7 +66,7 @@ const HeadingTreeItemComponent = ({
         {/* Heading text - numbering will be added via CSS ::before */}
         <span className="heading-text block flex-1 truncate leading-relaxed">{heading.text}</span>
         {/* Active state indicator */}
-        {isActive && <span className="text-primary ml-2 text-xs">•</span>}
+        {isActive && <span className="ml-2 text-primary text-xs">•</span>}
       </a>
 
       {/* Render children nested within this item */}

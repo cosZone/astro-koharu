@@ -11,11 +11,11 @@
  * 6. Stores top N similar posts per post in JSON
  */
 
-import { pipeline, env, type FeatureExtractionPipeline } from '@huggingface/transformers';
-import { glob } from 'glob';
-import fs from 'fs/promises';
-import path from 'path';
+import fs from 'node:fs/promises';
+import path from 'node:path';
+import { env, type FeatureExtractionPipeline, pipeline } from '@huggingface/transformers';
 import chalk from 'chalk';
+import { glob } from 'glob';
 import matter from 'gray-matter';
 import { remark } from 'remark';
 import strip from 'strip-markdown';
@@ -240,7 +240,7 @@ async function generateEmbeddings(posts: PostData[], extractor: FeatureExtractio
     embeddings.push(normalize(output.data));
   }
 
-  console.log('\n' + chalk.green('Embeddings generated successfully!'));
+  console.log(`\n${chalk.green('Embeddings generated successfully!')}`);
   return embeddings;
 }
 

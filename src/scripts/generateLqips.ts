@@ -7,11 +7,11 @@
  * 3. Outputs CSS gradient strings to src/assets/lqips.json
  */
 
-import sharp from 'sharp';
-import { glob } from 'glob';
-import fs from 'fs/promises';
-import path from 'path';
+import fs from 'node:fs/promises';
+import path from 'node:path';
 import chalk from 'chalk';
+import { glob } from 'glob';
+import sharp from 'sharp';
 
 // --------- Configuration ---------
 const IMAGE_GLOB = 'public/img/**/*.{webp,jpg,jpeg,png}';
@@ -118,7 +118,7 @@ async function main() {
 
     const dir = path.dirname(OUTPUT_FILE);
     await fs.mkdir(dir, { recursive: true });
-    await fs.writeFile(OUTPUT_FILE, JSON.stringify(lqips, null, 2) + '\n');
+    await fs.writeFile(OUTPUT_FILE, `${JSON.stringify(lqips, null, 2)}\n`);
 
     const elapsed = ((Date.now() - startTime) / 1000).toFixed(1);
     console.log(chalk.green(`\nDone! Generated LQIP for ${processed} images in ${elapsed}s`));

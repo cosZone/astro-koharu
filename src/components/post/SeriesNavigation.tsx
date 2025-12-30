@@ -21,7 +21,7 @@ export function SeriesNavigation({ prevPost, nextPost, className }: SeriesNaviga
   const scrollBehavior: ScrollBehavior = 'smooth';
 
   return (
-    <div className={cn('border-border mt-4 flex flex-col gap-3 border-t pt-4 md:mt-0 md:pt-2', className)}>
+    <div className={cn('mt-4 flex flex-col gap-3 border-border border-t pt-4 md:mt-0 md:pt-2', className)}>
       {/* 文章导航 */}
       <div className="flex items-center justify-between gap-2">
         {/* 上一篇 */}
@@ -30,8 +30,8 @@ export function SeriesNavigation({ prevPost, nextPost, className }: SeriesNaviga
             href={routeBuilder(Routes.Post, prevPost)}
             className={cn(
               'group flex items-center gap-1.5 rounded-md px-2 py-1.5 transition-colors',
-              'hover:bg-accent text-muted-foreground hover:text-primary',
-              'max-w-[45%] min-w-0 flex-1',
+              'text-muted-foreground hover:bg-accent hover:text-primary',
+              'min-w-0 max-w-[45%] flex-1',
             )}
             title={prevPost.data.title}
             suppressHydrationWarning
@@ -49,8 +49,8 @@ export function SeriesNavigation({ prevPost, nextPost, className }: SeriesNaviga
             href={routeBuilder(Routes.Post, nextPost)}
             className={cn(
               'group flex items-center gap-1.5 rounded-md px-2 py-1.5 transition-colors',
-              'hover:bg-accent text-muted-foreground hover:text-primary',
-              'max-w-[45%] min-w-0 flex-1 justify-end text-right',
+              'text-muted-foreground hover:bg-accent hover:text-primary',
+              'min-w-0 max-w-[45%] flex-1 justify-end text-right',
             )}
             title={nextPost.data.title}
             suppressHydrationWarning
@@ -66,10 +66,11 @@ export function SeriesNavigation({ prevPost, nextPost, className }: SeriesNaviga
       {/* 回到顶部和滚到底部 */}
       <div className="flex justify-center gap-2">
         <button
+          type="button"
           onClick={() => window.scrollTo({ top: 0, behavior: scrollBehavior })}
           className={cn(
             'flex items-center justify-center gap-1.5 rounded-md px-3 py-1.5 transition-colors',
-            'hover:bg-accent text-muted-foreground hover:text-primary text-xs',
+            'text-muted-foreground text-xs hover:bg-accent hover:text-primary',
           )}
           title="回到顶部"
           aria-label="回到顶部"
@@ -79,10 +80,11 @@ export function SeriesNavigation({ prevPost, nextPost, className }: SeriesNaviga
           回到顶部
         </button>
         <button
+          type="button"
           onClick={() => window.scrollTo({ top: document.body.scrollHeight, behavior: scrollBehavior })}
           className={cn(
             'flex items-center justify-center gap-1.5 rounded-md px-3 py-1.5 transition-colors',
-            'hover:bg-accent text-muted-foreground hover:text-primary text-xs',
+            'text-muted-foreground text-xs hover:bg-accent hover:text-primary',
           )}
           title="滚到底部"
           aria-label="滚到底部"

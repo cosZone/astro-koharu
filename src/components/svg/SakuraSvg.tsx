@@ -1,6 +1,6 @@
 export default function SakuraSVG({ className }: { className?: string }) {
   return (
-    <svg className={className} viewBox="0 0 512 512" fill="currentColor">
+    <svg className={className} viewBox="0 0 512 512" fill="currentColor" aria-hidden="true">
       <g>
         <path
           fill="currentColor"

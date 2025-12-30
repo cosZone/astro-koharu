@@ -12,7 +12,9 @@
     "preview": "astro preview",
     "astro": "astro",
     "check": "astro check",
-    "lint": "eslint .",
+    "lint": "biome check .",
+    "lint:fix": "biome check --write .",
+    "format": "biome format --write .",
     "lint-md": "lint-md ./src/content/**/*.{md,mdx}",
     "lint-md:fix": "lint-md ./src/content/**/*.{md,mdx} --fix",
     "lint-staged": "lint-staged",
@@ -81,8 +83,10 @@
     "unist-util-visit": "^5.0.0"
   },
   "devDependencies": {
+    "@biomejs/biome": "^2.3.10",
     "@huggingface/transformers": "^3.8.1",
     "@iconify/react": "^5.2.1",
+    "@lint-md/cli": "^2.0.0",
     "@tailwindcss/container-queries": "^0.1.1",
     "@tailwindcss/typography": "^0.5.19",
     "@types/hast": "^3.0.4",
@@ -92,23 +96,14 @@
     "@types/sanitize-html": "^2.16.0",
     "@types/three": "^0.182.0",
     "@types/unist": "^3.0.3",
-    "@typescript-eslint/parser": "^8.48.1",
     "@xsai/generate-text": "0.4.0-beta.10",
     "chalk": "^5.6.2",
-    "eslint": "^9.39.1",
-    "eslint-plugin-astro": "^1.5.0",
-    "eslint-plugin-jsx-a11y": "^6.10.2",
-    "eslint-plugin-react-google-translate": "^0.0.114",
     "glob": "^13.0.0",
     "gray-matter": "^4.0.3",
     "husky": "^9.1.7",
     "js-yaml": "^4.1.1",
     "knip": "^5.71.0",
     "lint-staged": "^15.5.2",
-    "prettier": "^3.7.4",
-    "prettier-plugin-astro": "^0.14.1",
-    "prettier-plugin-lint-md": "^1.0.1",
-    "prettier-plugin-tailwindcss": "^0.6.14",
     "remark": "^15.0.1",
     "sharp": "^0.34.5",
     "strip-markdown": "^6.0.0",
@@ -119,9 +114,10 @@
   "packageManager": "pnpm@9.15.1+sha256.9e534e70afef06374f6126b44bda5760947135ce16a30aef1010e965fb7e3e3e",
   "lint-staged": {
     "*.{js,jsx,ts,tsx,json,astro}": [
-      "prettier --write",
-      "eslint --fix",
-      "eslint"
+      "biome check --write --no-errors-on-unmatched"
+    ],
+    "*.{md,mdx}": [
+      "lint-md --fix"
     ]
   }
 }

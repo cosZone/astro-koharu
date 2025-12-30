@@ -1,4 +1,4 @@
-import { motion, useScroll, useSpring, useReducedMotion } from 'motion/react';
+import { motion, useReducedMotion, useScroll, useSpring } from 'motion/react';
 
 interface ScrollProgressProps {
   className?: string;
@@ -11,18 +11,18 @@ export function ScrollProgress({ className }: ScrollProgressProps) {
   const { scrollYProgress } = useScroll();
 
   // 使用 spring 动画使滚动更平滑，提升性能
+  const springProgress = useSpring(scrollYProgress, {
+    stiffness: 100,
+    damping: 30,
+    restDelta: 0.001,
+  });
+
   // 如果用户偏好减少动画，则直接使用滚动进度值，不使用 spring
-  const scaleX = shouldReduceMotion
-    ? scrollYProgress
-    : useSpring(scrollYProgress, {
-        stiffness: 100,
-        damping: 30,
-        restDelta: 0.001,
-      });
+  const scaleX = shouldReduceMotion ? scrollYProgress : springProgress;
 
   return (
     <div className={className}>
-      <motion.div className="bg-primary h-1 origin-left rounded-full" style={{ scaleX }} />
+      <motion.div className="h-1 origin-left rounded-full bg-primary" style={{ scaleX }} />
     </div>
   );
 }

@@ -1,11 +1,11 @@
-import React, { cloneElement, useRef, type JSX } from 'react';
-import { FloatingPortal, useDismiss, useFocus, useHover, useInteractions, useRole, type Placement } from '@floating-ui/react';
+import { withFloatingErrorBoundary } from '@components/common/FloatingErrorBoundary';
+import { zIndex } from '@constants/design-tokens';
+import { FloatingPortal, type Placement, useDismiss, useFocus, useHover, useInteractions, useRole } from '@floating-ui/react';
 import { useControlledState } from '@hooks/useControlledState';
 import { useFloatingUI } from '@hooks/useFloatingUI';
 // import { fontVariants } from '@constants/font';
 import { cn } from '@lib/utils';
-import { zIndex } from '@constants/design-tokens';
-import { withFloatingErrorBoundary } from '@components/common/FloatingErrorBoundary';
+import React, { cloneElement, type JSX, useRef } from 'react';
 
 type TooltipProps = {
   open?: boolean;
@@ -30,7 +30,7 @@ function Tooltip({ children, title, placement = 'top', offsetX = 5, className, o
   const arrowRef = useRef<HTMLElement>(null);
 
   // Use useFloatingUI with arrow support
-  const { refs, context, middlewareData, x, y, strategy } = useFloatingUI({
+  const { refs, context, x, y, strategy } = useFloatingUI({
     open,
     onOpenChange: setOpen,
     placement,
@@ -58,7 +58,7 @@ function Tooltip({ children, title, placement = 'top', offsetX = 5, className, o
         {open && (
           <div
             className={cn(
-              'bg-background/80 text-card-foreground z-10 rounded-lg border px-3 py-1 text-xs/3.5 backdrop-blur-lg',
+              'z-10 rounded-lg border bg-background/80 px-3 py-1 text-card-foreground text-xs/3.5 backdrop-blur-lg',
               // ...fontVariants, // TODO: Font 迁移
               className,
             )}

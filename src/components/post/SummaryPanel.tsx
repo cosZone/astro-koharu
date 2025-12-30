@@ -6,12 +6,12 @@
  * 支持 prefers-reduced-motion 可访问性
  */
 
-import { useState, useEffect, useCallback, useRef, memo, type ReactNode, type RefObject } from 'react';
-import { cn } from '@lib/utils';
-import { usePrefersReducedMotion } from '@hooks/index';
 import { ErrorBoundary, InlineErrorFallback } from '@components/common';
-import { MingcuteAiFillSvg } from '../svg/MingcuteAiFillSvg.tsx';
+import { usePrefersReducedMotion } from '@hooks/index';
+import { cn } from '@lib/utils';
+import { memo, type ReactNode, type RefObject, useCallback, useEffect, useRef, useState } from 'react';
 import { RiBook2Fill } from 'react-icons/ri';
+import { MingcuteAiFillSvg } from '../svg/MingcuteAiFillSvg.tsx';
 
 export type SummarySource = 'description' | 'ai' | 'auto';
 
@@ -34,7 +34,7 @@ const SummaryPanelContent = memo(
         style={{ gridTemplateRows: isExpanded ? '1fr' : '0fr' }}
       >
         <div className="overflow-hidden">
-          <div className="bg-foreground/5 text-muted-foreground rounded-b-lg px-4 py-4 text-sm leading-relaxed">
+          <div className="rounded-b-lg bg-foreground/5 px-4 py-4 text-muted-foreground text-sm leading-relaxed">
             {/* 屏幕阅读器专用 */}
             <span className="sr-only">{summary}</span>
 
@@ -64,11 +64,11 @@ export interface SummaryPanelProps {
 const SOURCE_CONFIG: Record<SummarySource, { label: string; icon: ReactNode }> = {
   description: {
     label: '人工摘要',
-    icon: <RiBook2Fill className="text-primary size-4" />,
+    icon: <RiBook2Fill className="size-4 text-primary" />,
   },
   ai: {
     label: 'AI 摘要',
-    icon: <MingcuteAiFillSvg className="text-primary size-4" />,
+    icon: <MingcuteAiFillSvg className="size-4 text-primary" />,
   },
   auto: {
     label: '摘要',
@@ -77,7 +77,7 @@ const SOURCE_CONFIG: Record<SummarySource, { label: string; icon: ReactNode }> =
         xmlns="http://www.w3.org/2000/svg"
         viewBox="0 0 24 24"
         fill="currentColor"
-        className="text-primary size-4"
+        className="size-4 text-primary"
         aria-hidden="true"
       >
         <path d="M20 22H4C3.44772 22 3 21.5523 3 21V3C3 2.44772 3.44772 2 4 2H20C20.5523 2 21 2.44772 21 3V21C21 21.5523 20.5523 22 20 22ZM19 20V4H5V20H19ZM7 6H11V10H7V6ZM7 12H17V14H7V12ZM7 16H17V18H7V16ZM13 7H17V9H13V7Z" />
@@ -164,17 +164,18 @@ export function SummaryPanel({ summary, source = 'ai', typingSpeed = 25, classNa
       <div className={cn('overflow-hidden rounded-lg', className)}>
         {/* 触发按钮 */}
         <button
+          type="button"
           onClick={handleToggle}
           className={cn(
-            'bg-foreground/5 flex w-full cursor-pointer items-center justify-between px-4 py-3 transition-all duration-250',
+            'flex w-full cursor-pointer items-center justify-between bg-foreground/5 px-4 py-3 transition-all duration-250',
             'hover:bg-foreground/10',
-            isExpanded && 'bg-foreground/10 rounded-t-lg',
+            isExpanded && 'rounded-t-lg bg-foreground/10',
             !isExpanded && 'rounded-lg',
           )}
           aria-expanded={isExpanded}
           aria-controls="summary-panel-content"
         >
-          <div className="text-muted-foreground flex items-center gap-1.5 text-sm font-medium">
+          <div className="flex items-center gap-1.5 font-medium text-muted-foreground text-sm">
             <span className={cn('transition-transform duration-300', isExpanded && source === 'ai' && 'rotate-10')}>
               {config.icon}
             </span>
@@ -184,7 +185,7 @@ export function SummaryPanel({ summary, source = 'ai', typingSpeed = 25, classNa
             xmlns="http://www.w3.org/2000/svg"
             viewBox="0 0 24 24"
             fill="currentColor"
-            className={cn('text-muted-foreground size-4 transition-transform duration-300', isExpanded && 'rotate-180')}
+            className={cn('size-4 text-muted-foreground transition-transform duration-300', isExpanded && 'rotate-180')}
             aria-hidden="true"
           >
             <path d="M12 16L6 10H18L12 16Z" />

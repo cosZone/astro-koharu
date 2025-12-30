@@ -1,6 +1,4 @@
 ---
-import CategoryCards from '@/components/post/CategoryCards.astro';
-import Divider from '@/components/ui/divider';
 import HomeSider from '@components/layout/HomeSider.astro';
 import PostList from '@components/post/PostList.astro';
 import Cover from '@components/ui/cover/Cover.astro';
@@ -11,6 +9,8 @@ import TwoColumnLayout from '@layouts/TwoColumnLayout.astro';
 import { getLatestWeeklyPost, getNonWeeklyPostsBySticky } from '@lib/content';
 import type { Page } from 'astro';
 import type { BlogPost } from 'types/blog';
+import CategoryCards from '@/components/post/CategoryCards.astro';
+import Divider from '@/components/ui/divider';
 
 // 获取非周刊的置顶文章和普通文章
 const { stickyPosts: normalStickyPosts, allPosts: allNonWeeklyPosts } = await getNonWeeklyPostsBySticky();

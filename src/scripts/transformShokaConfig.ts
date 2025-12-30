@@ -1,7 +1,7 @@
 // 旧 Shoka 配置文件转换
-import fs from 'fs';
+import fs from 'node:fs';
+import path from 'node:path';
 import yaml from 'js-yaml';
-import path from 'path';
 
 type Config = {
   category_map: Record<string, string>;

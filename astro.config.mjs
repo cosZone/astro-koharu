@@ -1,17 +1,17 @@
 import react from '@astrojs/react';
-import { siteConfig } from './src/constants/site-config';
-import { defaultContentConfig } from './src/constants/content-config';
-import icon from 'astro-icon';
-import { defineConfig } from 'astro/config';
-import svgr from 'vite-plugin-svgr';
-import umami from '@yeskunall/astro-umami';
 import tailwindcss from '@tailwindcss/vite';
-import rehypeSlug from 'rehype-slug';
-import rehypeAutolinkHeadings from 'rehype-autolink-headings';
-import pagefind from 'astro-pagefind';
+import umami from '@yeskunall/astro-umami';
+import { defineConfig } from 'astro/config';
+import icon from 'astro-icon';
 import mermaid from 'astro-mermaid';
-import { remarkLinkEmbed } from './src/lib/markdown/remark-link-embed.ts';
+import pagefind from 'astro-pagefind';
+import rehypeAutolinkHeadings from 'rehype-autolink-headings';
+import rehypeSlug from 'rehype-slug';
+import svgr from 'vite-plugin-svgr';
+import { defaultContentConfig } from './src/constants/content-config';
+import { siteConfig } from './src/constants/site-config';
 import { rehypeImagePlaceholder } from './src/lib/markdown/rehype-image-placeholder.ts';
+import { remarkLinkEmbed } from './src/lib/markdown/remark-link-embed.ts';
 
 // https://astro.build/config
 export default defineConfig({

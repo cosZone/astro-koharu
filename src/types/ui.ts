@@ -4,8 +4,6 @@
  * This file contains shared types for UI components including variants, sizes, states, and common patterns.
  */
 
-import type { VariantProps } from 'class-variance-authority';
-
 /**
  * Common component sizes
  */

@@ -2,8 +2,8 @@
  * Category-related utility functions
  */
 
-import { categoryMap } from '@constants/category';
 import { getCollection } from 'astro:content';
+import { categoryMap } from '@constants/category';
 
 import type { Category, CategoryListResult } from './types';
 
@@ -176,7 +176,7 @@ export function buildCategoryPath(categoryNames: string | string[]): string {
   if (names.length === 0) return '';
 
   const slugs = names.map((name) => categoryMap[name]);
-  return '/categories/' + slugs.join('/');
+  return `/categories/${slugs.join('/')}`;
 }
 
 /**

@@ -1,5 +1,4 @@
 ---
-import Divider from '@/components/ui/divider';
 import HomeSider from '@components/layout/HomeSider.astro';
 import PostList from '@components/post/PostList.astro';
 import WeeklyCover from '@components/ui/cover/WeeklyCover.astro';
@@ -8,6 +7,7 @@ import { siteConfig } from '@constants/site-config';
 import Layout from '@layouts/Layout.astro';
 import TwoColumnLayout from '@layouts/TwoColumnLayout.astro';
 import { getPostsByCategory } from '@lib/content';
+import Divider from '@/components/ui/divider';
 
 // 获取周刊分类的所有文章
 const featuredSeriesConfig = siteConfig.featuredSeries;

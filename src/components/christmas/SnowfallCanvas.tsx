@@ -1,10 +1,10 @@
 import { useIsMobile } from '@hooks/useMediaQuery';
 import { useStore } from '@nanostores/react';
 import { Canvas } from '@react-three/fiber';
-import { throttle } from 'es-toolkit';
-import { useMotionValue, useReducedMotion, useSpring, type MotionValue } from 'motion/react';
-import { useEffect, useMemo, useRef, useState } from 'react';
 import { christmasEnabled } from '@store/christmas';
+import { throttle } from 'es-toolkit';
+import { type MotionValue, useMotionValue, useReducedMotion, useSpring } from 'motion/react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { SnowParticles } from './SnowParticles';
 
 interface SnowfallCanvasProps {
@@ -92,7 +92,13 @@ export function SnowfallCanvas({
       document.removeEventListener('mouseleave', handleMouseLeave);
     };
     // mouseX/mouseY are stable refs from useMotionValue, no need in deps
-  }, [isMobile, shouldReduceMotion, throttledMouseMove]);
+  }, [
+    isMobile,
+    shouldReduceMotion,
+    throttledMouseMove, // 鼠标离开窗口时缓慢回到中心
+    mouseX.set,
+    mouseY.set,
+  ]);
 
   const finalIntensity = isMobile ? mobileIntensity : intensity;
   const finalParallaxStrength = isMobile ? 0 : parallaxStrength;

@@ -5,9 +5,6 @@
  * This maintains backward compatibility while organizing code better.
  */
 
-// Export types
-export type { Category, CategoryListResult } from './content/types';
-
 // Export category utilities
 export {
   addCategoryRecursively,
@@ -19,26 +16,26 @@ export {
   getCategoryNameByLink,
   getParentCategory,
 } from './content/categories';
-
 // Export post utilities
 export {
   getAdjacentSeriesPosts,
-  getPostCount,
-  getPostDescription,
-  getPostDescriptionWithSummary,
-  getPostLastCategory,
-  getPostsByCategory,
-  getPostsBySticky,
-  getPostSummary,
-  getRandomPosts,
-  getSeriesPosts,
-  getSortedPosts,
   // Weekly/Featured series utilities
   getLatestWeeklyPost,
   getNonWeeklyPosts,
   getNonWeeklyPostsBySticky,
+  getPostCount,
+  getPostDescription,
+  getPostDescriptionWithSummary,
+  getPostLastCategory,
+  getPostSummary,
+  getPostsByCategory,
+  getPostsBySticky,
+  getRandomPosts,
+  getSeriesPosts,
+  getSortedPosts,
   getWeeklyPosts,
 } from './content/posts';
-
 // Export tag utilities
 export { getAllTags, normalizeTag } from './content/tags';
+// Export types
+export type { Category, CategoryListResult } from './content/types';

@@ -1,5 +1,5 @@
-import type { BlogSchema } from 'types/blog';
 import { defineCollection, z } from 'astro:content';
+import type { BlogSchema } from 'types/blog';
 
 const blogCollection = defineCollection({
   schema: z.object({

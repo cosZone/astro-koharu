@@ -1,14 +1,14 @@
-@import './theme/shadcn.css';
-@import './theme/index.css';
-@import './theme/theme-transition.css';
-@import './christmas/christmas-theme.css';
-@import './global/animate.css';
-@import './global/tailwind.css';
+@import "./theme/shadcn.css";
+@import "./theme/index.css";
+@import "./theme/theme-transition.css";
+@import "./christmas/christmas-theme.css";
+@import "./global/animate.css";
+@import "./global/tailwind.css";
 
-@import './theme/markdown.css';
-@import './components/wave.css';
-@import './components/category.css';
-@import './components/post.css';
-@import './components/pagefind.css';
-@import './components/embed.css';
-@import './components/lqip.css';
+@import "./theme/markdown.css";
+@import "./components/wave.css";
+@import "./components/category.css";
+@import "./components/post.css";
+@import "./components/pagefind.css";
+@import "./components/embed.css";
+@import "./components/lqip.css";

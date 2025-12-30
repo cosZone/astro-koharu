@@ -224,7 +224,7 @@ export const socialConfig: SocialConfig = {
 const { title, alternate, subtitle } = siteConfig;
 
 export const seoConfig = {
-  title: `${alternate ? alternate + ' = ' : ''}${title}${subtitle ? ' = ' + subtitle : ''}`,
+  title: `${alternate ? `${alternate} = ` : ''}${title}${subtitle ? ` = ${subtitle}` : ''}`,
   description: siteConfig.description,
   keywords: siteConfig?.keywords?.join(',') ?? '',
   url: siteConfig.site,

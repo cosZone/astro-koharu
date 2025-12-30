@@ -116,7 +116,7 @@ export function useExpandedState({
 
             // For each level, close siblings and open the required parent
             Object.keys(parentsByLevel).forEach((levelStr) => {
-              const level = parseInt(levelStr);
+              const level = parseInt(levelStr, 10);
               const parentsAtLevel = parentsByLevel[level];
 
               parentsAtLevel.forEach((parentId) => {
@@ -124,7 +124,9 @@ export function useExpandedState({
                 if (parentHeading) {
                   // Close siblings at this level
                   const siblingIds = getSiblingIds(parentHeading, headings);
-                  siblingIds.forEach((siblingId) => newSet.delete(siblingId));
+                  siblingIds.forEach((siblingId) => {
+                    newSet.delete(siblingId);
+                  });
 
                   // Open this parent
                   newSet.add(parentId);

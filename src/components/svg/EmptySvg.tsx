@@ -4,7 +4,7 @@
  */
 export default function EmptySvg({ className }: { className?: string }) {
   return (
-    <svg className={className} width="48" height="38" viewBox="0 0 48 38" fill="current">
+    <svg className={className} width="48" height="38" viewBox="0 0 48 38" fill="current" aria-hidden="true">
       <g filter="url(#filter0_b_3364_6889)">
         <path
           fillRule="evenodd"

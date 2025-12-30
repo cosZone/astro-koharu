@@ -24,37 +24,36 @@ function NavItem({
   layoutIdPrefix = 'header',
 }: NavItemProps) {
   return (
-    <div>
-      <div
-        className={cn(
-          'relative flex w-full cursor-pointer items-center justify-center text-base',
-          {
-            'text-white': selected && type !== 'header',
-            'text-primary': selected && type === 'header',
-            'z-0': type === 'sider',
-          },
-          className,
-        )}
-        onClick={onClick}
-      >
-        {icon}
-        {name}
-        {selected && (
-          <motion.div
-            className={cn(
-              'border-primary absolute inset-x-0 -bottom-1.5 border-t-2',
-              {
-                'bg-gradient-pink inset-0 -z-10 rounded-lg border-none': type === 'sider',
-              },
-              indicatorClass,
-            )}
-            layoutId={`${layoutIdPrefix ?? 'header'}_tab_selected`}
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-          />
-        )}
-      </div>
-    </div>
+    <button
+      type="button"
+      className={cn(
+        'relative flex w-full cursor-pointer items-center justify-center bg-transparent text-base',
+        {
+          'text-white': selected && type !== 'header',
+          'text-primary': selected && type === 'header',
+          'z-0': type === 'sider',
+        },
+        className,
+      )}
+      onClick={onClick}
+    >
+      {icon}
+      {name}
+      {selected && (
+        <motion.div
+          className={cn(
+            'absolute inset-x-0 -bottom-1.5 border-primary border-t-2',
+            {
+              'inset-0 -z-10 rounded-lg border-none bg-gradient-pink': type === 'sider',
+            },
+            indicatorClass,
+          )}
+          layoutId={`${layoutIdPrefix ?? 'header'}_tab_selected`}
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+        />
+      )}
+    </button>
   );
 }
 export default NavItem;

@@ -12,23 +12,6 @@ export interface LinkInfo {
   };
 }
 
-/** Markdown AST 节点类型定义 */
-interface MarkdownTextNode {
-  type: 'text';
-  value: string;
-}
-
-interface MarkdownLinkNode {
-  type: 'link';
-  url: string;
-  children?: MarkdownTextNode[];
-}
-
-interface MarkdownParagraphNode {
-  type: 'paragraph';
-  children?: Array<MarkdownLinkNode | MarkdownTextNode>;
-}
-
 /** 通用 Markdown AST 节点类型 */
 export interface MarkdownNode {
   type: string;
@@ -89,7 +72,7 @@ export function extractCodePenId(url: string): { user: string; penId: string } |
 
     // Match username and pen ID from path
     // Format: /username/(pen|details)/penId
-    const match = urlObj.pathname.match(/^\/([^\/]+)\/(?:pen|details)\/([^\/]+)/);
+    const match = urlObj.pathname.match(/^\/([^/]+)\/(?:pen|details)\/([^/]+)/);
     if (match) {
       return {
         user: match[1],

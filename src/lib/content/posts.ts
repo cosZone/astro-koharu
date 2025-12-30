@@ -2,13 +2,13 @@
  * Post-related utility functions
  */
 
-import { getCollection, type CollectionEntry } from 'astro:content';
+import { type CollectionEntry, getCollection } from 'astro:content';
 
 import summaries from '@assets/summaries.json';
 import { siteConfig } from '@constants/site-config';
 import type { BlogPost } from 'types/blog';
-import { buildCategoryPath } from './categories';
 import { extractTextFromMarkdown } from '../sanitize';
+import { buildCategoryPath } from './categories';
 
 /** AI 摘要数据类型 */
 type SummariesData = Record<string, { title: string; summary: string }>;

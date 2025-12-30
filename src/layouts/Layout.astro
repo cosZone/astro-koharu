@@ -1,5 +1,5 @@
 ---
-import { HomeSiderType } from '@constants/enum';
+import type { HomeSiderType } from '@constants/enum';
 import type { BlogPost } from 'types/blog';
 
 interface Props {
@@ -9,6 +9,7 @@ interface Props {
   post?: BlogPost;
 }
 
+import { ClientRouter } from 'astro:transitions';
 import ChristmasEffects from '@components/christmas/ChristmasEffects.astro';
 import FloatingGroup from '@components/layout/FloatingGroup.astro';
 import Header from '@components/layout/Header.astro';
@@ -19,7 +20,6 @@ import MermaidFullscreen from '@components/markdown/MermaidFullscreen.astro';
 import { seoConfig, siteConfig } from '@constants/site-config';
 import LoadingIndicator from 'astro-loading-indicator/component';
 import { Tooltips } from 'astro-tooltips';
-import { ClientRouter } from 'astro:transitions';
 
 import '@styles/index.css';
 

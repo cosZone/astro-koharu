@@ -45,8 +45,8 @@ import {
   offset as offsetMiddleware,
   type Placement,
   shift,
-  useFloating as useFloatingBase,
   type UseFloatingReturn,
+  useFloating as useFloatingBase,
 } from '@floating-ui/react';
 import { type RefObject, useMemo } from 'react';
 

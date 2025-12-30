@@ -1,11 +1,11 @@
 ---
-import { MAX_WIDTH } from '@/constants/layout';
 import { siteConfig } from '@constants/site-config';
 import { getLqipStyle } from '@lib/lqip';
 import { Icon } from 'astro-icon/components';
 import { formatInTimeZone } from 'date-fns-tz';
 import readingTime from 'reading-time';
 import type { BlogPost } from 'types/blog';
+import { MAX_WIDTH } from '@/constants/layout';
 import WaveSvg from './wave';
 
 export interface CoverProps {

@@ -23,8 +23,8 @@ export default function FriendsGrid() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3, ...microDampingPreset }}
           >
-            <h3 className="mb-2 text-3xl font-bold text-gray-700 dark:text-gray-300">The Void is Empty</h3>
-            <p className="text-lg text-gray-500 dark:text-gray-400">Be the first to connect!</p>
+            <h3 className="mb-2 font-bold text-3xl text-gray-700 dark:text-gray-300">The Void is Empty</h3>
+            <p className="text-gray-500 text-lg dark:text-gray-400">Be the first to connect!</p>
           </motion.div>
         )}
       </div>

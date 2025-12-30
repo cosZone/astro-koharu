@@ -1,5 +1,4 @@
 ---
-import Divider from '@/components/ui/divider';
 import HomeSider from '@components/layout/HomeSider.astro';
 import PostList from '@components/post/PostList.astro';
 import Cover from '@components/ui/cover/Cover.astro';
@@ -9,6 +8,7 @@ import Layout from '@layouts/Layout.astro';
 import TwoColumnLayout from '@layouts/TwoColumnLayout.astro';
 import { getNonWeeklyPosts } from '@lib/content';
 import type { PaginateFunction } from 'astro';
+import Divider from '@/components/ui/divider';
 
 export async function getStaticPaths({ paginate }: { paginate: PaginateFunction }) {
   // 获取所有非周刊文章用于分页

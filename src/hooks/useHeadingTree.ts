@@ -71,7 +71,7 @@ function buildHeadingTree(flatHeadings: Array<{ id: string; text: string; level:
  */
 export function useHeadingTree(): Heading[] {
   const [headings, setHeadings] = useState<Heading[]>([]);
-  const [pageKey, setPageKey] = useState(0);
+  const [_pageKey, setPageKey] = useState(0);
 
   // 监听 Astro 页面切换，触发重新构建 heading tree
   useEffect(() => {
@@ -123,7 +123,7 @@ export function useHeadingTree(): Heading[] {
         return {
           id,
           text: heading.textContent || '',
-          level: parseInt(heading.tagName.substring(1)), // Get heading level (1-6)
+          level: parseInt(heading.tagName.substring(1), 10), // Get heading level (1-6)
         };
       },
     );
@@ -133,7 +133,7 @@ export function useHeadingTree(): Heading[] {
 
     // Numbering is now handled by CSS counters (see post.css)
     setHeadings(headingTree);
-  }, [pageKey]); // pageKey 变化时重新构建 heading tree
+  }, []); // pageKey 变化时重新构建 heading tree
 
   return headings;
 }

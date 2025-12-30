@@ -1,5 +1,5 @@
 import { useFrame, useThree } from '@react-three/fiber';
-import { useMemo, useRef, type MutableRefObject } from 'react';
+import { type MutableRefObject, useMemo, useRef } from 'react';
 import * as THREE from 'three';
 
 /**

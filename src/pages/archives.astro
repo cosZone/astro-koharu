@@ -1,12 +1,12 @@
 ---
-import Layout from '../layouts/Layout.astro';
 import { getCollection } from 'astro:content';
+import HomeSider from '@components/layout/HomeSider.astro';
+import Cover from '@components/ui/cover/Cover.astro';
 import { CONTENT_PADDING } from '@constants/layout';
-import { formatInTimeZone } from 'date-fns-tz';
 import { siteConfig } from '@constants/site-config';
 import TwoColumnLayout from '@layouts/TwoColumnLayout.astro';
-import Cover from '@components/ui/cover/Cover.astro';
-import HomeSider from '@components/layout/HomeSider.astro';
+import { formatInTimeZone } from 'date-fns-tz';
+import Layout from '../layouts/Layout.astro';
 
 const posts = await getCollection('blog', ({ data }) => {
   // 在生产环境中，过滤掉草稿

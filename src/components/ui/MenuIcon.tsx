@@ -11,12 +11,12 @@
 
 'use client';
 
+import { animation } from '@constants/design-tokens';
+import { cn } from '@lib/utils';
+import { useStore } from '@nanostores/react';
+import { drawerOpen, toggleDrawer } from '@store/ui';
 import type { Variants } from 'motion/react';
 import { motion } from 'motion/react';
-import { useStore } from '@nanostores/react';
-import { cn } from '@lib/utils';
-import { drawerOpen, toggleDrawer } from '@store/ui';
-import { animation } from '@constants/design-tokens';
 
 const lineVariants: Variants = {
   closed: {
@@ -28,13 +28,33 @@ const lineVariants: Variants = {
   opened: (lineIndex: number) => {
     switch (lineIndex) {
       case 1:
-        return { rotate: 45, y: 6, opacity: 1, transition: animation.spring.menu };
+        return {
+          rotate: 45,
+          y: 6,
+          opacity: 1,
+          transition: animation.spring.menu,
+        };
       case 2:
-        return { rotate: 0, y: 0, opacity: 0, transition: animation.spring.menu };
+        return {
+          rotate: 0,
+          y: 0,
+          opacity: 0,
+          transition: animation.spring.menu,
+        };
       case 3:
-        return { rotate: -45, y: -6, opacity: 1, transition: animation.spring.menu };
+        return {
+          rotate: -45,
+          y: -6,
+          opacity: 1,
+          transition: animation.spring.menu,
+        };
       default:
-        return { rotate: 0, y: 0, opacity: 1, transition: animation.spring.menu };
+        return {
+          rotate: 0,
+          y: 0,
+          opacity: 1,
+          transition: animation.spring.menu,
+        };
     }
   },
 };
@@ -54,7 +74,7 @@ const MenuIcon = ({ className, id }: MenuIconProps) => {
   return (
     <div className={cn('flex-center', className)} id={id} style={{ viewTransitionName: 'home-menu-icon' }}>
       <button
-        className="flex-center text-shoka size-10 cursor-pointer rounded-full bg-white/20 select-none"
+        className="size-10 flex-center cursor-pointer select-none rounded-full bg-white/20 text-shoka"
         onClick={handleToggle}
         aria-label={isOpen ? '关闭菜单' : '打开菜单'}
         aria-expanded={isOpen}
@@ -72,6 +92,8 @@ const MenuIcon = ({ className, id }: MenuIconProps) => {
           strokeWidth="2"
           strokeLinecap="round"
           strokeLinejoin="round"
+          role="img"
+          aria-label={isOpen ? '关闭菜单' : '打开菜单'}
         >
           <motion.g
             variants={lineVariants}

@@ -1,16 +1,16 @@
 ---
+import type { CollectionEntry } from 'astro:content';
 import { Badge } from '@components/ui/badge';
 import { Button } from '@components/ui/button';
 import { categoryMap } from '@constants/category';
 import { Routes } from '@constants/router';
 import { siteConfig } from '@constants/site-config';
-import { getCategoryByLink, getCategoryList, getParentCategory, getPostsByCategory, type Category } from '@lib/content';
+import { type Category, getCategoryByLink, getCategoryList, getParentCategory, getPostsByCategory } from '@lib/content';
+import { getLqipStyle } from '@lib/lqip';
 import { routeBuilder } from '@lib/route';
 import { cn } from '@lib/utils';
-import { getLqipStyle } from '@lib/lqip';
-import type { CollectionEntry } from 'astro:content';
-import FlippedCard from './FlippedCard.astro';
 import { Icon } from 'astro-icon/components';
+import FlippedCard from './FlippedCard.astro';
 
 interface CategoryWithPosts {
   link: string;

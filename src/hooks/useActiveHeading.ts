@@ -39,12 +39,14 @@ export interface UseActiveHeadingOptions {
  */
 function createActiveHeadingStore(offsetTop: number) {
   let activeId = '';
-  let listeners = new Set<() => void>();
+  const listeners = new Set<() => void>();
   let observer: IntersectionObserver | null = null;
-  let visibleHeadings = new Map<string, number>(); // id -> top position when intersecting
+  const visibleHeadings = new Map<string, number>(); // id -> top position when intersecting
 
   const notifyListeners = () => {
-    listeners.forEach((listener) => listener());
+    listeners.forEach((listener) => {
+      listener();
+    });
   };
 
   // Determine active heading from visible headings

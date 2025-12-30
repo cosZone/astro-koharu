@@ -5,14 +5,14 @@
  * with progress circle and expandable TOC dropdown.
  */
 
-import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
 import { animation } from '@constants/design-tokens';
-import { useMediaQuery, useHeadingTree, useActiveHeading, useExpandedState, useHeadingClickHandler } from '@hooks/index';
+import { useActiveHeading, useExpandedState, useHeadingClickHandler, useHeadingTree, useMediaQuery } from '@hooks/index';
 import { useCurrentHeading } from '@hooks/useCurrentHeading';
-import { HeadingTitle } from './HeadingTitle';
-import { ProgressCircle } from './ProgressCircle';
-import { MobileTOCDropdown } from './MobileTOCDropdown';
+import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
 import { siteConfig } from '@/constants/site-config';
+import { HeadingTitle } from './HeadingTitle';
+import { MobileTOCDropdown } from './MobileTOCDropdown';
+import { ProgressCircle } from './ProgressCircle';
 
 interface MobilePostHeaderProps {
   /** Whether the current page is a post page */
@@ -100,7 +100,8 @@ export function MobilePostHeader({
               enableNumbering={enableNumbering}
               trigger={
                 <button
-                  className="bg-foreground/10 hover:bg-foreground/20 flex w-[calc(100vw-10.5rem)] items-center gap-2.5 rounded-full py-1 pr-3 pl-1.5 backdrop-blur-sm transition-colors"
+                  type="button"
+                  className="flex w-[calc(100vw-10.5rem)] items-center gap-2.5 rounded-full bg-foreground/10 py-1 pr-3 pl-1.5 backdrop-blur-sm transition-colors hover:bg-foreground/20"
                   aria-label="展开目录"
                 >
                   {/* Progress circle - fixed size container */}

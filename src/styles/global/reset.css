@@ -14,11 +14,11 @@
   }
 
   h1,
-    h2,
-    h3,
-    h4,
-    h5,
-    h6 /* FUTURE :heading */ {
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 /* FUTURE :heading */ {
     text-wrap: balance;
     margin-block-start: 0;
   }
@@ -63,7 +63,7 @@
   label {
     display: block;
   }
-  input:not(:where([type='submit'], [type='checkbox'], [type='radio'], [type='button'], [type='reset'])) {
+  input:not(:where([type="submit"], [type="checkbox"], [type="radio"], [type="button"], [type="reset"])) {
     inline-size: 100%;
   }
   textarea {
@@ -83,7 +83,7 @@
     fill: currentColor;
   }
 
-  [aria-disabled='true' i],
+  [aria-disabled="true" i],
   [disabled] {
     cursor: not-allowed;
   }
@@ -120,7 +120,7 @@
       word-break: normal;
     }
   }
-  [role='region'][aria-labelledby][tabindex] {
+  [role="region"][aria-labelledby][tabindex] {
     overflow: auto;
   }
 

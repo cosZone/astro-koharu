@@ -41,8 +41,10 @@ pnpm build            # Build for production
 pnpm preview          # Preview production build
 
 # Linting & Code Quality
-pnpm lint             # Run ESLint
-pnpm lint-md          # Lint markdown files in src/content
+pnpm lint             # Run Biome linter and formatter check
+pnpm lint:fix         # Auto-fix linting and formatting issues
+pnpm format           # Format all files with Biome
+pnpm lint-md          # Lint markdown files in src/content (Chinese standards)
 pnpm lint-md:fix      # Auto-fix markdown issues
 pnpm knip             # Find unused files, dependencies, and exports
 
@@ -533,9 +535,13 @@ const { isDragging, onMouseDown } = useDrag({
 
 ### Linting & Formatting
 
-- **ESLint**: Astro plugin + jsx-a11y + react-google-translate plugin
-- **Prettier**: Auto-formats on save, includes plugins for Astro, Tailwind class sorting, and Markdown (follows Chinese technical writing standards)
-- **Lint-staged**: Pre-commit hooks run Prettier + ESLint on staged files via Husky
+- **Biome**: All-in-one linter and formatter (replaced ESLint + Prettier)
+  - Configuration: `biome.json`
+  - Line width: 128, spaces (2), single quotes, trailing commas
+  - `useSortedClasses` rule enforces Tailwind class sorting
+  - Supports JS/TS/JSX/TSX/JSON and Astro frontmatter
+- **Markdown**: `@lint-md/cli` for Chinese markdown linting (separate from Biome)
+- **Lint-staged**: Pre-commit hooks run Biome on staged files via Husky
 
 ### Special Notes
 

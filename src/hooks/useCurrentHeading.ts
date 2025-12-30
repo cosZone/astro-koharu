@@ -33,12 +33,14 @@ export interface UseCurrentHeadingOptions {
  */
 function createHeadingStore(offsetTop: number) {
   let currentHeading: CurrentHeading | null = null;
-  let listeners = new Set<() => void>();
+  const listeners = new Set<() => void>();
   let observer: IntersectionObserver | null = null;
-  let visibleHeadings = new Map<string, { top: number; element: HTMLElement }>(); // id -> { top, element }
+  const visibleHeadings = new Map<string, { top: number; element: HTMLElement }>(); // id -> { top, element }
 
   const notifyListeners = () => {
-    listeners.forEach((listener) => listener());
+    listeners.forEach((listener) => {
+      listener();
+    });
   };
 
   // Update heading and notify listeners only if changed

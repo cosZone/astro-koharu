@@ -5,14 +5,15 @@
  * Uses Floating UI for positioning and Motion for animations.
  */
 
+import { animation } from '@constants/design-tokens';
 import { FloatingFocusManager, FloatingPortal, useClick, useDismiss, useInteractions, useRole } from '@floating-ui/react';
 import { useControlledState } from '@hooks/useControlledState';
 import { useFloatingUI } from '@hooks/useFloatingUI';
-import { AnimatePresence, motion } from 'motion/react';
-import React, { cloneElement } from 'react';
-import { animation } from '@constants/design-tokens';
-import { HeadingList } from '../TableOfContents/HeadingList';
 import type { Heading } from '@hooks/useHeadingTree';
+import { AnimatePresence, motion } from 'motion/react';
+import type React from 'react';
+import { cloneElement } from 'react';
+import { HeadingList } from '../TableOfContents/HeadingList';
 
 interface MobileTOCDropdownProps {
   /** Hierarchical heading tree */
@@ -78,7 +79,7 @@ export function MobileTOCDropdown({
               <motion.div
                 ref={refs.setFloating}
                 style={floatingStyles}
-                className="bg-background/80 border-border z-50 max-h-[60vh] w-72 overflow-auto rounded-2xl border p-3 backdrop-blur-md"
+                className="z-50 max-h-[60vh] w-72 overflow-auto rounded-2xl border border-border bg-background/80 p-3 backdrop-blur-md"
                 initial={{ opacity: 0, scale: 0.85 }}
                 animate={{ opacity: 1, scale: 1, originY: 0 }}
                 exit={{ opacity: 0, scale: 0.85 }}

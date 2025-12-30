@@ -1,10 +1,10 @@
-import { memo, useCallback } from 'react';
+import { withFloatingErrorBoundary } from '@components/common/FloatingErrorBoundary';
 import Popover from '@components/ui/popover';
-import { type Router } from '@constants/router';
+import type { Router } from '@constants/router';
 import { useToggle } from '@hooks/useToggle';
 import { Icon } from '@iconify/react';
 import { cn } from '@lib/utils';
-import { withFloatingErrorBoundary } from '@components/common/FloatingErrorBoundary';
+import { memo, useCallback } from 'react';
 
 interface DropdownNavProps {
   item: Router;
@@ -24,7 +24,7 @@ const DropdownNavComponent = ({ item, className }: DropdownNavProps) => {
                 key={child.path}
                 href={child.path}
                 className={cn(
-                  'group hover:bg-gradient-shoka-button px-4 py-2 text-base outline-hidden transition-colors duration-300',
+                  'group px-4 py-2 text-base outline-hidden transition-colors duration-300 hover:bg-gradient-shoka-button',
                   {
                     'rounded-ss-2xl': index === 0,
                     'rounded-ee-2xl': index === children.length - 1,
@@ -47,6 +47,7 @@ const DropdownNavComponent = ({ item, className }: DropdownNavProps) => {
   return (
     <Popover open={isOpen} onOpenChange={setIsOpen} placement="bottom-start" trigger="hover" render={renderDropdownContent}>
       <button
+        type="button"
         className={cn(
           'inline-flex h-10 items-center px-4 py-2 text-base tracking-wider',
           'relative after:absolute after:bottom-1 after:left-1/2 after:h-0.5 after:w-0',

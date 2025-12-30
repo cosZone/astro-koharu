@@ -33,7 +33,7 @@
 }
 
 .pagefind-ui__search-input:not(:placeholder-shown) {
-  width: calc(100% - 3.5rem) !important;
+  width: calc(100% - 3.5rem);
 }
 
 .pagefind-ui__form.svelte-e9gkc3::before {

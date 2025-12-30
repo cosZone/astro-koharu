@@ -1,7 +1,7 @@
 // edit https://github.com/lawvs/lawvs.github.io/blob/dba2e51e312765f8322ee87755b4e9c22b520048/src/pages/rss.xml.ts
 import rss from '@astrojs/rss';
 import { siteConfig } from '@constants/site-config';
-import { getSortedPosts, getCategoryArr } from '@lib/content';
+import { getCategoryArr, getSortedPosts } from '@lib/content';
 import { getSanitizeHtml } from '@lib/sanitize';
 import type { APIContext } from 'astro';
 import sanitizeHtml from 'sanitize-html';
@@ -14,6 +14,7 @@ const generateTextSummary = (html?: string, length: number = 150): string => {
   const text = sanitizeHtml(html ?? '', {
     allowedTags: [], // 不允许任何标签
     allowedAttributes: {},
+    // biome-ignore lint/suspicious/noControlCharactersInRegex: Intentional - filtering invalid XML characters
     textFilter: (text) => text.replace(/[^\x09\x0A\x0D\x20-\xFF\x85\xA0-\uD7FF\uE000-\uFDCF\uFDE0-\uFFFD]/gm, ''),
   });
   // 截取指定长度，并确保不会截断词语

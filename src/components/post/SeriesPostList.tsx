@@ -1,9 +1,10 @@
 /**
  * SeriesPostList - 显示系列文章列表
  */
-import { cn } from '@lib/utils';
-import { routeBuilder } from '@lib/route';
+
 import { Routes } from '@constants/router';
+import { routeBuilder } from '@lib/route';
+import { cn } from '@lib/utils';
 import type { BlogPost } from 'types/blog';
 
 interface SeriesPostListProps {
@@ -14,7 +15,7 @@ interface SeriesPostListProps {
 
 export function SeriesPostList({ posts, currentPostSlug, className }: SeriesPostListProps) {
   if (!posts?.length) {
-    return <div className="text-muted-foreground py-8 text-center text-sm">暂无系列文章</div>;
+    return <div className="py-8 text-center text-muted-foreground text-sm">暂无系列文章</div>;
   }
 
   return (
@@ -30,7 +31,7 @@ export function SeriesPostList({ posts, currentPostSlug, className }: SeriesPost
             className={cn(
               'group relative flex items-start gap-3 rounded-md px-1 py-2 transition-colors',
               'hover:bg-accent/50',
-              isActive && 'text-primary font-medium',
+              isActive && 'font-medium text-primary',
             )}
           >
             {/* 圆点指示器 */}

@@ -4,7 +4,7 @@
  * This file contains Motion-related types and animation configuration types.
  */
 
-import type { Transition, Variant } from 'motion/react';
+import type { Variant } from 'motion/react';
 
 /**
  * Spring animation configuration

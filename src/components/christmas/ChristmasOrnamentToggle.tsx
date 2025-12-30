@@ -14,7 +14,7 @@ const STRING_HEIGHT = 80;
 function TopDecoration() {
   return (
     <div className="pointer-events-none absolute top-10 left-1/2 z-100 -translate-x-1/2 -translate-y-[15%] cursor-none drop-shadow">
-      <svg width="60" height="50" viewBox="0 0 60 50" className="overflow-visible">
+      <svg width="60" height="50" viewBox="0 0 60 50" className="overflow-visible" aria-hidden="true">
         <defs>
           <radialGradient id="bow-red-grad" cx="30%" cy="30%" r="80%">
             <stop offset="0%" stopColor="#ff5252" />
@@ -65,7 +65,7 @@ function SnowflakePattern() {
 
 function OrnamentSvg({ isEnabled }: { isEnabled: boolean }) {
   return (
-    <svg viewBox="0 0 100 110" className="size-full overflow-visible drop-shadow-lg">
+    <svg viewBox="0 0 100 110" className="size-full overflow-visible drop-shadow-lg" aria-hidden="true">
       <defs>
         <radialGradient id="ornament-red" cx="35%" cy="35%" r="65%">
           <stop offset="0%" stopColor="#ff8a80" />
@@ -203,7 +203,7 @@ export function ChristmasOrnamentToggle() {
     <AnimatePresence>
       {shouldShowOrnament && (
         <motion.div
-          className="tablet:right-12 fixed top-0 right-0 z-90 flex w-[100px] justify-center lg:right-40"
+          className="fixed top-0 right-0 tablet:right-12 z-90 flex w-[100px] justify-center lg:right-40"
           initial={{ opacity: 0, y: -50 }}
           animate={{
             opacity: isEnabled ? 1 : 0.5,
@@ -224,7 +224,7 @@ export function ChristmasOrnamentToggle() {
           {/* 球体 - 位置跟随绳子底部 */}
           <motion.button
             className={cn(
-              'absolute cursor-grab touch-none will-change-transform select-none active:cursor-grabbing',
+              'absolute cursor-grab touch-none select-none will-change-transform active:cursor-grabbing',
               'rounded-full outline-none focus-visible:ring-4 focus-visible:ring-yellow-400/50',
             )}
             style={{
@@ -262,7 +262,7 @@ export function ChristmasOrnamentToggle() {
                   exit={{ opacity: 0 }}
                   className="pointer-events-none absolute top-1/2 left-1/2 -translate-x-1/2"
                 >
-                  <div className="rounded-full border border-white/10 bg-red-950/90 px-3 py-1 text-[10px] font-medium whitespace-nowrap text-white shadow-md">
+                  <div className="whitespace-nowrap rounded-full border border-white/10 bg-red-950/90 px-3 py-1 font-medium text-[10px] text-white shadow-md">
                     {isEnabled ? '下拉关闭' : '下拉开启'}
                   </div>
                 </motion.div>

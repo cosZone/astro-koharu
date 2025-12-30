@@ -5,8 +5,8 @@
  * Uses bottom-to-top animation when heading changes.
  */
 
-import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
 import type { CurrentHeading } from '@hooks/useCurrentHeading';
+import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
 
 interface HeadingTitleProps {
   /** Current heading info */
@@ -23,7 +23,7 @@ export function HeadingTitle({ heading, className }: HeadingTitleProps) {
       {heading && (
         <motion.span
           key={heading.id}
-          className={`block truncate text-sm font-medium ${className || ''}`}
+          className={`block truncate font-medium text-sm ${className || ''}`}
           initial={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, y: 20, filter: 'blur(4px)' }}
           animate={shouldReduceMotion ? { opacity: 1 } : { opacity: 1, y: 0, filter: 'blur(0px)' }}
           exit={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, y: -12, filter: 'blur(4px)' }}

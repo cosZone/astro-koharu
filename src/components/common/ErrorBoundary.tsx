@@ -32,8 +32,8 @@ export const ErrorFallback: FC<ErrorFallbackProps> = ({
 }) => {
   return (
     <div className="flex w-full flex-col items-center gap-4 rounded-lg border border-red-200 bg-red-50 p-6 dark:border-red-900/50 dark:bg-red-950/20">
-      <div className="flex-center gap-2 text-lg font-medium text-red-700 dark:text-red-400">
-        <svg className="size-5" viewBox="0 0 20 20" fill="currentColor">
+      <div className="flex-center gap-2 font-medium text-lg text-red-700 dark:text-red-400">
+        <svg className="size-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
           <path
             fillRule="evenodd"
             d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
@@ -44,10 +44,10 @@ export const ErrorFallback: FC<ErrorFallbackProps> = ({
       </div>
 
       {showDetails && error?.message && (
-        <div className="w-full rounded-md bg-red-100 p-3 font-mono text-sm text-red-800 dark:bg-red-900/30 dark:text-red-300">
+        <div className="w-full rounded-md bg-red-100 p-3 font-mono text-red-800 text-sm dark:bg-red-900/30 dark:text-red-300">
           <p className="font-semibold">Error: {error.message}</p>
           {import.meta.env.DEV && error?.stack && (
-            <pre className="mt-2 max-h-32 overflow-auto text-xs whitespace-pre-wrap opacity-70">{error.stack}</pre>
+            <pre className="mt-2 max-h-32 overflow-auto whitespace-pre-wrap text-xs opacity-70">{error.stack}</pre>
           )}
         </div>
       )}
@@ -62,7 +62,8 @@ export const ErrorFallback: FC<ErrorFallbackProps> = ({
             <a
               href="https://github.com/cosZone/astro-koharu/issues/new"
               target="_blank"
-              className="flex-center gap-1.5 text-sm text-blue-600 transition-colors hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
+              className="flex-center gap-1.5 text-blue-600 text-sm transition-colors hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
+              rel="noopener"
             >
               <HiChat className="size-4" />
               Report Issue
@@ -86,7 +87,7 @@ export const InlineErrorFallback: FC<FallbackProps> = ({ error, resetErrorBounda
           <RiRefreshLine className="size-4" />
           Try Again
         </Button>
-        <a href="https://github.com/cosZone/astro-koharu/issues/new" target="_blank">
+        <a href="https://github.com/cosZone/astro-koharu/issues/new" target="_blank" rel="noopener">
           <Button variant="outline" size="sm" onClick={resetErrorBoundary} className="gap-1.5">
             <HiChat className="size-4" />
             Report Issue

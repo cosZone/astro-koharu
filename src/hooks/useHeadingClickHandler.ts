@@ -83,7 +83,9 @@ export function useHeadingClickHandler({ headings, setExpandedIds }: UseHeadingC
             if (parentHeading) {
               // 关闭同级兄弟节点
               const siblingIds = getSiblingIds(parentHeading, headings);
-              siblingIds.forEach((siblingId) => newSet.delete(siblingId));
+              siblingIds.forEach((siblingId) => {
+                newSet.delete(siblingId);
+              });
 
               // 展开当前节点
               newSet.add(parentId);

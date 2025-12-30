@@ -34,14 +34,15 @@ export default function RelatedPostList({ posts, fallbackPosts, fallbackCount = 
   if (!hasRelatedPosts && displayPosts.length === 0) {
     return (
       <div className="flex flex-col gap-4">
-        <h2 className="text-foreground/80 text-2xl font-semibold">&nbsp;</h2>
+        <h2 className="font-semibold text-2xl text-foreground/80">&nbsp;</h2>
         <div className={cn('flex flex-col gap-2', '-mt-4 pt-12 md:-mt-5 md:pt-0')}>
           {Array.from({ length: fallbackCount }).map((_, i) => (
+            // biome-ignore lint/suspicious/noArrayIndexKey: Static skeleton loader, order never changes
             <div key={i} className="flex gap-3 rounded-md p-2">
-              <span className="text-foreground/30 shrink-0 font-mono">{i + 6}</span>
+              <span className="shrink-0 font-mono text-foreground/30">{i + 6}</span>
               <div className="flex min-w-0 flex-1 flex-col gap-1">
-                <div className="bg-foreground/10 h-3 w-16 animate-pulse rounded" />
-                <div className="bg-foreground/10 h-4 w-full animate-pulse rounded" />
+                <div className="h-3 w-16 animate-pulse rounded bg-foreground/10" />
+                <div className="h-4 w-full animate-pulse rounded bg-foreground/10" />
               </div>
             </div>
           ))}
@@ -56,18 +57,18 @@ export default function RelatedPostList({ posts, fallbackPosts, fallbackCount = 
 
   return (
     <div className="flex flex-col gap-4">
-      <h2 className="text-foreground/80 text-2xl font-semibold">{title}</h2>
+      <h2 className="font-semibold text-2xl text-foreground/80">{title}</h2>
       <div className={cn('flex flex-col gap-2', { '-mt-4 pt-12 md:-mt-5 md:pt-0': !hasRelatedPosts })}>
         {displayPosts.map((post, index) => (
           <a
             key={post.slug}
             href={`/post/${post.link ?? post.slug}`}
-            className="group hover:text-primary hover:bg-foreground/5 flex gap-3 rounded-md p-2 text-sm transition-colors duration-300"
+            className="group flex gap-3 rounded-md p-2 text-sm transition-colors duration-300 hover:bg-foreground/5 hover:text-primary"
           >
-            <span className="text-foreground/30 shrink-0 font-mono">{index + (hasRelatedPosts ? 1 : 6)}</span>
+            <span className="shrink-0 font-mono text-foreground/30">{index + (hasRelatedPosts ? 1 : 6)}</span>
             <div className="flex min-w-0 flex-col gap-0.5">
-              {post.categoryName && <div className="text-foreground/50 truncate text-xs">{post.categoryName}</div>}
-              <div className="text-foreground/80 group-hover:text-primary line-clamp-2 transition-colors">{post.title}</div>
+              {post.categoryName && <div className="truncate text-foreground/50 text-xs">{post.categoryName}</div>}
+              <div className="line-clamp-2 text-foreground/80 transition-colors group-hover:text-primary">{post.title}</div>
             </div>
           </a>
         ))}

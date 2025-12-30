@@ -5,7 +5,7 @@
  */
 
 import type { BlogPost } from './blog';
-import type { OptionType, ControlledComponentProps, WithClassName } from './ui';
+import type { ControlledComponentProps, OptionType, WithClassName } from './ui';
 
 /**
  * PostItemCard component props

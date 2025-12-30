@@ -1,6 +1,6 @@
+import { Icon } from '@iconify/react';
 import { useId, useState } from 'react';
 import { TagItem } from './TagItem';
-import { Icon } from '@iconify/react';
 
 interface TagData {
   tag: string;
@@ -25,7 +25,7 @@ export function CollapsibleTags({ tags }: CollapsibleTagsProps) {
         aria-expanded={isExpanded}
         aria-controls={contentId}
         onClick={() => setIsExpanded(!isExpanded)}
-        className="text-muted-foreground hover:text-blue mx-4 mt-4 flex cursor-pointer items-center gap-1 text-sm transition-colors md:mx-0"
+        className="mx-4 mt-4 flex cursor-pointer items-center gap-1 text-muted-foreground text-sm transition-colors hover:text-blue md:mx-0"
       >
         <span>{isExpanded ? '收起' : '展开全部'}</span>
         <span className="rounded-full bg-white/10 px-1.5 text-xs">{tags.length}</span>

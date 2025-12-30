@@ -5,7 +5,7 @@
  * Uses Motion's useScroll for tracking and useSpring for smooth animation.
  */
 
-import { motion, useScroll, useSpring, useReducedMotion } from 'motion/react';
+import { motion, useReducedMotion, useScroll, useSpring } from 'motion/react';
 
 interface ProgressCircleProps {
   /** Circle size in pixels (default: 28) */
@@ -20,14 +20,14 @@ export function ProgressCircle({ size = 28, strokeWidth = 2, className }: Progre
   const shouldReduceMotion = useReducedMotion();
   const { scrollYProgress } = useScroll();
 
+  const springProgress = useSpring(scrollYProgress, {
+    stiffness: 100,
+    damping: 30,
+    restDelta: 0.001,
+  });
+
   // Apply spring smoothing unless user prefers reduced motion
-  const progress = shouldReduceMotion
-    ? scrollYProgress
-    : useSpring(scrollYProgress, {
-        stiffness: 100,
-        damping: 30,
-        restDelta: 0.001,
-      });
+  const progress = shouldReduceMotion ? scrollYProgress : springProgress;
 
   const radius = (size - strokeWidth) / 2;
   const center = size / 2;
