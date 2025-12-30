@@ -2,8 +2,11 @@
  * Remark plugin to automatically embed standalone links as rich components
  * Detects Twitter/X links and other standalone links in paragraphs
  * Uses metascraper to fetch OG data at build time for link previews (SSG approach)
+ * Implements file-based caching to speed up subsequent builds
  */
 
+import fs from 'node:fs';
+import path from 'node:path';
 import type { Link, Paragraph, Root } from 'mdast';
 import metascraper from 'metascraper';
 import metascraperDescription from 'metascraper-description';
@@ -16,6 +19,86 @@ import sanitizeHtml from 'sanitize-html';
 import type { Parent } from 'unist';
 import { visit } from 'unist-util-visit';
 import { classifyLink, isStandaloneLinkParagraph } from './link-utils';
+
+// ============================================================================
+// OG Data Cache Implementation
+// ============================================================================
+
+const CACHE_DIR = path.join(process.cwd(), '.cache');
+const CACHE_FILE = path.join(CACHE_DIR, 'og-data.json');
+const CACHE_TTL = 7 * 24 * 60 * 60 * 1000; // 7 days in milliseconds
+
+interface CacheEntry {
+  data: OGData;
+  timestamp: number;
+}
+
+interface CacheData {
+  [url: string]: CacheEntry;
+}
+
+let memoryCache: CacheData | null = null;
+
+/**
+ * Load cache from file system
+ */
+function loadCache(): CacheData {
+  if (memoryCache) return memoryCache;
+
+  try {
+    if (fs.existsSync(CACHE_FILE)) {
+      const content = fs.readFileSync(CACHE_FILE, 'utf-8');
+      memoryCache = JSON.parse(content);
+      return memoryCache!;
+    }
+  } catch (error) {
+    console.warn('[Link Embed] Failed to load cache:', error);
+  }
+
+  memoryCache = {};
+  return memoryCache;
+}
+
+/**
+ * Save cache to file system
+ */
+function saveCache(cache: CacheData): void {
+  try {
+    if (!fs.existsSync(CACHE_DIR)) {
+      fs.mkdirSync(CACHE_DIR, { recursive: true });
+    }
+    fs.writeFileSync(CACHE_FILE, JSON.stringify(cache, null, 2));
+    memoryCache = cache;
+  } catch (error) {
+    console.warn('[Link Embed] Failed to save cache:', error);
+  }
+}
+
+/**
+ * Get cached OG data if valid
+ */
+function getCachedOGData(url: string): OGData | null {
+  const cache = loadCache();
+  const entry = cache[url];
+
+  if (entry && Date.now() - entry.timestamp < CACHE_TTL) {
+    return entry.data;
+  }
+
+  return null;
+}
+
+/**
+ * Set OG data in cache
+ */
+function setCachedOGData(url: string, data: OGData): void {
+  const cache = loadCache();
+  cache[url] = {
+    data,
+    timestamp: Date.now(),
+  };
+  saveCache(cache);
+}
 
 interface OGData {
   originUrl: string;
@@ -324,8 +407,21 @@ export function remarkLinkEmbed(options: RemarkLinkEmbedOptions = {}) {
           value: html,
         };
       } else if (type === 'general' && enableOGPreview) {
+        // Check cache first
+        const cachedData = getCachedOGData(url);
+        if (cachedData) {
+          console.log(`[Link Embed] Using cached OG data for: ${url}`);
+          const html = generateLinkPreviewHTML(cachedData);
+          return {
+            type: 'html' as const,
+            value: html,
+          };
+        }
+
+        // Fetch and cache
         console.log(`[Link Embed] Fetching OG data for: ${url}`);
         const ogData = await fetchOGData(url);
+        setCachedOGData(url, ogData);
         const html = generateLinkPreviewHTML(ogData);
         return {
           type: 'html' as const,

@@ -234,7 +234,7 @@ export const defaultCoverList = Array.from({ length: 13 }, (_, index) => index +
 
 // 圣诞特效配置
 export const christmasConfig: ChristmasConfig = {
-  enabled: true,
+  enabled: false,
   features: {
     snowfall: true,
     christmasColorScheme: true,

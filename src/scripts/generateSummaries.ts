@@ -168,6 +168,9 @@ async function generateSummary(text: string, model: string): Promise<string> {
     maxTokens: 200,
   });
 
+  if (!summary) {
+    throw new Error('No summary received from LLM response');
+  }
   return summary.trim();
 }
 

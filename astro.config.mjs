@@ -9,9 +9,37 @@ import rehypeAutolinkHeadings from 'rehype-autolink-headings';
 import rehypeSlug from 'rehype-slug';
 import svgr from 'vite-plugin-svgr';
 import { defaultContentConfig } from './src/constants/content-config';
-import { siteConfig } from './src/constants/site-config';
+import { christmasConfig, siteConfig } from './src/constants/site-config';
 import { rehypeImagePlaceholder } from './src/lib/markdown/rehype-image-placeholder.ts';
 import { remarkLinkEmbed } from './src/lib/markdown/remark-link-embed.ts';
+
+/**
+ * Vite plugin for conditional Three.js bundling
+ * When christmas snowfall is disabled, replaces SnowfallCanvas with a noop component
+ * This saves ~879KB from the bundle
+ */
+function conditionalSnowfall() {
+  const VIRTUAL_ID = 'virtual:snowfall-canvas';
+  const RESOLVED_ID = '\0' + VIRTUAL_ID;
+  const isEnabled = christmasConfig.enabled && christmasConfig.features.snowfall;
+
+  return {
+    name: 'conditional-snowfall',
+    resolveId(id) {
+      if (id === VIRTUAL_ID) return RESOLVED_ID;
+      // Redirect the alias import to virtual module when disabled
+      if (!isEnabled && id === '@components/christmas/SnowfallCanvas') {
+        return RESOLVED_ID;
+      }
+    },
+    load(id) {
+      if (id === RESOLVED_ID) {
+        // Return noop component when christmas is disabled
+        return 'export function SnowfallCanvas() { return null; }';
+      }
+    },
+  };
+}
 
 // https://astro.build/config
 export default defineConfig({
@@ -79,7 +107,7 @@ export default defineConfig({
     enabled: true,
   },
   vite: {
-    plugins: [svgr(), tailwindcss()],
+    plugins: [conditionalSnowfall(), svgr(), tailwindcss()],
     ssr: {
       noExternal: ['react-tweet'],
     },
