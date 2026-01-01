@@ -35,7 +35,7 @@ export default function RelatedPostList({ posts, fallbackPosts, fallbackCount = 
     return (
       <div className="flex flex-col gap-4">
         <h2 className="font-semibold text-2xl text-foreground/80">&nbsp;</h2>
-        <div className={cn('flex flex-col gap-2', '-mt-4 pt-12 md:-mt-5 md:pt-0')}>
+        <div className={cn('flex flex-col gap-2', '-mt-4 md:-mt-5 pt-12 md:pt-0')}>
           {Array.from({ length: fallbackCount }).map((_, i) => (
             // biome-ignore lint/suspicious/noArrayIndexKey: Static skeleton loader, order never changes
             <div key={i} className="flex gap-3 rounded-md p-2">
@@ -58,7 +58,7 @@ export default function RelatedPostList({ posts, fallbackPosts, fallbackCount = 
   return (
     <div className="flex flex-col gap-4">
       <h2 className="font-semibold text-2xl text-foreground/80">{title}</h2>
-      <div className={cn('flex flex-col gap-2', { '-mt-4 pt-12 md:-mt-5 md:pt-0': !hasRelatedPosts })}>
+      <div className={cn('flex flex-col gap-2', { '-mt-4 md:-mt-5 pt-12 md:pt-0': !hasRelatedPosts })}>
         {displayPosts.map((post, index) => (
           <a
             key={post.slug}

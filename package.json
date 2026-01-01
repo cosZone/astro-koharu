@@ -42,7 +42,7 @@
     "@types/react": "^19.2.7",
     "@types/react-dom": "^19.2.3",
     "@yeskunall/astro-umami": "0.0.4",
-    "astro": "^5.16.4",
+    "astro": "^5.16.6",
     "astro-icon": "^1.1.5",
     "astro-loading-indicator": "^0.7.1",
     "astro-mermaid": "^1.2.0",

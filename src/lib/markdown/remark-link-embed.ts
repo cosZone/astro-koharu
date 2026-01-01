@@ -49,7 +49,7 @@ function loadCache(): CacheData {
     if (fs.existsSync(CACHE_FILE)) {
       const content = fs.readFileSync(CACHE_FILE, 'utf-8');
       memoryCache = JSON.parse(content);
-      return memoryCache!;
+      return memoryCache ?? {};
     }
   } catch (error) {
     console.warn('[Link Embed] Failed to load cache:', error);

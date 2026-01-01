@@ -64,22 +64,22 @@ importers:
         version: 19.2.3(@types/react@19.2.7)
       '@yeskunall/astro-umami':
         specifier: 0.0.4
-        version: 0.0.4(astro@5.16.4(@types/node@24.10.1)(jiti@2.6.1)(lightningcss@1.30.2)(rollup@4.53.3)(terser@5.37.0)(tsx@4.21.0)(typescript@5.9.3)(yaml@2.8.2))
+        version: 0.0.4(astro@5.16.6(@types/node@24.10.1)(jiti@2.6.1)(lightningcss@1.30.2)(rollup@4.53.3)(terser@5.37.0)(tsx@4.21.0)(typescript@5.9.3)(yaml@2.8.2))
       astro:
-        specifier: ^5.16.4
-        version: 5.16.4(@types/node@24.10.1)(jiti@2.6.1)(lightningcss@1.30.2)(rollup@4.53.3)(terser@5.37.0)(tsx@4.21.0)(typescript@5.9.3)(yaml@2.8.2)
+        specifier: ^5.16.6
+        version: 5.16.6(@types/node@24.10.1)(jiti@2.6.1)(lightningcss@1.30.2)(rollup@4.53.3)(terser@5.37.0)(tsx@4.21.0)(typescript@5.9.3)(yaml@2.8.2)
       astro-icon:
         specifier: ^1.1.5
         version: 1.1.5
       astro-loading-indicator:
         specifier: ^0.7.1
-        version: 0.7.1(astro@5.16.4(@types/node@24.10.1)(jiti@2.6.1)(lightningcss@1.30.2)(rollup@4.53.3)(terser@5.37.0)(tsx@4.21.0)(typescript@5.9.3)(yaml@2.8.2))
+        version: 0.7.1(astro@5.16.6(@types/node@24.10.1)(jiti@2.6.1)(lightningcss@1.30.2)(rollup@4.53.3)(terser@5.37.0)(tsx@4.21.0)(typescript@5.9.3)(yaml@2.8.2))
       astro-mermaid:
         specifier: ^1.2.0
-        version: 1.2.0(astro@5.16.4(@types/node@24.10.1)(jiti@2.6.1)(lightningcss@1.30.2)(rollup@4.53.3)(terser@5.37.0)(tsx@4.21.0)(typescript@5.9.3)(yaml@2.8.2))(mermaid@11.12.2)
+        version: 1.2.0(astro@5.16.6(@types/node@24.10.1)(jiti@2.6.1)(lightningcss@1.30.2)(rollup@4.53.3)(terser@5.37.0)(tsx@4.21.0)(typescript@5.9.3)(yaml@2.8.2))(mermaid@11.12.2)
       astro-pagefind:
         specifier: ^1.8.5
-        version: 1.8.5(astro@5.16.4(@types/node@24.10.1)(jiti@2.6.1)(lightningcss@1.30.2)(rollup@4.53.3)(terser@5.37.0)(tsx@4.21.0)(typescript@5.9.3)(yaml@2.8.2))
+        version: 1.8.5(astro@5.16.6(@types/node@24.10.1)(jiti@2.6.1)(lightningcss@1.30.2)(rollup@4.53.3)(terser@5.37.0)(tsx@4.21.0)(typescript@5.9.3)(yaml@2.8.2))
       astro-tooltips:
         specifier: ^0.6.2
         version: 0.6.2
@@ -347,8 +347,8 @@ packages:
       prettier-plugin-astro:
         optional: true
 
-  '@astrojs/markdown-remark@6.3.9':
-    resolution: {integrity: sha512-hX2cLC/KW74Io1zIbn92kI482j9J7LleBLGCVU9EP3BeH5MVrnFawOnqD0t/q6D1Z+ZNeQG2gNKMslCcO36wng==}
+  '@astrojs/markdown-remark@6.3.10':
+    resolution: {integrity: sha512-kk4HeYR6AcnzC4QV8iSlOfh+N8TZ3MEStxPyenyCtemqn8IpEATBFMTJcfrNW32dgpt6MY3oCkMM/Tv3/I4G3A==}
 
   '@astrojs/prism@3.3.0':
     resolution: {integrity: sha512-q8VwfU/fDZNoDOf+r7jUnMC2//H2l0TuQ6FkGJL8vD8nw/q5KiL3DS1KKBI3QhI9UQhpJ5dc7AtqfbXWuOgLCQ==}
@@ -2558,8 +2558,8 @@ packages:
   astro-tooltips@0.6.2:
     resolution: {integrity: sha512-I9uXbchctnRqbc0mnxKcBRfweMuql/U+619+MzNvq3kANc7xthOXj6cMNgAkTaXoHJLdFMKL3Fx6vB5cyiiRXg==}
 
-  astro@5.16.4:
-    resolution: {integrity: sha512-rgXI/8/tnO3Y9tfAaUyg/8beKhlIMltbiC8Q6jCoAfEidOyaue4KYKzbe0gJIb6qEdEaG3Kf3BY3EOSLkbWOLg==}
+  astro@5.16.6:
+    resolution: {integrity: sha512-6mF/YrvwwRxLTu+aMEa5pwzKUNl5ZetWbTyZCs9Um0F12HUmxUiF5UHiZPy4rifzU3gtpM3xP2DfdmkNX9eZRg==}
     engines: {node: 18.20.8 || ^20.3.0 || >=22.0.0, npm: '>=9.6.5', pnpm: '>=7.1.0'}
     hasBin: true
 
@@ -7018,7 +7018,7 @@ snapshots:
     transitivePeerDependencies:
       - typescript
 
-  '@astrojs/markdown-remark@6.3.9':
+  '@astrojs/markdown-remark@6.3.10':
     dependencies:
       '@astrojs/internal-helpers': 0.7.5
       '@astrojs/prism': 3.3.0
@@ -8993,10 +8993,10 @@ snapshots:
 
   '@xsai/shared@0.4.0-beta.10': {}
 
-  '@yeskunall/astro-umami@0.0.4(astro@5.16.4(@types/node@24.10.1)(jiti@2.6.1)(lightningcss@1.30.2)(rollup@4.53.3)(terser@5.37.0)(tsx@4.21.0)(typescript@5.9.3)(yaml@2.8.2))':
+  '@yeskunall/astro-umami@0.0.4(astro@5.16.6(@types/node@24.10.1)(jiti@2.6.1)(lightningcss@1.30.2)(rollup@4.53.3)(terser@5.37.0)(tsx@4.21.0)(typescript@5.9.3)(yaml@2.8.2))':
     dependencies:
-      astro: 5.16.4(@types/node@24.10.1)(jiti@2.6.1)(lightningcss@1.30.2)(rollup@4.53.3)(terser@5.37.0)(tsx@4.21.0)(typescript@5.9.3)(yaml@2.8.2)
-      astro-integration-kit: 0.18.0(astro@5.16.4(@types/node@24.10.1)(jiti@2.6.1)(lightningcss@1.30.2)(rollup@4.53.3)(terser@5.37.0)(tsx@4.21.0)(typescript@5.9.3)(yaml@2.8.2))
+      astro: 5.16.6(@types/node@24.10.1)(jiti@2.6.1)(lightningcss@1.30.2)(rollup@4.53.3)(terser@5.37.0)(tsx@4.21.0)(typescript@5.9.3)(yaml@2.8.2)
+      astro-integration-kit: 0.18.0(astro@5.16.6(@types/node@24.10.1)(jiti@2.6.1)(lightningcss@1.30.2)(rollup@4.53.3)(terser@5.37.0)(tsx@4.21.0)(typescript@5.9.3)(yaml@2.8.2))
 
   abbrev@3.0.1: {}
 
@@ -9140,29 +9140,29 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  astro-integration-kit@0.18.0(astro@5.16.4(@types/node@24.10.1)(jiti@2.6.1)(lightningcss@1.30.2)(rollup@4.53.3)(terser@5.37.0)(tsx@4.21.0)(typescript@5.9.3)(yaml@2.8.2)):
+  astro-integration-kit@0.18.0(astro@5.16.6(@types/node@24.10.1)(jiti@2.6.1)(lightningcss@1.30.2)(rollup@4.53.3)(terser@5.37.0)(tsx@4.21.0)(typescript@5.9.3)(yaml@2.8.2)):
     dependencies:
-      astro: 5.16.4(@types/node@24.10.1)(jiti@2.6.1)(lightningcss@1.30.2)(rollup@4.53.3)(terser@5.37.0)(tsx@4.21.0)(typescript@5.9.3)(yaml@2.8.2)
+      astro: 5.16.6(@types/node@24.10.1)(jiti@2.6.1)(lightningcss@1.30.2)(rollup@4.53.3)(terser@5.37.0)(tsx@4.21.0)(typescript@5.9.3)(yaml@2.8.2)
       pathe: 1.1.2
       recast: 0.23.11
 
-  astro-loading-indicator@0.7.1(astro@5.16.4(@types/node@24.10.1)(jiti@2.6.1)(lightningcss@1.30.2)(rollup@4.53.3)(terser@5.37.0)(tsx@4.21.0)(typescript@5.9.3)(yaml@2.8.2)):
+  astro-loading-indicator@0.7.1(astro@5.16.6(@types/node@24.10.1)(jiti@2.6.1)(lightningcss@1.30.2)(rollup@4.53.3)(terser@5.37.0)(tsx@4.21.0)(typescript@5.9.3)(yaml@2.8.2)):
     dependencies:
-      astro: 5.16.4(@types/node@24.10.1)(jiti@2.6.1)(lightningcss@1.30.2)(rollup@4.53.3)(terser@5.37.0)(tsx@4.21.0)(typescript@5.9.3)(yaml@2.8.2)
+      astro: 5.16.6(@types/node@24.10.1)(jiti@2.6.1)(lightningcss@1.30.2)(rollup@4.53.3)(terser@5.37.0)(tsx@4.21.0)(typescript@5.9.3)(yaml@2.8.2)
 
-  astro-mermaid@1.2.0(astro@5.16.4(@types/node@24.10.1)(jiti@2.6.1)(lightningcss@1.30.2)(rollup@4.53.3)(terser@5.37.0)(tsx@4.21.0)(typescript@5.9.3)(yaml@2.8.2))(mermaid@11.12.2):
+  astro-mermaid@1.2.0(astro@5.16.6(@types/node@24.10.1)(jiti@2.6.1)(lightningcss@1.30.2)(rollup@4.53.3)(terser@5.37.0)(tsx@4.21.0)(typescript@5.9.3)(yaml@2.8.2))(mermaid@11.12.2):
     dependencies:
       '@anthropic-ai/claude-code': 1.0.128
-      astro: 5.16.4(@types/node@24.10.1)(jiti@2.6.1)(lightningcss@1.30.2)(rollup@4.53.3)(terser@5.37.0)(tsx@4.21.0)(typescript@5.9.3)(yaml@2.8.2)
+      astro: 5.16.6(@types/node@24.10.1)(jiti@2.6.1)(lightningcss@1.30.2)(rollup@4.53.3)(terser@5.37.0)(tsx@4.21.0)(typescript@5.9.3)(yaml@2.8.2)
       import-meta-resolve: 4.2.0
       mdast-util-to-string: 4.0.0
       mermaid: 11.12.2
       unist-util-visit: 5.0.0
 
-  astro-pagefind@1.8.5(astro@5.16.4(@types/node@24.10.1)(jiti@2.6.1)(lightningcss@1.30.2)(rollup@4.53.3)(terser@5.37.0)(tsx@4.21.0)(typescript@5.9.3)(yaml@2.8.2)):
+  astro-pagefind@1.8.5(astro@5.16.6(@types/node@24.10.1)(jiti@2.6.1)(lightningcss@1.30.2)(rollup@4.53.3)(terser@5.37.0)(tsx@4.21.0)(typescript@5.9.3)(yaml@2.8.2)):
     dependencies:
       '@pagefind/default-ui': 1.4.0
-      astro: 5.16.4(@types/node@24.10.1)(jiti@2.6.1)(lightningcss@1.30.2)(rollup@4.53.3)(terser@5.37.0)(tsx@4.21.0)(typescript@5.9.3)(yaml@2.8.2)
+      astro: 5.16.6(@types/node@24.10.1)(jiti@2.6.1)(lightningcss@1.30.2)(rollup@4.53.3)(terser@5.37.0)(tsx@4.21.0)(typescript@5.9.3)(yaml@2.8.2)
       pagefind: 1.4.0
       sirv: 3.0.2
 
@@ -9170,11 +9170,11 @@ snapshots:
     dependencies:
       tippy.js: 6.3.7
 
-  astro@5.16.4(@types/node@24.10.1)(jiti@2.6.1)(lightningcss@1.30.2)(rollup@4.53.3)(terser@5.37.0)(tsx@4.21.0)(typescript@5.9.3)(yaml@2.8.2):
+  astro@5.16.6(@types/node@24.10.1)(jiti@2.6.1)(lightningcss@1.30.2)(rollup@4.53.3)(terser@5.37.0)(tsx@4.21.0)(typescript@5.9.3)(yaml@2.8.2):
     dependencies:
       '@astrojs/compiler': 2.13.0
       '@astrojs/internal-helpers': 0.7.5
-      '@astrojs/markdown-remark': 6.3.9
+      '@astrojs/markdown-remark': 6.3.10
       '@astrojs/telemetry': 3.3.0
       '@capsizecss/unpack': 3.0.1
       '@oslojs/encoding': 1.1.0

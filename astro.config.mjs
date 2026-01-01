@@ -20,7 +20,7 @@ import { remarkLinkEmbed } from './src/lib/markdown/remark-link-embed.ts';
  */
 function conditionalSnowfall() {
   const VIRTUAL_ID = 'virtual:snowfall-canvas';
-  const RESOLVED_ID = '\0' + VIRTUAL_ID;
+  const RESOLVED_ID = `\0${VIRTUAL_ID}`;
   const isEnabled = christmasConfig.enabled && christmasConfig.features.snowfall;
 
   return {

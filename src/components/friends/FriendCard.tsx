@@ -106,7 +106,7 @@ export default function FriendCard({ friend, index }: FriendCardProps) {
           />
 
           {/* Avatar */}
-          <div className="absolute top-8 left-1/2 -translate-x-1/2">
+          <div className="-translate-x-1/2 absolute top-8 left-1/2">
             <div className="relative h-14 w-14 overflow-hidden rounded-full border-4 border-white bg-white shadow-lg dark:border-gray-800 dark:bg-gray-800">
               <img
                 src={avatarImage}
@@ -140,7 +140,7 @@ export default function FriendCard({ friend, index }: FriendCardProps) {
 
         {/* Border Glow */}
         <div
-          className="absolute inset-0 -z-10 rounded-2xl opacity-0 blur-xl transition-opacity duration-500 group-hover:opacity-60"
+          className="-z-10 absolute inset-0 rounded-2xl opacity-0 blur-xl transition-opacity duration-500 group-hover:opacity-60"
           style={{ background: cardColor }}
         />
       </motion.div>

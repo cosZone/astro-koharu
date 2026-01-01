@@ -42,9 +42,9 @@ function NavItem({
       {selected && (
         <motion.div
           className={cn(
-            'absolute inset-x-0 -bottom-1.5 border-primary border-t-2',
+            '-bottom-1.5 absolute inset-x-0 border-primary border-t-2',
             {
-              'inset-0 -z-10 rounded-lg border-none bg-gradient-pink': type === 'sider',
+              '-z-10 inset-0 rounded-lg border-none bg-gradient-pink': type === 'sider',
             },
             indicatorClass,
           )}
