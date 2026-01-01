@@ -689,13 +689,11 @@ body.lightbox-open {
 
 /* 深色模式 - 行内代码 */
 .dark .prose :not(pre) > code {
-  background: hsl(var(--primary) / 0.15);
-  /* border-color: hsl(var(--primary) / 0.25); */
+  background: hsl(var(--background) / 0.8);
 }
 
 .dark .prose :not(pre) > code:hover {
-  background: hsl(var(--primary) / 0.2);
-  /* border-color: hsl(var(--primary) / 0.35); */
+  background: hsl(var(--background) / 0.4);
 }
 
 /* 深色模式 - 列表 hover */

@@ -67,6 +67,7 @@ export default defineConfig({
           behavior: 'append',
           properties: {
             className: ['anchor-link'],
+            ariaLabel: 'Link to this section',
           },
         },
       ],

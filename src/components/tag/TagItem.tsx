@@ -15,6 +15,7 @@ export function TagItem({ tag, count, colorIndex }: TagItemProps) {
   return (
     <a
       href={`/tags/${tag.replace(/\//g, '-')}`}
+      aria-label={`查看标签「${tag}」的 ${count} 篇文章`}
       className={`relative flex items-center rounded-lg bg-linear-to-r px-3 py-1.5 text-sm transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg ${TAG_COLORS[colorIndex]}`}
     >
       <span className="font-medium">{tag}</span>

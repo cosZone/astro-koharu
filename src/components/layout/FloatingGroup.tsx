@@ -8,6 +8,7 @@
  */
 
 import { christmasConfig } from '@constants/site-config';
+import { useIsMounted } from '@hooks/useIsMounted';
 import { Icon } from '@iconify/react';
 import { cn } from '@lib/utils';
 import { useStore } from '@nanostores/react';
@@ -25,6 +26,8 @@ interface FloatingButtonProps {
 }
 
 function FloatingButton({ onClick, ariaLabel, title, children, className }: FloatingButtonProps) {
+  const isMounted = useIsMounted();
+
   return (
     <button
       type="button"
@@ -34,7 +37,7 @@ function FloatingButton({ onClick, ariaLabel, title, children, className }: Floa
         className,
       )}
       aria-label={ariaLabel}
-      title={title}
+      title={isMounted ? title : undefined}
     >
       {children}
     </button>

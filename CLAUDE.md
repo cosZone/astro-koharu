@@ -451,6 +451,41 @@ Benefits of Motion's hook for animations:
 - Uses `react-error-boundary` library
 - See `src/components/common/ErrorBoundary.tsx` for implementation
 
+#### SSR Hydration Mismatch (IMPORTANT)
+
+When React components have client-only values (localStorage, nanostores with persistence, window-dependent state), **NEVER use `suppressHydrationWarning`** - this only hides the problem without fixing it.
+
+**Use `useIsMounted` hook to defer client-only values:**
+
+```typescript
+// ❌ Bad: suppressHydrationWarning hides the mismatch but doesn't fix it
+<div suppressHydrationWarning className={cn({ 'z-5': christmasEnabled.get() })} />
+
+// ❌ Bad: Direct store access causes mismatch (server default vs client localStorage)
+const isEnabled = useStore(christmasEnabled);
+<div className={cn({ 'z-5': isEnabled })} />
+
+// ✅ Good: Use useIsMounted to ensure SSR and initial hydration match
+import { useIsMounted } from '@hooks/useIsMounted';
+
+const isMounted = useIsMounted();
+const isEnabled = useStore(christmasEnabled);
+<div className={cn({ 'z-5': isMounted && isEnabled })} />
+```
+
+**Why this works:**
+1. Server renders with `isMounted = false` → class not applied
+2. Client hydrates with `isMounted = false` → matches server HTML ✓
+3. After hydration, `useEffect` sets `isMounted = true` → class applied
+4. No hydration mismatch, no console warnings
+
+**When to use `useIsMounted`:**
+- Conditional classes based on localStorage/nanostores
+- Rendering content that depends on `window` or `document`
+- Any value that differs between server and client
+
+See `src/hooks/useIsMounted.ts` for implementation and `src/components/friends/FriendCard.tsx` for example usage.
+
 ## Component Patterns & Architecture
 
 ### Animation System

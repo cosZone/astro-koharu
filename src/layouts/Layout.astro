@@ -277,7 +277,7 @@ const isPostPage = Astro.url.pathname.startsWith('/post/');
       <main class="relative flex grow flex-col gap-4">
         {(<slot />)}
       </main>
-      <FloatingGroup client:load />
+      <FloatingGroup client:only="react" />
       <MobileDrawer type={siderType} post={post} />
       <SearchDialog client:load />
       <SearchPortal />

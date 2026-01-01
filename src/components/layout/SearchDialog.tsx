@@ -6,12 +6,13 @@
  */
 
 import { Dialog, DialogPortal } from '@components/ui/dialog';
+import { useIsMounted } from '@hooks/useIsMounted';
 import { useEscapeKey, useKeyboardShortcut } from '@hooks/useKeyboardShortcut';
 import { cn } from '@lib/utils';
 import { useStore } from '@nanostores/react';
 import { $isSearchOpen, closeModal, openModal } from '@store/modal';
 import { AnimatePresence, motion } from 'motion/react';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 // Icons
 function SearchIcon({ className }: { className?: string }) {
@@ -297,6 +298,17 @@ export default function SearchDialog() {
  * Search trigger button component
  */
 export function SearchTrigger({ className }: { className?: string }) {
+  const isMounted = useIsMounted();
+
+  // Only compute platform-specific shortcut after mount to avoid hydration mismatch
+  const title = useMemo(() => {
+    if (!isMounted) return undefined;
+    // @ts-expect-error - userAgentData is not yet in TypeScript's lib.dom.d.ts
+    const platform = navigator.userAgentData?.platform || navigator.userAgent;
+    const isMac = /mac/i.test(platform);
+    return `搜索 (${isMac ? '⌘K' : 'Ctrl+K'})`;
+  }, [isMounted]);
+
   const handleClick = () => {
     openModal('search');
   };
@@ -307,9 +319,9 @@ export function SearchTrigger({ className }: { className?: string }) {
       onClick={handleClick}
       className={cn('cursor-pointer transition duration-300 hover:scale-125', className)}
       aria-label="搜索"
-      title="搜索 (⌘K)"
+      title={title}
     >
-      <SearchIcon className="size-6" />
+      <SearchIcon className="size-8" />
     </button>
   );
 }
