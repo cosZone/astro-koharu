@@ -1,11 +1,11 @@
-@import './reset.css';
-@import 'tailwindcss';
-@config '../../../tailwind.config.mjs';
-@import './utils.css';
+@import "./reset.css";
+@import "tailwindcss";
+@import "./utils.css";
+@config "../../../tailwind.config.mjs";
 
 @font-face {
-  font-family: 'Bear Days';
-  src: url('/fonts/bear-days.woff2') format('woff2');
+  font-family: "Bear Days";
+  src: url("/fonts/bear-days.woff2") format("woff2");
   font-display: swap;
 }
 
@@ -42,15 +42,7 @@
   h4,
   h5,
   h6 {
-    font-family:
-      '寒蝉全圆体',
-      -apple-system,
-      BlinkMacSystemFont,
-      'Segoe UI',
-      Roboto,
-      Helvetica,
-      Arial,
-      sans-serif;
+    font-family: "寒蝉全圆体", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     letter-spacing: 0.04em;
   }
 
@@ -83,7 +75,7 @@
 
     /* Pseudo-element for gradient background with opacity transition */
     &::before {
-      content: '';
+      content: "";
       @apply pointer-events-none absolute inset-0 -z-1 bg-gradient-header opacity-0 transition-opacity duration-300 ease-out;
     }
 
@@ -114,7 +106,7 @@
     letter-spacing: 1px;
     line-height: 0.95;
     text-align: center;
-    font-family: 'Bear Days', sans-serif;
+    font-family: "Bear Days", sans-serif;
     font-weight: 700;
   }
 }

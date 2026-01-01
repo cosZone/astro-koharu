@@ -6,7 +6,7 @@
     "useIgnoreFile": true
   },
   "files": {
-    "includes": ["**", "!**/dist", "!**/node_modules", "!**/.astro", "!**/public", "!**/*.css"]
+    "includes": ["**", "!**/dist", "!**/node_modules", "!**/.astro", "!**/public"]
   },
   "formatter": {
     "enabled": true,
@@ -42,10 +42,11 @@
   },
   "css": {
     "parser": {
-      "cssModules": true
+      "cssModules": true,
+      "tailwindDirectives": true
     },
-    "linter": {
-      "enabled": false
+    "formatter": {
+      "enabled": true
     }
   },
   "assist": {

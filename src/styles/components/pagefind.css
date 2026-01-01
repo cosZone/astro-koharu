@@ -77,13 +77,13 @@
 }
 
 /* Keyboard navigation selected state */
-.pagefind-ui__result[data-selected='true'],
-.pagefind-ui__button[data-selected='true'] {
+.pagefind-ui__result[data-selected="true"],
+.pagefind-ui__button[data-selected="true"] {
   @apply ring-2 ring-primary/50 bg-primary/5;
 }
 
-.dark .pagefind-ui__result[data-selected='true'],
-.dark .pagefind-ui__button[data-selected='true'] {
+.dark .pagefind-ui__result[data-selected="true"],
+.dark .pagefind-ui__button[data-selected="true"] {
   @apply bg-primary/10;
 }
 
@@ -105,6 +105,6 @@
 }
 
 /* Button Styles */
-.pagefind-ui button[type='button'] {
+.pagefind-ui button[type="button"] {
   @apply mt-2;
 }

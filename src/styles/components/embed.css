@@ -3,7 +3,7 @@
  */
 
 /* Import react-tweet styles */
-@import 'react-tweet/theme.css';
+@import "react-tweet/theme.css";
 
 /* Custom tweet embed styling */
 [data-tweet-embed] {
@@ -17,13 +17,13 @@
   @apply border-primary/50;
 }
 
-[data-theme='dark'] .react-tweet-theme {
+[data-theme="dark"] .react-tweet-theme {
   --tweet-bg-color: hsl(var(--card));
   --tweet-border: hsl(var(--border));
   --tweet-bg-color-hover: hsl(var(--card) / 0.8);
 }
 
-[data-theme='light'] .react-tweet-theme {
+[data-theme="light"] .react-tweet-theme {
   --tweet-bg-color: hsl(var(--card));
   --tweet-border: hsl(var(--border));
   --tweet-bg-color-hover: hsl(var(--card) / 0.8);
