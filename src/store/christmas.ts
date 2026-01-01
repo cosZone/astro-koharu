@@ -9,6 +9,7 @@
  * - 浮动按钮关闭：彻底关闭，装饰球也隐藏
  */
 
+import { christmasConfig } from '@constants/site-config';
 import { atom } from 'nanostores';
 
 const STORAGE_KEY = 'christmas-enabled';
@@ -36,13 +37,21 @@ export const ornamentHidden = atom<boolean>(false);
  * Should be called on client-side only
  *
  * Default values (must match Layout.astro FOUC prevention script):
- * - christmasEnabled: true (when localStorage is empty)
+ * - christmasEnabled: true (when localStorage is empty AND christmasConfig.enabled is true)
  * - ornamentHidden: false (when localStorage is empty)
  */
 export function initChristmasState(): void {
   if (typeof window === 'undefined') return;
 
-  // Explicit defaults to match FOUC prevention script in Layout.astro
+  // If christmas feature is disabled at build time, always disable
+  if (!christmasConfig.enabled) {
+    christmasEnabled.set(false);
+    ornamentHidden.set(true);
+    syncChristmasClass(false);
+    return;
+  }
+
+  // Otherwise use user preference from localStorage
   const stored = localStorage.getItem(STORAGE_KEY);
   christmasEnabled.set(stored !== 'false'); // Default: true
 
