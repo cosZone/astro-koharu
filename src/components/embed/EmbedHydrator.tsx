@@ -47,5 +47,3 @@ export function EmbedHydrator() {
   // This component doesn't render anything visible
   return null;
 }
-
-export default EmbedHydrator;

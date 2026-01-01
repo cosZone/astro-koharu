@@ -1,28 +1,3 @@
-// 圣诞特效配置类型
-type ChristmasConfig = {
-  enabled: boolean;
-  features: {
-    snowfall: boolean;
-    christmasColorScheme: boolean;
-    christmasCoverDecoration: boolean;
-    christmasHat: boolean;
-    readingTimeSnow: boolean;
-  };
-  snowfall: {
-    speed: number;
-    intensity: number;
-    mobileIntensity: number;
-    /** 桌面端最大层数，默认 4 */
-    maxLayers: number;
-    /** 桌面端每层最大迭代次数，默认 6 */
-    maxIterations: number;
-    /** 移动端最大层数，默认 2 */
-    mobileMaxLayers: number;
-    /** 移动端每层最大迭代次数，默认 3 */
-    mobileMaxIterations: number;
-  };
-};
-
 type SiteConfig = {
   title: string; // 网站标题名称（banner 上）
   alternate?: string; // 网站英文短名
@@ -231,6 +206,31 @@ export const seoConfig = {
 };
 
 export const defaultCoverList = Array.from({ length: 13 }, (_, index) => index + 1).map((item) => `/img/cover/${item}.webp`);
+
+// 圣诞特效配置类型
+type ChristmasConfig = {
+  enabled: boolean;
+  features: {
+    snowfall: boolean;
+    christmasColorScheme: boolean;
+    christmasCoverDecoration: boolean;
+    christmasHat: boolean;
+    readingTimeSnow: boolean;
+  };
+  snowfall: {
+    speed: number;
+    intensity: number;
+    mobileIntensity: number;
+    /** 桌面端最大层数，默认 4 */
+    maxLayers: number;
+    /** 桌面端每层最大迭代次数，默认 6 */
+    maxIterations: number;
+    /** 移动端最大层数，默认 2 */
+    mobileMaxLayers: number;
+    /** 移动端每层最大迭代次数，默认 3 */
+    mobileMaxIterations: number;
+  };
+};
 
 // 圣诞特效配置
 export const christmasConfig: ChristmasConfig = {

@@ -14,7 +14,7 @@
 import { animation } from '@constants/design-tokens';
 import { cn } from '@lib/utils';
 import { useStore } from '@nanostores/react';
-import { drawerOpen, toggleDrawer } from '@store/ui';
+import { drawerOpen, toggleDrawer } from '@store/modal';
 import type { Variants } from 'motion/react';
 import { motion } from 'motion/react';
 

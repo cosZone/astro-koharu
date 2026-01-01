@@ -155,37 +155,6 @@ export function useKeyboardShortcut(options: KeyboardShortcutOptions): void {
 }
 
 /**
- * Multiple keyboard shortcuts hook
- */
-export function useKeyboardShortcuts(shortcuts: KeyboardShortcutOptions[]): void {
-  const shortcutsRef = useRef(shortcuts);
-  shortcutsRef.current = shortcuts;
-
-  useEffect(() => {
-    if (typeof window === 'undefined') return;
-
-    const handleKeyDown = (event: KeyboardEvent) => {
-      for (const options of shortcutsRef.current) {
-        if (options.enabled === false) continue;
-
-        if (matchesShortcut(event, options)) {
-          if (options.preventDefault !== false) event.preventDefault();
-          if (options.stopPropagation) event.stopPropagation();
-          options.handler(event);
-          break; // Only trigger first matching shortcut
-        }
-      }
-    };
-
-    window.addEventListener('keydown', handleKeyDown);
-
-    return () => {
-      window.removeEventListener('keydown', handleKeyDown);
-    };
-  }, []);
-}
-
-/**
  * Hook for Escape key handling (common pattern)
  */
 export function useEscapeKey(handler: () => void, enabled = true): void {
@@ -196,5 +165,3 @@ export function useEscapeKey(handler: () => void, enabled = true): void {
     ignoreInputs: false, // Escape should work even in inputs
   });
 }
-
-export default useKeyboardShortcut;

@@ -6,8 +6,7 @@
 @import "react-tweet/theme.css";
 
 /* Custom tweet embed styling */
-[data-tweet-embed] {
-}
+/* [data-tweet-embed] {} */
 
 /* Ensure tweet theme matches site theme */
 .react-tweet-theme {

@@ -443,5 +443,3 @@ export function remarkLinkEmbed(options: RemarkLinkEmbedOptions = {}) {
     });
   };
 }
-
-export default remarkLinkEmbed;

@@ -286,3 +286,27 @@ const isPostPage = Astro.url.pathname.startsWith('/post/');
     </div>
   </body>
 </html>
+
+<style is:global>
+  /* Progressive enhancement: scroll-state is experimental, browsers that don't support it will just not show the feather mask */
+  @supports (container-type: scroll-state) {
+    .scroll-feather-mask {
+      container-type: scroll-state;
+    }
+
+  @container scroll-state(scrollable: bottom) {
+      .scroll-feather-mask::after {
+        content: '';
+        background: linear-gradient(to bottom, transparent 0%, var(--gradient-bg-start) var(--mask-end-percent, 50%), var(--gradient-bg-start) var(--mask-start-percent, 100%));
+        position: absolute;
+        top: var(--mask-top, auto);
+        left: var(--mask-left, 0);
+        right: var(--mask-right, 0);
+        bottom: var(--mask-bottom, 0);
+        z-index: 10;
+        display: block;
+        height: var(--mask-height, 5rem);
+      }
+    }
+  }
+</style>

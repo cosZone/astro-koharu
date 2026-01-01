@@ -1,4 +1,3 @@
-import { withFloatingErrorBoundary } from '@components/common/FloatingErrorBoundary';
 import Popover from '@components/ui/popover';
 import type { Router } from '@constants/router';
 import { useToggle } from '@hooks/useToggle';
@@ -74,7 +73,4 @@ const DropdownNavComponent = ({ item, className }: DropdownNavProps) => {
 // Memoize component for performance
 const DropdownNav = memo(DropdownNavComponent);
 
-// Wrap with error boundary for graceful error handling
-const DropdownNavWithErrorBoundary = withFloatingErrorBoundary(DropdownNav, 'DropdownNav');
-
-export default DropdownNavWithErrorBoundary;
+export default DropdownNav;

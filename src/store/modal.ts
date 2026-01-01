@@ -12,7 +12,26 @@
  */
 
 import { atom, computed } from 'nanostores';
-import type { CodeBlockData, MermaidFullscreenData } from './ui';
+
+/**
+ * Code fullscreen data
+ */
+export interface CodeBlockData {
+  code: string;
+  codeHTML: string;
+  language: string;
+  preClassName: string;
+  preStyle: string;
+  codeClassName: string;
+}
+
+/**
+ * Mermaid fullscreen data
+ */
+export interface MermaidFullscreenData {
+  svg: string;
+  source: string;
+}
 
 export type ModalType = 'drawer' | 'search' | 'codeFullscreen' | 'mermaidFullscreen' | null;
 
@@ -85,3 +104,21 @@ export const closeCodeFullscreen = () => closeModal();
 
 export const openMermaidFullscreen = (data: MermaidFullscreenData) => openModal('mermaidFullscreen', data);
 export const closeMermaidFullscreen = () => closeModal();
+
+/**
+ * Backward compatible atoms for components using old naming patterns.
+ * These are real atoms that stay in sync with the unified modal state.
+ * This ensures compatibility with both React (useStore) and Astro (subscribe) usage.
+ */
+export const drawerOpen = atom<boolean>(false);
+export const searchOpen = atom<boolean>(false);
+export const mermaidFullscreenData = atom<MermaidFullscreenData | null>(null);
+export const codeFullscreenData = atom<CodeBlockData | null>(null);
+
+// Keep backward-compatible atoms in sync with unified modal state
+$activeModal.subscribe((state) => {
+  drawerOpen.set(state.type === 'drawer');
+  searchOpen.set(state.type === 'search');
+  mermaidFullscreenData.set(state.type === 'mermaidFullscreen' ? (state.data as MermaidFullscreenData) : null);
+  codeFullscreenData.set(state.type === 'codeFullscreen' ? (state.data as CodeBlockData) : null);
+});

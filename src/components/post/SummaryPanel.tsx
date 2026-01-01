@@ -86,7 +86,7 @@ const SOURCE_CONFIG: Record<SummarySource, { label: string; icon: ReactNode }> =
   },
 };
 
-export function SummaryPanel({ summary, source = 'ai', typingSpeed = 25, className }: SummaryPanelProps) {
+function SummaryPanel({ summary, source = 'ai', typingSpeed = 25, className }: SummaryPanelProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [isTyping, setIsTyping] = useState(false);
   const [hasAnimated, setHasAnimated] = useState(false);

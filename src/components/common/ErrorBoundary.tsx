@@ -1,12 +1,7 @@
 'use client';
 
 import type { ComponentProps, FC, PropsWithChildren, ReactNode } from 'react';
-import {
-  ErrorBoundary as ErrorBoundaryLib,
-  type FallbackProps,
-  useErrorBoundary,
-  withErrorBoundary as withErrorBoundaryLib,
-} from 'react-error-boundary';
+import { ErrorBoundary as ErrorBoundaryLib, type FallbackProps } from 'react-error-boundary';
 import { HiChat } from 'react-icons/hi';
 import { RiRefreshLine } from 'react-icons/ri';
 import { Button } from '../ui/button';
@@ -175,6 +170,3 @@ export const ErrorBoundary: FC<ErrorBoundaryProps> = ({
     </ErrorBoundaryLib>
   );
 };
-
-// Re-export useful utilities from react-error-boundary
-export { useErrorBoundary, withErrorBoundaryLib as withErrorBoundary };

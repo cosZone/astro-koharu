@@ -10,8 +10,7 @@ import { useEscapeKey } from '@hooks/useKeyboardShortcut';
 import { copyToClipboard } from '@lib/code-block-enhancer';
 import { cn } from '@lib/utils';
 import { useStore } from '@nanostores/react';
-import { $codeFullscreenData, closeModal, openModal } from '@store/modal';
-import type { CodeBlockData } from '@store/ui';
+import { $codeFullscreenData, type CodeBlockData, closeModal, openModal } from '@store/modal';
 import { AnimatePresence, motion } from 'motion/react';
 import { useCallback, useEffect, useState } from 'react';
 

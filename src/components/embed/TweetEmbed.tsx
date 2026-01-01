@@ -11,7 +11,7 @@ interface TweetEmbedProps {
   tweetId: string;
 }
 
-export function TweetEmbed({ tweetId }: TweetEmbedProps) {
+function TweetEmbed({ tweetId }: TweetEmbedProps) {
   const [mounted, setMounted] = useState(false);
   const isDark = useIsDarkTheme();
 

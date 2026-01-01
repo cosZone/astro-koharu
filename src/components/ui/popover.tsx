@@ -1,4 +1,3 @@
-import { withFloatingErrorBoundary } from '@components/common/FloatingErrorBoundary';
 import { animation } from '@constants/design-tokens';
 import {
   FloatingFocusManager,
@@ -93,7 +92,4 @@ function Popover({
   );
 }
 
-// Wrap with error boundary for graceful error handling
-const PopoverWithErrorBoundary = withFloatingErrorBoundary(Popover, 'Popover');
-
-export default React.memo(PopoverWithErrorBoundary);
+export default React.memo(Popover);

@@ -1,26 +1,25 @@
 import type { CollectionEntry } from 'astro:content';
 
-export type BlogPost = CollectionEntry<'blog'>;
-
+/**
+ * Blog post schema - matches the schema defined in content/config.ts
+ */
 export interface BlogSchema {
   title: string;
-  description?: string; // 文章描述
-  link?: string; // 文章短链接
+  description?: string;
+  link?: string;
   date: Date;
-  updated?: Date; // 最近更新时间
+  updated?: Date;
   cover?: string;
   tags?: string[];
-  /**
-   * 老 hexo shoka 的分类有的是这样的, 为了兼容这么写了：
-   * categories:
-   * - [笔记, 算法]
-   * 有的是这样的：
-   * categories:
-   * - 笔记
-   */
+  subtitle?: string;
+  catalog?: boolean;
   categories?: string[] | string[][];
-  subtitle?: string; // 文章副标题
-  catalog?: boolean; // 是否分离
-  sticky?: boolean; // 是否置顶
-  draft?: boolean; // 是否为草稿（开发环境可见，生产环境隐藏）
+  sticky?: boolean;
+  draft?: boolean;
+  tocNumbering?: boolean;
 }
+
+/**
+ * Blog post type from Astro content collections
+ */
+export type BlogPost = CollectionEntry<'blog'>;

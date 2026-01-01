@@ -266,13 +266,13 @@ export default function SearchDialog() {
                       </div>
 
                       {/* Search Content Area */}
-                      <div className="vertical-scrollbar scroll-feather-mask -mx-6 h-[calc(80dvh-140px)] overflow-auto scroll-smooth px-6 pb-10 md:-mx-3 md:h-[calc(80dvh-120px)] md:px-3">
+                      <div className="vertical-scrollbar scroll-feather-mask -mx-6 h-[calc(80dvh-140px)] overflow-auto scroll-smooth px-6 pb-8 after:bottom-10 md:-mx-3 md:h-[calc(80dvh-120px)] md:px-3">
                         <div id="search-dialog-container" ref={containerRef} />
                       </div>
                     </div>
 
                     {/* Keyboard hints */}
-                    <div className="absolute inset-x-0 bottom-0 z-10 flex items-center justify-center gap-4 bg-background/2 px-4 pt-2 pb-4 text-black/50 text-xs dark:border-white/10 dark:text-white/50">
+                    <div className="absolute inset-x-0 bottom-0 z-10 flex items-center justify-center gap-4 bg-gradient-start px-4 pt-1 pb-4 text-black/50 text-xs dark:border-white/10 dark:text-white/50">
                       <span>
                         <kbd className="kbd">↑↓</kbd> 选择
                       </span>
