@@ -10,14 +10,24 @@
   }
 }
 
+/* 过渡组高度为视口高度，否则高度巨大的时候会特别耗费性能 */
+html.theme-transition::view-transition-group(root) {
+  height: 100dvh;
+  overflow: clip;
+}
+
 html.theme-transition::view-transition-image-pair(root) {
   isolation: isolate;
+  height: 100dvh;
 }
 
 /* 旧主题保持不动 */
 html.theme-transition::view-transition-old(root) {
   animation: none;
   z-index: 0;
+  height: 100%;
+  object-fit: cover;
+  object-position: left top;
 }
 
 /* 新主题通过渐变遮罩从左到右揭示 */
@@ -26,6 +36,9 @@ html.theme-transition::view-transition-new(root) {
   mask-size: 300% 100%;
   animation: gradient-sweep 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
   z-index: 1;
+  height: 100%;
+  object-fit: cover;
+  object-position: left top;
 }
 
 /* 尊重用户的减少动画偏好 */
