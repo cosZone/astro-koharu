@@ -15,7 +15,7 @@ export function TagItem({ tag, count, colorIndex }: TagItemProps) {
   return (
     <a
       href={`/tags/${tag.replace(/\//g, '-')}`}
-      className={`hover:-translate-y-0.5 relative flex items-center rounded-lg bg-linear-to-r px-3 py-1.5 text-sm transition-all duration-300 hover:shadow-lg ${TAG_COLORS[colorIndex]}`}
+      className={`relative flex items-center rounded-lg bg-linear-to-r px-3 py-1.5 text-sm transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg ${TAG_COLORS[colorIndex]}`}
     >
       <span className="font-medium">{tag}</span>
       <span className="ml-1.5 truncate rounded-full bg-white/10 px-1.5 text-xs">{count}</span>

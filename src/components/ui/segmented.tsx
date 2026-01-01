@@ -98,7 +98,7 @@ export const Segmented = <T extends string | number = string | number>({
             {selected && (
               <motion.div
                 layoutId={`segmented_selected_bg_${id ?? 'default'}`}
-                className={cn('-z-10 absolute inset-0 rounded-sm bg-gradient-shoka-button', indicateClass)}
+                className={cn('absolute inset-0 -z-10 rounded-sm bg-gradient-shoka-button', indicateClass)}
                 transition={shouldReduceMotion ? { duration: 0 } : { type: 'spring', stiffness: 400, damping: 30 }}
                 style={{ willChange: shouldReduceMotion ? 'auto' : 'transform' }}
               />

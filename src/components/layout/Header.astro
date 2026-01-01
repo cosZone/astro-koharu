@@ -7,7 +7,7 @@ import { MobilePostHeader } from '@components/layout/MobilePostHeader';
 import { MenuIcon } from '@components/ui/MenuIcon';
 import { MAX_WIDTH } from '@constants/layout';
 import { christmasConfig, siteConfig } from 'constants/site-config';
-import Navigator from './Navigator.astro';
+import Navigator from './Navigator';
 
 interface Props {
   isPostPage?: boolean;
@@ -38,7 +38,7 @@ const { alternate, title, showLogo } = siteConfig;
     <!-- Mobile: MobilePostHeader (shows heading on post pages, logo otherwise) -->
     <div class="tablet:flex tablet:grow hidden items-center justify-center">
       <MobilePostHeader
-        client:load
+        client:only="react"
         isPostPage={isPostPage}
         enableNumbering={tocNumbering}
         logoElement={showLogo ? 'svg' : 'text'}
@@ -46,15 +46,15 @@ const { alternate, title, showLogo } = siteConfig;
         logoSrc={logoSrc}
       />
     </div>
-    <Navigator transition:name="page-header" />
+    <Navigator client:load currentPath={Astro.url.pathname} />
   </div>
   {christmasConfig.enabled && christmasConfig.features.christmasCoverDecoration && <ChristmasLights />}
-  {christmasConfig.enabled && <ChristmasOrnamentToggle client:load />}
+  {christmasConfig.enabled && <ChristmasOrnamentToggle client:only="react" />}
 </div>
 
 <!-- 移动端菜单按钮 -->
 <MenuIcon
-  client:load
+  client:only="react"
   className="tablet:flex fixed top-0 left-3 z-52 hidden h-14 transition-transform"
   id="mobile-menu-container"
 />

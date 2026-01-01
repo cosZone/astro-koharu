@@ -11,7 +11,7 @@ const { snowfall } = christmasConfig;
     <>
       {/* 背景雪 - 在内容后面 */}
       <SnowfallCanvas
-        client:idle
+        client:only="react"
         speed={snowfall.speed}
         intensity={snowfall.intensity}
         mobileIntensity={snowfall.mobileIntensity}
@@ -24,7 +24,7 @@ const { snowfall } = christmasConfig;
       />
       {/* 前景雪 - 在内容前面 */}
       <SnowfallCanvas
-        client:idle
+        client:only="react"
         speed={snowfall.speed}
         intensity={snowfall.intensity}
         mobileIntensity={snowfall.mobileIntensity}

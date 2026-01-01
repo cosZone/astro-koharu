@@ -5,7 +5,7 @@
 import { Routes } from '@constants/router';
 import { routeBuilder } from '@lib/route';
 import { cn } from '@lib/utils';
-import type { BlogPost } from 'types/blog';
+import type { BlogPost } from '@/types/blog';
 
 interface SeriesPostListProps {
   posts: BlogPost[];

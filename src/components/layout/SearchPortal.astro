@@ -1,0 +1,118 @@
+---
+/**
+ * SearchPortal Component
+ *
+ * Provides the Pagefind search UI that gets portal'd into SearchDialog.
+ * Listens for search-dialog-open/close events to move the search component.
+ */
+import Search from 'astro-pagefind/components/Search';
+---
+
+<!-- Search Component - will be portal'd into dialog -->
+<div id="search-component-portal">
+  <Search
+    id="search-for-dialog"
+    className="pagefind-ui"
+    uiOptions={{
+      showImages: false,
+      resetStyles: false,
+      translations: {
+        placeholder: '请输入关键词搜索',
+        clear_search: '清空',
+        load_more: '加载更多结果',
+        search_label: '搜索本站',
+        filters_label: '过滤器',
+        zero_results: '没有找到结果',
+        many_results: '[COUNT] 个结果',
+        one_result: '[COUNT] 个结果',
+        alt_search: '没有找到结果。显示 [DIFFERENT_TERM] 的结果',
+        search_suggestion: '没有找到结果。尝试以下搜索：',
+        searching: '搜索 [SEARCH_TERM]...',
+      },
+    }}
+  />
+</div>
+
+<script>
+  function moveSearchToDialog() {
+    const dialogContainer = document.getElementById('search-dialog-container');
+    const searchPortal = document.getElementById('search-component-portal');
+    const searchComponent = document.getElementById('search-for-dialog');
+
+    if (!dialogContainer || !searchPortal || !searchComponent) return;
+
+    // Check if search component is already in the dialog
+    if (dialogContainer.contains(searchComponent)) return;
+
+    // Move search component to dialog
+    dialogContainer.appendChild(searchComponent);
+  }
+
+  function moveSearchBack() {
+    const searchComponent = document.getElementById('search-for-dialog');
+    const searchPortal = document.getElementById('search-component-portal');
+
+    if (!searchComponent || !searchPortal) return;
+
+    // Move search component back to portal if it's not already there
+    if (!searchPortal.contains(searchComponent)) {
+      searchPortal.appendChild(searchComponent);
+    }
+  }
+
+  function handleDialogOpen() {
+    // Small delay to ensure dialog container is rendered
+    requestAnimationFrame(() => {
+      moveSearchToDialog();
+    });
+  }
+
+  function handleDialogClose() {
+    // Move search back immediately before DOM is removed
+    moveSearchBack();
+  }
+
+  let initialized = false;
+
+  function initSearchPortal() {
+    if (initialized) return;
+    initialized = true;
+
+    window.addEventListener('search-dialog-open', handleDialogOpen);
+    window.addEventListener('search-dialog-close', handleDialogClose);
+  }
+
+  function cleanupSearchPortal() {
+    if (!initialized) return;
+
+    window.removeEventListener('search-dialog-open', handleDialogOpen);
+    window.removeEventListener('search-dialog-close', handleDialogClose);
+    initialized = false;
+  }
+
+  // Initialize immediately if DOM is ready
+  if (document.readyState !== 'loading') {
+    initSearchPortal();
+  }
+
+  document.addEventListener('astro:page-load', initSearchPortal);
+  document.addEventListener('astro:before-swap', cleanupSearchPortal);
+</script>
+
+<style>
+  /* Hide the portal container */
+  #search-component-portal {
+    display: none;
+    position: absolute;
+    pointer-events: none;
+    visibility: hidden;
+  }
+</style>
+<style is:global>
+  /* Ensure search is visible when in dialog */
+  #search-dialog-container #search-for-dialog {
+    display: block !important;
+    visibility: visible !important;
+    pointer-events: auto !important;
+  }
+</style>

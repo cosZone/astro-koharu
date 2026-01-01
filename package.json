@@ -14,6 +14,7 @@
     "check": "astro check",
     "lint": "biome check .",
     "lint:fix": "biome check --write .",
+    "lint:fix:unssafe": "biome check --write --unsafe",
     "format": "biome format --write .",
     "lint-md": "lint-md ./src/content/**/*.{md,mdx}",
     "lint-md:fix": "lint-md ./src/content/**/*.{md,mdx} --fix",
@@ -35,7 +36,11 @@
     "@nanostores/react": "^0.8.4",
     "@radix-ui/react-accordion": "^1.2.12",
     "@radix-ui/react-avatar": "^1.1.11",
+    "@radix-ui/react-collapsible": "^1.1.12",
+    "@radix-ui/react-dialog": "^1.1.15",
+    "@radix-ui/react-dropdown-menu": "^2.1.16",
     "@radix-ui/react-slot": "^1.2.4",
+    "@radix-ui/react-tabs": "^1.1.13",
     "@react-three/drei": "^10.7.7",
     "@react-three/fiber": "^9.4.2",
     "@tailwindcss/vite": "^4.1.17",
@@ -50,6 +55,7 @@
     "astro-tooltips": "^0.6.2",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "cmdk": "^1.1.1",
     "date-fns": "^4.1.0",
     "date-fns-tz": "^3.2.0",
     "es-toolkit": "^1.42.0",
@@ -80,7 +86,8 @@
     "tailwindcss": "^4.1.17",
     "tailwindcss-animate": "^1.0.7",
     "three": "^0.182.0",
-    "unist-util-visit": "^5.0.0"
+    "unist-util-visit": "^5.0.0",
+    "vaul": "^1.1.2"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.3.10",
@@ -111,7 +118,6 @@
     "typescript": "^5.9.3",
     "vite-plugin-svgr": "^4.5.0"
   },
-  "packageManager": "pnpm@9.15.1+sha256.9e534e70afef06374f6126b44bda5760947135ce16a30aef1010e965fb7e3e3e",
   "lint-staged": {
     "*.{js,jsx,ts,tsx,json,astro}": [
       "biome check --write --no-errors-on-unmatched"

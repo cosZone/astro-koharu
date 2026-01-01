@@ -11,11 +11,12 @@ interface Props {
 
 import { ClientRouter } from 'astro:transitions';
 import ChristmasEffects from '@components/christmas/ChristmasEffects.astro';
-import FloatingGroup from '@components/layout/FloatingGroup.astro';
+import FloatingGroup from '@components/layout/FloatingGroup';
 import Header from '@components/layout/Header.astro';
 import MobileDrawer from '@components/layout/MobileDrawer.astro';
-import SearchDialog from '@components/layout/SearchDialog.astro';
-import CodeBlockFullscreen from '@components/markdown/CodeBlockFullscreen.astro';
+import SearchDialog from '@components/layout/SearchDialog';
+import SearchPortal from '@components/layout/SearchPortal.astro';
+import CodeBlockFullscreen from '@components/markdown/CodeBlockFullscreen';
 import MermaidFullscreen from '@components/markdown/MermaidFullscreen.astro';
 import { seoConfig, siteConfig } from '@constants/site-config';
 import LoadingIndicator from 'astro-loading-indicator/component';
@@ -268,10 +269,11 @@ const isPostPage = Astro.url.pathname.startsWith('/post/');
       <main class="relative flex grow flex-col gap-4">
         {(<slot />)}
       </main>
-      <FloatingGroup />
+      <FloatingGroup client:load />
       <MobileDrawer type={siderType} post={post} />
-      <SearchDialog />
-      <CodeBlockFullscreen />
+      <SearchDialog client:load />
+      <SearchPortal />
+      <CodeBlockFullscreen client:load />
       <MermaidFullscreen />
     </div>
   </body>

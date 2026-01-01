@@ -13,7 +13,7 @@ const STRING_HEIGHT = 80;
 
 function TopDecoration() {
   return (
-    <div className="-translate-x-1/2 -translate-y-[15%] pointer-events-none absolute top-10 left-1/2 z-100 cursor-none drop-shadow">
+    <div className="pointer-events-none absolute top-10 left-1/2 z-100 -translate-x-1/2 -translate-y-[15%] cursor-none drop-shadow">
       <svg width="60" height="50" viewBox="0 0 60 50" className="overflow-visible" aria-hidden="true">
         <defs>
           <radialGradient id="bow-red-grad" cx="30%" cy="30%" r="80%">
@@ -249,7 +249,7 @@ export function ChristmasOrnamentToggle() {
             aria-pressed={isEnabled}
             type="button"
           >
-            <div className="-mt-2 pointer-events-none size-full">
+            <div className="pointer-events-none -mt-2 size-full">
               <OrnamentSvg isEnabled={isEnabled} />
             </div>
 
@@ -260,7 +260,7 @@ export function ChristmasOrnamentToggle() {
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 30 }}
                   exit={{ opacity: 0 }}
-                  className="-translate-x-1/2 pointer-events-none absolute top-1/2 left-1/2"
+                  className="pointer-events-none absolute top-1/2 left-1/2 -translate-x-1/2"
                 >
                   <div className="whitespace-nowrap rounded-full border border-white/10 bg-red-950/90 px-3 py-1 font-medium text-[10px] text-white shadow-md">
                     {isEnabled ? '下拉关闭' : '下拉开启'}

@@ -53,8 +53,8 @@ color: "${formData.color || '#ffc0cb'}"`;
     <div className="mb-4 w-full">
       <div className="relative overflow-hidden rounded-3xl border-2 border-gray-100 bg-white p-6 shadow-sm md:p-3 dark:border-gray-800 dark:bg-gray-900">
         {/* Cute Corner Decor */}
-        <div className="-top-6 -right-6 absolute h-24 w-24 rounded-full bg-pink-100/50 dark:bg-pink-900/20" />
-        <div className="-bottom-6 -left-6 absolute h-24 w-24 rounded-full bg-blue-100/50 dark:bg-blue-900/20" />
+        <div className="absolute -top-6 -right-6 h-24 w-24 rounded-full bg-pink-100/50 dark:bg-pink-900/20" />
+        <div className="absolute -bottom-6 -left-6 h-24 w-24 rounded-full bg-blue-100/50 dark:bg-blue-900/20" />
 
         <div className="grid grid-cols-2 gap-12 md:grid-cols-1 md:gap-8">
           {/* Left Side: Form */}
@@ -165,7 +165,7 @@ color: "${formData.color || '#ffc0cb'}"`;
                         name="color"
                         value={formData.color}
                         onChange={handleChange}
-                        className="-top-1/2 -left-1/2 absolute h-[200%] w-[200%] cursor-pointer p-0"
+                        className="absolute -top-1/2 -left-1/2 h-[200%] w-[200%] cursor-pointer p-0"
                       />
                     </div>
                     <input
@@ -187,7 +187,7 @@ color: "${formData.color || '#ffc0cb'}"`;
               <button
                 type="button"
                 onClick={handleCopy}
-                className="group hover:-translate-y-1 relative px-3 py-2 font-bold text-base transition-transform dark:text-white"
+                className="group relative px-3 py-2 font-bold text-base transition-transform hover:-translate-y-1 dark:text-white"
               >
                 <div className="absolute inset-0 rotate-[1deg] rounded-lg border-2 border-foreground border-dashed transition-all group-hover:rotate-0 dark:border-white"></div>
                 {copied ? '已复制!' : '复制配置'}
