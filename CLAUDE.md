@@ -34,11 +34,20 @@ Package manager: **pnpm** (specified in package.json: `pnpm@9.15.1`)
 
 ```bash
 # Development
-pnpm dev              # Start dev server
+pnpm dev              # Start dev server at http://localhost:4321
 
 # Build & Preview
-pnpm build            # Build for production
+pnpm build            # Build for production (runs astro build + pagefind)
 pnpm preview          # Preview production build
+
+# Type Checking
+pnpm check            # Run Astro type checking (astro check)
+
+# Content Generation (optional features)
+pnpm generate:lqips           # Generate LQIP (low-quality image placeholders) for blog images
+pnpm generate:similarities    # Generate semantic similarity vectors for related posts
+pnpm generate:summaries       # Generate AI summaries for posts (incremental)
+pnpm generate:summaries:force # Force regenerate all summaries
 
 # Linting & Code Quality
 pnpm lint             # Run Biome linter and formatter check
@@ -280,41 +289,18 @@ useEffect(() => {
 }, [isDragging]); // No circular dependency
 ```
 
-#### IPC Subscriptions Should Subscribe Once
-
-IPC listeners should subscribe once on mount, not re-subscribe on state changes:
-
-```typescript
-// ❌ Bad: Re-subscribes every time isHovering changes
-useEffect(() => {
-  const cleanup = window.api.menu.onCheckMousePosition(() => {
-    if (!isHovering) { window.api.menu.hide(); }
-  });
-  return cleanup;
-}, [isHovering]); // Re-subscribes unnecessarily
-
-// ✅ Good: Subscribe once, access state via ref
-const isHoveringRef = useRef(isHovering);
-isHoveringRef.current = isHovering;
-
-useEffect(() => {
-  const cleanup = window.api.menu.onCheckMousePosition(() => {
-    if (!isHoveringRef.current) { window.api.menu.hide(); }
-  });
-  return cleanup;
-}, []); // Subscribe once
-```
-
 #### Avoid useState for Static Values
 
 Don't use `useState` for values that never change:
 
 ```typescript
 // ❌ Bad: useState for static value
-const [versions] = useState(window.electron.process.versions);
+const [siteTitle] = useState('astro-koharu');
 
-// ✅ Good: Direct constant
-const versions = window.electron.process.versions;
+// ✅ Good: Direct constant or useMemo for computed values
+const siteTitle = 'astro-koharu';
+// OR for computed values:
+const computedValue = useMemo(() => expensiveComputation(), []);
 ```
 
 #### Extract Custom Hooks for Reusable Logic
@@ -325,38 +311,24 @@ When the same `useState` + `useRef` + `useEffect` pattern appears 2+ times, extr
 
 - Same state management pattern repeated across components
 - Logic involves event listeners with cleanup
-- State synchronization with refs (e.g., `isDraggingRef.current = isDragging`)
+- State synchronization with refs (e.g., `scrollYRef.current = scrollY`)
 
-**Example: `useDrag` hook** (see `src/renderer/src/hooks/use-drag.ts`)
+**Example: Reusable hooks in this project**
 
 ```typescript
-// ❌ Bad: Duplicated drag logic in each component (30+ lines)
-const [isDragging, setIsDragging] = useState(false);
-const isDraggingRef = useRef(isDragging);
-isDraggingRef.current = isDragging;
-const dragStartPos = useRef({ x: 0, y: 0 });
-
-useEffect(() => {
-  const handleMouseMove = (e: MouseEvent) => { /* ... */ };
-  const handleMouseUp = () => { /* ... */ };
-  if (isDragging) {
-    window.addEventListener('mousemove', handleMouseMove);
-    window.addEventListener('mouseup', handleMouseUp);
-  }
-  return () => { /* cleanup */ };
-}, [isDragging]);
-
-// ✅ Good: Extract to reusable hook
-const { isDragging, onMouseDown } = useDrag({
-  onDrag: ({ x, y }) => window.api.panel.drag(x, y),
-});
+// See existing hooks in src/hooks/:
+// - useMediaQuery.ts: Media query detection
+// - useCurrentHeading.ts: Track scroll position and active heading
+// - useActiveHeading.ts: Heading active state for TOC
+// - useToggle.ts: Boolean state toggle
+// - useIsDarkTheme.ts: Theme detection
 ```
 
 **Hook naming conventions:**
 
 - `use` prefix (required by React)
-- Descriptive verb: `useDrag`, `useResize`, `useHover`
-- Return object with clear properties
+- Descriptive name: `useMediaQuery`, `useToggle`, `useActiveHeading`
+- Return values or object with clear properties
 
 #### Scroll Event Subscription in React
 
@@ -473,57 +445,13 @@ Benefits of Motion's hook for animations:
 - Better integration with Motion's animation system
 - See `src/components/christmas/SnowfallCanvas.tsx` for example
 
-#### Extract Custom Hooks for Reusable Logic
-
-When the same `useState` + `useRef` + `useEffect` pattern appears 2+ times, extract it into a custom hook:
-
-**Signs you need a custom hook:**
-
-- Same state management pattern repeated across components
-- Logic involves event listeners with cleanup
-- State synchronization with refs (e.g., `isDraggingRef.current = isDragging`)
-
-**Example: `useDrag` hook** (see `src/renderer/src/hooks/use-drag.ts`)
-
-```typescript
-// ❌ Bad: Duplicated drag logic in each component (30+ lines)
-const [isDragging, setIsDragging] = useState(false);
-const isDraggingRef = useRef(isDragging);
-isDraggingRef.current = isDragging;
-const dragStartPos = useRef({ x: 0, y: 0 });
-
-useEffect(() => {
-  const handleMouseMove = (e: MouseEvent) => { /* ... */ };
-  const handleMouseUp = () => { /* ... */ };
-  if (isDragging) {
-    window.addEventListener('mousemove', handleMouseMove);
-    window.addEventListener('mouseup', handleMouseUp);
-  }
-  return () => { /* cleanup */ };
-}, [isDragging]);
-
-// ✅ Good: Extract to reusable hook
-const { isDragging, onMouseDown } = useDrag({
-  onDrag: ({ x, y }) => window.api.panel.drag(x, y),
-});
-```
-
-**Hook naming conventions:**
-
-- `use` prefix (required by React)
-- Descriptive verb: `useDrag`, `useResize`, `useHover`
-- Return object with clear properties
-
-## IMPORTANT
-
-- Avoid feature flags and backwards compatibility shims - directly modify code since the app is unreleased.
-- When you need to check the official documentation, use Context 7 to get the latest information, or search for it if you can't get it.
-- When making major changes involving architectural alterations, etc., please request an update to CLAUDE.md at the end by yourself
-
 #### Error Handling
 
 - `ErrorBoundary` component wraps interactive sections
 - Uses `react-error-boundary` library
+- See `src/components/common/ErrorBoundary.tsx` for implementation
+
+## Component Patterns & Architecture
 
 ### Animation System
 
@@ -549,3 +477,10 @@ const { isDragging, onMouseDown } = useDrag({
 - **SVG Handling**: `vite-plugin-svgr` allows importing SVGs as React components
 - **Umami Analytics**: Integrated for usage tracking (see `astro.config.mjs`)
 - **Content Migration**: This blog was migrated from Hexo, so some posts may have legacy metadata fields
+- **Conditional Bundling**: Large dependencies should be conditionally bundled to avoid unnecessary bundle size. Use Vite virtual modules or dynamic imports to exclude heavy libraries when their features are disabled. Example: Three.js (~879KB) for snowfall is only bundled when `christmasConfig.enabled && christmasConfig.features.snowfall` is true (see `conditionalSnowfall()` plugin in `astro.config.mjs`)
+
+## IMPORTANT Guidelines
+
+- **No backwards compatibility shims**: Avoid feature flags and backwards-compatibility hacks. Directly modify code since this is an active project.
+- **Documentation lookup**: When you need to check official documentation, use Context7 MCP server to get the latest information, or use WebSearch if needed.
+- **Keep CLAUDE.md updated**: When making major changes involving architectural alterations, ask to update CLAUDE.md at the end.
