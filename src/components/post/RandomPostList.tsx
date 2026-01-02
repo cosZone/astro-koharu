@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useMemo } from 'react';
 
 export interface RandomPostItem {
   slug: string;
@@ -22,33 +22,8 @@ function shuffleArray<T>(array: T[]): T[] {
 }
 
 export default function RandomPostList({ posts, count = 5 }: Props) {
-  const [displayPosts, setDisplayPosts] = useState<RandomPostItem[]>([]);
-
-  useEffect(() => {
-    const shuffled = shuffleArray(posts).slice(0, count);
-    setDisplayPosts(shuffled);
-  }, [posts, count]);
-
-  // 初始渲染显示骨架
-  if (displayPosts.length === 0) {
-    return (
-      <div className="flex flex-col gap-4">
-        <h2 className="font-semibold text-2xl text-foreground/80">随机文章</h2>
-        <div className="flex flex-col gap-2">
-          {Array.from({ length: count }).map((_, i) => (
-            // biome-ignore lint/suspicious/noArrayIndexKey: Static skeleton loader, order never changes
-            <div key={i} className="flex gap-3 rounded-md p-2">
-              <span className="shrink-0 font-mono text-foreground/30">{i + 1}</span>
-              <div className="flex min-w-0 flex-1 flex-col gap-1">
-                <div className="h-3 w-16 animate-pulse rounded bg-foreground/10" />
-                <div className="h-4 w-full animate-pulse rounded bg-foreground/10" />
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-    );
-  }
+  const actualCount = Math.min(count, posts.length);
+  const displayPosts = useMemo(() => shuffleArray(posts).slice(0, actualCount), [posts, actualCount]);
 
   return (
     <div className="flex flex-col gap-4">

@@ -24,19 +24,25 @@ const hasData = hasSimilarityData();
 
 // Get all posts
 const allPosts = await getSortedPosts();
+const totalPosts = allPosts.length;
 
-// Prepare posts for random selection (client-side)
-// Pass a larger pool so client can randomly pick from it
-const randomPostsPool = allPosts.slice(0, 20).map(toPostItem);
+// Calculate how many posts to show on each side
+// For <= 10 posts: split evenly (e.g., 6 posts = 3 left + 3 right)
+// For > 10 posts: 5 on each side
+const leftCount = totalPosts <= 10 ? Math.ceil(totalPosts / 2) : 5;
+const rightCount = totalPosts <= 10 ? Math.floor(totalPosts / 2) : 5;
+
+// Prepare posts for random selection
+const randomPostsPool = totalPosts <= 10 ? allPosts.map(toPostItem) : allPosts.slice(0, 20).map(toPostItem);
 
 // Get related posts if current post is provided and similarity data exists
 const relatedPosts = hasData && post ? getRelatedPosts(post, allPosts, 5).map(toPostItem) : [];
 
-// Fallback posts pool for related section (client will randomly pick from this)
-const fallbackPostsPool = allPosts.slice(20, 40).map(toPostItem);
+// Fallback posts pool for related section
+const fallbackPostsPool = totalPosts <= 10 ? allPosts.map(toPostItem) : allPosts.slice(20, 40).map(toPostItem);
 ---
 
 <div class="tablet:grid-cols-1 grid grid-cols-2 gap-4 px-10 md:px-6">
-  <RandomPostList client:load posts={randomPostsPool} count={5} />
-  {hasData && <RelatedPostList client:load posts={relatedPosts} fallbackPosts={fallbackPostsPool} fallbackCount={5} />}
+  <RandomPostList client:load posts={randomPostsPool} count={leftCount} />
+  {(hasData || totalPosts <= 10) && <RelatedPostList client:load posts={relatedPosts} fallbackPosts={fallbackPostsPool} fallbackCount={rightCount} />}
 </div>

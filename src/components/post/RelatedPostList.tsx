@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useMemo } from 'react';
 import { cn } from '@/lib/utils';
 import type { RandomPostItem } from './RandomPostList';
 
@@ -19,37 +19,19 @@ function shuffleArray<T>(array: T[]): T[] {
 
 export default function RelatedPostList({ posts, fallbackPosts, fallbackCount = 5 }: Props) {
   const hasRelatedPosts = posts.length > 0;
-  const [displayPosts, setDisplayPosts] = useState<RandomPostItem[]>(hasRelatedPosts ? posts : []);
 
-  useEffect(() => {
-    if (!hasRelatedPosts && fallbackPosts.length > 0) {
-      const shuffled = shuffleArray(fallbackPosts).slice(0, fallbackCount);
-      setDisplayPosts(shuffled);
+  const displayPosts = useMemo(() => {
+    if (hasRelatedPosts) {
+      return posts;
     }
-  }, [hasRelatedPosts, fallbackPosts, fallbackCount]);
+    if (fallbackPosts.length === 0) {
+      return [];
+    }
+    const actualCount = Math.min(fallbackCount, fallbackPosts.length);
+    return shuffleArray(fallbackPosts).slice(0, actualCount);
+  }, [hasRelatedPosts, posts, fallbackPosts, fallbackCount]);
 
   const title = hasRelatedPosts ? '相关文章' : '';
-
-  // 骨架屏：仅在没有相关文章且 fallback 还在加载时显示
-  if (!hasRelatedPosts && displayPosts.length === 0) {
-    return (
-      <div className="flex flex-col gap-4">
-        <h2 className="font-semibold text-2xl text-foreground/80">&nbsp;</h2>
-        <div className={cn('flex flex-col gap-2', '-mt-4 pt-12 md:-mt-5 md:pt-0')}>
-          {Array.from({ length: fallbackCount }).map((_, i) => (
-            // biome-ignore lint/suspicious/noArrayIndexKey: Static skeleton loader, order never changes
-            <div key={i} className="flex gap-3 rounded-md p-2">
-              <span className="shrink-0 font-mono text-foreground/30">{i + 6}</span>
-              <div className="flex min-w-0 flex-1 flex-col gap-1">
-                <div className="h-3 w-16 animate-pulse rounded bg-foreground/10" />
-                <div className="h-4 w-full animate-pulse rounded bg-foreground/10" />
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-    );
-  }
 
   if (displayPosts.length === 0) {
     return null;
