@@ -134,7 +134,7 @@ export default function AnnouncementToaster() {
         () => {
           toast.custom((toastId) => <AnnouncementToast announcement={announcement} toastId={toastId} />, {
             id: announcement.id,
-            duration: Number.POSITIVE_INFINITY, // Don't auto-dismiss
+            duration: 5000, // Auto-dismiss after 5 seconds
           });
         },
         500 + unread.indexOf(announcement) * 200,
@@ -147,6 +147,30 @@ export default function AnnouncementToaster() {
       timersRef.current = [];
     };
   }, [initialized, unread]);
+
+  // Dismiss all toasts when user clicks outside
+  useEffect(() => {
+    if (!initialized) return;
+
+    const handleDocumentClick = (e: MouseEvent) => {
+      // Check if click is outside the toast container
+      // Sonner's toast container has data-sonner-toaster attribute
+      const toaster = document.querySelector('[data-sonner-toaster]');
+      if (toaster && !toaster.contains(e.target as Node)) {
+        toast.dismiss(); // Dismiss all toasts
+      }
+    };
+
+    // Delay adding listener to avoid triggering on initial render
+    const timer = setTimeout(() => {
+      document.addEventListener('click', handleDocumentClick);
+    }, 100);
+
+    return () => {
+      clearTimeout(timer);
+      document.removeEventListener('click', handleDocumentClick);
+    };
+  }, [initialized]);
 
   return null;
 }
