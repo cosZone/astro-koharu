@@ -54,17 +54,4 @@ export const announcements: Announcement[] = [
     color: '#6366F1',
     publishDate: '2025-12-25',
   },
-  {
-    id: 'site-update-2',
-    title: '短公告',
-    content: '可以带链接！',
-    type: 'info',
-    priority: 5,
-    publishDate: '2025-12-25',
-    link: {
-      url: 'https://example.com',
-      text: '了解更多',
-      external: true,
-    },
-  },
 ];
