@@ -85,7 +85,7 @@ function AnnouncementToast({ announcement, toastId }: { announcement: Announceme
 
   return (
     <output
-      className={`block w-full rounded-lg border border-border/50 bg-card/95 p-4 shadow-lg backdrop-blur-md transition-all duration-200 ${
+      className={`block w-full min-w-50 rounded-lg border border-border/50 bg-card/95 p-4 shadow-lg backdrop-blur-md transition-all duration-200 ${
         isHovered ? 'scale-[1.02] shadow-xl' : ''
       }`}
       onMouseEnter={handleMouseEnter}

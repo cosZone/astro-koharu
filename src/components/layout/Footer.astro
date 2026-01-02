@@ -18,8 +18,8 @@ const currentYear = new Date().getFullYear();
 const startYear = siteConfig?.startYear ?? currentYear;
 ---
 
-<footer class={cn('mt-auto pb-6 md:pb-4', className)}>
-  <div class={cn('mx-auto flex flex-col items-center gap-3 px-6 md:px-3', MAX_WIDTH.content)}>
+<footer class={cn('mt-auto pb-6', className)}>
+  <div class={cn('mx-auto flex flex-col items-center gap-3 px-6 md:pb-10 md:px-3', MAX_WIDTH.content)}>
     <!-- Announcements Entry -->
     <FooterAnnouncementEntry client:load />
 
