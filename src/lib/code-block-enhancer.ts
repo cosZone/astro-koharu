@@ -298,3 +298,25 @@ export function enhanceAllCodeBlocks(container: Element, options: EnhanceOptions
     }
   });
 }
+
+/**
+ * Create code view icon SVG (< > brackets with slash)
+ */
+export function createCodeViewIcon(): string {
+  return `
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
+      <path d="m7 8l-4 4l4 4m10-8l4 4l-4 4M14 4l-4 16"/>
+    </svg>
+  `;
+}
+
+/**
+ * Create diagram view icon (bar chart icon)
+ */
+export function createDiagramViewIcon(): string {
+  return `
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+      <path d="M12 6a1 1 0 0 0-1 1v10a1 1 0 0 0 2 0V7a1 1 0 0 0-1-1m-5 6a1 1 0 0 0-1 1v4a1 1 0 0 0 2 0v-4a1 1 0 0 0-1-1m10-2a1 1 0 0 0-1 1v6a1 1 0 0 0 2 0v-6a1 1 0 0 0-1-1m2-8H5a3 3 0 0 0-3 3v14a3 3 0 0 0 3 3h14a3 3 0 0 0 3-3V5a3 3 0 0 0-3-3m1 17a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1h14a1 1 0 0 1 1 1Z"/>
+    </svg>
+  `;
+}

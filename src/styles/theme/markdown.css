@@ -1006,3 +1006,39 @@ body.lightbox-open {
 .dark .infographic-toolbar {
   background: hsl(var(--muted) / 0.3);
 }
+
+/* ========== View Source Toggle Styles ========== */
+
+/* Infographic source view styling */
+.infographic-wrapper[data-view-mode="source"] > pre {
+  display: block !important; /* Override inline style */
+  border-radius: 0 0 0.75rem 0.75rem;
+  border: 1px solid hsl(var(--border));
+  border-top: none;
+  background-color: hsl(var(--card));
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+  margin: 0;
+}
+
+/* Mermaid source view styling */
+.mermaid-wrapper[data-view-mode="source"] > pre.mermaid {
+  padding: 0;
+  overflow: visible;
+}
+
+.mermaid-wrapper[data-view-mode="source"] .mermaid-source {
+  padding: 1rem 1.5rem;
+  overflow-x: auto;
+  font-size: 0.875rem;
+  line-height: 1.7;
+  font-family: var(--font-mono);
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+/* Disabled button state */
+.infographic-button[disabled],
+.mermaid-button[disabled] {
+  cursor: not-allowed;
+  opacity: 0.5;
+}

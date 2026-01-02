@@ -3,7 +3,7 @@
  * Renders @antv/infographic diagrams and adds Mac-style toolbar with copy and fullscreen functionality
  */
 
-import { copyToClipboard } from './code-block-enhancer';
+import { copyToClipboard, createCodeViewIcon, createDiagramViewIcon } from './code-block-enhancer';
 
 // Font registration flag
 let fontRegistered = false;
@@ -49,6 +49,15 @@ function createInfographicToolbar(): string {
         >
           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 448 512" fill="currentColor">
             <path d="M192 0c-35.3 0-64 28.7-64 64l0 256c0 35.3 28.7 64 64 64l192 0c35.3 0 64-28.7 64-64l0-200.6c0-17.4-7.1-34.1-19.7-46.2L370.6 17.8C358.7 6.4 342.8 0 326.3 0L192 0zM64 128c-35.3 0-64 28.7-64 64L0 448c0 35.3 28.7 64 64 64l192 0c35.3 0 64-28.7 64-64l0-16-64 0 0 16-192 0 0-256 16 0 0-64-16 0z"/>
+          </svg>
+        </button>
+        <button
+          class="infographic-button infographic-view-source"
+          aria-label="View source code"
+          title="View source code"
+        >
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
+            <path d="m7 8l-4 4l4 4m10-8l4 4l-4 4M14 4l-4 16"/>
           </svg>
         </button>
       </div>
@@ -234,6 +243,40 @@ async function enhanceInfographicBlock(preElement: HTMLElement): Promise<void> {
           detail: { svg, source },
         }),
       );
+    });
+  }
+
+  // Bind view source toggle button
+  const viewSourceBtn = wrapper.querySelector('.infographic-view-source');
+  if (viewSourceBtn) {
+    const codeIcon = createCodeViewIcon();
+    const diagramIcon = createDiagramViewIcon();
+
+    // Check if source code exists
+    if (!source) {
+      (viewSourceBtn as HTMLButtonElement).disabled = true;
+    }
+
+    viewSourceBtn.addEventListener('click', () => {
+      const currentMode = wrapper.getAttribute('data-view-mode') || 'rendered';
+
+      if (currentMode === 'rendered') {
+        // Switch to source view
+        preElement.style.display = '';
+        infographicContainer.style.display = 'none';
+        wrapper.setAttribute('data-view-mode', 'source');
+        viewSourceBtn.innerHTML = diagramIcon;
+        viewSourceBtn.setAttribute('aria-label', 'View rendered diagram');
+        viewSourceBtn.setAttribute('title', 'View rendered diagram');
+      } else {
+        // Switch to rendered view
+        preElement.style.display = 'none';
+        infographicContainer.style.display = '';
+        wrapper.setAttribute('data-view-mode', 'rendered');
+        viewSourceBtn.innerHTML = codeIcon;
+        viewSourceBtn.setAttribute('aria-label', 'View source code');
+        viewSourceBtn.setAttribute('title', 'View source code');
+      }
     });
   }
 }
