@@ -114,9 +114,7 @@ export default function AnnouncementToaster() {
   // Dismiss all toasts when the list popup opens
   useEffect(() => {
     if (isListOpen) {
-      for (const id of shownRef.current) {
-        toast.dismiss(id);
-      }
+      toast.dismiss();
     }
   }, [isListOpen]);
 
