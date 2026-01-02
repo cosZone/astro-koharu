@@ -17,8 +17,8 @@ export default function FooterAnnouncementEntry() {
   const count = useStore(unreadCount);
   const announcements = useStore(activeAnnouncements);
 
-  // Don't render if no active announcements
-  if (announcements.length === 0) {
+  // Don't render during SSR or if no active announcements
+  if (!isMounted || announcements.length === 0) {
     return null;
   }
 

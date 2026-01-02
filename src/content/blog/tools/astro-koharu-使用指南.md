@@ -12,8 +12,6 @@ categories:
   - 工具
 ---
 
-本文基本由 AI 制作，还处于 WIP 阶段，随时修改～
-
 一份完整的 astro-koharu 博客系统使用指南，帮助你快速上手并充分利用所有功能特性。
 
 https://github.com/cosZone/astro-koharu
@@ -75,17 +73,17 @@ pnpm preview
 
 ```typescript
 export const siteConfig: SiteConfig = {
-  title: '余弦の博客',           // 网站标题
-  alternate: 'cosine',           // 英文短名（用作 logo 文本）
-  subtitle: 'WA 的一声就哭了',   // 副标题
-  name: 'cos',                   // 站点作者简称
-  description: 'FE / ACG / ...',  // 站点简介
+  title: 'My Blog',              // 网站标题
+  alternate: 'myblog',           // 英文短名（用作 logo 文本）
+  subtitle: '欢迎来到我的博客',    // 副标题
+  name: 'Author',                // 站点作者简称
+  description: '站点简介...',     // 站点简介
   avatar: '/img/avatar.webp',    // 头像路径
   showLogo: true,                // 是否显示 logo
-  author: 'cos',                 // 文章作者
-  site: 'https://blog.cosine.ren/', // 站点域名
-  startYear: 2020,               // 站点创建年份
-  keywords: ['cos', 'cosine', '博客', '前端'], // SEO 关键词
+  author: 'Author',              // 文章作者
+  site: 'https://your-domain.com/', // 站点域名
+  startYear: 2024,               // 站点创建年份
+  keywords: ['博客', 'Astro', '技术'], // SEO 关键词
 };
 ```
 
@@ -112,15 +110,14 @@ featuredCategories: [
 ```typescript
 featuredSeries: {
   categoryName: '周刊',        // 分类名称
-  label: 'FE Bits',           // 显示标签
-  fullName: 'FE Bits 前端周周谈', // 完整名称
+  label: '我的周刊',           // 显示标签
+  fullName: '我的技术周刊',     // 完整名称
   description: '...',         // 描述
   cover: '/img/weekly_header.webp', // 封面图
-  enabled: true,              // 是否启用
+  enabled: true,              // 是否启用（设为 false 关闭此功能）
   links: {                    // 相关链接
-    github: 'https://github.com/...',
-    rss: 'https://...',
-    chrome: 'https://...',
+    github: 'https://github.com/your-username/your-repo',
+    rss: '/rss.xml',
   },
 }
 ```
@@ -132,16 +129,21 @@ featuredSeries: {
 ```typescript
 export const socialConfig: SocialConfig = {
   github: {
-    url: 'https://github.com/yusixian',
+    url: 'https://github.com/your-username',
     icon: 'ri:github-fill',      // Iconify 图标名
     color: '#191717',            // 主题色
   },
-  bilibili: {
-    url: 'https://space.bilibili.com/10730895',
-    icon: 'ri:bilibili-fill',
-    color: '#da708a',
+  email: {
+    url: 'mailto:your@email.com',
+    icon: 'ri:mail-line',
+    color: '#55acd5',
   },
-  // ... 更多平台
+  rss: {
+    url: '/rss.xml',
+    icon: 'ri:rss-line',
+    color: '#ff6600',
+  },
+  // ... 更多平台配置见 site-config.ts
 };
 ```
 

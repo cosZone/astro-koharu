@@ -69,131 +69,97 @@ export const siteConfig: SiteConfig = {
   title: '余弦の博客', // 网站名称
   alternate: 'cosine', // 网站名称
   subtitle: 'WA 的一声就哭了', // 副标题
-  name: 'cos',
-  description: 'FE / ACG / 手工 / 深色模式强迫症 / INFP / 兴趣广泛养两只猫的老宅女 / remote', // 站点简介（一段话）
-  avatar: '/img/avatar.webp', // 站点头像 logo.png or url
-  showLogo: true, // 是否显示 logo 否则用 title
-  author: 'cos', // 作者名称
-  site: 'https://blog.cosine.ren/',
-  startYear: 2020,
-  keywords: ['cos', 'cosine', '博客', '个人空间', '技术', '前端'],
+  name: 'cos', // 站点作者简称
+  description: '一个基于 Astro 的现代化博客主题', // 站点简介（一段话）
+  avatar: '/img/avatar.webp', // 站点头像 - 请替换 public/img/avatar.webp
+  showLogo: false, // 是否显示 svg logo 否则用 title
+  author: 'Author', // 作者名称 - 请修改为你的名字
+  site: 'https://your-domain.com/', // 站点线上域名 - 部署后请修改
+  startYear: 2024, // 站点创建年份
+  keywords: ['博客', 'Astro', '技术', '前端'], // SEO 关键词
   featuredCategories: [
     {
       link: 'life',
       label: '随笔',
       image: '/img/cover/2.webp',
-      description: '生活记录、年度总结等',
-    },
-    {
-      link: 'note/front-end',
-      label: '前端笔记',
-      image: '/img/cover/1.webp',
-      description: '前端相关的笔记',
-    },
-    {
-      link: 'project',
-      label: '项目集锦',
-      image: '/img/cover/3.webp',
-      description: '项目集锦',
+      description: '生活记录、随想随笔',
     },
     {
       link: 'note',
       label: '笔记',
       image: '/img/cover/4.webp',
-      description: '技术笔记、学习笔记等',
+      description: '技术笔记、学习笔记',
+    },
+    {
+      link: 'note/front-end',
+      label: '前端',
+      image: '/img/cover/1.webp',
+      description: '前端技术相关',
     },
     {
       link: 'tools',
       label: '工具',
       image: '/img/cover/11.webp',
-      description: '工具使用、软件推荐等',
-    },
-    {
-      link: 'coding-train',
-      label: '题目记录',
-      image: '/img/cover/6.webp',
-      description: '曾经的刷题记录等',
-    },
-    {
-      link: 'note/bytedance-note',
-      label: '青训营笔记',
-      image: '/img/cover/9.webp',
-      description: '初学前端时的笔记',
-    },
-    {
-      link: 'note/cs-basics',
-      label: 'CS基础',
-      image: '/img/cover/8.webp',
-      description: '大学时期的 CS 基础笔记',
+      description: '工具使用、效率提升',
     },
   ],
   featuredSeries: {
     categoryName: '周刊',
-    label: 'FE Bits',
-    fullName: 'FE Bits 前端周周谈',
-    description: `之前在自己的频道进行一些输出，于是有了这个周刊！
+    label: '我的周刊',
+    fullName: '我的技术周刊',
+    description: `这是周刊/系列文章功能的示例配置。
 
-部分总结有使用我自己开发的 MoeCopy AI 浏览器插件，喜欢的话可以给个 star！
+你可以用它来发布定期更新的系列内容，如技术周刊、读书笔记系列等。
 
-更新时间期望是在每周天`,
+设置 enabled: false 可以关闭此功能。`,
     cover: '/img/weekly_header.webp',
     enabled: true,
     links: {
-      github: 'https://github.com/yusixian/fe-bits-weekly',
-      rss: 'https://quaily.com/cosine/feed/atom',
-      chrome: 'https://chromewebstore.google.com/detail/moe-copy-ai/dfmlcfckmfgabpgbaobgapdfmjiihnck',
-      docs: 'https://moe.cosine.ren/docs',
+      github: 'https://github.com/your-username/your-repo',
+      rss: '/rss.xml',
     },
   },
 };
 
 // 社交媒体配置
-// https://icon-sets.iconify.design/ri/
+// 图标查询: https://icon-sets.iconify.design/ri/
 export const socialConfig: SocialConfig = {
   github: {
-    url: 'https://github.com/yusixian',
+    url: 'https://github.com/your-username', // 替换为你的 GitHub 链接
     icon: 'ri:github-fill',
     color: '#191717',
   },
-  // zhihu: {
-  //   url: 'https://www.zhihu.com/people/qi-jiu-en',
-  //   icon: 'ri:zhihu-fill',
-  //   color: '#1e88e5',
-  // },
-  bilibili: {
-    url: 'https://space.bilibili.com/10730895',
-    icon: 'ri:bilibili-fill',
-    color: '#da708a',
-  },
-  music: {
-    url: 'https://music.163.com/#/user/home?id=361029804',
-    icon: 'ri:netease-cloud-music-line',
-    color: '#e60026',
-  },
   email: {
-    url: 'mailto:cosine_yu@qq.com',
+    url: 'mailto:your@email.com', // 替换为你的邮箱
     icon: 'ri:mail-line',
     color: '#55acd5',
-  },
-  twitter: {
-    url: 'https://x.com/_cosine_x',
-    icon: 'ri:twitter-fill',
-    color: '#4b9ae4',
   },
   rss: {
     url: '/rss.xml',
     icon: 'ri:rss-line',
     color: '#ff6600',
   },
-  // #google: https://plus.google.com/yourname || google
-  // # about: https://about.me/amehime || address-card || "#3b5998"
-  // #facebook: https://www.facebook.com/yourname || facebook
-  // #stackoverflow: https://stackoverflow.com/yourname || stack-overflow
-  // #youtube: https://youtube.com/yourname || youtube
-  // #instagram: https://instagram.com/yourname || instagram
-  // #skype: skype:yourname?call|chat || skype
-  // #douban: https://www.douban.com/people/yourname/ || douban
-  // # weibo: https://weibo.com/amehime || weibo || "#ea716e"
+  // 以下是更多可选的社交平台配置示例，取消注释并修改即可启用：
+  // twitter: {
+  //   url: 'https://x.com/your-handle',
+  //   icon: 'ri:twitter-fill',
+  //   color: '#4b9ae4',
+  // },
+  // bilibili: {
+  //   url: 'https://space.bilibili.com/your-id',
+  //   icon: 'ri:bilibili-fill',
+  //   color: '#da708a',
+  // },
+  // zhihu: {
+  //   url: 'https://www.zhihu.com/people/your-id',
+  //   icon: 'ri:zhihu-fill',
+  //   color: '#1e88e5',
+  // },
+  // music: {
+  //   url: 'https://music.163.com/#/user/home?id=your-id',
+  //   icon: 'ri:netease-cloud-music-line',
+  //   color: '#e60026',
+  // },
 };
 
 const { title, alternate, subtitle } = siteConfig;
@@ -205,7 +171,7 @@ export const seoConfig = {
   url: siteConfig.site,
 };
 
-export const defaultCoverList = Array.from({ length: 13 }, (_, index) => index + 1).map((item) => `/img/cover/${item}.webp`);
+export const defaultCoverList = Array.from({ length: 21 }, (_, index) => index + 1).map((item) => `/img/cover/${item}.webp`);
 
 // 圣诞特效配置类型
 type ChristmasConfig = {

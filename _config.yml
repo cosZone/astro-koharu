@@ -1,32 +1,18 @@
-# Hexo Configuration
-## Docs: https://hexo.io/docs/configuration.html
-## Source: https://github.com/hexojs/hexo/
+# 分类映射配置
+# 将中文分类名映射为 URL 友好的英文 slug
+# 例如：'随笔' 分类的 URL 会是 /categories/life
 
-# Category & Tag
 category_map:
+  # 一级分类
   随笔: life
-
-  笔试面经: review
-  笔试复盘: exam-record
-  面经: interview
-
-  题目记录: coding-train
-  竞赛: contest
-  字节校园: bytedance
-  剑指offer: offer
-
-  项目集锦: project
-
   笔记: note
-  青训营笔记: bytedance-note
-  算法: algorithm
-  后端: back-end
-  前端: front-end
-  JavaScript: javascript
-  React: react
-  CS基础: cs-basics
-  数据结构: data-structure
-
   工具: tools
   周刊: weekly
-  AI: ai
+
+  # 二级分类（嵌套分类使用）
+  前端: front-end
+
+  # 添加更多分类映射示例：
+  # 后端: back-end
+  # 算法: algorithm
+  # 项目: project

@@ -70,7 +70,7 @@ export function MobilePostHeader({
       {logoElement === 'svg' && logoSrc ? (
         <img src={logoSrc} alt={siteConfig?.alternate ?? siteConfig?.name} className="h-8" height={32} />
       ) : (
-        <span className="logo-text text-primary">{logoText}</span>
+        <span className="logo-text">{logoText}</span>
       )}
     </a>
   );
