@@ -10,6 +10,7 @@ interface Props {
 }
 
 import { ClientRouter } from 'astro:transitions';
+import AnnouncementProvider from '@components/announcement/AnnouncementProvider.astro';
 import ChristmasEffects from '@components/christmas/ChristmasEffects.astro';
 import FloatingGroup from '@components/layout/FloatingGroup';
 import Header from '@components/layout/Header.astro';
@@ -18,6 +19,7 @@ import SearchDialog from '@components/layout/SearchDialog';
 import SearchPortal from '@components/layout/SearchPortal.astro';
 import CodeBlockFullscreen from '@components/markdown/CodeBlockFullscreen';
 import MermaidFullscreen from '@components/markdown/MermaidFullscreen.astro';
+import { Toaster } from '@components/ui/sonner';
 import { christmasConfig, seoConfig, siteConfig } from '@constants/site-config';
 import LoadingIndicator from 'astro-loading-indicator/component';
 import { Tooltips } from 'astro-tooltips';
@@ -283,6 +285,8 @@ const isPostPage = Astro.url.pathname.startsWith('/post/');
       <SearchPortal />
       <CodeBlockFullscreen client:load />
       <MermaidFullscreen />
+      <Toaster client:load />
+      <AnnouncementProvider />
     </div>
   </body>
 </html>

@@ -1,0 +1,30 @@
+---
+import AnnouncementListPopup from './AnnouncementListPopup';
+import AnnouncementToaster from './AnnouncementToaster';
+/**
+ * AnnouncementProvider Component
+ *
+ * Initializes the announcement system and mounts the React toast/popup components.
+ * Should be placed in Layout.astro alongside other global components.
+ */
+---
+
+<!-- React components for Toast and Popup -->
+<AnnouncementToaster client:load />
+<AnnouncementListPopup client:load />
+
+<script>
+  import { initAnnouncementState } from '@store/announcement';
+
+  function init() {
+    initAnnouncementState();
+  }
+
+  // Handle initial load
+  if (document.readyState !== 'loading') {
+    init();
+  }
+
+  // Handle Astro page transitions
+  document.addEventListener('astro:page-load', init);
+</script>
