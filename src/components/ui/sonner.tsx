@@ -17,6 +17,7 @@ function Toaster({ ...props }: ToasterProps) {
       theme={isDark ? 'dark' : 'light'}
       className="toaster group"
       position="bottom-right"
+      gap={12}
       icons={{
         success: <Icon icon="ri:checkbox-circle-line" className="size-4" />,
         info: <Icon icon="ri:information-line" className="size-4" />,

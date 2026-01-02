@@ -110,7 +110,8 @@
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx,json,astro}": [
-      "biome check --write --no-errors-on-unmatched"
+      "biome check --write --no-errors-on-unmatched",
+      "astro check"
     ],
     "*.{md,mdx}": [
       "lint-md --fix"

@@ -5,6 +5,7 @@
  * Each toast can be dismissed, which marks it as read.
  */
 
+import { useRetimer } from '@hooks/useRetimer';
 import { Icon } from '@iconify/react';
 import { useStore } from '@nanostores/react';
 import {
@@ -14,9 +15,11 @@ import {
   openAnnouncementList,
   unreadAnnouncements,
 } from '@store/announcement';
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { toast } from 'sonner';
 import type { Announcement } from '@/types/announcement';
+
+const HOVER_READ_DELAY = 1000; // ms before marking as read on hover
 
 const typeStyles: Record<string, { color: string; icon: string }> = {
   info: { color: '#3b82f6', icon: 'ri:information-line' },
@@ -67,11 +70,46 @@ function AnnouncementToastContent({ announcement }: { announcement: Announcement
   );
 }
 
+function AnnouncementToast({ announcement, toastId }: { announcement: Announcement; toastId: string | number }) {
+  const [isHovered, setIsHovered] = useState(false);
+  const retimer = useRetimer();
+
+  const handleMouseEnter = () => {
+    setIsHovered(true);
+    retimer(setTimeout(() => markAsRead(announcement.id), HOVER_READ_DELAY));
+  };
+
+  const handleMouseLeave = () => {
+    setIsHovered(false);
+  };
+
+  return (
+    <output
+      className={`block w-full rounded-lg border border-border/50 bg-card/95 p-4 shadow-lg backdrop-blur-md transition-all duration-200 ${
+        isHovered ? 'scale-[1.02] shadow-xl' : ''
+      }`}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
+    >
+      <AnnouncementToastContent announcement={announcement} />
+      <div className="mt-3 flex items-center justify-between border-border/50 border-t pt-2 text-muted-foreground text-xs">
+        <button onClick={openAnnouncementList} className="text-primary hover:underline" type="button">
+          View all
+        </button>
+        <button onClick={() => toast.dismiss(toastId)} className="opacity-70 hover:opacity-100" type="button">
+          Dismiss
+        </button>
+      </div>
+    </output>
+  );
+}
+
 export default function AnnouncementToaster() {
   const initialized = useStore(announcementInitialized);
   const unread = useStore(unreadAnnouncements);
   const isListOpen = useStore(announcementListOpen);
   const shownRef = useRef<Set<string>>(new Set());
+  const timersRef = useRef<ReturnType<typeof setTimeout>[]>([]);
 
   // Dismiss all toasts when the list popup opens
   useEffect(() => {
@@ -92,38 +130,22 @@ export default function AnnouncementToaster() {
       shownRef.current.add(announcement.id);
 
       // Delay to avoid blocking initial render
-      setTimeout(
+      const timer = setTimeout(
         () => {
-          toast.custom(
-            (toastId) => (
-              <div className="w-full rounded-lg border border-border/50 bg-card/95 p-4 shadow-lg backdrop-blur-md">
-                <AnnouncementToastContent announcement={announcement} />
-                <div className="mt-3 flex items-center justify-between border-border/50 border-t pt-2 text-muted-foreground text-xs">
-                  <button onClick={openAnnouncementList} className="text-primary hover:underline" type="button">
-                    View all
-                  </button>
-                  <button
-                    onClick={() => {
-                      markAsRead(announcement.id);
-                      toast.dismiss(toastId);
-                    }}
-                    className="opacity-70 hover:opacity-100"
-                    type="button"
-                  >
-                    Dismiss
-                  </button>
-                </div>
-              </div>
-            ),
-            {
-              id: announcement.id,
-              duration: Number.POSITIVE_INFINITY, // Don't auto-dismiss
-            },
-          );
+          toast.custom((toastId) => <AnnouncementToast announcement={announcement} toastId={toastId} />, {
+            id: announcement.id,
+            duration: Number.POSITIVE_INFINITY, // Don't auto-dismiss
+          });
         },
         500 + unread.indexOf(announcement) * 200,
       ); // Stagger the toasts
+      timersRef.current.push(timer);
     }
+
+    return () => {
+      timersRef.current.forEach(clearTimeout);
+      timersRef.current = [];
+    };
   }, [initialized, unread]);
 
   return null;

@@ -802,6 +802,78 @@ export const christmasConfig: ChristmasConfig = {
 
 设置 `christmasConfig.enabled = false` 即可完全关闭所有圣诞特效。
 
+### 站点公告系统
+
+无后端的站点公告系统，支持在配置文件中管理公告，首次访问自动弹出，关闭后可通过页脚入口再次查看。
+
+**特性：**
+
+- 无后端 —— 公告内容写在配置文件，无需数据库
+- Toast 通知 —— 右下角浮动通知，支持多条堆叠显示
+- 多条公告 —— 支持配置多条公告，按优先级排序
+- 时间控制 —— 支持设置公告的开始/结束日期，自动控制显示
+- 自定义颜色 —— 每条公告可设置独立颜色，覆盖默认类型颜色
+- 时间线弹窗 —— 公告列表采用时间线样式，带渐变连接线
+- Hover 已读 —— 悬停 Toast 1 秒后自动标记已读
+- 已读追踪 —— localStorage 记录已读状态，返回访问不重复弹出
+- 再次查看 —— 页脚入口可随时查看所有公告，带未读红点提示
+
+**配置方式：**
+
+编辑 `src/constants/announcements.ts` 添加公告：
+
+```typescript
+import type { Announcement } from '@/types/announcement';
+
+export const announcements: Announcement[] = [
+  {
+    id: 'welcome-2026',           // 唯一标识
+    title: '2026 年新年快乐!',      // 公告标题
+    content: '新年快乐! 感谢大家一直以来的支持~',  // 公告内容
+    type: 'success',              // 类型：info | warning | success | important
+    priority: 10,                 // 优先级（越高越先显示）
+    color: '#FF6B6B',             // 自定义颜色（可选，覆盖 type 默认色）
+    publishDate: '2026-01-01',    // 显示日期（可选，用于时间线展示）
+    startDate: '2025-12-31T00:00:00+08:00',  // 开始日期（可选）
+    endDate: '2026-01-15T23:59:59+08:00',    // 结束日期（可选）
+    link: {                       // 链接（可选）
+      url: 'https://example.com',
+      text: '了解更多',
+      external: true,
+    },
+  },
+];
+```
+
+**公告类型样式：**
+
+| 类型        | 说明     | 默认颜色 |
+| ----------- | -------- | -------- |
+| `info`      | 信息通知 | 蓝色 (#3b82f6) |
+| `warning`   | 警告提示 | 黄色 (#eab308) |
+| `success`   | 成功消息 | 绿色 (#22c55e) |
+| `important` | 重要公告 | 红色 (#ef4444) |
+
+> 设置 `color` 字段可覆盖上述默认颜色
+
+**交互流程：**
+
+1. **首次访问**：0.5 秒后自动弹出未读公告 Toast（多条堆叠显示）
+2. **Hover 已读**：悬停在 Toast 上 1 秒后自动标记已读
+3. **手动关闭**：点击 Dismiss 关闭 Toast
+4. **点击"View all"**：关闭所有 Toast，打开时间线弹窗
+5. **时间线弹窗**：点击公告卡片标记已读，显示发布日期和渐变连接线
+6. **页脚入口**：随时可点击查看所有公告，未读时显示红点
+7. **返回访问**：只显示真正未读的公告
+
+**注意事项：**
+
+- 公告 `id` 必须唯一，用于追踪已读状态
+- 省略 `startDate` 表示立即生效，省略 `endDate` 表示永不过期
+- `publishDate` 用于时间线弹窗中的日期显示，省略时使用 `startDate`
+- 过期公告建议从配置中删除，保持配置简洁
+- 已读状态存储在 localStorage，key 为 `announcement-read-ids`
+
 ### Markdown 增强
 
 **语法支持：**
