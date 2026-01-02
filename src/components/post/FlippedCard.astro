@@ -12,13 +12,18 @@ export interface Props {
    */
   duration?: number;
   /**
+   * 防误触延迟(ms)，hover 后等待一段时间再翻转
+   * @default 100
+   */
+  delay?: number;
+  /**
    * 是否禁用翻转
    * @default false
    */
   disabled?: boolean;
 }
 
-const { className, direction = 'horizontal', duration = 600, disabled = false } = Astro.props;
+const { className, direction = 'horizontal', duration = 600, delay = 100, disabled = false } = Astro.props;
 ---
 
 <div class:list={['flip-card h-56', className, { 'flip-card-disabled': disabled }]} data-direction={direction}>
@@ -32,11 +37,19 @@ const { className, direction = 'horizontal', duration = 600, disabled = false } 
   </div>
 </div>
 
-<style define:vars={{ duration }}>
+<style define:vars={{ duration, delay }}>
   .flip-card {
+    position: relative;
     background-color: transparent;
     perspective: 1000px;
-    /* width: 400px; */
+  }
+
+  /* 透明覆盖层，确保 hover 检测区域稳定，不受 3D 变换影响 */
+  .flip-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 10;
   }
 
   .flip-card-inner {
@@ -47,10 +60,12 @@ const { className, direction = 'horizontal', duration = 600, disabled = false } 
     transition: transform 600ms;
     transform-style: preserve-3d;
     will-change: transform;
+    pointer-events: none;
   }
 
   .flip-card:not(.flip-card-disabled):hover .flip-card-inner {
     transform: rotateY(-180deg);
+    transition-delay: calc(var(--delay) * 1ms);
   }
 
   .flip-card-front,
@@ -80,7 +95,7 @@ const { className, direction = 'horizontal', duration = 600, disabled = false } 
   /* 添加一些过渡效果 */
   .flip-card-front,
   .flip-card-back {
-    transition: all var(--duration) ms ease-in-out;
+    transition: all calc(var(--duration) * 1ms) ease-in-out;
   }
 
   /* 添加阴影效果 */

@@ -2,6 +2,7 @@
 import { getPostLastCategory, getSortedPosts } from '@lib/content';
 import { getRelatedPosts, hasSimilarityData } from '@lib/content/similarities';
 import type { BlogPost } from 'types/blog';
+import PostFooterLists from './PostFooterLists';
 import RandomPostList from './RandomPostList';
 import RelatedPostList from './RelatedPostList';
 
@@ -27,22 +28,27 @@ const allPosts = await getSortedPosts();
 const totalPosts = allPosts.length;
 
 // Calculate how many posts to show on each side
-// For <= 10 posts: split evenly (e.g., 6 posts = 3 left + 3 right)
-// For > 10 posts: 5 on each side
+// For <= 10 posts: split evenly (e.g., 8 posts = 4 left + 4 right)
+// For > 10 posts: 5 on each side from left/right halves
 const leftCount = totalPosts <= 10 ? Math.ceil(totalPosts / 2) : 5;
 const rightCount = totalPosts <= 10 ? Math.floor(totalPosts / 2) : 5;
 
-// Prepare posts for random selection
-const randomPostsPool = totalPosts <= 10 ? allPosts.map(toPostItem) : allPosts.slice(0, 20).map(toPostItem);
+// Prepare post pools for client-side randomization
+const allPostItems = allPosts.map(toPostItem);
+const leftPool = totalPosts <= 10 ? allPostItems : allPostItems.slice(0, Math.floor(totalPosts / 2));
+const rightPool = totalPosts <= 10 ? allPostItems : allPostItems.slice(Math.floor(totalPosts / 2));
 
 // Get related posts if current post is provided and similarity data exists
 const relatedPosts = hasData && post ? getRelatedPosts(post, allPosts, 5).map(toPostItem) : [];
-
-// Fallback posts pool for related section
-const fallbackPostsPool = totalPosts <= 10 ? allPosts.map(toPostItem) : allPosts.slice(20, 40).map(toPostItem);
 ---
 
 <div class="tablet:grid-cols-1 grid grid-cols-2 gap-4 px-10 md:px-6">
-  <RandomPostList client:load posts={randomPostsPool} count={leftCount} />
-  {(hasData || totalPosts <= 10) && <RelatedPostList client:load posts={relatedPosts} fallbackPosts={fallbackPostsPool} fallbackCount={rightCount} />}
+  {totalPosts <= 10 ? (
+    <PostFooterLists client:only="react" allPosts={allPostItems} relatedPosts={relatedPosts} leftCount={leftCount} rightCount={rightCount} />
+  ) : (
+    <>
+      <RandomPostList client:only="react" postsPool={leftPool} count={leftCount} />
+      {(hasData || totalPosts <= 10) && <RelatedPostList client:only="react" posts={relatedPosts} fallbackPool={rightPool} fallbackCount={rightCount} startIndex={leftCount + 1} />}
+    </>
+  )}
 </div>

@@ -5,17 +5,23 @@
  */
 
 import { ErrorBoundary, ErrorFallback } from '@components/common';
-import { useEffect } from 'react';
-import { createRoot, type Root } from 'react-dom/client';
+import { useEffect, useState } from 'react';
+import { createPortal } from 'react-dom';
 import TweetEmbed from './TweetEmbed';
 
-export function EmbedHydrator() {
-  useEffect(() => {
-    // Store all created roots for cleanup
-    const roots: Root[] = [];
+interface TweetPlaceholder {
+  element: Element;
+  tweetId: string;
+}
 
+export function EmbedHydrator() {
+  const [tweetPlaceholders, setTweetPlaceholders] = useState<TweetPlaceholder[]>([]);
+
+  useEffect(() => {
     // Find all tweet embed placeholders
     const tweetEmbeds = document.querySelectorAll('[data-tweet-embed]');
+    const placeholders: TweetPlaceholder[] = [];
+
     tweetEmbeds.forEach((element) => {
       const tweetId = element.getAttribute('data-tweet-id');
       if (!tweetId) return;
@@ -23,27 +29,26 @@ export function EmbedHydrator() {
       // Check if already hydrated
       if (element.getAttribute('data-hydrated') === 'true') return;
 
-      // Create a root and render the TweetEmbed component with error boundary
-      const root = createRoot(element);
-      root.render(
-        <ErrorBoundary fallbackRender={(props) => <ErrorFallback {...props} title="TweetEmbed Error" />}>
-          <TweetEmbed tweetId={tweetId} />
-        </ErrorBoundary>,
-      );
-      roots.push(root);
+      placeholders.push({ element, tweetId });
 
       // Mark as hydrated
       element.setAttribute('data-hydrated', 'true');
     });
 
-    // Cleanup function: unmount all roots when component unmounts
-    return () => {
-      for (const root of roots) {
-        root.unmount();
-      }
-    };
+    setTweetPlaceholders(placeholders);
   }, []);
 
-  // This component doesn't render anything visible
-  return null;
+  // Render tweets using portals instead of creating new roots
+  return (
+    <>
+      {tweetPlaceholders.map(({ element, tweetId }) =>
+        createPortal(
+          <ErrorBoundary fallbackRender={(props) => <ErrorFallback {...props} title="TweetEmbed Error" />}>
+            <TweetEmbed tweetId={tweetId} />
+          </ErrorBoundary>,
+          element,
+        ),
+      )}
+    </>
+  );
 }

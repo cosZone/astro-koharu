@@ -1,3 +1,4 @@
+import { shuffleArray } from '@lib/utils';
 import { useMemo } from 'react';
 
 export interface RandomPostItem {
@@ -8,28 +9,23 @@ export interface RandomPostItem {
 }
 
 interface Props {
-  posts: RandomPostItem[];
-  count?: number;
+  postsPool: RandomPostItem[]; // Pool to randomly select from
+  count: number; // Number of posts to display
 }
 
-function shuffleArray<T>(array: T[]): T[] {
-  const result = [...array];
-  for (let i = result.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [result[i], result[j]] = [result[j], result[i]];
-  }
-  return result;
-}
-
-export default function RandomPostList({ posts, count = 5 }: Props) {
-  const actualCount = Math.min(count, posts.length);
-  const displayPosts = useMemo(() => shuffleArray(posts).slice(0, actualCount), [posts, actualCount]);
-
+export default function RandomPostList({ postsPool, count }: Props) {
+  // Shuffle on client-side for fresh randomization on each page load
+  const posts = useMemo(() => {
+    if (postsPool.length <= count) {
+      return shuffleArray(postsPool);
+    }
+    return shuffleArray(postsPool).slice(0, count);
+  }, [postsPool, count]);
   return (
     <div className="flex flex-col gap-4">
       <h2 className="font-semibold text-2xl text-foreground/80">随机文章</h2>
       <div className="flex flex-col gap-2">
-        {displayPosts.map((post, index) => (
+        {posts.map((post, index) => (
           <a
             key={post.slug}
             href={`/post/${post.link ?? post.slug}`}

@@ -286,7 +286,7 @@ function generateLinkPreviewHTML(ogData: OGData): string {
       : sanitizeText(originUrl.length > 60 ? `${originUrl.substring(0, 60)}...` : originUrl);
 
     return `<div class="link-preview-block not-prose" data-state="error">
-  <a href="${safeUrl}" target="_blank" class="hover:border-primary/50 group block rounded-lg border bg-card p-4 transition-all hover:shadow-md" aria-label="${safeDisplayText}">
+  <a href="${safeUrl}" target="_blank" class="hover:border-primary/50 group block rounded-lg border border-border bg-card p-4 transition-all hover:shadow-md" aria-label="${safeDisplayText}">
     <div class="flex items-center justify-between gap-3">
       <div class="flex items-center gap-3 min-w-0 flex-1">
         <div class="bg-primary/10 text-primary flex h-10 w-10 shrink-0 items-center justify-center rounded-lg">
