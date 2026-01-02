@@ -975,10 +975,17 @@ body.lightbox-open {
   border-top: none;
   padding: 1rem;
   margin: 0;
-  overflow: hidden;
+  overflow: auto;
   background-color: hsl(var(--card));
   box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
   min-height: 200px;
+  min-width: min(920px, 100%);
+}
+
+/* Override infographic text wrapping - prevent title and label wrapping */
+.infographic-container foreignObject[data-element-type="title"] span,
+.infographic-container foreignObject[data-element-type="desc"] span {
+  letter-spacing: -1px;
 }
 
 /* Fullscreen SVG container */

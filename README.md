@@ -47,7 +47,7 @@ pnpm dev
 - 基于 Astro 5.x，静态站点生成，性能优异
 - 优雅的深色/浅色主题切换
 - 基于 Pagefind 的无后端全站搜索
-- 完整的 Markdown 增强功能（GFM、代码高亮、自动目录、Mermaid 图表）
+- 完整的 Markdown 增强功能（GFM、代码高亮、自动目录、Mermaid 图表、Infographic 信息图）
 - 灵活的多级分类与标签系统
 - [可开关] 特色周刊/系列文章支持
 - 响应式设计

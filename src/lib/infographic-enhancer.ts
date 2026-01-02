@@ -5,10 +5,20 @@
 
 import { copyToClipboard } from './code-block-enhancer';
 
+// Font registration flag
+let fontRegistered = false;
+
 // Track active observers and timeouts for cleanup
 let activeObservers: MutationObserver[] = [];
 let activeTimeouts: ReturnType<typeof setTimeout>[] = [];
-const infographicInstances: Map<HTMLElement, unknown> = new Map();
+let themeObserver: MutationObserver | null = null;
+
+interface InfographicEntry {
+  instance: unknown;
+  source: string;
+  container: HTMLElement;
+}
+const infographicInstances: Map<HTMLElement, InfographicEntry> = new Map();
 
 /**
  * Create toolbar HTML for infographic diagram
@@ -85,10 +95,38 @@ function isDarkMode(): boolean {
 }
 
 /**
+ * Register custom font for infographic
+ */
+async function ensureFontRegistered(): Promise<void> {
+  if (fontRegistered) return;
+
+  const { registerFont } = await import('@antv/infographic');
+
+  registerFont({
+    fontFamily: '寒蝉全圆体',
+    name: '寒蝉全圆体',
+    baseUrl: '/fonts/ChillRoundFRegular/result.css',
+    fontWeight: { regular: 'regular' },
+  });
+
+  registerFont({
+    fontFamily: '寒蝉全圆体',
+    name: '寒蝉全圆体 Bold',
+    baseUrl: '/fonts/ChillRoundFBold/result.css',
+    fontWeight: { bold: 'bold' },
+  });
+
+  fontRegistered = true;
+}
+
+/**
  * Dynamically import and render infographic
  */
 async function renderInfographic(container: HTMLElement, source: string): Promise<unknown> {
   const { Infographic } = await import('@antv/infographic');
+
+  // Register custom font before rendering
+  await ensureFontRegistered();
 
   // Use built-in themes: 'default', 'dark', 'hand-drawn'
   const theme = isDarkMode() ? 'dark' : 'default';
@@ -100,7 +138,19 @@ async function renderInfographic(container: HTMLElement, source: string): Promis
     theme,
   });
 
-  infographic.render(source);
+  // Append font-family configuration to source
+  const fontConfig = `
+theme
+  base
+    text
+      font-family 寒蝉全圆体
+  item
+    label
+      font-family 寒蝉全圆体
+`;
+  const sourceWithFont = `${source}\n${fontConfig}`;
+
+  infographic.render(sourceWithFont);
   return infographic;
 }
 
@@ -146,7 +196,7 @@ async function enhanceInfographicBlock(preElement: HTMLElement): Promise<void> {
   // Render the infographic
   try {
     const instance = await renderInfographic(infographicContainer, source);
-    infographicInstances.set(preElement, instance);
+    infographicInstances.set(preElement, { instance, source, container: infographicContainer });
   } catch (error) {
     console.error('Failed to render infographic:', error);
     // Show source code on error
@@ -199,6 +249,12 @@ function cleanup(destroyInstances = false): void {
   }
   activeObservers = [];
 
+  // Clean up theme observer
+  if (themeObserver) {
+    themeObserver.disconnect();
+    themeObserver = null;
+  }
+
   // Clear all timeouts
   for (const timeout of activeTimeouts) {
     clearTimeout(timeout);
@@ -207,10 +263,10 @@ function cleanup(destroyInstances = false): void {
 
   // Only destroy instances on page transitions, not on re-init
   if (destroyInstances) {
-    for (const [element, instance] of infographicInstances) {
+    for (const [element, entry] of infographicInstances) {
       try {
-        if (instance && typeof (instance as { destroy?: () => void }).destroy === 'function') {
-          (instance as { destroy: () => void }).destroy();
+        if (entry.instance && typeof (entry.instance as { destroy?: () => void }).destroy === 'function') {
+          (entry.instance as { destroy: () => void }).destroy();
         }
         // Remove wrapper and restore original pre element
         const wrapper = element.closest('.infographic-wrapper');
@@ -263,11 +319,87 @@ function enhanceAllInfographics(): void {
 }
 
 /**
+ * Re-render all infographics with current theme
+ * Called when theme changes
+ */
+async function reRenderAllInfographics(): Promise<void> {
+  const { Infographic } = await import('@antv/infographic');
+
+  // Ensure font is registered
+  await ensureFontRegistered();
+
+  const theme = isDarkMode() ? 'dark' : 'default';
+
+  // Font configuration to append
+  const fontConfig = `
+theme
+  base
+    text
+      font-family 寒蝉全圆体
+  item
+    label
+      font-family 寒蝉全圆体
+`;
+
+  for (const [, entry] of infographicInstances) {
+    try {
+      // Destroy old instance
+      if (entry.instance && typeof (entry.instance as { destroy?: () => void }).destroy === 'function') {
+        (entry.instance as { destroy: () => void }).destroy();
+      }
+
+      // Clear container
+      entry.container.innerHTML = '';
+
+      // Create new instance with updated theme
+      const newInstance = new Infographic({
+        container: entry.container,
+        width: '100%',
+        height: 'auto',
+        theme,
+      });
+
+      const sourceWithFont = `${entry.source}\n${fontConfig}`;
+      newInstance.render(sourceWithFont);
+      entry.instance = newInstance;
+    } catch (error) {
+      console.error('Failed to re-render infographic:', error);
+    }
+  }
+}
+
+/**
+ * Setup theme observer to re-render infographics on theme change
+ */
+function setupThemeObserver(): void {
+  if (themeObserver) {
+    themeObserver.disconnect();
+  }
+
+  themeObserver = new MutationObserver(() => {
+    // Only re-render if we have instances
+    if (infographicInstances.size > 0) {
+      reRenderAllInfographics();
+    }
+  });
+
+  themeObserver.observe(document.documentElement, {
+    attributes: true,
+    attributeFilter: ['class'],
+  });
+
+  activeObservers.push(themeObserver);
+}
+
+/**
  * Initialize infographic enhancer
  */
 export function initInfographicEnhancer(): void {
   // Clean up any previous observers/timeouts/instances
   cleanup();
+
+  // Setup theme observer for live theme switching
+  setupThemeObserver();
 
   // Small delay to let the DOM settle
   const timeout = setTimeout(enhanceAllInfographics, 100);

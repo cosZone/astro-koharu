@@ -915,6 +915,113 @@ flowchart LR
 
 图表会自动跟随深色/浅色主题切换。更多语法参考 [Mermaid 官方文档](https://mermaid.js.org/)。
 
+**Infographic 信息图：**
+
+支持使用 [@antv/infographic](https://infographic.antv.vision/) 在 Markdown 中绘制精美的信息图表，适合展示流程、对比、层级、统计等数据。
+
+使用方式：在代码块中使用 `infographic` 标记，第一行指定模板名称，然后使用类似 YAML 的语法定义数据：
+
+````markdown
+```infographic
+infographic list-grid-badge-card
+data
+  title 技术栈
+  desc 我的常用技术栈
+  items
+    - label TypeScript
+      desc 类型安全的 JavaScript
+      icon mdi/language-typescript
+    - label React
+      desc 用户界面库
+      icon mdi/react
+    - label Astro
+      desc 现代化静态站点生成器
+      icon mdi/rocket-launch
+```
+````
+
+```infographic
+infographic list-grid-badge-card
+data
+  title 技术栈
+  desc 我的常用技术栈
+  items
+    - label TypeScript
+      desc 类型安全的 JavaScript
+      icon mdi/language-typescript
+    - label React
+      desc 用户界面库
+      icon mdi/react
+    - label Astro
+      desc 现代化静态站点生成器
+      icon mdi/rocket-launch
+```
+
+**可用模板类型：**
+
+- **列表类** (`list-*`)：展示信息列表
+  - `list-grid-badge-card` - 卡片网格布局
+  - `list-grid-candy-card-lite` - 糖果风格卡片
+  - `list-row-horizontal-icon-arrow` - 水平图标箭头列表
+
+- **流程/顺序类** (`sequence-*`)：展示步骤、流程或阶段
+  - `sequence-zigzag-steps-underline-text` - 之字形步骤
+  - `sequence-circular-simple` - 圆形流程
+  - `sequence-roadmap-vertical-simple` - 垂直路线图
+  - `sequence-pyramid-simple` - 金字塔结构
+
+- **对比类** (`compare-*`)：二元或多元对比
+  - `compare-binary-horizontal-simple-fold` - 水平二元对比
+  - `compare-swot` - SWOT 分析
+  - `compare-hierarchy-left-right-circle-node-pill-badge` - 层级左右对比
+
+- **层级类** (`hierarchy-*`)：展示树形结构
+  - `hierarchy-tree-tech-style-capsule-item` - 科技风格树形图
+  - `hierarchy-tree-curved-line-rounded-rect-node` - 曲线连接树形图
+
+- **图表类** (`chart-*`)：数据可视化
+  - `chart-column-simple` - 柱状图
+  - `chart-bar-plain-text` - 条形图
+  - `chart-pie-plain-text` - 饼图
+  - `chart-line-plain-text` - 折线图
+
+- **其他**
+  - `quadrant-*` - 象限分析图
+  - `relation-*` - 关系图
+
+**数据字段说明：**
+
+- `title` - 标题（可选）
+- `desc` - 描述文本（可选）
+- `items` - 条目数组，每个条目可包含：
+  - `label` - 主标签文本
+  - `value` - 数值（用于图表类模板）
+  - `desc` - 描述文本
+  - `icon` - 图标名称（格式：`mdi/icon-name`）
+  - `children` - 子条目（用于层级结构）
+
+**主题定制：**
+
+可以在数据后添加 `theme` 块自定义颜色：
+
+````markdown
+```infographic
+infographic sequence-pyramid-simple
+data
+  items
+    - label 基础层
+    - label 中间层
+    - label 顶层
+theme
+  palette
+    - #3b82f6
+    - #8b5cf6
+    - #f97316
+```
+````
+
+信息图会自动跟随深色/浅色主题切换，并使用项目的寒蝉全圆体字体渲染。更多模板和语法参考 [Infographic 官方文档](https://infographic.antv.vision/)。
+
 **代码高亮：**
 
 - 基于 Shiki
