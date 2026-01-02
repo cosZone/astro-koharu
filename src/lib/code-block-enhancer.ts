@@ -189,7 +189,13 @@ export function enhanceCodeBlock(preElement: HTMLElement, options: ToolbarOption
   if (language === 'mermaid') {
     return null;
   }
+
+  // 跳过 infographic 图表（由 infographic-enhancer 处理）
+  // 检测方式：内容以 "infographic " 开头
   const code = extractCode(preElement);
+  if (code.trim().startsWith('infographic ')) {
+    return null;
+  }
   const codeHTML = extractCodeHTML(preElement);
   const preClassName = extractPreClassName(preElement);
   const preStyle = extractPreStyle(preElement);

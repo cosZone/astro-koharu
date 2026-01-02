@@ -33,11 +33,19 @@ export interface MermaidFullscreenData {
   source: string;
 }
 
-export type ModalType = 'drawer' | 'search' | 'codeFullscreen' | 'mermaidFullscreen' | null;
+/**
+ * Infographic fullscreen data
+ */
+export interface InfographicFullscreenData {
+  svg: string;
+  source: string;
+}
+
+export type ModalType = 'drawer' | 'search' | 'codeFullscreen' | 'mermaidFullscreen' | 'infographicFullscreen' | null;
 
 export interface ModalState {
   type: ModalType;
-  data?: CodeBlockData | MermaidFullscreenData | null;
+  data?: CodeBlockData | MermaidFullscreenData | InfographicFullscreenData | null;
 }
 
 /**
@@ -54,6 +62,9 @@ export const $codeFullscreenData = computed($activeModal, (m) =>
 export const $mermaidFullscreenData = computed($activeModal, (m) =>
   m.type === 'mermaidFullscreen' ? (m.data as MermaidFullscreenData) : null,
 );
+export const $infographicFullscreenData = computed($activeModal, (m) =>
+  m.type === 'infographicFullscreen' ? (m.data as InfographicFullscreenData) : null,
+);
 export const $isAnyModalOpen = computed($activeModal, (m) => m.type !== null);
 
 /**
@@ -61,7 +72,13 @@ export const $isAnyModalOpen = computed($activeModal, (m) => m.type !== null);
  */
 export function openModal<T extends ModalType>(
   type: T,
-  data?: T extends 'codeFullscreen' ? CodeBlockData : T extends 'mermaidFullscreen' ? MermaidFullscreenData : never,
+  data?: T extends 'codeFullscreen'
+    ? CodeBlockData
+    : T extends 'mermaidFullscreen'
+      ? MermaidFullscreenData
+      : T extends 'infographicFullscreen'
+        ? InfographicFullscreenData
+        : never,
 ): void {
   $activeModal.set({ type, data });
   if (type && typeof document !== 'undefined') {
@@ -105,6 +122,9 @@ export const closeCodeFullscreen = () => closeModal();
 export const openMermaidFullscreen = (data: MermaidFullscreenData) => openModal('mermaidFullscreen', data);
 export const closeMermaidFullscreen = () => closeModal();
 
+export const openInfographicFullscreen = (data: InfographicFullscreenData) => openModal('infographicFullscreen', data);
+export const closeInfographicFullscreen = () => closeModal();
+
 /**
  * Backward compatible atoms for components using old naming patterns.
  * These are real atoms that stay in sync with the unified modal state.
@@ -113,6 +133,7 @@ export const closeMermaidFullscreen = () => closeModal();
 export const drawerOpen = atom<boolean>(false);
 export const searchOpen = atom<boolean>(false);
 export const mermaidFullscreenData = atom<MermaidFullscreenData | null>(null);
+export const infographicFullscreenData = atom<InfographicFullscreenData | null>(null);
 export const codeFullscreenData = atom<CodeBlockData | null>(null);
 
 // Keep backward-compatible atoms in sync with unified modal state
@@ -120,5 +141,6 @@ $activeModal.subscribe((state) => {
   drawerOpen.set(state.type === 'drawer');
   searchOpen.set(state.type === 'search');
   mermaidFullscreenData.set(state.type === 'mermaidFullscreen' ? (state.data as MermaidFullscreenData) : null);
+  infographicFullscreenData.set(state.type === 'infographicFullscreen' ? (state.data as InfographicFullscreenData) : null);
   codeFullscreenData.set(state.type === 'codeFullscreen' ? (state.data as CodeBlockData) : null);
 });

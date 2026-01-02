@@ -1,0 +1,488 @@
+---
+import { Icon } from 'astro-icon/components';
+---
+
+<!-- Overlay -->
+<div
+  id="infographic-fullscreen-overlay"
+  data-state="closed"
+  class="fixed inset-0 z-40 bg-black/80 opacity-0 backdrop-blur-sm transition-opacity duration-200 data-[state=closed]:hidden"
+  role="presentation"
+  aria-hidden="true"
+>
+</div>
+
+<!-- Infographic Fullscreen Dialog -->
+<div
+  id="infographic-fullscreen-dialog"
+  data-state="closed"
+  class="fixed inset-0 z-50 grid place-items-center px-4 data-[state=closed]:hidden"
+  role="dialog"
+  aria-label="Infographic fullscreen"
+  aria-modal="true"
+>
+  <div
+    id="infographic-fullscreen-content"
+    class="bg-background relative flex h-[85vh] w-[90vw] max-w-6xl flex-col overflow-hidden rounded-xl opacity-0 shadow-2xl transition-opacity duration-200 md:max-w-[90vw]"
+  >
+    <!-- Toolbar -->
+    <div class="border-border bg-muted/50 flex shrink-0 items-center justify-between border-b px-4 py-3 backdrop-blur-sm">
+      <div class="flex items-center gap-3">
+        <div class="flex gap-2">
+          <span class="h-3 w-3 rounded-full bg-[#ff5f56]"></span>
+          <span class="h-3 w-3 rounded-full bg-[#ffbd2e]"></span>
+          <span class="h-3 w-3 rounded-full bg-[#27c93f]"></span>
+        </div>
+        <span class="text-muted-foreground font-mono text-xs font-medium tracking-wider uppercase"> infographic </span>
+      </div>
+      <div class="flex items-center gap-1">
+        <!-- Zoom info -->
+        <span id="infographic-zoom-level" class="text-muted-foreground mr-2 text-sm">100%</span>
+        <!-- Reset zoom button -->
+        <button
+          id="infographic-fullscreen-reset"
+          class="text-muted-foreground hover:bg-accent hover:text-accent-foreground flex items-center gap-2 rounded-md px-3 py-1.5 transition-colors"
+          title="Reset zoom"
+        >
+          <Icon name="ri:reset-right-line" class="h-4 w-4" />
+        </button>
+        <!-- Copy button -->
+        <button
+          id="infographic-fullscreen-copy"
+          class="text-muted-foreground hover:bg-accent hover:text-accent-foreground flex items-center gap-2 rounded-md px-3 py-1.5 transition-colors"
+        >
+          <svg
+            id="infographic-fullscreen-copy-icon"
+            xmlns="http://www.w3.org/2000/svg"
+            width="16"
+            height="16"
+            viewBox="0 0 448 512"
+            fill="currentColor"
+          >
+            <path
+              d="M192 0c-35.3 0-64 28.7-64 64l0 256c0 35.3 28.7 64 64 64l192 0c35.3 0 64-28.7 64-64l0-200.6c0-17.4-7.1-34.1-19.7-46.2L370.6 17.8C358.7 6.4 342.8 0 326.3 0L192 0zM64 128c-35.3 0-64 28.7-64 64L0 448c0 35.3 28.7 64 64 64l192 0c35.3 0 64-28.7 64-64l0-16-64 0 0 16-192 0 0-256 16 0 0-64-16 0z"
+            ></path>
+          </svg>
+          <svg
+            id="infographic-fullscreen-check-icon"
+            xmlns="http://www.w3.org/2000/svg"
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            class="hidden"
+          >
+            <mask id="checkmark-anim-infographic-fullscreen">
+              <g
+                fill="none"
+                stroke="#fff"
+                stroke-dasharray="24"
+                stroke-dashoffset="24"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+              >
+                <path d="M2 13.5l4 4l10.75 -10.75">
+                  <animate fill="freeze" attributeName="stroke-dashoffset" dur="0.4s" values="24;0"></animate>
+                </path>
+                <path stroke="#000" stroke-width="6" d="M7.5 13.5l4 4l10.75 -10.75">
+                  <animate fill="freeze" attributeName="stroke-dashoffset" begin="0.4s" dur="0.4s" values="24;0"></animate>
+                </path>
+                <path d="M7.5 13.5l4 4l10.75 -10.75">
+                  <animate fill="freeze" attributeName="stroke-dashoffset" begin="0.4s" dur="0.4s" values="24;0"></animate>
+                </path>
+              </g>
+            </mask>
+            <rect width="24" height="24" fill="currentColor" mask="url(#checkmark-anim-infographic-fullscreen)"></rect>
+          </svg>
+          <span id="infographic-fullscreen-copy-text" class="text-sm">Copy</span>
+        </button>
+        <!-- Close button -->
+        <button
+          id="infographic-fullscreen-close"
+          class="text-muted-foreground hover:bg-accent hover:text-accent-foreground rounded-md p-2 transition-colors"
+          aria-label="Close"
+        >
+          <Icon name="ri:close-line" class="h-5 w-5" />
+        </button>
+      </div>
+    </div>
+
+    <!-- SVG Container with zoom/pan -->
+    <div
+      id="infographic-fullscreen-viewport"
+      class="flex flex-1 cursor-grab items-center justify-center overflow-hidden active:cursor-grabbing"
+    >
+      <div id="infographic-fullscreen-svg" class="infographic-svg-container origin-center transition-transform duration-100">
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  import {
+    infographicFullscreenData,
+    openInfographicFullscreen,
+    closeInfographicFullscreen,
+    type InfographicFullscreenData,
+  } from '@store/modal';
+  import { copyToClipboard } from '@lib/code-block-enhancer';
+
+  interface InfographicFullscreenElements {
+    overlay: HTMLElement | null;
+    dialog: HTMLElement | null;
+    content: HTMLElement | null;
+    closeBtn: HTMLElement | null;
+    resetBtn: HTMLElement | null;
+    copyBtn: HTMLElement | null;
+    copyIcon: HTMLElement | null;
+    checkIcon: HTMLElement | null;
+    copyText: HTMLElement | null;
+    viewport: HTMLElement | null;
+    svgContainer: HTMLElement | null;
+    zoomLevel: HTMLElement | null;
+  }
+
+  const SELECTORS = {
+    overlay: 'infographic-fullscreen-overlay',
+    dialog: 'infographic-fullscreen-dialog',
+    content: 'infographic-fullscreen-content',
+    closeBtn: 'infographic-fullscreen-close',
+    resetBtn: 'infographic-fullscreen-reset',
+    copyBtn: 'infographic-fullscreen-copy',
+    copyIcon: 'infographic-fullscreen-copy-icon',
+    checkIcon: 'infographic-fullscreen-check-icon',
+    copyText: 'infographic-fullscreen-copy-text',
+    viewport: 'infographic-fullscreen-viewport',
+    svgContainer: 'infographic-fullscreen-svg',
+    zoomLevel: 'infographic-zoom-level',
+  } as const;
+
+  const CLASSES = {
+    opacityFull: 'opacity-100',
+    opacityZero: 'opacity-0',
+    copied: 'text-primary',
+    hidden: 'hidden',
+  } as const;
+
+  const STATE = {
+    open: 'open',
+    closed: 'closed',
+  } as const;
+
+  class InfographicFullscreenController {
+    private elements: InfographicFullscreenElements;
+    private unsubscribe: (() => void) | null = null;
+    private currentData: InfographicFullscreenData | null = null;
+    private copyTimeoutId: ReturnType<typeof setTimeout> | null = null;
+
+    // Zoom/pan state
+    private scale = 1;
+    private translateX = 0;
+    private translateY = 0;
+    private isDragging = false;
+    private dragStartX = 0;
+    private dragStartY = 0;
+    private lastTranslateX = 0;
+    private lastTranslateY = 0;
+
+    // Pinch zoom state
+    private initialPinchDistance = 0;
+    private initialPinchScale = 1;
+
+    constructor() {
+      this.elements = this.initElements();
+      if (this.validateElements()) {
+        this.bindEvents();
+        this.subscribeToStore();
+        this.listenToCustomEvent();
+      }
+    }
+
+    private initElements(): InfographicFullscreenElements {
+      return Object.entries(SELECTORS).reduce(
+        (acc, [key, id]) => ({
+          ...acc,
+          [key]: document.getElementById(id),
+        }),
+        {} as InfographicFullscreenElements,
+      );
+    }
+
+    private validateElements(): boolean {
+      return Object.entries(this.elements).every(([key, element]) => {
+        const exists = !!element;
+        if (!exists) {
+          console.error(`Infographic fullscreen element not found: ${key}`);
+        }
+        return exists;
+      });
+    }
+
+    private bindEvents(): void {
+      document.addEventListener('keydown', this.handleKeyDown);
+      this.elements.closeBtn?.addEventListener('click', this.handleClose);
+      this.elements.dialog?.addEventListener('click', this.handleBackgroundClick);
+      this.elements.copyBtn?.addEventListener('click', this.handleCopy);
+      this.elements.resetBtn?.addEventListener('click', this.handleReset);
+
+      // Zoom/pan events
+      this.elements.viewport?.addEventListener('wheel', this.handleWheel, { passive: false });
+      this.elements.viewport?.addEventListener('mousedown', this.handleMouseDown);
+      document.addEventListener('mousemove', this.handleMouseMove);
+      document.addEventListener('mouseup', this.handleMouseUp);
+
+      // Touch events for pinch zoom
+      this.elements.viewport?.addEventListener('touchstart', this.handleTouchStart, { passive: false });
+      this.elements.viewport?.addEventListener('touchmove', this.handleTouchMove, { passive: false });
+      this.elements.viewport?.addEventListener('touchend', this.handleTouchEnd);
+    }
+
+    private handleBackgroundClick = (e: MouseEvent): void => {
+      if (e.target === this.elements.dialog) {
+        closeInfographicFullscreen();
+      }
+    };
+
+    private subscribeToStore(): void {
+      this.unsubscribe = infographicFullscreenData.subscribe((data) => {
+        if (data) {
+          this.currentData = data;
+          this.open(data);
+        } else {
+          this.close();
+        }
+      });
+    }
+
+    private listenToCustomEvent(): void {
+      window.addEventListener('open-infographic-fullscreen', ((e: CustomEvent<InfographicFullscreenData>) => {
+        openInfographicFullscreen(e.detail);
+      }) as EventListener);
+    }
+
+    private handleKeyDown = (e: KeyboardEvent): void => {
+      if (e.key === 'Escape' && infographicFullscreenData.get()) {
+        closeInfographicFullscreen();
+      }
+    };
+
+    private handleClose = (): void => {
+      closeInfographicFullscreen();
+    };
+
+    private handleReset = (): void => {
+      this.scale = 1;
+      this.translateX = 0;
+      this.translateY = 0;
+      this.applyTransform();
+    };
+
+    private handleCopy = async (): Promise<void> => {
+      if (!this.currentData) return;
+
+      const success = await copyToClipboard(this.currentData.source);
+      if (success) {
+        this.showCopiedState();
+      }
+    };
+
+    private showCopiedState(): void {
+      const { copyBtn, copyIcon, checkIcon, copyText } = this.elements;
+      if (!copyBtn || !copyIcon || !checkIcon || !copyText) return;
+
+      if (this.copyTimeoutId) {
+        clearTimeout(this.copyTimeoutId);
+      }
+
+      copyIcon.classList.add(CLASSES.hidden);
+      checkIcon.classList.remove(CLASSES.hidden);
+      copyBtn.classList.add(CLASSES.copied);
+      copyText.textContent = 'Copied';
+
+      this.copyTimeoutId = setTimeout(() => {
+        copyIcon.classList.remove(CLASSES.hidden);
+        checkIcon.classList.add(CLASSES.hidden);
+        copyBtn.classList.remove(CLASSES.copied);
+        copyText.textContent = 'Copy';
+        this.copyTimeoutId = null;
+      }, 2000);
+    }
+
+    // Zoom/pan handlers
+    private handleWheel = (e: WheelEvent): void => {
+      e.preventDefault();
+
+      const delta = e.deltaY > 0 ? 0.9 : 1.1;
+      const newScale = Math.min(Math.max(0.5, this.scale * delta), 5);
+
+      // Zoom toward cursor position
+      if (this.elements.viewport) {
+        const rect = this.elements.viewport.getBoundingClientRect();
+        const cursorX = e.clientX - rect.left - rect.width / 2;
+        const cursorY = e.clientY - rect.top - rect.height / 2;
+
+        const scaleFactor = newScale / this.scale;
+        this.translateX = cursorX - (cursorX - this.translateX) * scaleFactor;
+        this.translateY = cursorY - (cursorY - this.translateY) * scaleFactor;
+      }
+
+      this.scale = newScale;
+      this.applyTransform();
+    };
+
+    private handleMouseDown = (e: MouseEvent): void => {
+      if (e.button !== 0) return;
+      this.isDragging = true;
+      this.dragStartX = e.clientX;
+      this.dragStartY = e.clientY;
+      this.lastTranslateX = this.translateX;
+      this.lastTranslateY = this.translateY;
+    };
+
+    private handleMouseMove = (e: MouseEvent): void => {
+      if (!this.isDragging) return;
+      this.translateX = this.lastTranslateX + (e.clientX - this.dragStartX);
+      this.translateY = this.lastTranslateY + (e.clientY - this.dragStartY);
+      this.applyTransform();
+    };
+
+    private handleMouseUp = (): void => {
+      this.isDragging = false;
+    };
+
+    private handleTouchStart = (e: TouchEvent): void => {
+      if (e.touches.length === 2) {
+        e.preventDefault();
+        this.initialPinchDistance = this.getDistance(e.touches[0], e.touches[1]);
+        this.initialPinchScale = this.scale;
+      } else if (e.touches.length === 1) {
+        this.isDragging = true;
+        this.dragStartX = e.touches[0].clientX;
+        this.dragStartY = e.touches[0].clientY;
+        this.lastTranslateX = this.translateX;
+        this.lastTranslateY = this.translateY;
+      }
+    };
+
+    private handleTouchMove = (e: TouchEvent): void => {
+      if (e.touches.length === 2) {
+        e.preventDefault();
+        const newDistance = this.getDistance(e.touches[0], e.touches[1]);
+        const newScale = this.initialPinchScale * (newDistance / this.initialPinchDistance);
+        this.scale = Math.min(Math.max(0.5, newScale), 5);
+        this.applyTransform();
+      } else if (e.touches.length === 1 && this.isDragging) {
+        this.translateX = this.lastTranslateX + (e.touches[0].clientX - this.dragStartX);
+        this.translateY = this.lastTranslateY + (e.touches[0].clientY - this.dragStartY);
+        this.applyTransform();
+      }
+    };
+
+    private handleTouchEnd = (): void => {
+      this.isDragging = false;
+    };
+
+    private getDistance(touch1: Touch, touch2: Touch): number {
+      const dx = touch1.clientX - touch2.clientX;
+      const dy = touch1.clientY - touch2.clientY;
+      return Math.sqrt(dx * dx + dy * dy);
+    }
+
+    private applyTransform(): void {
+      if (this.elements.svgContainer) {
+        this.elements.svgContainer.style.transform = `translate(${this.translateX}px, ${this.translateY}px) scale(${this.scale})`;
+      }
+      if (this.elements.zoomLevel) {
+        this.elements.zoomLevel.textContent = `${Math.round(this.scale * 100)}%`;
+      }
+    }
+
+    private open(data: InfographicFullscreenData): void {
+      const { overlay, dialog, content, svgContainer } = this.elements;
+      if (!overlay || !dialog || !content || !svgContainer) return;
+
+      // Reset zoom/pan state
+      this.scale = 1;
+      this.translateX = 0;
+      this.translateY = 0;
+      this.applyTransform();
+
+      // Set SVG content
+      svgContainer.innerHTML = data.svg;
+
+      // Show elements
+      overlay.dataset.state = STATE.open;
+      dialog.dataset.state = STATE.open;
+
+      // Lock body scroll
+      document.body.style.overflow = 'hidden';
+
+      // Trigger animation
+      requestAnimationFrame(() => {
+        overlay.classList.remove(CLASSES.opacityZero);
+        overlay.classList.add(CLASSES.opacityFull);
+        content.classList.remove(CLASSES.opacityZero);
+        content.classList.add(CLASSES.opacityFull);
+      });
+    }
+
+    private close(): void {
+      const { overlay, dialog, content, svgContainer } = this.elements;
+      if (!overlay || !dialog || !content) return;
+
+      // Trigger close animation
+      overlay.classList.remove(CLASSES.opacityFull);
+      overlay.classList.add(CLASSES.opacityZero);
+      content.classList.remove(CLASSES.opacityFull);
+      content.classList.add(CLASSES.opacityZero);
+
+      // Hide elements after animation
+      setTimeout(() => {
+        overlay.dataset.state = STATE.closed;
+        dialog.dataset.state = STATE.closed;
+        document.body.style.overflow = '';
+        if (svgContainer) {
+          svgContainer.innerHTML = '';
+        }
+      }, 200);
+
+      this.currentData = null;
+    }
+
+    public destroy(): void {
+      document.removeEventListener('keydown', this.handleKeyDown);
+      document.removeEventListener('mousemove', this.handleMouseMove);
+      document.removeEventListener('mouseup', this.handleMouseUp);
+      this.elements.closeBtn?.removeEventListener('click', this.handleClose);
+      this.elements.dialog?.removeEventListener('click', this.handleBackgroundClick);
+      this.elements.copyBtn?.removeEventListener('click', this.handleCopy);
+      this.elements.resetBtn?.removeEventListener('click', this.handleReset);
+
+      if (this.copyTimeoutId) {
+        clearTimeout(this.copyTimeoutId);
+      }
+
+      if (this.unsubscribe) {
+        this.unsubscribe();
+        this.unsubscribe = null;
+      }
+    }
+  }
+
+  let controller: InfographicFullscreenController | null = null;
+
+  function init() {
+    controller?.destroy();
+    controller = new InfographicFullscreenController();
+  }
+
+  if (document.readyState !== 'loading') {
+    init();
+  }
+
+  document.addEventListener('astro:page-load', init);
+
+  document.addEventListener('astro:before-preparation', () => {
+    closeInfographicFullscreen();
+  });
+</script>

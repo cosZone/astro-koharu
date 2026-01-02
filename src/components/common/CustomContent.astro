@@ -28,6 +28,7 @@ const finalConfig = { ...defaultContentConfig, ...config };
   import type { ContentConfig } from '@constants/content-config';
   import { enhanceAllCodeBlocks } from '@lib/code-block-enhancer';
   import { enhanceImages } from '@lib/image-enhancer';
+  import { initInfographicEnhancer } from '@lib/infographic-enhancer';
   import { initMermaidEnhancer } from '@lib/mermaid-enhancer';
 
   // Custom content enhancement script
@@ -124,6 +125,9 @@ const finalConfig = { ...defaultContentConfig, ...config };
 
       // Enhance mermaid diagrams with toolbar (runs after astro-mermaid renders)
       initMermaidEnhancer();
+
+      // Enhance infographic diagrams (renders and adds toolbar)
+      initInfographicEnhancer();
     }
 
     // Enhance images with loading states

@@ -18,6 +18,7 @@ import MobileDrawer from '@components/layout/MobileDrawer.astro';
 import SearchDialog from '@components/layout/SearchDialog';
 import SearchPortal from '@components/layout/SearchPortal.astro';
 import CodeBlockFullscreen from '@components/markdown/CodeBlockFullscreen';
+import InfographicFullscreen from '@components/markdown/InfographicFullscreen.astro';
 import MermaidFullscreen from '@components/markdown/MermaidFullscreen.astro';
 import { Toaster } from '@components/ui/sonner';
 import { christmasConfig, seoConfig, siteConfig } from '@constants/site-config';
@@ -285,6 +286,7 @@ const isPostPage = Astro.url.pathname.startsWith('/post/');
       <SearchPortal />
       <CodeBlockFullscreen client:load />
       <MermaidFullscreen />
+      <InfographicFullscreen />
       <Toaster client:load />
       <AnnouncementProvider />
     </div>

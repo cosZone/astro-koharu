@@ -25,6 +25,7 @@
     "knip": "knip"
   },
   "dependencies": {
+    "@antv/infographic": "^0.2.3",
     "@astrojs/check": "^0.9.6",
     "@astrojs/react": "^4.4.2",
     "@astrojs/rss": "^4.0.14",

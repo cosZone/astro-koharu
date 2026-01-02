@@ -1,25 +1,3 @@
-<!-- OPENSPEC:START -->
-
-# OpenSpec Instructions
-
-These instructions are for AI assistants working in this project.
-
-Always open `AGENTS.md` when the request:
-
-- Mentions planning or proposals (words like proposal, spec, change, plan)
-- Introduces new capabilities, breaking changes, architecture shifts, or big performance/security work
-- Sounds ambiguous and you need the authoritative spec before coding
-
-Use `AGENTS.md` to learn:
-
-- How to create and apply change proposals
-- Spec format and conventions
-- Project structure and guidelines
-
-Keep this managed block so 'openspec update' can refresh the instructions.
-
-<!-- OPENSPEC:END -->
-
 # CLAUDE.md
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
@@ -27,6 +5,12 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Project Overview
 
 astro-koharu is an Astro-based blog rebuilt from Hexo, inspired by the Shoka theme. It uses React for interactive components, Tailwind CSS for styling, and maintains compatibility with legacy Hexo blog content.
+
+## IMPORTANT Guidelines
+
+- **Documentation lookup**: When you need to check official documentation, use Context7 MCP server to get the latest information, or use WebSearch if needed.
+- **Keep CLAUDE.md updated**: When making major changes involving architectural alterations, ask to update CLAUDE.md at the end.
+- **Run test and lint**: After each requirement is completed, `pnpm lint:fix` needs to be run for checking. Only after passing can it be completed
 
 ## Development Commands
 
@@ -180,13 +164,13 @@ When writing `<script>` in Astro components that need DOM access, **always handl
 
 ```typescript
 // ❌ Bad: May miss the event if script loads after astro:page-load fires
-document.addEventListener('astro:page-load', init);
+document.addEventListener("astro:page-load", init);
 
 // ✅ Good: Initialize immediately if DOM ready, also listen for subsequent navigations
-if (document.readyState !== 'loading') {
+if (document.readyState !== "loading") {
   init();
 }
-document.addEventListener('astro:page-load', init);
+document.addEventListener("astro:page-load", init);
 ```
 
 For components with cleanup needs, use an `initialized` flag or `controller?.destroy()` pattern to prevent double initialization.
@@ -199,25 +183,34 @@ let themeObserver = null;
 
 function init() {
   // 清理旧的监听器（防止重复绑定）
-  if (scrollHandler) window.removeEventListener('scroll', scrollHandler);
+  if (scrollHandler) window.removeEventListener("scroll", scrollHandler);
   if (themeObserver) themeObserver.disconnect();
 
   // 创建新的监听器
   scrollHandler = throttle(handleScroll, 80);
-  window.addEventListener('scroll', scrollHandler, { passive: true });
+  window.addEventListener("scroll", scrollHandler, { passive: true });
 
   themeObserver = new MutationObserver(handleThemeChange);
-  themeObserver.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+  themeObserver.observe(document.documentElement, {
+    attributes: true,
+    attributeFilter: ["class"],
+  });
 }
 
 // 首次加载
-if (document.readyState !== 'loading') init();
-document.addEventListener('astro:page-load', init);
+if (document.readyState !== "loading") init();
+document.addEventListener("astro:page-load", init);
 
 // 页面切换前清理（防止内存泄漏）
-document.addEventListener('astro:before-swap', () => {
-  if (scrollHandler) { window.removeEventListener('scroll', scrollHandler); scrollHandler = null; }
-  if (themeObserver) { themeObserver.disconnect(); themeObserver = null; }
+document.addEventListener("astro:before-swap", () => {
+  if (scrollHandler) {
+    window.removeEventListener("scroll", scrollHandler);
+    scrollHandler = null;
+  }
+  if (themeObserver) {
+    themeObserver.disconnect();
+    themeObserver = null;
+  }
 });
 ```
 
@@ -260,16 +253,19 @@ When event handlers need to access latest state without re-subscribing, use refs
 
 ```typescript
 // ❌ Bad: Circular dependency causes re-subscription every state change
-const handleMouseMove = useCallback((e: MouseEvent) => {
-  if (!isDragging) return;
-  // ... logic
-}, [isDragging]);
+const handleMouseMove = useCallback(
+  (e: MouseEvent) => {
+    if (!isDragging) return;
+    // ... logic
+  },
+  [isDragging]
+);
 
 useEffect(() => {
   if (isDragging) {
-    window.addEventListener('mousemove', handleMouseMove);
+    window.addEventListener("mousemove", handleMouseMove);
   }
-  return () => window.removeEventListener('mousemove', handleMouseMove);
+  return () => window.removeEventListener("mousemove", handleMouseMove);
 }, [isDragging, handleMouseMove]); // Circular dependency!
 
 // ✅ Good: Use ref and define handler inside effect
@@ -283,9 +279,9 @@ useEffect(() => {
   };
 
   if (isDragging) {
-    window.addEventListener('mousemove', handleMouseMove);
+    window.addEventListener("mousemove", handleMouseMove);
   }
-  return () => window.removeEventListener('mousemove', handleMouseMove);
+  return () => window.removeEventListener("mousemove", handleMouseMove);
 }, [isDragging]); // No circular dependency
 ```
 
@@ -295,10 +291,10 @@ Don't use `useState` for values that never change:
 
 ```typescript
 // ❌ Bad: useState for static value
-const [siteTitle] = useState('astro-koharu');
+const [siteTitle] = useState("astro-koharu");
 
 // ✅ Good: Direct constant or useMemo for computed values
-const siteTitle = 'astro-koharu';
+const siteTitle = "astro-koharu";
 // OR for computed values:
 const computedValue = useMemo(() => expensiveComputation(), []);
 ```
@@ -340,8 +336,8 @@ function useScrollPosition() {
   const [scrollY, setScrollY] = useState(0);
   useEffect(() => {
     const handleScroll = () => setScrollY(window.scrollY); // Re-render every time!
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
   }, []);
   return scrollY;
 }
@@ -355,20 +351,20 @@ function createScrollStore() {
     const newScrollY = window.scrollY;
     if (scrollY !== newScrollY) {
       scrollY = newScrollY;
-      listeners.forEach(l => l());
+      listeners.forEach((l) => l());
     }
   };
 
   return {
     subscribe: (listener: () => void) => {
       if (listeners.size === 0) {
-        window.addEventListener('scroll', handleScroll, { passive: true });
+        window.addEventListener("scroll", handleScroll, { passive: true });
       }
       listeners.add(listener);
       return () => {
         listeners.delete(listener);
         if (listeners.size === 0) {
-          window.removeEventListener('scroll', handleScroll);
+          window.removeEventListener("scroll", handleScroll);
         }
       };
     },
@@ -379,7 +375,11 @@ function createScrollStore() {
 
 function useScrollPosition() {
   const store = useMemo(() => createScrollStore(), []);
-  return useSyncExternalStore(store.subscribe, store.getSnapshot, store.getServerSnapshot);
+  return useSyncExternalStore(
+    store.subscribe,
+    store.getSnapshot,
+    store.getServerSnapshot
+  );
 }
 ```
 
@@ -398,21 +398,22 @@ Use the existing `useMediaQuery` hook from `@hooks/useMediaQuery` instead of cre
 // ❌ Bad: Custom media query detection
 const [isMobile, setIsMobile] = useState(false);
 useEffect(() => {
-  const mql = window.matchMedia('(max-width: 768px)');
+  const mql = window.matchMedia("(max-width: 768px)");
   setIsMobile(mql.matches);
   // ...
 }, []);
 
 // ✅ Good: Use existing hooks
-import { useIsMobile, useMediaQuery } from '@hooks/useMediaQuery';
+import { useIsMobile, useMediaQuery } from "@hooks/useMediaQuery";
 
 function Component() {
   const isMobile = useIsMobile();
-  const isLargeScreen = useMediaQuery('(min-width: 1024px)');
+  const isLargeScreen = useMediaQuery("(min-width: 1024px)");
 }
 ```
 
 Available hooks in `src/hooks/useMediaQuery.ts`:
+
 - `useMediaQuery(query)` - Generic media query hook
 - `useIsMobile()` - `(max-width: 768px)`
 - `useIsTablet()` - `(max-width: 992px)`
@@ -441,6 +442,7 @@ import { usePrefersReducedMotion } from '@hooks/useMediaQuery';
 ```
 
 Benefits of Motion's hook for animations:
+
 - Consistent with Motion library patterns
 - Better integration with Motion's animation system
 - See `src/components/christmas/SnowfallCanvas.tsx` for example
@@ -474,12 +476,14 @@ const isEnabled = useStore(christmasEnabled);
 ```
 
 **Why this works:**
+
 1. Server renders with `isMounted = false` → class not applied
 2. Client hydrates with `isMounted = false` → matches server HTML ✓
 3. After hydration, `useEffect` sets `isMounted = true` → class applied
 4. No hydration mismatch, no console warnings
 
 **When to use `useIsMounted`:**
+
 - Conditional classes based on localStorage/nanostores
 - Rendering content that depends on `window` or `document`
 - Any value that differs between server and client
@@ -513,9 +517,3 @@ See `src/hooks/useIsMounted.ts` for implementation and `src/components/friends/F
 - **Umami Analytics**: Integrated for usage tracking (see `astro.config.mjs`)
 - **Content Migration**: This blog was migrated from Hexo, so some posts may have legacy metadata fields
 - **Conditional Bundling**: Large dependencies should be conditionally bundled to avoid unnecessary bundle size. Use Vite virtual modules or dynamic imports to exclude heavy libraries when their features are disabled. Example: Three.js (~879KB) for snowfall is only bundled when `christmasConfig.enabled && christmasConfig.features.snowfall` is true (see `conditionalSnowfall()` plugin in `astro.config.mjs`)
-
-## IMPORTANT Guidelines
-
-- **No backwards compatibility shims**: Avoid feature flags and backwards-compatibility hacks. Directly modify code since this is an active project.
-- **Documentation lookup**: When you need to check official documentation, use Context7 MCP server to get the latest information, or use WebSearch if needed.
-- **Keep CLAUDE.md updated**: When making major changes involving architectural alterations, ask to update CLAUDE.md at the end.
