@@ -1,18 +1,30 @@
+import fs from 'node:fs';
+import path from 'node:path';
 import react from '@astrojs/react';
+import yaml from '@rollup/plugin-yaml';
 import tailwindcss from '@tailwindcss/vite';
 import umami from '@yeskunall/astro-umami';
 import { defineConfig } from 'astro/config';
 import icon from 'astro-icon';
 import mermaid from 'astro-mermaid';
 import pagefind from 'astro-pagefind';
+import jsYaml from 'js-yaml';
 import rehypeAutolinkHeadings from 'rehype-autolink-headings';
 import rehypeSlug from 'rehype-slug';
 import { visualizer } from 'rollup-plugin-visualizer';
 import svgr from 'vite-plugin-svgr';
-import { defaultContentConfig } from './src/constants/content-config';
-import { christmasConfig, siteConfig } from './src/constants/site-config';
 import { rehypeImagePlaceholder } from './src/lib/markdown/rehype-image-placeholder.ts';
 import { remarkLinkEmbed } from './src/lib/markdown/remark-link-embed.ts';
+
+// Load YAML config directly with Node.js (before Vite plugins are available)
+// This is only used in astro.config.mjs - other files use @rollup/plugin-yaml
+function loadConfigForAstro() {
+  const configPath = path.join(process.cwd(), 'config', 'site.yaml');
+  const content = fs.readFileSync(configPath, 'utf8');
+  return jsYaml.load(content);
+}
+
+const yamlConfig = loadConfigForAstro();
 
 /**
  * Vite plugin for conditional Three.js bundling
@@ -22,7 +34,8 @@ import { remarkLinkEmbed } from './src/lib/markdown/remark-link-embed.ts';
 function conditionalSnowfall() {
   const VIRTUAL_ID = 'virtual:snowfall-canvas';
   const RESOLVED_ID = `\0${VIRTUAL_ID}`;
-  const isEnabled = christmasConfig.enabled && christmasConfig.features.snowfall;
+  const christmas = yamlConfig.christmas || { enabled: false, features: {} };
+  const isEnabled = christmas.enabled && christmas.features?.snowfall;
 
   return {
     name: 'conditional-snowfall',
@@ -44,7 +57,7 @@ function conditionalSnowfall() {
 
 // https://astro.build/config
 export default defineConfig({
-  site: siteConfig.site,
+  site: yamlConfig.site.url,
   compressHTML: true,
   markdown: {
     // Enable GitHub Flavored Markdown
@@ -54,8 +67,8 @@ export default defineConfig({
       [
         remarkLinkEmbed,
         {
-          enableTweetEmbed: defaultContentConfig.enableTweetEmbed,
-          enableOGPreview: defaultContentConfig.enableOGPreview,
+          enableTweetEmbed: yamlConfig.content?.enableTweetEmbed ?? true,
+          enableOGPreview: yamlConfig.content?.enableOGPreview ?? true,
         },
       ],
     ],
@@ -95,11 +108,17 @@ export default defineConfig({
         ri: ['*'],
       },
     }),
-    umami({
-      id: '2ffac4d0-e6a3-48ce-bf43-ea9c1dc389f6',
-      endpointUrl: 'https://stats.cosine.ren',
-      hostUrl: 'https://stats.cosine.ren',
-    }),
+    // Umami analytics - configured via environment variables
+    // Set UMAMI_ID and UMAMI_ENDPOINT in .env file
+    ...(process.env.UMAMI_ID
+      ? [
+          umami({
+            id: process.env.UMAMI_ID,
+            endpointUrl: process.env.UMAMI_ENDPOINT,
+            hostUrl: process.env.UMAMI_ENDPOINT,
+          }),
+        ]
+      : []),
     pagefind(),
     mermaid({
       autoTheme: true,
@@ -110,6 +129,7 @@ export default defineConfig({
   },
   vite: {
     plugins: [
+      yaml(),
       conditionalSnowfall(),
       svgr(),
       tailwindcss(),

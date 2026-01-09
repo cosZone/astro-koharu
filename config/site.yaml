@@ -1,0 +1,364 @@
+# yaml-language-server: $schema=https://json-schema.org/draft-07/schema
+# =============================================================================
+# Site Configuration
+# =============================================================================
+# This file contains all site-specific configurations.
+# Modify this file to customize your blog.
+# After changes, rebuild the site: docker compose up -d --build
+# =============================================================================
+
+# =============================================================================
+# Site Basic Information
+# =============================================================================
+site:
+  title: 余弦の博客
+  alternate: cosine
+  subtitle: WA 的一声就哭了
+  name: cos
+  description: FE / ACG / 手工 / 深色模式强迫症 / INFP / 兴趣广泛养两只猫的老宅女 / remote
+  avatar: /img/avatar.webp
+  showLogo: true
+  author: cos
+  url: https://blog.cosine.ren/
+  startYear: 2020
+  keywords:
+    - cos
+    - cosine
+    - 博客
+    - 个人空间
+    - 技术
+    - 前端
+
+# =============================================================================
+# Featured Categories (Homepage)
+# =============================================================================
+featuredCategories:
+  - link: life
+    label: 随笔
+    image: /img/cover/2.webp
+    description: 生活记录、年度总结等
+  - link: note/front-end
+    label: 前端笔记
+    image: /img/cover/1.webp
+    description: 前端相关的笔记
+  - link: project
+    label: 项目集锦
+    image: /img/cover/3.webp
+    description: 项目集锦
+  - link: note
+    label: 笔记
+    image: /img/cover/4.webp
+    description: 技术笔记、学习笔记等
+  - link: tools
+    label: 工具
+    image: /img/cover/11.webp
+    description: 工具使用、软件推荐等
+  - link: coding-train
+    label: 题目记录
+    image: /img/cover/6.webp
+    description: 曾经的刷题记录等
+  - link: note/bytedance-note
+    label: 青训营笔记
+    image: /img/cover/9.webp
+    description: 初学前端时的笔记
+  - link: note/cs-basics
+    label: CS基础
+    image: /img/cover/8.webp
+    description: 大学时期的 CS 基础笔记
+
+# =============================================================================
+# Featured Series (Weekly)
+# =============================================================================
+featuredSeries:
+  categoryName: 周刊
+  label: FE Bits
+  fullName: FE Bits 前端周周谈
+  description: |
+    之前在自己的频道进行一些输出，于是有了这个周刊！
+
+    部分总结有使用我自己开发的 MoeCopy AI 浏览器插件，喜欢的话可以给个 star！
+
+    更新时间期望是在每周天
+  cover: /img/weekly_header.webp
+  enabled: true
+  links:
+    github: https://github.com/yusixian/fe-bits-weekly
+    rss: https://quaily.com/cosine/feed/atom
+    chrome: https://chromewebstore.google.com/detail/moe-copy-ai/dfmlcfckmfgabpgbaobgapdfmjiihnck
+    docs: https://moe.cosine.ren/docs
+
+# =============================================================================
+# Social Links
+# Icon reference: https://icon-sets.iconify.design/ri/
+# =============================================================================
+social:
+  github:
+    url: https://github.com/yusixian
+    icon: ri:github-fill
+    color: '#191717'
+  bilibili:
+    url: https://space.bilibili.com/10730895
+    icon: ri:bilibili-fill
+    color: '#da708a'
+  music:
+    url: https://music.163.com/#/user/home?id=361029804
+    icon: ri:netease-cloud-music-line
+    color: '#e60026'
+  email:
+    url: mailto:cosine_yu@qq.com
+    icon: ri:mail-line
+    color: '#55acd5'
+  twitter:
+    url: https://x.com/_cosine_x
+    icon: ri:twitter-fill
+    color: '#4b9ae4'
+  rss:
+    url: /rss.xml
+    icon: ri:rss-line
+    color: '#ff6600'
+
+# =============================================================================
+# Friends Links
+# =============================================================================
+friends:
+  intro:
+    title: 小伙伴们
+    subtitle: 改了一下,有时间顺序从新到旧排列～
+    applyTitle: 欢迎加友链
+    applyDesc: 在本页留言,格式如下
+    exampleYaml: |
+      - site: cosの博客 # 站点名称
+        url: https://ysx.cosine.ren/ # 站点网址
+        owner: cos # 昵称
+        desc: WA的一声就哭了 # 站点简介
+        image: https://ysx.cosine.ren/img/avatar.jpg
+        color: "#ffc0cb" # 图标色
+  data:
+    - site: 柠记茶楼
+      url: https://blog.lemonice.top
+      owner: 冷柠
+      desc: 临安初雨，一夜落红。
+      image: https://blog.lemonice.top/img/avatar.webp
+      color: '#e0edff'
+    - site: 喵梦の樱间絮语
+      url: https://baka.host
+      owner: Nekohy
+      desc: 什么也不会の笨蛋
+      image: https://cravatar.com/avatar/891edfdcf8c0aaad8b3cd6462ae6eaa83dae960e80d1910d3a9cddb1d7fc55fa?s=512&r=pg
+    - site: 0xNullpath的博客
+      url: https://blog.0xnullpath.work/
+      owner: 0xnullpath
+      desc: Code Now
+      image: https://r2.cosine.ren/og/friend/0xnullpath.webp
+      color: '#ffc0cb'
+    - site: 柯罗的博客
+      url: https://krau.top
+      owner: Krau
+      desc: 能写一辈子博客吗
+      image: https://krau.top/photo/avatar/avatar.webp
+      color: '#39c5bb'
+    - site: Hakadao
+      url: https://hakadao.cc
+      owner: Hakadao
+      desc: Now I am become a loser, the destroyer of myself.
+      image: https://avatars.githubusercontent.com/u/33394391?v=4&s=100
+      color: '#0e0f1a'
+    - site: 雪花的博客
+      url: https://xhblog.top/
+      owner: Snow
+      desc: 只配仰望大佬的前端小透明（大雾）
+      image: https://xhblog.top/img/724d7fb480c8ac0db472ca5c7e36d239.jpg
+      color: '#7a33e6'
+    - site: 纸鹿摸鱼处
+      url: https://blog.zhilu.site/
+      owner: 纸鹿本鹿
+      desc: 纸鹿至麓不知路，支炉制露不止漉
+      image: https://www.zhilu.site/api/avatar.png
+      color: '#BEDCFF'
+    - site: 猫猫博客
+      url: https://catcat.blog
+      owner: catcat
+      desc: 𝙄𝙩'𝙨 𝙩𝙝𝙚 𝙤𝙣𝙡𝙮 𝙉𝙀𝙀𝙏 𝙩𝙝𝙞𝙣𝙜 𝙩𝙤 𝙙𝙤…
+      image: https://s3.catcat.blog/avatar.avif
+    - site: 吐槽大王部落格
+      url: https://www.tcdw.net/
+      owner: tcdw
+      desc: 正在学习接受不完美的世界！
+      image: https://secure.gravatar.com/avatar/70ae2023afad30dae905344325cece8f?s=96&r=g
+      color: '#00a6f4'
+    - site: Guoweiyi
+      url: https://gwy.fun/
+      owner: Guoweiyi
+      desc: 不知何时春日悄来临,不知何日春花已落尽。
+      image: https://www.gwy.fun/zhan/logo.jpg
+      color: '#ABDCFF'
+    - site: lznauy的技术小屋
+      url: https://lznauy.cn/
+      owner: lznauy
+      desc: 生之微欢,俄而感怀,奋勉有得,相携互舍,所谓幸福
+      image: https://cn.cravatar.com/avatar/3f33778a3ad85c6147059bdbca8aab6c?s=240&d=mp
+      color: '#ffc0cb'
+    - site: keinx
+      url: https://www.keinx.com/
+      owner: keinx
+      desc: 学无止境,无限可能
+      image: https://keinx.com/usr/uploads/favicon.svg
+    - site: 雪松的博客
+      url: https://fylsen.com/
+      owner: 雪松
+      desc: 向路灯照不亮的身影说声晚安
+      image: https://fv.fylsen.com/assets/avatar/blue.jpeg
+      color: '#ABDCFF'
+    - site: Claws 的博客
+      url: https://claws.top
+      owner: Claws
+      desc: 為せば成る
+      image: https://claws.top/favicon.ico
+      color: '#FBC1CC'
+    - site: Situ Note
+      url: https://situ2001.com
+      owner: situ2001
+      desc: Personal website of situ2001
+      image: https://situ2001.com/avatar.png
+      color: '#19212c'
+    - site: Pseudoyu
+      url: https://www.pseudoyu.com/
+      owner: pseudoyu
+      desc: Blockchain | Programming | Photography | Boyi
+      image: https://www.pseudoyu.com/images/author.webp
+      color: '#eb2344'
+    - site: 一只小白喵的进阶之路~
+      url: https://lovelywhite.cn/
+      owner: suxi
+      desc: 这一刀下去你会爱上我～
+      image: https://lovelywhite.cn/logo.png
+    - site: Magren's Blog
+      url: https://magren.cc
+      owner: Magren
+      desc: 不为繁华易匠心
+      image: https://magren.cc/avatar.png
+      color: '#666666'
+    - site: GanSer
+      url: https://www.gan1ser.top/
+      owner: GanSer
+      desc: 紫箫吟断,素笺恨切
+      image: https://pic.imgdb.cn/item/63f16cddf144a010070697c8.jpg
+      color: '#0EFFAB'
+    - site: Revincx 的小破站
+      url: https://blog.revincx.icu/
+      owner: Revincx
+      desc: 可爱就是正义~
+      image: https://cdn.jsdelivr.net/gh/Revincx/blog-assets@master/images/avatar.jpg
+    - site: Jesslyn 的博客
+      url: https://jesslynwong.github.io/
+      owner: Jesslyn
+      desc: 早日成为大佬的程序媛
+      image: https://jesslynwong.github.io/image/header.png
+      color: '#ffc0cb'
+    - site: 钧桐的前端日记(前端基础百炼成仙)
+      url: https://kamenrider41.github.io/Hundred-refining-into-Immortals/
+      owner: '41'
+      desc: 款款独行,才不致倾溢
+      image: https://kamenrider41.github.io/Hundred-refining-into-Immortals/logo.jpg
+      color: pink
+    - site: 谦谦の超弦空间
+      url: https://www.czqblog.vip/
+      owner: 谦谦
+      desc: 欢迎来到谦谦の超弦空间
+      image: https://www.czqblog.vip/wp-content/uploads/2022/07/LLogo.jpg
+    - site: 瘦虎的博客
+      url: https://gelxgx.github.io/blog/
+      owner: 瘦虎
+      desc: 努力学习 React、TypeScrpt,偶尔研究有趣的源码
+      image: https://gelxgx.github.io/blog/favicon.ico
+    - site: 大森的博客
+      url: https://sadose.github.io/
+      owner: 大森
+      desc: 大佬的博客,都是干货
+      image: https://sadose.github.io/images/icons/logo-32.png
+
+# =============================================================================
+# Announcements
+# =============================================================================
+announcements:
+  - id: welcome-2026
+    title: 2026 年新年快乐!
+    content: 新年快乐! 感谢大家一直以来的支持~
+    type: info
+    priority: 300
+    color: '#ED788C'
+    publishDate: '2026-01-01'
+    startDate: '2025-12-31T00:00:00+08:00'
+    endDate: '2026-01-15T23:59:59+08:00'
+  - id: site-update-01
+    title: 站点更新公告
+    content: 新增站点公告系统，现在支持多条公告同时显示！您可以在站点底部点击"Announcements"按钮查看所有公告。
+    type: info
+    priority: 500
+    color: '#6366F1'
+    publishDate: '2025-01-02'
+
+# =============================================================================
+# Content Processing Options
+# =============================================================================
+content:
+  addBlankTarget: true
+  smoothScroll: true
+  addHeadingLevel: true
+  enhanceCodeBlock: true
+  enableCodeCopy: true
+  enableCodeFullscreen: true
+  enableLinkEmbed: true
+  enableTweetEmbed: true
+  enableOGPreview: true
+  previewCacheTime: 3600
+  lazyLoadEmbeds: true
+
+# =============================================================================
+# Navigation Routes
+# =============================================================================
+navigation:
+  - name: 首页
+    path: /
+    icon: fa6-solid:house-chimney
+  - name: 周刊
+    path: /weekly
+    icon: ri:newspaper-line
+  - name: 文章
+    icon: ri:quill-pen-ai-fill
+    children:
+      - name: 分类
+        path: /categories
+        icon: ri:grid-fill
+      - name: 标签
+        path: /tags
+        icon: fa6-solid:tags
+      - name: 归档
+        path: /archives
+        icon: ri:archive-2-fill
+  - name: 友链
+    path: /friends
+    icon: ri:links-line
+  - name: 关于
+    path: /about
+    icon: fa6-regular:circle-user
+
+# =============================================================================
+# Christmas/Seasonal Features
+# =============================================================================
+christmas:
+  enabled: false
+  features:
+    snowfall: true
+    christmasColorScheme: true
+    christmasCoverDecoration: true
+    christmasHat: true
+    readingTimeSnow: true
+  snowfall:
+    speed: 0.5
+    intensity: 0.7
+    mobileIntensity: 0.4
+    maxLayers: 6
+    maxIterations: 8
+    mobileMaxLayers: 4
+    mobileMaxIterations: 6

@@ -86,6 +86,7 @@
     "@huggingface/transformers": "^3.8.1",
     "@iconify/react": "^5.2.1",
     "@lint-md/cli": "^2.0.0",
+    "@rollup/plugin-yaml": "^4.1.2",
     "@tailwindcss/container-queries": "^0.1.1",
     "@tailwindcss/typography": "^0.5.19",
     "@types/hast": "^3.0.4",

@@ -39,6 +39,10 @@ declare global {
 export interface Props {
   noMarginTop?: boolean;
 }
+
+// Get Remark42 configuration from environment variables
+const remarkUrl = import.meta.env.REMARK_URL;
+const remarkSiteId = import.meta.env.REMARK_SITE_ID;
 ---
 
 <div class={cn('comments', { 'z-5': christmasEnabled.get() })} class="w-full pb-12">
@@ -46,17 +50,14 @@ export interface Props {
   <div id="remark42" class="mx-auto"></div>
 </div>
 
-<script>
-  // Type for Remark42 instance
-  interface Remark42Instance {
-    destroy: () => void;
-  }
+<script define:vars={{ remarkUrl, remarkSiteId }}>
+  // Type for Remark42 instance - redeclared for client-side script
 
-  let remark42Instance: Remark42Instance | null = null;
-  // Configuration for Remark42
+  let remark42Instance = null;
+  // Configuration for Remark42 - uses environment variables passed from server
   window.remark_config = {
-    host: 'https://comment.cosine.ren',
-    site_id: 'cos-space',
+    host: remarkUrl,
+    site_id: remarkSiteId,
     components: ['embed', 'counter'],
     max_shown_comments: 100,
     theme: localStorage.getItem('theme') || 'light',
@@ -93,14 +94,14 @@ export interface Props {
   // Load Remark42 scripts
   (function (components, doc) {
     for (let i = 0; i < components.length; i++) {
-      const script = doc.createElement('script') as HTMLScriptElement;
+      const script = doc.createElement('script');
       const extension = 'noModule' in script ? '.mjs' : '.js';
 
       if ('noModule' in script) {
         script.type = 'module';
       } else {
-        (script as HTMLScriptElement).async = true;
-        (script as HTMLScriptElement).defer = true;
+        script.async = true;
+        script.defer = true;
       }
 
       script.src = `${window.remark_config.host}/web/${components[i]}${extension}`;
@@ -132,8 +133,8 @@ export interface Props {
   });
 
   // Theme synchronization: Watch for theme changes and update Remark42
-  let themeObserver: MutationObserver | null = null;
-  let themeChangeTimeout: ReturnType<typeof setTimeout> | null = null;
+  let themeObserver = null;
+  let themeChangeTimeout = null;
 
   function cleanupThemeSync() {
     if (themeObserver) {

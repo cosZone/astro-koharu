@@ -70,6 +70,8 @@ pnpm lint:fix         # Auto-fix linting issues
 pnpm knip             # Find unused files/dependencies
 ```
 
+**Note on Configuration Changes:** After modifying `config/site.yaml`, restart the dev server or rebuild. The YAML configuration is cached during build for performance.
+
 ## Architecture
 
 ### Tech Stack
