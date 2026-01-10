@@ -12,8 +12,8 @@ import jsYaml from 'js-yaml';
 import rehypeAutolinkHeadings from 'rehype-autolink-headings';
 import rehypeSlug from 'rehype-slug';
 import { visualizer } from 'rollup-plugin-visualizer';
-import svgr from 'vite-plugin-svgr';
 import { loadEnv } from 'vite';
+import svgr from 'vite-plugin-svgr';
 import { rehypeImagePlaceholder } from './src/lib/markdown/rehype-image-placeholder.ts';
 import { remarkLinkEmbed } from './src/lib/markdown/remark-link-embed.ts';
 

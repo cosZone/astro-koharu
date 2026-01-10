@@ -1,0 +1,38 @@
+# =============================================================================
+# Docker Compose for astro-koharu
+# =============================================================================
+# Usage:
+#   1. Copy ../.env.example to ../.env and fill in your values
+#   2. Run (from repo root):
+#        docker compose --env-file ./.env -f docker/docker-compose.yml up -d --build
+#   3. Access: http://localhost:4321 (or http://localhost:${BLOG_PORT} if customized)
+#
+# To update after config changes:
+#   docker compose --env-file ./.env -f docker/docker-compose.yml up -d --build
+# =============================================================================
+
+services:
+  astro-koharu:
+    image: astro-koharu:latest
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+      args:
+        - REMARK_URL=${REMARK_URL}
+        - REMARK_SITE_ID=${REMARK_SITE_ID}
+        - UMAMI_ID=${UMAMI_ID}
+        - UMAMI_ENDPOINT=${UMAMI_ENDPOINT}
+    ports:
+      - "${BLOG_PORT:-4321}:80"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost/"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+    networks:
+      - astro-koharu-network
+
+networks:
+  astro-koharu-network:
+    driver: bridge
