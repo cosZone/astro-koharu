@@ -93,6 +93,51 @@ pnpm dev
 - [可开关] 圣诞特辑：包含雪花飘落、圣诞配色、圣诞帽装饰、灯串装饰等节日氛围效果
 - 无后端站点公告系统：可通过配置文件管理公告，支持时间控制、多条公告堆叠、自定义颜色、hover 已读
 - 有样式的 [RSS](https://blog.cosine.ren/rss.xml) 订阅源链接
+- **Koharu CLI**：交互式命令行工具，支持备份/还原、内容生成、备份管理
+
+## Koharu CLI
+
+博客自带交互式 CLI 工具，方便管理博客内容：
+
+```bash
+pnpm koharu              # 交互式主菜单
+pnpm koharu backup       # 备份博客内容和配置
+pnpm koharu restore      # 从备份恢复
+pnpm koharu generate     # 生成内容资产 (LQIP, 相似度, AI 摘要)
+pnpm koharu clean        # 清理旧备份
+pnpm koharu list         # 查看所有备份
+```
+
+### 备份与还原
+
+更新主题前，使用 CLI 备份你的个人内容：
+
+```bash
+# 基础备份（博客文章、配置、头像、.env）
+pnpm koharu backup
+
+# 完整备份（包含所有图片和生成的资产）
+pnpm koharu backup --full
+
+# 还原最新备份
+pnpm koharu restore --latest
+
+# 预览将要还原的文件（不实际还原）
+pnpm koharu restore --dry-run
+```
+
+### 内容生成
+
+```bash
+# 交互式选择生成类型
+pnpm koharu generate
+
+# 或直接指定类型
+pnpm koharu generate lqips        # 生成 LQIP 图片占位符
+pnpm koharu generate similarities # 生成相似度向量
+pnpm koharu generate summaries    # 生成 AI 摘要
+pnpm koharu generate all          # 生成全部
+```
 
 ## 配置说明
 
