@@ -1,9 +1,6 @@
 /* RSS Feed Style - Kawaii ACG Theme */
 @import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700&display=swap');
 
-/* 如果用户本地没有寒蝉全圆体，这里尝试引用一个常用的 CDN（可选，如果用户已有配置可忽略） */
-@import url('https://chinese-fonts-cdn.deno.dev/packages/hcqyt/dist/hcqyt/result.css');
-
 :root {
   /* Colors */
   --bg-dark: #121214;
