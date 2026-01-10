@@ -1,6 +1,6 @@
 import { Box, Text } from 'ink';
 import { useEffect } from 'react';
-import { usePressAnyKey } from './shared.js';
+import { AUTO_EXIT_DELAY, usePressAnyKey, useRetimer } from './shared';
 
 interface HelpAppProps {
   showReturnHint?: boolean;
@@ -8,6 +8,8 @@ interface HelpAppProps {
 }
 
 export function HelpApp({ showReturnHint = false, onComplete }: HelpAppProps) {
+  const retimer = useRetimer();
+
   // 监听按键返回主菜单
   usePressAnyKey(showReturnHint, () => {
     onComplete?.();
@@ -16,10 +18,10 @@ export function HelpApp({ showReturnHint = false, onComplete }: HelpAppProps) {
   // 如果不显示返回提示，直接退出
   useEffect(() => {
     if (!showReturnHint) {
-      const timer = setTimeout(() => onComplete?.(), 100);
-      return () => clearTimeout(timer);
+      retimer(setTimeout(() => onComplete?.(), AUTO_EXIT_DELAY));
     }
-  }, [showReturnHint, onComplete]);
+    return () => retimer();
+  }, [showReturnHint, onComplete, retimer]);
 
   return (
     <Box flexDirection="column">
@@ -28,6 +30,7 @@ export function HelpApp({ showReturnHint = false, onComplete }: HelpAppProps) {
         <Text> pnpm koharu 交互式主菜单</Text>
         <Text> pnpm koharu backup 备份博客内容和配置</Text>
         <Text> pnpm koharu restore 从备份恢复</Text>
+        <Text> pnpm koharu generate 生成内容资产</Text>
         <Text> pnpm koharu clean 清理旧备份</Text>
         <Text> pnpm koharu list 查看所有备份</Text>
       </Box>
@@ -47,6 +50,16 @@ export function HelpApp({ showReturnHint = false, onComplete }: HelpAppProps) {
       <Box flexDirection="column" marginBottom={1}>
         <Text bold>清理选项:</Text>
         <Text> --keep N 保留最近 N 个备份，删除其余</Text>
+      </Box>
+
+      <Box flexDirection="column" marginBottom={1}>
+        <Text bold>生成选项:</Text>
+        <Text> pnpm koharu generate lqips 生成 LQIP 占位符</Text>
+        <Text> pnpm koharu generate similarities 生成相似度向量</Text>
+        <Text> pnpm koharu generate summaries 生成 AI 摘要</Text>
+        <Text> pnpm koharu generate all 生成全部</Text>
+        <Text> --model {'<name>'} 指定 LLM 模型</Text>
+        <Text> --force 强制重新生成</Text>
       </Box>
 
       <Box flexDirection="column">

@@ -22,7 +22,8 @@
     "lint-staged": "lint-staged",
     "change": "git cliff --bump -o CHANGELOG.md",
     "prepare": "husky",
-    "knip": "knip"
+    "knip": "knip",
+    "koharu": "npx tsx scripts/koharu.tsx"
   },
   "dependencies": {
     "@antv/infographic": "^0.2.4",

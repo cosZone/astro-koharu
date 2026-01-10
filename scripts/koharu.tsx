@@ -5,6 +5,7 @@ import { Box, render, Text, useApp } from 'ink';
 import { useState } from 'react';
 import { BackupApp } from './koharu/backup.js';
 import { CleanApp } from './koharu/clean.js';
+import { GenerateApp } from './koharu/generate.js';
 import { HelpApp } from './koharu/help.js';
 import { ListApp } from './koharu/list.js';
 import { RestoreApp } from './koharu/restore.js';
@@ -23,6 +24,7 @@ koharu - astro-koharu CLI
   pnpm koharu restore      从备份恢复
   pnpm koharu clean        清理旧备份
   pnpm koharu list         查看所有备份
+  pnpm koharu generate     生成内容资产
 
 备份选项:
   --full                   完整备份（包含所有图片和资产）
@@ -35,13 +37,21 @@ koharu - astro-koharu CLI
 清理选项:
   --keep N                 保留最近 N 个备份，删除其余
 
+生成选项:
+  pnpm koharu generate lqips        生成 LQIP 图片占位符
+  pnpm koharu generate similarities 生成相似度向量
+  pnpm koharu generate summaries    生成 AI 摘要
+  pnpm koharu generate all          生成全部
+  --model <name>                    指定 LLM 模型 (用于 summaries)
+  --force                           强制重新生成 (用于 summaries)
+
 通用选项:
   --help, -h               显示帮助信息
 `);
   process.exit(0);
 }
 
-type AppMode = 'menu' | 'backup' | 'restore' | 'clean' | 'list' | 'help';
+type AppMode = 'menu' | 'backup' | 'restore' | 'clean' | 'list' | 'help' | 'generate';
 
 function KoharuApp() {
   const { exit } = useApp();
@@ -54,6 +64,7 @@ function KoharuApp() {
     if (args.command === 'clean') return 'clean';
     if (args.command === 'list') return 'list';
     if (args.command === 'help') return 'help';
+    if (args.command === 'generate') return 'generate';
     return 'menu';
   });
 
@@ -107,10 +118,11 @@ function KoharuApp() {
         <Box flexDirection="column">
           <Text>请选择操作:</Text>
           <Select
-            visibleOptionCount={6}
+            visibleOptionCount={7}
             options={[
               { label: '备份 - 备份博客内容和配置', value: 'backup' },
               { label: '还原 - 从备份恢复', value: 'restore' },
+              { label: '生成 - 生成内容资产 (LQIP, 相似度, 摘要)', value: 'generate' },
               { label: '清理 - 清理旧备份', value: 'clean' },
               { label: '列表 - 查看所有备份', value: 'list' },
               { label: '帮助 - 查看命令用法', value: 'help' },
@@ -138,6 +150,16 @@ function KoharuApp() {
       {mode === 'list' && <ListApp showReturnHint={fromMenu} onComplete={handleComplete} />}
 
       {mode === 'help' && <HelpApp showReturnHint={fromMenu} onComplete={handleComplete} />}
+
+      {mode === 'generate' && (
+        <GenerateApp
+          initialType={args.generateType || undefined}
+          initialModel={args.model || undefined}
+          force={args.force}
+          showReturnHint={fromMenu}
+          onComplete={handleComplete}
+        />
+      )}
     </Box>
   );
 }

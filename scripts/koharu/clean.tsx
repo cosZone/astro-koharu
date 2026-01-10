@@ -1,8 +1,15 @@
-import fs from 'node:fs';
 import { ConfirmInput, MultiSelect } from '@inkjs/ui';
 import { Box, Text } from 'ink';
 import { useCallback, useEffect, useState } from 'react';
-import { formatSize, getBackupList, usePressAnyKey } from './shared.js';
+import {
+  AUTO_EXIT_DELAY,
+  type BackupInfo,
+  deleteBackups,
+  formatSize,
+  getBackupList,
+  usePressAnyKey,
+  useRetimer,
+} from './shared';
 
 type CleanStatus = 'selecting' | 'confirming' | 'deleting' | 'done' | 'cancelled';
 
@@ -12,8 +19,10 @@ interface CleanAppProps {
   onComplete?: () => void;
 }
 
+const AUTO_CONFIRM_DELAY = 500;
+
 export function CleanApp({ keepCount = null, showReturnHint = false, onComplete }: CleanAppProps) {
-  const backups = getBackupList();
+  const [backups] = useState<BackupInfo[]>(() => getBackupList());
   const [status, setStatus] = useState<CleanStatus>(keepCount !== null ? 'confirming' : 'selecting');
   const [selectedPaths, setSelectedPaths] = useState<string[]>(() => {
     // 如果有 --keep 参数，自动选择要删除的备份
@@ -24,13 +33,11 @@ export function CleanApp({ keepCount = null, showReturnHint = false, onComplete 
   });
   const [deletedCount, setDeletedCount] = useState(0);
   const [freedSpace, setFreedSpace] = useState(0);
+  const retimer = useRetimer();
 
-  const handleSelect = (paths: string[]) => {
-    setSelectedPaths(paths);
-  };
-
-  const handleSubmit = () => {
-    if (selectedPaths.length > 0) {
+  const handleSubmit = (paths: string[]) => {
+    if (paths.length > 0) {
+      setSelectedPaths(paths);
       setStatus('confirming');
     } else {
       // 没有选择任何项目，视为取消
@@ -41,34 +48,22 @@ export function CleanApp({ keepCount = null, showReturnHint = false, onComplete 
   const handleConfirm = useCallback(() => {
     setStatus('deleting');
 
-    let totalFreed = 0;
-    let deleted = 0;
+    const result = deleteBackups(selectedPaths);
 
-    for (const filePath of selectedPaths) {
-      try {
-        const stats = fs.statSync(filePath);
-        totalFreed += stats.size;
-        fs.unlinkSync(filePath);
-        deleted++;
-      } catch {
-        // ignore
-      }
-    }
-
-    setDeletedCount(deleted);
-    setFreedSpace(totalFreed);
+    setDeletedCount(result.deletedCount);
+    setFreedSpace(result.freedSpace);
     setStatus('done');
     if (!showReturnHint) {
-      setTimeout(() => onComplete?.(), 100);
+      retimer(setTimeout(() => onComplete?.(), AUTO_EXIT_DELAY));
     }
-  }, [selectedPaths, showReturnHint, onComplete]);
+  }, [selectedPaths, showReturnHint, onComplete, retimer]);
 
-  const handleCancel = () => {
+  const handleCancel = useCallback(() => {
     setStatus('cancelled');
     if (!showReturnHint) {
-      setTimeout(() => onComplete?.(), 100);
+      retimer(setTimeout(() => onComplete?.(), AUTO_EXIT_DELAY));
     }
-  };
+  }, [showReturnHint, onComplete, retimer]);
 
   // 监听按键返回主菜单
   usePressAnyKey((status === 'done' || status === 'cancelled') && showReturnHint, () => {
@@ -79,17 +74,21 @@ export function CleanApp({ keepCount = null, showReturnHint = false, onComplete 
   useEffect(() => {
     if (keepCount !== null && status === 'confirming' && selectedPaths.length > 0) {
       // 给用户一点时间看到信息
-      const timer = setTimeout(() => {
-        handleConfirm();
-      }, 500);
-      return () => clearTimeout(timer);
+      retimer(setTimeout(() => handleConfirm(), AUTO_CONFIRM_DELAY));
     }
-  }, [status, selectedPaths.length, handleConfirm, keepCount]);
+    return () => retimer();
+  }, [status, selectedPaths.length, handleConfirm, keepCount, retimer]);
+
+  // 处理无需操作时自动退出
+  const shouldAutoExit = backups.length === 0 || (keepCount !== null && selectedPaths.length === 0);
+  useEffect(() => {
+    if (shouldAutoExit && !showReturnHint) {
+      retimer(setTimeout(() => onComplete?.(), AUTO_EXIT_DELAY));
+    }
+    return () => retimer();
+  }, [shouldAutoExit, showReturnHint, onComplete, retimer]);
 
   if (backups.length === 0) {
-    if (!showReturnHint) {
-      setTimeout(() => onComplete?.(), 100);
-    }
     return (
       <Box flexDirection="column">
         <Text color="yellow">没有找到备份文件</Text>
@@ -103,9 +102,6 @@ export function CleanApp({ keepCount = null, showReturnHint = false, onComplete 
   }
 
   if (keepCount !== null && selectedPaths.length === 0) {
-    if (!showReturnHint) {
-      setTimeout(() => onComplete?.(), 100);
-    }
     return (
       <Box flexDirection="column">
         <Text color="green">
@@ -134,7 +130,7 @@ export function CleanApp({ keepCount = null, showReturnHint = false, onComplete 
                 label: `${b.name}  ${b.sizeFormatted}  ${b.type === 'full' ? '[完整]' : '[基础]'}`,
                 value: b.path,
               }))}
-              onChange={handleSelect}
+              onChange={setSelectedPaths}
               onSubmit={handleSubmit}
             />
           </Box>

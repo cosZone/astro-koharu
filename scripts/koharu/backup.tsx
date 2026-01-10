@@ -1,18 +1,10 @@
-import { execSync } from 'node:child_process';
-import fs from 'node:fs';
 import path from 'node:path';
 import { Select, Spinner } from '@inkjs/ui';
 import { Box, Text } from 'ink';
 import { useCallback, useEffect, useState } from 'react';
-import { BACKUP_DIR, type BackupItem, backupItems, formatSize, getVersion, PROJECT_ROOT, usePressAnyKey } from './shared.js';
+import { AUTO_EXIT_DELAY, type BackupResult, formatSize, runBackup, usePressAnyKey, useRetimer } from './shared';
 
 type BackupStatus = 'selecting' | 'pending' | 'backing' | 'compressing' | 'done' | 'error';
-
-interface BackupResult {
-  item: BackupItem;
-  success: boolean;
-  skipped: boolean;
-}
 
 interface BackupAppProps {
   initialFull?: boolean;
@@ -27,6 +19,7 @@ export function BackupApp({ initialFull = false, showReturnHint = false, onCompl
   const [backupFile, setBackupFile] = useState<string>('');
   const [fileSize, setFileSize] = useState<string>('');
   const [error, setError] = useState<string>('');
+  const retimer = useRetimer();
 
   const handleModeSelect = (value: string) => {
     if (value === 'cancel') {
@@ -37,86 +30,39 @@ export function BackupApp({ initialFull = false, showReturnHint = false, onCompl
     setStatus('pending');
   };
 
-  const runBackup = useCallback(async () => {
+  const executeBackup = useCallback(() => {
     try {
       setStatus('backing');
 
-      // 创建备份目录
-      fs.mkdirSync(BACKUP_DIR, { recursive: true });
+      const output = runBackup(isFullBackup, (progressResults) => {
+        setResults(progressResults);
+      });
 
-      // 生成时间戳
-      const now = new Date();
-      const timestamp = now.toISOString().replace(/[:.]/g, '-').slice(0, 19).replace('T', '-');
-      const backupName = `backup-${timestamp}`;
-      const tempDir = path.join(BACKUP_DIR, `.tmp-${backupName}`);
-      const backupFilePath = path.join(BACKUP_DIR, `${backupName}.tar.gz`);
-
-      // 清理并创建临时目录
-      fs.rmSync(tempDir, { recursive: true, force: true });
-      fs.mkdirSync(tempDir, { recursive: true });
-
-      const backupResults: BackupResult[] = [];
-
-      // 过滤要备份的项目
-      const itemsToBackup = backupItems.filter((item) => item.required || isFullBackup);
-
-      // 执行备份
-      for (const item of itemsToBackup) {
-        const srcPath = path.join(PROJECT_ROOT, item.src);
-        const destPath = path.join(tempDir, item.dest);
-
-        if (fs.existsSync(srcPath)) {
-          fs.mkdirSync(path.dirname(destPath), { recursive: true });
-          fs.cpSync(srcPath, destPath, { recursive: true });
-          backupResults.push({ item, success: true, skipped: false });
-        } else {
-          backupResults.push({ item, success: false, skipped: true });
-        }
-        setResults([...backupResults]);
-      }
-
-      // 生成 manifest.json
-      const manifest = {
-        name: 'astro-koharu-backup',
-        version: getVersion(),
-        type: isFullBackup ? 'full' : 'basic',
-        timestamp,
-        created_at: now.toISOString(),
-        files: Object.fromEntries(backupResults.map((r) => [r.item.dest, r.success])),
-      };
-      fs.writeFileSync(path.join(tempDir, 'manifest.json'), JSON.stringify(manifest, null, 2));
-
-      // 创建压缩包
       setStatus('compressing');
-      execSync(`tar -czf "${backupFilePath}" -C "${tempDir}" .`, { cwd: PROJECT_ROOT });
+      // Note: compression is synchronous in runBackup, state update shows progress
 
-      // 清理临时目录
-      fs.rmSync(tempDir, { recursive: true, force: true });
-
-      // 获取文件大小
-      const stats = fs.statSync(backupFilePath);
-      setFileSize(formatSize(stats.size));
-      setBackupFile(backupFilePath);
+      setFileSize(formatSize(output.fileSize));
+      setBackupFile(output.backupFile);
+      setResults(output.results);
       setStatus('done');
 
-      // 如果不显示返回提示，直接退出
       if (!showReturnHint) {
-        setTimeout(() => onComplete?.(), 100);
+        retimer(setTimeout(() => onComplete?.(), AUTO_EXIT_DELAY));
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : String(err));
       setStatus('error');
       if (!showReturnHint) {
-        setTimeout(() => onComplete?.(), 100);
+        retimer(setTimeout(() => onComplete?.(), AUTO_EXIT_DELAY));
       }
     }
-  }, [isFullBackup, showReturnHint, onComplete]);
+  }, [isFullBackup, showReturnHint, onComplete, retimer]);
 
   useEffect(() => {
     if (status === 'pending') {
-      runBackup();
+      executeBackup();
     }
-  }, [status, runBackup]);
+  }, [status, executeBackup]);
 
   const successCount = results.filter((r) => r.success).length;
   const skippedCount = results.filter((r) => r.skipped).length;

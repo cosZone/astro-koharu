@@ -1,11 +1,19 @@
-import { execSync } from 'node:child_process';
-import fs from 'node:fs';
-import os from 'node:os';
 import path from 'node:path';
 import { ConfirmInput, Select, Spinner } from '@inkjs/ui';
 import { Box, Text } from 'ink';
 import { useCallback, useEffect, useState } from 'react';
-import { getBackupList, PROJECT_ROOT, restoreMap, usePressAnyKey } from './shared.js';
+import {
+  AUTO_EXIT_DELAY,
+  type BackupInfo,
+  getBackupList,
+  getRestorePreview,
+  type RestorePreviewItem,
+  restoreBackup,
+  tarExtractManifest,
+  usePressAnyKey,
+  useRetimer,
+  validateBackupFilePath,
+} from './shared';
 
 type RestoreStatus = 'selecting' | 'confirming' | 'restoring' | 'done' | 'error' | 'cancelled';
 
@@ -24,22 +32,23 @@ export function RestoreApp({
   showReturnHint = false,
   onComplete,
 }: RestoreAppProps) {
-  const [status, setStatus] = useState<RestoreStatus>(initialBackupFile || force ? 'confirming' : 'selecting');
+  const [status, setStatus] = useState<RestoreStatus>(initialBackupFile ? 'confirming' : 'selecting');
   const [selectedBackup, setSelectedBackup] = useState<string>(initialBackupFile || '');
-  const [restoredFiles, setRestoredFiles] = useState<string[]>([]);
+  const [restoredFiles, setRestoredFiles] = useState<(RestorePreviewItem | string)[]>([]);
   const [error, setError] = useState<string>('');
   const [manifest, setManifest] = useState<{ type?: string; version?: string; timestamp?: string } | null>(null);
 
-  const backups = getBackupList();
+  const [backups] = useState<BackupInfo[]>(() => getBackupList());
+  const retimer = useRetimer();
 
   useEffect(() => {
     if (selectedBackup && !manifest) {
       try {
-        const data = execSync(`tar -xzf "${selectedBackup}" -O manifest.json 2>/dev/null`, {
-          encoding: 'utf-8',
-          cwd: PROJECT_ROOT,
-        });
-        setManifest(JSON.parse(data));
+        const validatedPath = validateBackupFilePath(selectedBackup);
+        const data = tarExtractManifest(validatedPath);
+        if (data) {
+          setManifest(JSON.parse(data));
+        }
       } catch {
         // ignore
       }
@@ -48,76 +57,38 @@ export function RestoreApp({
 
   const runDryRun = useCallback(() => {
     try {
-      const files = execSync(`tar -tzf "${selectedBackup}"`, { encoding: 'utf-8', cwd: PROJECT_ROOT })
-        .split('\n')
-        .filter((f) => f && f !== './' && f !== 'manifest.json');
-
-      const previewFiles: string[] = [];
-      for (const file of files) {
-        const cleanFile = file.replace(/\/$/, '');
-        for (const [src, dest] of Object.entries(restoreMap)) {
-          if (cleanFile === src || cleanFile.startsWith(`${src}/`)) {
-            const targetPath = cleanFile === src ? dest : cleanFile.replace(src, dest);
-            previewFiles.push(targetPath);
-            break;
-          }
-        }
-      }
-
+      const previewFiles = getRestorePreview(selectedBackup);
       setRestoredFiles(previewFiles);
       setStatus('done');
       if (!showReturnHint) {
-        setTimeout(() => onComplete?.(), 100);
+        retimer(setTimeout(() => onComplete?.(), AUTO_EXIT_DELAY));
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : String(err));
       setStatus('error');
       if (!showReturnHint) {
-        setTimeout(() => onComplete?.(), 100);
+        retimer(setTimeout(() => onComplete?.(), AUTO_EXIT_DELAY));
       }
     }
-  }, [selectedBackup, showReturnHint, onComplete]);
+  }, [selectedBackup, showReturnHint, onComplete, retimer]);
 
   const runRestore = useCallback(() => {
     try {
       setStatus('restoring');
-
-      // 创建临时目录
-      const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'astro-koharu-restore-'));
-
-      // 解压到临时目录
-      execSync(`tar -xzf "${selectedBackup}" -C "${tempDir}"`, { cwd: PROJECT_ROOT });
-
-      const restored: string[] = [];
-
-      // 还原文件
-      for (const [src, dest] of Object.entries(restoreMap)) {
-        const srcPath = path.join(tempDir, src);
-        const destPath = path.join(PROJECT_ROOT, dest);
-
-        if (fs.existsSync(srcPath)) {
-          fs.mkdirSync(path.dirname(destPath), { recursive: true });
-          fs.cpSync(srcPath, destPath, { recursive: true });
-          restored.push(dest);
-        }
-      }
-
-      // 清理临时目录
-      fs.rmSync(tempDir, { recursive: true, force: true });
-
+      const restored = restoreBackup(selectedBackup);
       setRestoredFiles(restored);
       setStatus('done');
       if (!showReturnHint) {
-        setTimeout(() => onComplete?.(), 100);
+        retimer(setTimeout(() => onComplete?.(), AUTO_EXIT_DELAY));
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : String(err));
       setStatus('error');
       if (!showReturnHint) {
-        setTimeout(() => onComplete?.(), 100);
+        retimer(setTimeout(() => onComplete?.(), AUTO_EXIT_DELAY));
       }
     }
-  }, [selectedBackup, showReturnHint, onComplete]);
+  }, [selectedBackup, showReturnHint, onComplete, retimer]);
 
   useEffect(() => {
     if (force && selectedBackup && status === 'confirming') {
@@ -142,12 +113,12 @@ export function RestoreApp({
     }
   }
 
-  function handleCancel() {
+  const handleCancel = useCallback(() => {
     setStatus('cancelled');
     if (!showReturnHint) {
-      setTimeout(() => onComplete?.(), 100);
+      retimer(setTimeout(() => onComplete?.(), AUTO_EXIT_DELAY));
     }
-  }
+  }, [showReturnHint, onComplete, retimer]);
 
   // 监听按键返回主菜单
   usePressAnyKey((status === 'done' || status === 'error' || status === 'cancelled') && showReturnHint, () => {
@@ -219,12 +190,18 @@ export function RestoreApp({
               {dryRun ? '预览模式' : '还原完成'}
             </Text>
           </Box>
-          {restoredFiles.map((file) => (
-            <Text key={file}>
-              <Text color="green">{'  '}+ </Text>
-              <Text>{file}</Text>
-            </Text>
-          ))}
+          {restoredFiles.map((item) => {
+            const isPreviewItem = typeof item !== 'string';
+            const filePath = isPreviewItem ? item.path : item;
+            const fileCount = isPreviewItem ? item.fileCount : 0;
+            return (
+              <Text key={filePath}>
+                <Text color="green">{'  '}+ </Text>
+                <Text>{filePath}</Text>
+                {isPreviewItem && fileCount > 1 && <Text dimColor> ({fileCount} 文件)</Text>}
+              </Text>
+            );
+          })}
           <Box marginTop={1}>
             <Text>
               {dryRun ? '将' : '已'}还原: <Text color="green">{restoredFiles.length}</Text> 项

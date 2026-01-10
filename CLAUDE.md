@@ -59,15 +59,22 @@ pnpm build            # Build for production
 pnpm preview          # Preview production build
 pnpm check            # Run Astro type checking
 
-# Content Generation
-pnpm generate:lqips           # Generate image placeholders
-pnpm generate:similarities    # Generate semantic similarity vectors
-pnpm generate:summaries       # Generate AI summaries (incremental)
-
 # Linting & Code Quality
 pnpm lint             # Run Biome linter and formatter
 pnpm lint:fix         # Auto-fix linting issues
 pnpm knip             # Find unused files/dependencies
+
+# Koharu CLI (Interactive TUI)
+pnpm koharu              # Interactive menu
+pnpm koharu backup       # Backup blog content and config (--full for complete backup)
+pnpm koharu restore      # Restore from backup (--latest, --dry-run, --force)
+pnpm koharu generate     # Generate content assets (interactive menu)
+pnpm koharu generate lqips        # Generate LQIP image placeholders
+pnpm koharu generate similarities # Generate semantic similarity vectors
+pnpm koharu generate summaries    # Generate AI summaries (--model, --force)
+pnpm koharu generate all          # Generate all content assets
+pnpm koharu clean        # Clean old backups (--keep N to retain N most recent)
+pnpm koharu list         # List all backups
 ```
 
 **Note on Configuration Changes:** After modifying `config/site.yaml`, restart the dev server or rebuild. The YAML configuration is cached during build for performance.

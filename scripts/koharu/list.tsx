@@ -1,5 +1,6 @@
 import { Box, Text } from 'ink';
-import { BACKUP_DIR, getBackupList, usePressAnyKey } from './shared.js';
+import { useEffect, useState } from 'react';
+import { AUTO_EXIT_DELAY, BACKUP_DIR, type BackupInfo, getBackupList, usePressAnyKey, useRetimer } from './shared';
 
 interface ListAppProps {
   showReturnHint?: boolean;
@@ -7,7 +8,8 @@ interface ListAppProps {
 }
 
 export function ListApp({ showReturnHint = false, onComplete }: ListAppProps) {
-  const backups = getBackupList();
+  const [backups] = useState<BackupInfo[]>(() => getBackupList());
+  const retimer = useRetimer();
 
   // 监听按键返回主菜单
   usePressAnyKey(showReturnHint, () => {
@@ -15,9 +17,12 @@ export function ListApp({ showReturnHint = false, onComplete }: ListAppProps) {
   });
 
   // 如果不显示返回提示，直接退出
-  if (!showReturnHint) {
-    setTimeout(() => onComplete?.(), 100);
-  }
+  useEffect(() => {
+    if (!showReturnHint) {
+      retimer(setTimeout(() => onComplete?.(), AUTO_EXIT_DELAY));
+    }
+    return () => retimer();
+  }, [showReturnHint, onComplete, retimer]);
 
   if (backups.length === 0) {
     return (
