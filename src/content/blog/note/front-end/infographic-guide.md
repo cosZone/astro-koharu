@@ -272,6 +272,73 @@ data
 
 适合展示组织结构、分类体系等树形关系。
 
+### 系统分层结构
+
+使用 `hierarchy-structure` 展示多层架构，非常适合展示系统架构、模块分层：
+
+```infographic
+infographic hierarchy-structure
+data
+  title 系统分层结构
+  desc 展示不同层级的模块与功能分组
+  items
+    - label 展现层
+      children
+        - label 小程序
+        - label APP
+        - label PAD
+        - label 客户端
+        - label WEB
+    - label 应用层
+      children
+        - label 核心模块
+          children
+            - label 功能1
+            - label 功能2
+            - label 功能3
+            - label 功能4
+            - label 功能5
+            - label 功能6
+        - label 基础模块
+          children
+            - label 功能1
+            - label 功能2
+            - label 功能3
+            - label 功能4
+            - label 功能5
+            - label 功能6
+        - label 其他模块
+          children
+            - label 功能1
+            - label 功能2
+            - label 功能3
+            - label 功能4
+            - label 功能5
+            - label 功能6
+    - label 平台层
+      children
+        - label 模块1
+          children
+            - label 功能1
+            - label 功能2
+            - label 功能3
+            - label 功能4
+        - label 模块2
+          children
+            - label 功能1
+            - label 功能2
+            - label 功能3
+            - label 功能4
+        - label 模块3
+          children
+            - label 功能1
+            - label 功能2
+            - label 功能3
+            - label 功能4
+theme light
+  palette antv
+```
+
 ### 科技风格树形图
 
 使用 `hierarchy-tree-tech-style-capsule-item` 展示层级结构：
@@ -443,28 +510,23 @@ data
 ```infographic
 infographic quadrant-quarter-simple-card
 data
-  title 任务优先级矩阵
+  title 四象限分析
   items
     - label 重要且紧急
-      desc 立即处理
-      children
-        - label 紧急 Bug 修复
-        - label 线上故障处理
+      desc 直接规避风险
+      illus notify
     - label 重要不紧急
-      desc 计划安排
-      children
-        - label 技术债务偿还
-        - label 架构优化
+      desc 采取风险控制措施
+      illus coffee
     - label 不重要但紧急
-      desc 快速处理或委托
-      children
-        - label 日常会议
-        - label 临时需求
+      desc 通过保险转移风险
+      illus diary
     - label 不重要不紧急
-      desc 有时间再做
-      children
-        - label 尝试新技术
-        - label 阅读技术博客
+      desc 选择接受风险
+      illus invest
+theme light
+  palette antv
+
 ```
 
 ## 关系图 (relation-\*)
@@ -476,20 +538,33 @@ data
 使用 `relation-circle-icon-badge` 展示关系网络：
 
 ```infographic
-infographic relation-circle-icon-badge
+infographic relation-circle-circular-progress
 data
-  title 前端生态关系
+  title 子公司盈利分析
+  desc 各子公司财务表现，盈利同比增长
   items
-    - label Astro
-      icon mdi/rocket-launch
-    - label React
-      icon mdi/react
-    - label TypeScript
-      icon mdi/language-typescript
-    - label Tailwind
-      icon mdi/tailwind
-    - label Vite
-      icon mdi/lightning-bolt
+    - label 云计算子公司
+      value 25
+      desc 年度净利润率达25%，成为集团核心增长引擎
+      icon mingcute/cardano-ada-fill
+    - label 人工智能子公司
+      value 40
+      desc AI业务快速扩张，盈利同比增长40%
+      icon mingcute/openai-fill
+    - label 物联网子公司
+      value 1000
+      desc IoT设备出货量突破千万，盈利稳步提升
+      icon mingcute/medium-fill
+    - label 金融科技子公司
+      value 18
+      desc 数字支付业务增长迅猛，净利润率18%
+      icon mingcute/paypal-fill
+    - label 新能源子公司
+      value 50
+      desc 绿色能源项目实现规模化盈利，增长潜力巨大
+      icon mingcute/drone-fill
+theme light
+  palette antv
 ```
 
 ## 主题定制

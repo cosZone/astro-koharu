@@ -146,6 +146,9 @@ export default defineConfig({
     ssr: {
       noExternal: ['react-tweet'],
     },
+    optimizeDeps: {
+      include: ['@antv/infographic'],
+    },
   },
   trailingSlash: 'ignore',
 });

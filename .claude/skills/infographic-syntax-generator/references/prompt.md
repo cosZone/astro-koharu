@@ -75,6 +75,7 @@
 - sequence-ascending-stairs-3d-underline-text
 - compare-binary-horizontal-badge-card-arrow
 - compare-binary-horizontal-underline-text-vs
+- hierarchy-structure
 - hierarchy-tree-tech-style-capsule-item
 - hierarchy-tree-curved-line-rounded-rect-node
 - hierarchy-tree-tech-style-badge-card
