@@ -335,8 +335,6 @@ data
             - label 功能2
             - label 功能3
             - label 功能4
-theme light
-  palette antv
 ```
 
 ### 科技风格树形图
@@ -524,9 +522,6 @@ data
     - label 不重要不紧急
       desc 选择接受风险
       illus invest
-theme light
-  palette antv
-
 ```
 
 ## 关系图 (relation-\*)
@@ -563,8 +558,6 @@ data
       value 50
       desc 绿色能源项目实现规模化盈利，增长潜力巨大
       icon mingcute/drone-fill
-theme light
-  palette antv
 ```
 
 ## 主题定制

@@ -9,8 +9,8 @@ importers:
   .:
     dependencies:
       '@antv/infographic':
-        specifier: ^0.2.7
-        version: 0.2.7
+        specifier: ^0.2.4
+        version: 0.2.4
       '@astrojs/check':
         specifier: ^0.9.6
         version: 0.9.6(prettier-plugin-astro@0.14.1)(prettier@3.7.4)(typescript@5.9.3)
@@ -314,8 +314,8 @@ packages:
   '@antv/hierarchy@0.7.1':
     resolution: {integrity: sha512-7r22r+HxfcRZp79ZjGmsn97zgC1Iajrv0Mm9DIgx3lPfk+Kme2MG/+EKdZj1iEBsN0rJRzjWVPGL5YrBdVHchw==}
 
-  '@antv/infographic@0.2.7':
-    resolution: {integrity: sha512-L7tBnKCbmxjrcb1vZAK0dssBge1+AxikKwesy5ZN/lHnyCsS4EhFWntqJ09l+cNMpyu9C2yiHk8bI3qhZkHlDA==}
+  '@antv/infographic@0.2.4':
+    resolution: {integrity: sha512-4v2boPE78fSQbV9ZGwHN37JaJVjPbl6+Q9blA2lCGy2g/TEUgpK5VKVJjYVM17cApPzRjwOnEh8vhKmmFJU7yA==}
 
   '@asamuzakjp/css-color@4.1.0':
     resolution: {integrity: sha512-9xiBAtLn4aNsa4mDnpovJvBn72tNEIACyvlqaNJ+ADemR+yeMJWnBudOi2qGDviJa7SwcDOU/TRh5dnET7qk0w==}
@@ -6971,13 +6971,12 @@ snapshots:
 
   '@antv/hierarchy@0.7.1': {}
 
-  '@antv/infographic@0.2.7':
+  '@antv/infographic@0.2.4':
     dependencies:
       '@antv/hierarchy': 0.7.1
       css: 3.0.0
       culori: 4.0.2
       d3: 7.9.0
-      eventemitter3: 5.0.1
       flru: 1.0.2
       lodash-es: 4.17.22
       measury: 0.1.4
