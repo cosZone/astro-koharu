@@ -30,3 +30,6 @@ pnpm-debug.log*
 
 # Transformers.js model cache
 .cache/
+
+# Backup files
+backups/
