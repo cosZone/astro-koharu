@@ -1,5 +1,5 @@
 import { useFrame, useThree } from '@react-three/fiber';
-import { type MutableRefObject, useMemo, useRef } from 'react';
+import { type RefObject, useMemo, useRef } from 'react';
 import * as THREE from 'three';
 
 /**
@@ -95,7 +95,7 @@ interface SnowParticlesProps {
   speed?: number;
   intensity?: number;
   /** 视差位置 ref，由父组件通过 Motion spring 更新 */
-  parallaxRef?: MutableRefObject<{ x: number; y: number }>;
+  parallaxRef?: RefObject<{ x: number; y: number }>;
   /** 渲染的层范围 [start, end]，默认 [0, 5] 全部渲染 */
   layerRange?: [number, number];
   /** 最大层数，用于性能优化 (桌面: 3, 移动: 2) */

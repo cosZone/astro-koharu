@@ -41,7 +41,7 @@ const categoryPosts: CategoryWithPosts[] = await Promise.all(
 
 <div class="grid w-full grid-cols-2 gap-8 gap-y-4 md:grid-cols-1">
   {
-    categoryPosts.map((category, idx) => {
+    categoryPosts.map((category) => {
       const parentCategory = category?.parentCategory;
       const parentCategoryLink = parentCategory
         ? Routes.Categories + '/' + (category?.link.split('/').slice(0, -1).join('/') ?? '')

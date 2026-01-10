@@ -45,19 +45,10 @@ export function useMediaQuery(query: string): boolean {
     };
 
     // Modern browsers use addEventListener
-    if (mediaQuery.addEventListener) {
-      mediaQuery.addEventListener('change', handleChange);
-      return () => {
-        mediaQuery.removeEventListener('change', handleChange);
-      };
-    }
-    // Legacy browsers use addListener (deprecated but still supported)
-    else if (mediaQuery.addListener) {
-      mediaQuery.addListener(handleChange);
-      return () => {
-        mediaQuery.removeListener(handleChange);
-      };
-    }
+    mediaQuery.addEventListener('change', handleChange);
+    return () => {
+      mediaQuery.removeEventListener('change', handleChange);
+    };
   }, [query]);
 
   return matches;

@@ -54,7 +54,7 @@ const breadcrumbCategories = [];
 if (categoryArr?.length) {
   for (let i = 0; i < categoryArr.length; i++) {
     const partialCategories = categoryArr.slice(0, i + 1);
-    const link = await buildCategoryPath(partialCategories);
+    const link = buildCategoryPath(partialCategories);
     breadcrumbCategories.push({
       name: categoryArr[i],
       link: link,

@@ -190,7 +190,6 @@ const isPostPage = Astro.url.pathname.startsWith('/post/');
        * 问题根源：astro-mermaid 的 astro:after-swap 监听器被注册在 import().then() 内部
        * 当首页没有 mermaid 图表时，监听器不会被注册，导致客户端导航时无法渲染
        */
-      const themeMap: Record<string, string> = { light: 'default', dark: 'dark' };
       let mermaidModule: typeof import('mermaid').default | null = null;
       let themeObserverSetup = false;
 

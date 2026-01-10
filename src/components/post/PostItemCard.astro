@@ -43,7 +43,7 @@ const href = routeBuilder(Routes.Post, data as BlogPost);
 const isDraft = import.meta.env.DEV && draft === true;
 
 const categoryArr = getCategoryArr(categories?.[0]);
-const categoryLink = await buildCategoryPath(categoryArr);
+const categoryLink = buildCategoryPath(categoryArr);
 const categoryStr = categoryArr?.length ? categoryArr[categoryArr.length - 1] : '';
 
 // 使用统一的工具函数获取文章描述（带 AI 摘要 fallback）
