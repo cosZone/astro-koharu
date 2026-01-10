@@ -36,6 +36,21 @@
 
 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/cosZone/astro-koharu&project-name=astro-koharu&repository-name=astro-koharu)
 
+### Docker 部署
+
+也可以通过 docker / docker-compose 运行一个带 Nginx 的容器：
+
+1. 在仓库根目录复制环境变量文件 `cp .env.example .env` 并填入你的 Remark42、Umami 等配置。
+2. 执行 `./docker/rebuild.sh`，脚本会自动读取根目录 `.env`、停止旧容器并重新构建/启动。
+
+> 想自定义环境文件位置或跳过 `docker compose down`，可在运行脚本时设置 `ENV_FILE=/path/to/.env` 或 `SKIP_DOWN=true`。
+
+若需要手动运行 Compose，可在仓库根目录执行：
+
+```bash
+docker compose --env-file ./.env -f docker/docker-compose.yml up -d --build
+```
+
 ### 本地开发
 
 1. 克隆项目到本地
@@ -78,6 +93,21 @@ pnpm dev
 - [可开关] 圣诞特辑：包含雪花飘落、圣诞配色、圣诞帽装饰、灯串装饰等节日氛围效果
 - 无后端站点公告系统：可通过配置文件管理公告，支持时间控制、多条公告堆叠、自定义颜色、hover 已读
 - 有样式的 [RSS](https://blog.cosine.ren/rss.xml) 订阅源链接
+
+## 配置说明
+
+博客配置统一使用 **`config/site.yaml`** 文件管理，包括：
+
+- 站点基本信息（标题、副标题、作者等）
+- 社交媒体链接
+- 导航菜单
+- 特色分类和周刊配置
+- 分类映射（中文分类名 → URL slug）
+- 友链列表
+- 公告系统
+- 圣诞特辑开关
+
+详细配置说明请参考文档。
 
 ## 文档
 

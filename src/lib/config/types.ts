@@ -181,5 +181,6 @@ export interface SiteYamlConfig {
   announcements?: AnnouncementConfig[];
   content?: ContentConfig;
   navigation?: RouterItem[];
+  categoryMap?: Record<string, string>; // TODO: i18n, now use eg: { '随笔': 'life' }
   christmas?: ChristmasConfig;
 }

@@ -46,19 +46,23 @@ pnpm dev
 
 ### 基本信息
 
-编辑 `src/constants/site-config.ts`：
+编辑 `config/site.yaml`：
 
-```typescript
-export const siteConfig = {
-  title: "你的博客名称", // 网站标题
-  alternate: "myblog", // 英文短名，用于 logo
-  subtitle: "你的副标题", // 副标题
-  name: "你的名字", // 作者名
-  description: "博客简介", // 一句话介绍
-  author: "你的名字", // 文章作者
-  site: "https://your-domain.com/", // 部署后的域名
-  startYear: 2024, // 建站年份
-};
+```yaml
+site:
+  title: 你的博客名称              # 网站标题
+  alternate: myblog               # 英文短名，用于 logo
+  subtitle: 你的副标题            # 副标题
+  name: 你的名字                  # 作者名
+  description: 博客简介            # 一句话介绍
+  author: 你的名字                # 文章作者
+  url: https://your-domain.com/   # 部署后的域名
+  startYear: 2024                 # 建站年份
+  avatar: /img/avatar.webp        # 头像路径
+  showLogo: true                  # 是否显示 logo
+  keywords:                       # SEO 关键词
+    - 博客
+    - 技术
 ```
 
 ### 替换头像
@@ -67,22 +71,23 @@ export const siteConfig = {
 
 ### 社交链接
 
-在同一文件中配置社交媒体、站点设置等元信息：
+在 `config/site.yaml` 中配置社交媒体链接：
 
-```typescript
-export const socialConfig = {
-  github: {
-    url: "https://github.com/your-username",
-    icon: "ri:github-fill",
-    color: "#191717",
-  },
-  email: {
-    url: "mailto:your@email.com",
-    icon: "ri:mail-line",
-    color: "#55acd5",
-  },
-  // 添加更多社交链接...
-};
+```yaml
+social:
+  github:
+    url: https://github.com/your-username
+    icon: ri:github-fill
+    color: '#191717'
+  email:
+    url: mailto:your@email.com
+    icon: ri:mail-line
+    color: '#55acd5'
+  rss:
+    url: /rss.xml
+    icon: ri:rss-line
+    color: '#ff6600'
+  # 添加更多社交链接...
 ```
 
 ## 4. 写第一篇文章
@@ -155,7 +160,22 @@ categories:
 
 ### 周刊/系列文章
 
-在 `site-config.ts` 中配置 `featuredSeries`，然后在 `weekly/` 目录创建周刊文章。
+在 `config/site.yaml` 中配置 `featuredSeries`：
+
+```yaml
+featuredSeries:
+  categoryName: 周刊
+  label: 我的周刊
+  fullName: 我的技术周刊
+  description: 每周技术分享
+  cover: /img/weekly_header.webp
+  enabled: true
+  links:
+    github: https://github.com/your-username/your-repo
+    rss: /rss.xml
+```
+
+然后在 `src/content/blog/` 目录创建周刊文章。
 
 ### AI 摘要（可选）
 

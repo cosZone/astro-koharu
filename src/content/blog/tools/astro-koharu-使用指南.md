@@ -69,121 +69,146 @@ pnpm preview
 
 ### 站点配置
 
-编辑 `src/constants/site-config.ts` 文件配置站点基本信息：
+编辑 `config/site.yaml` 文件配置站点基本信息：
 
-```typescript
-export const siteConfig: SiteConfig = {
-  title: 'My Blog',              // 网站标题
-  alternate: 'myblog',           // 英文短名（用作 logo 文本）
-  subtitle: '欢迎来到我的博客',    // 副标题
-  name: 'Author',                // 站点作者简称
-  description: '站点简介...',     // 站点简介
-  avatar: '/img/avatar.webp',    // 头像路径
-  showLogo: true,                // 是否显示 logo
-  author: 'Author',              // 文章作者
-  site: 'https://your-domain.com/', // 站点域名
-  startYear: 2024,               // 站点创建年份
-  keywords: ['博客', 'Astro', '技术'], // SEO 关键词
-};
+```yaml
+# =============================================================================
+# 站点基础信息
+# =============================================================================
+site:
+  title: 余弦の博客              # 网站标题
+  alternate: cosine             # 英文短名（用作 logo 文本）
+  subtitle: WA 的一声就哭了      # 副标题
+  name: cos                     # 站点作者简称
+  description: FE / ACG / 手工 / 深色模式强迫症 / INFP  # 站点简介
+  avatar: /img/avatar.webp      # 头像路径
+  showLogo: true                # 是否显示 logo
+  author: cos                   # 文章作者
+  url: https://blog.cosine.ren/ # 站点域名
+  startYear: 2020               # 站点创建年份
+  keywords:                     # SEO 关键词
+    - cos
+    - cosine
+    - 博客
+    - 技术
+    - 前端
 ```
 
 **特色分类配置：**
 
 在首页底部展示的精选分类卡片：
 
-```typescript
-featuredCategories: [
-  {
-    link: 'life',              // 分类链接（对应 category_map）
-    label: '随笔',             // 显示名称
-    image: '/img/cover/2.webp', // 封面图片
-    description: '生活记录、年度总结等', // 描述
-  },
-  // ... 更多分类
-]
+```yaml
+featuredCategories:
+  - link: life                  # 分类链接（对应 category_map）
+    label: 随笔                 # 显示名称
+    image: /img/cover/2.webp    # 封面图片
+    description: 生活记录、年度总结等  # 描述
+  - link: note/front-end
+    label: 前端笔记
+    image: /img/cover/1.webp
+    description: 前端相关的笔记
+  # ... 更多分类
 ```
 
 **周刊/系列配置：**
 
 配置特色系列（如周刊）：
 
-```typescript
-featuredSeries: {
-  categoryName: '周刊',        // 分类名称
-  label: '我的周刊',           // 显示标签
-  fullName: '我的技术周刊',     // 完整名称
-  description: '...',         // 描述
-  cover: '/img/weekly_header.webp', // 封面图
-  enabled: true,              // 是否启用（设为 false 关闭此功能）
-  links: {                    // 相关链接
-    github: 'https://github.com/your-username/your-repo',
-    rss: '/rss.xml',
-  },
-}
+```yaml
+featuredSeries:
+  categoryName: 周刊            # 分类名称
+  label: FE Bits               # 显示标签
+  fullName: FE Bits 前端周周谈  # 完整名称
+  description: |               # 描述（支持多行）
+    之前在自己的频道进行一些输出，于是有了这个周刊！
+    更新时间期望是在每周天
+  cover: /img/weekly_header.webp  # 封面图
+  enabled: true                # 是否启用（设为 false 关闭此功能）
+  links:                       # 相关链接
+    github: https://github.com/your-username/your-repo
+    rss: /rss.xml
 ```
 
 ### 社交媒体配置
 
-在 `src/constants/site-config.ts` 中配置社交媒体链接：
+在 `config/site.yaml` 中配置社交媒体链接：
 
-```typescript
-export const socialConfig: SocialConfig = {
-  github: {
-    url: 'https://github.com/your-username',
-    icon: 'ri:github-fill',      // Iconify 图标名
-    color: '#191717',            // 主题色
-  },
-  email: {
-    url: 'mailto:your@email.com',
-    icon: 'ri:mail-line',
-    color: '#55acd5',
-  },
-  rss: {
-    url: '/rss.xml',
-    icon: 'ri:rss-line',
-    color: '#ff6600',
-  },
-  // ... 更多平台配置见 site-config.ts
-};
+```yaml
+social:
+  github:
+    url: https://github.com/your-username
+    icon: ri:github-fill        # Iconify 图标名
+    color: '#191717'            # 主题色
+  bilibili:
+    url: https://space.bilibili.com/your-uid
+    icon: ri:bilibili-fill
+    color: '#da708a'
+  email:
+    url: mailto:your@email.com
+    icon: ri:mail-line
+    color: '#55acd5'
+  rss:
+    url: /rss.xml
+    icon: ri:rss-line
+    color: '#ff6600'
+  # ... 更多平台
 ```
 
-支持的平台：GitHub, Twitter, Bilibili, 网易云音乐, Email, RSS 等。
+支持的平台：GitHub, Twitter, Bilibili, 网易云音乐, Email, RSS 等。完整配置请参考 `config/site.yaml` 文件。
 
 ### 导航配置
 
-编辑 `src/constants/router.ts` 自定义导航菜单：
+在 `config/site.yaml` 中自定义导航菜单：
 
-```typescript
-export const routers: Router[] = [
-  { name: '首页', path: Routes.Home, icon: 'fa6-solid:house-chimney' },
-  { name: '周刊', path: Routes.Weekly, icon: 'ri:newspaper-line' },
-  {
-    name: '文章',
-    icon: 'ri:quill-pen-ai-fill',
-    children: [  // 支持嵌套子菜单
-      { name: '分类', path: Routes.Categories, icon: 'ri:grid-fill' },
-      { name: '标签', path: Routes.Tags, icon: 'fa6-solid:tags' },
-      { name: '归档', path: Routes.Archives, icon: 'ri:archive-2-fill' },
-    ],
-  },
-  { name: '友链', path: Routes.Friends, icon: 'ri:links-line' },
-  { name: '关于', path: Routes.About, icon: 'fa6-regular:circle-user' },
-];
+```yaml
+navigation:
+  - name: 首页
+    path: /
+    icon: fa6-solid:house-chimney
+  - name: 周刊
+    path: /weekly
+    icon: ri:newspaper-line
+  - name: 文章
+    icon: ri:quill-pen-ai-fill
+    children:                   # 支持嵌套子菜单
+      - name: 分类
+        path: /categories
+        icon: ri:grid-fill
+      - name: 标签
+        path: /tags
+        icon: fa6-solid:tags
+      - name: 归档
+        path: /archives
+        icon: ri:archive-2-fill
+  - name: 友链
+    path: /friends
+    icon: ri:links-line
+  - name: 关于
+    path: /about
+    icon: fa6-regular:circle-user
 ```
 
 ### 分类映射配置
 
-编辑 `_config.yml` 配置中文分类名到 URL slug 的映射：
+在 `config/site.yaml` 中配置中文分类名到 URL slug 的映射：
 
 ```yaml
-category_map:
+# =============================================================================
+# Category Map
+# Maps Chinese category names to URL-friendly English slugs
+# =============================================================================
+categoryMap:
+  # Primary categories
   随笔: life
   笔记: note
-  前端: front-end
-  后端: back-end
   工具: tools
   周刊: weekly
-  AI: ai
+  # Secondary categories (for nested paths)
+  前端: front-end
+  # Add more as needed:
+  # 后端: back-end
+  # 算法: algorithm
 ```
 
 这样，"随笔" 分类的 URL 会是 `/categories/life`，而不是 `/categories/随笔`。
@@ -263,7 +288,7 @@ categories:
   - 工具 # 或者 ['工具']
 ```
 
-对应 URL: `/categories/tools`（根据 `_config.yml` 映射）
+对应 URL: `/categories/tools`（根据 `categoryMap` 映射）
 
 **多层嵌套分类：**
 
@@ -768,23 +793,25 @@ const PROMPT_TEMPLATE = (title: string, content: string) =>
 
 **配置方式：**
 
-编辑 `src/constants/site-config.ts` 中的 `christmasConfig`：
+编辑 `config/site.yaml` 中的 `christmas` 配置：
 
-```typescript
-export const christmasConfig: ChristmasConfig = {
-  enabled: true,           // 总开关
-  features: {
-    snowfall: true,        // 雪花飘落
-    christmasColorScheme: true,  // 圣诞配色
-    christmasCoverDecoration: true,  // 灯串装饰
-    christmasHat: true,    // 圣诞帽
-  },
-  snowfall: {
-    speed: 1,              // 飘落速度（默认 1）
-    intensity: 0.6,        // 桌面端雪花密度（0-1）
-    mobileIntensity: 0.4,  // 移动端雪花密度（0-1）
-  },
-};
+```yaml
+christmas:
+  enabled: true           # 总开关
+  features:
+    snowfall: true        # 雪花飘落
+    christmasColorScheme: true      # 圣诞配色
+    christmasCoverDecoration: true  # 灯串装饰
+    christmasHat: true    # 圣诞帽
+    readingTimeSnow: true # 阅读时间雪花特效
+  snowfall:
+    speed: 0.5            # 飘落速度（默认 0.5）
+    intensity: 0.7        # 桌面端雪花密度（0-1）
+    mobileIntensity: 0.4  # 移动端雪花密度（0-1）
+    maxLayers: 6          # 最大雪花层数
+    maxIterations: 8      # 最大迭代次数
+    mobileMaxLayers: 4    # 移动端最大层数
+    mobileMaxIterations: 6  # 移动端最大迭代次数
 ```
 
 **用户控制：**
@@ -822,29 +849,40 @@ export const christmasConfig: ChristmasConfig = {
 
 **配置方式：**
 
-编辑 `src/constants/announcements.ts` 添加公告：
+编辑 `config/site.yaml` 添加公告：
 
-```typescript
-import type { Announcement } from '@/types/announcement';
+```yaml
+announcements:
+  - id: welcome-2026           # 唯一标识
+    title: 2026 年新年快乐!     # 公告标题
+    content: 新年快乐! 感谢大家一直以来的支持~  # 公告内容
+    type: info                 # 类型：info | warning | success | important
+    priority: 300              # 优先级（越高越先显示）
+    color: '#ED788C'           # 自定义颜色（可选，覆盖 type 默认色）
+    publishDate: '2026-01-01'  # 显示日期（可选，用于时间线展示）
+    startDate: '2025-12-31T00:00:00+08:00'  # 开始日期（可选）
+    endDate: '2026-01-15T23:59:59+08:00'    # 结束日期（可选）
+  - id: site-update-01
+    title: 站点更新公告
+    content: 新增站点公告系统，现在支持多条公告同时显示！
+    type: info
+    priority: 500
+    color: '#6366F1'
+    publishDate: '2025-01-02'
+```
 
-export const announcements: Announcement[] = [
-  {
-    id: 'welcome-2026',           // 唯一标识
-    title: '2026 年新年快乐!',      // 公告标题
-    content: '新年快乐! 感谢大家一直以来的支持~',  // 公告内容
-    type: 'success',              // 类型：info | warning | success | important
-    priority: 10,                 // 优先级（越高越先显示）
-    color: '#FF6B6B',             // 自定义颜色（可选，覆盖 type 默认色）
-    publishDate: '2026-01-01',    // 显示日期（可选，用于时间线展示）
-    startDate: '2025-12-31T00:00:00+08:00',  // 开始日期（可选）
-    endDate: '2026-01-15T23:59:59+08:00',    // 结束日期（可选）
-    link: {                       // 链接（可选）
-      url: 'https://example.com',
-      text: '了解更多',
-      external: true,
-    },
-  },
-];
+如果需要添加链接（可选）：
+
+```yaml
+announcements:
+  - id: example-with-link
+    title: 示例公告
+    content: 公告内容
+    type: info
+    link:
+      url: https://example.com
+      text: 了解更多
+      external: true
 ```
 
 **公告类型样式：**
@@ -1148,7 +1186,8 @@ astro-koharu/
 │   └── types/           # TypeScript 类型定义
 ├── public/              # 静态资源
 │   └── img/             # 图片资源
-├── _config.yml          # 分类映射配置
+├── config/
+│   └── site.yaml        # 站点配置（含分类映射）
 ├── astro.config.mjs     # Astro 配置
 ├── tailwind.config.ts   # Tailwind 配置
 └── tsconfig.json        # TypeScript 配置

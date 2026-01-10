@@ -344,6 +344,24 @@ navigation:
     icon: fa6-regular:circle-user
 
 # =============================================================================
+# Category Map
+# Maps Chinese category names to URL-friendly English slugs
+# Example: '随笔' category URL becomes /categories/life
+# =============================================================================
+categoryMap:
+  # Primary categories
+  随笔: life
+  笔记: note
+  工具: tools
+  周刊: weekly
+  # Secondary categories (for nested paths)
+  前端: front-end
+  # Add more as needed:
+  # 后端: back-end
+  # 算法: algorithm
+  # 项目: project
+
+# =============================================================================
 # Christmas/Seasonal Features
 # =============================================================================
 christmas:
