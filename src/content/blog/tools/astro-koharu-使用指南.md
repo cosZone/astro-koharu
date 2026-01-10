@@ -1232,6 +1232,95 @@ pnpm generate:lqips          # 生成图片 LQIP 占位符数据
 pnpm change           # 生成 CHANGELOG.md（基于 git-cliff）
 ```
 
+### Docker 部署
+
+astro-koharu 支持通过 Docker 进行容器化部署，适合需要自托管的场景。
+
+**快速开始：**
+
+```bash
+# 1. 复制环境变量文件
+cp .env.example .env
+# 编辑 .env 填写 REMARK_URL, REMARK_SITE_ID, UMAMI_ID 等
+
+# 2. 构建并启动
+docker compose --env-file ./.env -f docker/docker-compose.yml up -d --build
+
+# 3. 访问
+open http://localhost:4321
+```
+
+**目录结构：**
+
+```plain
+docker/
+├── Dockerfile           # 多阶段构建配置
+├── docker-compose.yml   # 编排配置
+├── nginx/
+│   └── default.conf     # Nginx 静态服务配置
+└── rebuild.sh           # 便捷重建脚本
+```
+
+**关于生成脚本：**
+
+以下脚本**需要在本地运行**，不能在 Docker 构建时执行：
+
+| 脚本 | 原因 |
+|------|------|
+| `pnpm generate:lqips` | 使用 `sharp` 原生模块处理图片 |
+| `pnpm generate:similarities` | 需下载 500MB+ 的 ML 模型 |
+| `pnpm generate:summaries` | 需连接本地 LLM 服务器 |
+
+**推荐工作流：**
+
+```bash
+# 本地开发：添加新图片或文章后
+pnpm generate:all
+
+# 提交生成的数据文件
+git add src/assets/*.json
+git commit -m "chore: update generated assets"
+
+# 重建 Docker 容器
+./docker/rebuild.sh
+```
+
+**使用 rebuild.sh：**
+
+```bash
+cd docker
+./rebuild.sh
+```
+
+该脚本会：
+
+1. 检查环境变量文件
+2. 停止现有容器
+3. 重新构建并启动
+
+**环境变量说明：**
+
+在 `.env` 文件中配置：
+
+```bash
+# 评论系统（可选）
+REMARK_URL=https://your-remark-server.com
+REMARK_SITE_ID=your-site-id
+
+# 统计系统（可选）
+UMAMI_ID=your-umami-id
+UMAMI_ENDPOINT=https://your-umami-server.com
+
+# 自定义端口（默认 4321）
+BLOG_PORT=4321
+```
+
+**注意事项：**
+
+1. 生成的 JSON 文件必须提交到 git，Docker 构建时会直接使用
+2. 如果忘记运行生成脚本，相关功能（LQIP 占位符、相关文章推荐等）将不可用
+3. Docker 镜像基于 nginx:alpine，仅包含静态文件，无需 Node.js 运行时
+
 ### 如何添加新页面
 
 1. 在 `src/pages/` 目录创建 `.astro` 文件

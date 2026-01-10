@@ -112,6 +112,7 @@ pnpm dev
 ## 文档
 
 - **[快速开始](./GETTING-STARTED.md)** - 启动你的博客
+- **[更新主题](./GETTING-STARTED.md#7-更新主题)** - 如何安全地更新到新版本
 - **[完整使用指南](./src/content/blog/tools/astro-koharu-使用指南.md)** - 所有功能的详细配置和使用方法
 
 ## 特色功能演示图片
