@@ -103,6 +103,7 @@ pnpm dev
 pnpm koharu              # 交互式主菜单
 pnpm koharu backup       # 备份博客内容和配置
 pnpm koharu restore      # 从备份恢复
+pnpm koharu update       # 更新主题
 pnpm koharu generate     # 生成内容资产 (LQIP, 相似度, AI 摘要)
 pnpm koharu clean        # 清理旧备份
 pnpm koharu list         # 查看所有备份
@@ -124,6 +125,21 @@ pnpm koharu restore --latest
 
 # 预览将要还原的文件（不实际还原）
 pnpm koharu restore --dry-run
+```
+
+### 更新主题
+
+使用 CLI 自动更新主题（会自动备份 → 拉取 → 合并 → 安装依赖）：
+
+```bash
+# 完整更新流程（默认会先备份）
+pnpm koharu update
+
+# 仅检查更新
+pnpm koharu update --check
+
+# 跳过备份直接更新
+pnpm koharu update --skip-backup
 ```
 
 ### 内容生成

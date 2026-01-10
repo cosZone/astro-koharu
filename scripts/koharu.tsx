@@ -10,6 +10,7 @@ import { HelpApp } from './koharu/help.js';
 import { ListApp } from './koharu/list.js';
 import { RestoreApp } from './koharu/restore.js';
 import { BACKUP_DIR, getBackupList, parseArgs } from './koharu/shared.js';
+import { UpdateApp } from './koharu/update.js';
 
 const args = parseArgs();
 
@@ -22,6 +23,7 @@ koharu - astro-koharu CLI
   pnpm koharu              交互式主菜单
   pnpm koharu backup       备份博客内容和配置
   pnpm koharu restore      从备份恢复
+  pnpm koharu update       更新主题
   pnpm koharu clean        清理旧备份
   pnpm koharu list         查看所有备份
   pnpm koharu generate     生成内容资产
@@ -32,6 +34,11 @@ koharu - astro-koharu CLI
 还原选项:
   --latest                 还原最新备份
   --dry-run                预览将要还原的文件
+  --force                  跳过确认提示
+
+更新选项:
+  --check                  仅检查更新（不执行）
+  --skip-backup            跳过备份步骤
   --force                  跳过确认提示
 
 清理选项:
@@ -51,7 +58,7 @@ koharu - astro-koharu CLI
   process.exit(0);
 }
 
-type AppMode = 'menu' | 'backup' | 'restore' | 'clean' | 'list' | 'help' | 'generate';
+type AppMode = 'menu' | 'backup' | 'restore' | 'update' | 'clean' | 'list' | 'help' | 'generate';
 
 function KoharuApp() {
   const { exit } = useApp();
@@ -61,6 +68,7 @@ function KoharuApp() {
     // 根据命令行参数决定初始模式
     if (args.command === 'backup') return 'backup';
     if (args.command === 'restore') return 'restore';
+    if (args.command === 'update') return 'update';
     if (args.command === 'clean') return 'clean';
     if (args.command === 'list') return 'list';
     if (args.command === 'help') return 'help';
@@ -118,10 +126,11 @@ function KoharuApp() {
         <Box flexDirection="column">
           <Text>请选择操作:</Text>
           <Select
-            visibleOptionCount={7}
+            visibleOptionCount={8}
             options={[
               { label: '备份 - 备份博客内容和配置', value: 'backup' },
               { label: '还原 - 从备份恢复', value: 'restore' },
+              { label: '更新 - 更新主题', value: 'update' },
               { label: '生成 - 生成内容资产 (LQIP, 相似度, 摘要)', value: 'generate' },
               { label: '清理 - 清理旧备份', value: 'clean' },
               { label: '列表 - 查看所有备份', value: 'list' },
@@ -139,6 +148,16 @@ function KoharuApp() {
         <RestoreApp
           initialBackupFile={getRestoreBackupFile()}
           dryRun={args.dryRun}
+          force={args.force}
+          showReturnHint={fromMenu}
+          onComplete={handleComplete}
+        />
+      )}
+
+      {mode === 'update' && (
+        <UpdateApp
+          checkOnly={args.check}
+          skipBackup={args.skipBackup}
           force={args.force}
           showReturnHint={fromMenu}
           onComplete={handleComplete}

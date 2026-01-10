@@ -28,7 +28,21 @@ export { getRestorePreview, type RestorePreviewItem, restoreBackup } from './res
 
 // Tar utilities
 export { tarCreate, tarExtract, tarExtractManifest, tarList } from './tar';
-
+// Update state machine
+export { statusEffects } from './update-effects';
+// Update operations
+export {
+  abortMerge,
+  addUpstreamRemote,
+  checkGitStatus,
+  ensureUpstreamRemote,
+  fetchUpstream,
+  getUpdateInfo,
+  hasUpstreamRemote,
+  installDeps,
+  mergeUpstream,
+} from './update-operations';
+export { createInitialState, updateReducer } from './update-reducer';
 // Validation utilities
 export {
   isPathWithinBackupDir,
@@ -37,6 +51,5 @@ export {
   validateBackupFilePath,
   validatePathInBackupDir,
 } from './validation';
-
 // Version utilities
 export { getVersion } from './version';

@@ -13,6 +13,9 @@ export interface ParsedArgs {
   // Generate command options
   generateType: GenerateType | 'all' | null;
   model: string | null;
+  // Update command options
+  check: boolean;
+  skipBackup: boolean;
 }
 
 /**
@@ -33,6 +36,8 @@ export function parseArgs(argv: string[] = process.argv.slice(2)): ParsedArgs {
     backupFile: '',
     generateType: null,
     model: null,
+    check: false,
+    skipBackup: false,
   };
 
   for (let i = 0; i < argv.length; i++) {
@@ -58,6 +63,10 @@ export function parseArgs(argv: string[] = process.argv.slice(2)): ParsedArgs {
     } else if (arg === '--model' && argv[i + 1]) {
       args.model = argv[i + 1];
       i++;
+    } else if (arg === '--check') {
+      args.check = true;
+    } else if (arg === '--skip-backup') {
+      args.skipBackup = true;
     } else if (!arg.startsWith('--') && !arg.startsWith('-')) {
       if (!args.command) {
         args.command = arg;

@@ -76,17 +76,17 @@ pnpm preview
 # 站点基础信息
 # =============================================================================
 site:
-  title: 余弦の博客              # 网站标题
-  alternate: cosine             # 英文短名（用作 logo 文本）
-  subtitle: WA 的一声就哭了      # 副标题
-  name: cos                     # 站点作者简称
-  description: FE / ACG / 手工 / 深色模式强迫症 / INFP  # 站点简介
-  avatar: /img/avatar.webp      # 头像路径
-  showLogo: true                # 是否显示 logo
-  author: cos                   # 文章作者
+  title: 余弦の博客 # 网站标题
+  alternate: cosine # 英文短名（用作 logo 文本）
+  subtitle: WA 的一声就哭了 # 副标题
+  name: cos # 站点作者简称
+  description: FE / ACG / 手工 / 深色模式强迫症 / INFP # 站点简介
+  avatar: /img/avatar.webp # 头像路径
+  showLogo: true # 是否显示 logo
+  author: cos # 文章作者
   url: https://blog.cosine.ren/ # 站点域名
-  startYear: 2020               # 站点创建年份
-  keywords:                     # SEO 关键词
+  startYear: 2020 # 站点创建年份
+  keywords: # SEO 关键词
     - cos
     - cosine
     - 博客
@@ -100,10 +100,10 @@ site:
 
 ```yaml
 featuredCategories:
-  - link: life                  # 分类链接（对应 category_map）
-    label: 随笔                 # 显示名称
-    image: /img/cover/2.webp    # 封面图片
-    description: 生活记录、年度总结等  # 描述
+  - link: life # 分类链接（对应 category_map）
+    label: 随笔 # 显示名称
+    image: /img/cover/2.webp # 封面图片
+    description: 生活记录、年度总结等 # 描述
   - link: note/front-end
     label: 前端笔记
     image: /img/cover/1.webp
@@ -117,15 +117,15 @@ featuredCategories:
 
 ```yaml
 featuredSeries:
-  categoryName: 周刊            # 分类名称
-  label: FE Bits               # 显示标签
-  fullName: FE Bits 前端周周谈  # 完整名称
-  description: |               # 描述（支持多行）
+  categoryName: 周刊 # 分类名称
+  label: FE Bits # 显示标签
+  fullName: FE Bits 前端周周谈 # 完整名称
+  description: | # 描述（支持多行）
     之前在自己的频道进行一些输出，于是有了这个周刊！
     更新时间期望是在每周天
-  cover: /img/weekly_header.webp  # 封面图
-  enabled: true                # 是否启用（设为 false 关闭此功能）
-  links:                       # 相关链接
+  cover: /img/weekly_header.webp # 封面图
+  enabled: true # 是否启用（设为 false 关闭此功能）
+  links: # 相关链接
     github: https://github.com/your-username/your-repo
     rss: /rss.xml
 ```
@@ -138,20 +138,20 @@ featuredSeries:
 social:
   github:
     url: https://github.com/your-username
-    icon: ri:github-fill        # Iconify 图标名
-    color: '#191717'            # 主题色
+    icon: ri:github-fill # Iconify 图标名
+    color: "#191717" # 主题色
   bilibili:
     url: https://space.bilibili.com/your-uid
     icon: ri:bilibili-fill
-    color: '#da708a'
+    color: "#da708a"
   email:
     url: mailto:your@email.com
     icon: ri:mail-line
-    color: '#55acd5'
+    color: "#55acd5"
   rss:
     url: /rss.xml
     icon: ri:rss-line
-    color: '#ff6600'
+    color: "#ff6600"
   # ... 更多平台
 ```
 
@@ -171,7 +171,7 @@ navigation:
     icon: ri:newspaper-line
   - name: 文章
     icon: ri:quill-pen-ai-fill
-    children:                   # 支持嵌套子菜单
+    children: # 支持嵌套子菜单
       - name: 分类
         path: /categories
         icon: ri:grid-fill
@@ -615,7 +615,7 @@ pnpm generate:similarities
 
 ```typescript
 const EXCLUDE_PATTERNS = [
-  'weekly-', // 排除周刊文章
+  "weekly-", // 排除周刊文章
 ];
 ```
 
@@ -654,7 +654,7 @@ Done! Generated similarities for 168 posts in 219.3s
 如需更换模型，编辑 `src/scripts/generateSimilarities.ts` 中的 `MODEL_NAME`：
 
 ```typescript
-const MODEL_NAME = 'Snowflake/snowflake-arctic-embed-m-v2.0';
+const MODEL_NAME = "Snowflake/snowflake-arctic-embed-m-v2.0";
 // 可选替代方案：
 // const MODEL_NAME = 'sentence-transformers/all-MiniLM-L6-v2'; // 更小更快（约 23MB），384 维
 // const MODEL_NAME = 'BAAI/bge-small-zh-v1.5';  // 针对中文优化
@@ -740,7 +740,7 @@ AI 摘要会保存在 `src/assets/summaries.json` 文件中，格式如下：
 如需更换模型，编辑 `src/scripts/generateSummaries.ts` 中的 `MODEL_NAME`：
 
 ```typescript
-const MODEL_NAME = 'Xenova/LaMini-Flan-T5-783M';
+const MODEL_NAME = "Xenova/LaMini-Flan-T5-783M";
 // 可选替代方案：
 // const MODEL_NAME = 'Xenova/distilbart-cnn-6-6'; // 更快，英文效果好
 // const MODEL_NAME = 'facebook/bart-large-cnn';   // 质量更高，但速度较慢
@@ -797,21 +797,21 @@ const PROMPT_TEMPLATE = (title: string, content: string) =>
 
 ```yaml
 christmas:
-  enabled: true           # 总开关
+  enabled: true # 总开关
   features:
-    snowfall: true        # 雪花飘落
-    christmasColorScheme: true      # 圣诞配色
-    christmasCoverDecoration: true  # 灯串装饰
-    christmasHat: true    # 圣诞帽
+    snowfall: true # 雪花飘落
+    christmasColorScheme: true # 圣诞配色
+    christmasCoverDecoration: true # 灯串装饰
+    christmasHat: true # 圣诞帽
     readingTimeSnow: true # 阅读时间雪花特效
   snowfall:
-    speed: 0.5            # 飘落速度（默认 0.5）
-    intensity: 0.7        # 桌面端雪花密度（0-1）
-    mobileIntensity: 0.4  # 移动端雪花密度（0-1）
-    maxLayers: 6          # 最大雪花层数
-    maxIterations: 8      # 最大迭代次数
-    mobileMaxLayers: 4    # 移动端最大层数
-    mobileMaxIterations: 6  # 移动端最大迭代次数
+    speed: 0.5 # 飘落速度（默认 0.5）
+    intensity: 0.7 # 桌面端雪花密度（0-1）
+    mobileIntensity: 0.4 # 移动端雪花密度（0-1）
+    maxLayers: 6 # 最大雪花层数
+    maxIterations: 8 # 最大迭代次数
+    mobileMaxLayers: 4 # 移动端最大层数
+    mobileMaxIterations: 6 # 移动端最大迭代次数
 ```
 
 **用户控制：**
@@ -853,22 +853,22 @@ christmas:
 
 ```yaml
 announcements:
-  - id: welcome-2026           # 唯一标识
-    title: 2026 年新年快乐!     # 公告标题
-    content: 新年快乐! 感谢大家一直以来的支持~  # 公告内容
-    type: info                 # 类型：info | warning | success | important
-    priority: 300              # 优先级（越高越先显示）
-    color: '#ED788C'           # 自定义颜色（可选，覆盖 type 默认色）
-    publishDate: '2026-01-01'  # 显示日期（可选，用于时间线展示）
-    startDate: '2025-12-31T00:00:00+08:00'  # 开始日期（可选）
-    endDate: '2026-01-15T23:59:59+08:00'    # 结束日期（可选）
+  - id: welcome-2026 # 唯一标识
+    title: 2026 年新年快乐! # 公告标题
+    content: 新年快乐! 感谢大家一直以来的支持~ # 公告内容
+    type: info # 类型：info | warning | success | important
+    priority: 300 # 优先级（越高越先显示）
+    color: "#ED788C" # 自定义颜色（可选，覆盖 type 默认色）
+    publishDate: "2026-01-01" # 显示日期（可选，用于时间线展示）
+    startDate: "2025-12-31T00:00:00+08:00" # 开始日期（可选）
+    endDate: "2026-01-15T23:59:59+08:00" # 结束日期（可选）
   - id: site-update-01
     title: 站点更新公告
     content: 新增站点公告系统，现在支持多条公告同时显示！
     type: info
     priority: 500
-    color: '#6366F1'
-    publishDate: '2025-01-02'
+    color: "#6366F1"
+    publishDate: "2025-01-02"
 ```
 
 如果需要添加链接（可选）：
@@ -887,8 +887,8 @@ announcements:
 
 **公告类型样式：**
 
-| 类型        | 说明     | 默认颜色 |
-| ----------- | -------- | -------- |
+| 类型        | 说明     | 默认颜色       |
+| ----------- | -------- | -------------- |
 | `info`      | 信息通知 | 蓝色 (#3b82f6) |
 | `warning`   | 警告提示 | 黄色 (#eab308) |
 | `success`   | 成功消息 | 绿色 (#22c55e) |
@@ -1072,14 +1072,14 @@ theme
 ````markdown
 ```javascript
 function hello() {
-  console.log('Hello, world!');
+  console.log("Hello, world!");
 }
 ```
 ````
 
 ```javascript
 function hello() {
-  console.log('Hello, world!');
+  console.log("Hello, world!");
 }
 ```
 
@@ -1154,9 +1154,9 @@ https://zhuanlan.zhihu.com/p/1900483903984243480
 
 ```javascript
 umami({
-  id: 'your-website-id',
-  endpointUrl: 'https://stats.example.com',
-  hostUrl: 'https://stats.example.com',
+  id: "your-website-id",
+  endpointUrl: "https://stats.example.com",
+  hostUrl: "https://stats.example.com",
 });
 ```
 
@@ -1198,10 +1198,10 @@ astro-koharu/
 项目配置了以下路径别名（在 `tsconfig.json` 中）：
 
 ```typescript
-import { something } from '@/xxx';           // → src/xxx
-import Component from '@components/xxx';     // → src/components/xxx
-import { util } from '@lib/xxx';            // → src/lib/xxx
-import config from '@constants/xxx';        // → src/constants/xxx
+import { something } from "@/xxx"; // → src/xxx
+import Component from "@components/xxx"; // → src/components/xxx
+import { util } from "@lib/xxx"; // → src/lib/xxx
+import config from "@constants/xxx"; // → src/constants/xxx
 // ... 更多别名见 tsconfig.json
 ```
 
@@ -1221,12 +1221,18 @@ pnpm lint-md          # 检查 Markdown 文件
 pnpm lint-md:fix      # 自动修复 Markdown 问题
 pnpm knip             # 查找未使用的文件和依赖
 
-# AI 功能
-pnpm generate:summaries      # 生成文章 AI 摘要
-pnpm generate:similarities   # 生成文章相似度数据
-
-# 图片优化
-pnpm generate:lqips          # 生成图片 LQIP 占位符数据
+# Koharu CLI
+pnpm koharu                   # 交互式主菜单
+pnpm koharu backup            # 备份博客内容（--full 完整备份）
+pnpm koharu restore           # 还原备份（--latest, --dry-run）
+pnpm koharu update            # 更新主题（--check, --skip-backup, --force）
+pnpm koharu generate          # 生成内容资产（交互式选择）
+pnpm koharu generate lqips    # 生成 LQIP 占位符
+pnpm koharu generate similarities  # 生成相似度向量
+pnpm koharu generate summaries     # 生成 AI 摘要
+pnpm koharu generate all      # 生成全部资产
+pnpm koharu clean             # 清理旧备份（--keep N）
+pnpm koharu list              # 查看所有备份
 
 # 工具
 pnpm change           # 生成 CHANGELOG.md（基于 git-cliff）
@@ -1265,11 +1271,11 @@ docker/
 
 以下脚本**需要在本地运行**，不能在 Docker 构建时执行：
 
-| 脚本 | 原因 |
-|------|------|
-| `pnpm generate:lqips` | 使用 `sharp` 原生模块处理图片 |
-| `pnpm generate:similarities` | 需下载 500MB+ 的 ML 模型 |
-| `pnpm generate:summaries` | 需连接本地 LLM 服务器 |
+| 脚本                         | 原因                          |
+| ---------------------------- | ----------------------------- |
+| `pnpm generate:lqips`        | 使用 `sharp` 原生模块处理图片 |
+| `pnpm generate:similarities` | 需下载 500MB+ 的 ML 模型      |
+| `pnpm generate:summaries`    | 需连接本地 LLM 服务器         |
 
 **推荐工作流：**
 
@@ -1320,6 +1326,117 @@ BLOG_PORT=4321
 1. 生成的 JSON 文件必须提交到 git，Docker 构建时会直接使用
 2. 如果忘记运行生成脚本，相关功能（LQIP 占位符、相关文章推荐等）将不可用
 3. Docker 镜像基于 nginx:alpine，仅包含静态文件，无需 Node.js 运行时
+
+### Koharu CLI
+
+博客自带交互式命令行工具，提供备份还原、主题更新、内容生成等功能。
+
+**启动方式：**
+
+```bash
+pnpm koharu              # 交互式主菜单
+```
+
+#### 备份与还原
+
+更新主题前，建议先备份你的个人内容：
+
+```bash
+# 基础备份（博客文章、配置、头像、.env）
+pnpm koharu backup
+
+# 完整备份（包含所有图片和生成的资产）
+pnpm koharu backup --full
+
+# 查看所有备份
+pnpm koharu list
+
+# 还原最新备份
+pnpm koharu restore --latest
+
+# 预览将要还原的文件（不实际还原）
+pnpm koharu restore --dry-run
+
+# 强制还原（覆盖已存在的文件）
+pnpm koharu restore --force
+
+# 清理旧备份（保留最近 5 个）
+pnpm koharu clean --keep 5
+```
+
+备份文件存储在 `backups/` 目录，格式为 `backup-YYYY-MM-DD-HHMMSS.tar.gz`。
+
+#### 更新主题
+
+使用 CLI 自动更新主题，完成备份 → 拉取 → 合并 → 安装依赖的完整流程：
+
+```bash
+# 完整更新流程（默认会先备份）
+pnpm koharu update
+
+# 仅检查是否有更新
+pnpm koharu update --check
+
+# 跳过备份直接更新
+pnpm koharu update --skip-backup
+
+# 强制模式（跳过工作区检查和确认）
+pnpm koharu update --force
+```
+
+**更新流程说明：**
+
+1. **检查 Git 状态** - 确保工作区干净（无未提交的更改）
+2. **备份当前内容** - 可选，但强烈建议
+3. **设置 upstream** - 自动添加 `upstream` remote（如果不存在）
+4. **获取最新代码** - `git fetch upstream`
+5. **显示更新预览** - 列出新增的提交
+6. **执行合并** - `git merge upstream/main`
+7. **安装依赖** - `pnpm install`
+
+**处理合并冲突：**
+
+如果更新时遇到合并冲突，CLI 会显示冲突文件列表。你可以：
+
+1. 选择"中止合并"恢复到更新前状态
+2. 手动解决冲突后运行 `git add . && git commit`
+
+```bash
+# 如果选择手动解决冲突
+git status                    # 查看冲突文件
+# 编辑冲突文件，保留需要的内容
+git add .
+git commit -m "merge: resolve conflicts"
+```
+
+**更新时使用的 Git 命令：**
+
+| 操作 | 命令 |
+|------|------|
+| 检查工作区状态 | `git status --porcelain` |
+| 获取当前分支 | `git rev-parse --abbrev-ref HEAD` |
+| 检查 upstream | `git remote -v` |
+| 添加 upstream | `git remote add upstream https://github.com/cosZone/astro-koharu.git` |
+| 获取更新 | `git fetch upstream` |
+| 查看新提交数量 | `git rev-list --left-right --count HEAD...upstream/main` |
+| 查看新提交列表 | `git log HEAD..upstream/main --pretty=format:"%h|%s|%ar|%an"` |
+| 合并更新 | `git merge upstream/main --no-edit` |
+| 中止合并 | `git merge --abort` |
+
+#### 内容生成
+
+生成各种内容资产：
+
+```bash
+# 交互式选择生成类型
+pnpm koharu generate
+
+# 或直接指定类型
+pnpm koharu generate lqips        # 生成 LQIP 图片占位符
+pnpm koharu generate similarities # 生成语义相似度向量
+pnpm koharu generate summaries    # 生成 AI 摘要
+pnpm koharu generate all          # 生成全部
+```
 
 ### 如何添加新页面
 
@@ -1373,12 +1490,12 @@ src/pages/tags/[tag].astro  → /tags/:tag（动态路由）
 **使用示例：**
 
 ```tsx
-import { motion } from 'motion/react';
-import { fadeIn } from '@constants/anim/variants';
+import { motion } from "motion/react";
+import { fadeIn } from "@constants/anim/variants";
 
 <motion.div variants={fadeIn} initial="hidden" animate="visible">
   内容
-</motion.div>
+</motion.div>;
 ```
 
 ## 与 Hexo/Shoka 主题的对比
