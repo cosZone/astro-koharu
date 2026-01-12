@@ -13,6 +13,7 @@ import type { Heading } from '@hooks/useHeadingTree';
 import { AnimatePresence, motion } from 'motion/react';
 import type React from 'react';
 import { cloneElement } from 'react';
+import { cn } from '@/lib/utils';
 import { HeadingList } from '../TableOfContents/HeadingList';
 
 interface MobileTOCDropdownProps {
@@ -86,7 +87,7 @@ export function MobileTOCDropdown({
                 transition={animation.spring.popoverContent}
                 {...getFloatingProps()}
               >
-                <nav className={`toc-container${enableNumbering ? '' : 'toc-no-numbering'}`} aria-label="文章目录">
+                <nav className={cn('toc-container', { 'toc-no-numbering': !enableNumbering })} aria-label="文章目录">
                   <div className="space-y-1">
                     <HeadingList
                       headings={headings}
