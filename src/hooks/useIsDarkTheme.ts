@@ -25,30 +25,26 @@ import { useEffect, useState } from 'react';
  * @returns Whether the page is currently in dark mode
  */
 export function useIsDarkTheme(): boolean {
-  const [isDark, setIsDark] = useState(false);
+  const [isDark, setIsDark] = useState(() => {
+    // SSR-safe initialization
+    if (typeof document !== 'undefined') {
+      return document.documentElement.classList.contains('dark');
+    }
+    return false;
+  });
 
   useEffect(() => {
-    // Initialize with current theme state
-    const updateTheme = () => {
-      setIsDark(document.documentElement.classList.contains('dark'));
-    };
+    const root = document.documentElement;
 
-    updateTheme();
+    // Sync with current state
+    setIsDark(root.classList.contains('dark'));
 
-    // Watch for class changes on documentElement
-    const observer = new MutationObserver((mutations) => {
-      for (const mutation of mutations) {
-        if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
-          updateTheme();
-          break;
-        }
-      }
+    // Watch for class changes
+    const observer = new MutationObserver(() => {
+      setIsDark(root.classList.contains('dark'));
     });
 
-    observer.observe(document.documentElement, {
-      attributes: true,
-      attributeFilter: ['class'],
-    });
+    observer.observe(root, { attributes: true, attributeFilter: ['class'] });
 
     return () => observer.disconnect();
   }, []);

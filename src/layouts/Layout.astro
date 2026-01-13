@@ -50,8 +50,8 @@ const isPostPage = Astro.url.pathname.startsWith('/post/');
     <link rel="dns-prefetch" href="https://chinese-font.netlify.app" />
 
     <!-- Async load Chinese fonts to avoid render-blocking -->
-    <link rel="stylesheet" href="/fonts/ChillRoundFRegular/result.css" media="print" onload="this.media='all'" />
-    <link rel="stylesheet" href="/fonts/ChillRoundFBold/result.css" media="print" onload="this.media='all'" />
+    <link rel="stylesheet" href="/fonts/ChillRoundFRegular/result.css" media="print" onload="this.setAttribute('media','all')" />
+    <link rel="stylesheet" href="/fonts/ChillRoundFBold/result.css" media="print" onload="this.setAttribute('media','all')" />
 
     <ClientRouter />
     <LoadingIndicator color="#e9536a" />
@@ -76,19 +76,39 @@ const isPostPage = Astro.url.pathname.startsWith('/post/');
     <link rel="alternate" type="application/rss+xml" title={siteConfig.title} href={`${Astro.site}rss.xml`} />
 
     <script is:inline>
-      // 立即执行主题检查 否则会闪烁
-      if (
-        localStorage.theme === 'dark' ||
-        (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)
-      ) {
-        document.documentElement.classList.add('dark');
-        document.documentElement.classList.remove('light');
-        document.documentElement.dataset.theme = 'dark';
-      } else {
-        document.documentElement.classList.remove('dark');
-        document.documentElement.classList.add('light');
-        document.documentElement.dataset.theme = 'light';
-      }
+      // 主题系统 - 立即执行以防止 FOUC（无样式内容闪烁）
+      // 优先级：1. 用户手动选择 > 2. 系统偏好
+      (function() {
+        function getTheme() {
+          // 用户明确选择了主题
+          if (localStorage.theme === 'dark') return 'dark';
+          if (localStorage.theme === 'light') return 'light';
+          // 未设置，跟随系统偏好
+          return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        }
+
+        function applyTheme(theme) {
+          var root = document.documentElement;
+          root.classList.toggle('dark', theme === 'dark');
+          root.dataset.theme = theme; // For astro-mermaid autoTheme
+        }
+
+        // 立即应用主题
+        applyTheme(getTheme());
+
+        // 监听系统主题偏好变化
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function() {
+          // 仅当用户未明确选择主题时自动切换
+          if (!('theme' in localStorage)) {
+            applyTheme(getTheme());
+          }
+        });
+
+        // View Transition 切换页面后重新应用主题（在 DOM 渲染前）
+        document.addEventListener('astro:after-swap', function() {
+          applyTheme(getTheme());
+        });
+      })();
     </script>
     <script is:inline define:vars={{ christmasFeatureEnabled: christmasConfig.enabled }}>
       // 立即执行圣诞状态检查 否则彩灯等会闪烁
@@ -103,24 +123,6 @@ const isPostPage = Astro.url.pathname.startsWith('/post/');
         var enabled = stored !== 'false'; // 默认启用
         document.documentElement.classList.toggle('christmas', enabled);
       })();
-    </script>
-    <script>
-      function checkTheme() {
-        if (
-          localStorage.theme === 'dark' ||
-          (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)
-        ) {
-          document.documentElement.classList.add('dark');
-          document.documentElement.classList.remove('light'); // 本来是没有 light 的，这样是为了触发 MutationObserver
-          document.documentElement.dataset.theme = 'dark';
-        } else {
-          document.documentElement.classList.remove('dark');
-          document.documentElement.classList.add('light');
-          document.documentElement.dataset.theme = 'light';
-        }
-      }
-      // 在每次页面加载时检查
-      document.addEventListener('astro:page-load', checkTheme);
     </script>
     <script>
       // CodePen embed initialization for Astro page transitions
