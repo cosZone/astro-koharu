@@ -4,6 +4,19 @@ All notable changes to this project will be documented in this file. See [conven
 
 ---
 
+## [2.1.0](https://github.com/cosZone/astro-koharu/compare/v2.0.0..v2.1.0) - 2026-01-15
+
+### Bug Fixes
+
+- h1 toc counter css - ([bccd9db](https://github.com/cosZone/astro-koharu/commit/bccd9dbdc6794418b962bb9c35ff06945bdb411a)) - yusixian
+
+### Features
+
+- enhance RSS feed with stable GUID - ([90d0d06](https://github.com/cosZone/astro-koharu/commit/90d0d062770fd026c31316b93c816eaa251aebd0)) - yusixian
+- enhance dark mode support - ([1edf88c](https://github.com/cosZone/astro-koharu/commit/1edf88c73e0f466a1f2e3627dedb914c45bad887)) - yusixian
+
+---
+
 ## [2.0.0](https://github.com/cosZone/astro-koharu/compare/v1.4.0..v2.0.0) - 2026-01-11
 
 ### Breaking Changes
@@ -22,20 +35,6 @@ All notable changes to this project will be documented in this file. See [conven
 
 - migrate comment (Remark42) and analytics (Umami) configurations to site.yaml - ([0014284](https://github.com/cosZone/astro-koharu/commit/0014284)) - yusixian
 - update navigation icons configuration to use Iconify format in site.yaml - ([b204bff](https://github.com/cosZone/astro-koharu/commit/b204bff)) - yusixian
-
-### Bug Fixes
-
-- fix rss page view transition - ([8040d56](https://github.com/cosZone/astro-koharu/commit/8040d5694eeb16aae6f5dc6e034fcbbcf4940376)) - yusixian
-- update pointer-events for FlippedCard component to improve interaction handling - ([263d10b](https://github.com/cosZone/astro-koharu/commit/263d10be4df4dc0e4d72a236e86298b5b213ffc0)) - yusixian
-
-### Build
-
-- add rollup-plugin-visualizer for build analysis and update configuration - ([73befbf](https://github.com/cosZone/astro-koharu/commit/73befbfc39b8bdeac9adde527f46fd9ab131a95a)) - yusixian
-
-### Documentation
-
-- update about page with new content and formatting - ([015ae72](https://github.com/cosZone/astro-koharu/commit/015ae725afcd405cf427c9536bfa29b01417c447)) - yusixian
-- update README with new images - ([03d05cf](https://github.com/cosZone/astro-koharu/commit/03d05cfef1ab69d55f2afdb57258d47a15aff53b)) - yusixian
 
 ---
 

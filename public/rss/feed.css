@@ -37,6 +37,10 @@
   padding: 0;
 }
 
+html {
+  background-color: var(--bg-dark);
+}
+
 body {
   font-family: 'Quicksand', '寒蝉全圆体', 'Chill Round', sans-serif;
   background-color: var(--bg-dark);
@@ -51,7 +55,7 @@ body {
 .background-decorations {
   position: fixed;
   inset: 0;
-  z-index: -1;
+  z-index: 0;
   pointer-events: none;
   overflow: hidden;
 }

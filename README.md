@@ -218,3 +218,11 @@ pnpm koharu generate all          # 生成全部
 - [纸鹿摸鱼处](https://blog.zhilu.site/)
 
 ...
+
+## Star History
+
+[![Star History Chart](https://api.star-history.com/svg?repos=cosZone/astro-koharu&type=date&legend=top-left)](https://www.star-history.com/#cosZone/astro-koharu&type=date&legend=top-left)
+
+## License
+
+GNU Affero General Public License version 3 (AGPL-3.0)

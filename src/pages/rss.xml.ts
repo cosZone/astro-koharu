@@ -49,13 +49,19 @@ export async function GET(context: APIContext) {
           ...(post.data.tags || []).map((tag) => `tag:${tag}`),
         ];
 
+        const postSlug = post.data.link ?? post.slug;
+        const postLink = `/post/${postSlug}`;
+
         return {
           title: post.data.title,
           pubDate: post.data.date,
           description: post.data?.description ?? generateTextSummary(post.rendered?.html),
-          link: `/post/${post.data.link ?? post.slug}`,
+          link: postLink,
           content: getSanitizeHtml(post.rendered?.html ?? ''),
           categories,
+          // Add domain-independent GUID using customData
+          // The slug-only GUID ensures stability across domain changes
+          customData: `<guid isPermaLink="false">${postSlug}</guid>`,
         };
       })
       .slice(0, 20),

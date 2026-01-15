@@ -23,8 +23,8 @@ import { capitalize } from 'es-toolkit';
             data-tooltip-interactive="false"
             data-tooltip-placement="top"
             aria-label={capitalize(key)}
-            data-astro-reload={key === 'rss' ? true : undefined} 
-          >
+            target="_blank"
+           >
             <Icon name={icon} class="inline-block size-6" />
             <span class="absolute inset-0 -z-10 -translate-x-full translate-y-full rounded-xl transition-transform duration-300 group-hover:translate-x-0 group-hover:translate-y-0" />
           </a>

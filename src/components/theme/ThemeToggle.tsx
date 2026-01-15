@@ -43,19 +43,12 @@ function useTheme() {
   }, []);
 
   const applyTheme = useCallback((dark: boolean) => {
-    const rootElement = document.documentElement;
+    const root = document.documentElement;
+    const theme = dark ? 'dark' : 'light';
 
-    if (dark) {
-      rootElement.classList.add('dark');
-      rootElement.classList.remove('light');
-      rootElement.dataset.theme = 'dark'; // For astro-mermaid autoTheme
-      localStorage.setItem('theme', 'dark');
-    } else {
-      rootElement.classList.remove('dark');
-      rootElement.classList.add('light');
-      rootElement.dataset.theme = 'light'; // For astro-mermaid autoTheme
-      localStorage.setItem('theme', 'light');
-    }
+    root.classList.toggle('dark', dark);
+    root.dataset.theme = theme; // For astro-mermaid autoTheme
+    localStorage.setItem('theme', theme);
   }, []);
 
   const toggle = useCallback(() => {
