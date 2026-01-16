@@ -51,17 +51,20 @@ export default function Giscus() {
 
   return (
     <GiscusComponent
-      repo={config.repo as `${string}/${string}`}
+      host={config?.host}
+      repo={config.repo}
       repoId={config.repoId}
-      category={config.category}
-      categoryId={config.categoryId}
-      mapping={config.mapping ?? 'pathname'}
-      reactionsEnabled={config.reactionsEnabled !== false ? '1' : '0'}
-      emitMetadata={config.emitMetadata ? '1' : '0'}
-      inputPosition={config.inputPosition ?? 'top'}
-      theme={theme}
-      lang={config.lang ?? 'zh-CN'}
-      loading="lazy"
+      category={config?.category}
+      categoryId={config?.categoryId}
+      mapping={config?.mapping ?? 'pathname'}
+      term={config?.term}
+      strict={config?.strict}
+      reactionsEnabled={config?.reactionsEnabled}
+      emitMetadata={config?.emitMetadata}
+      inputPosition={config?.inputPosition ?? 'top'}
+      theme={config?.theme}
+      lang={config?.lang ?? 'zh-CN'}
+      loading={config?.loading ?? 'lazy'}
     />
   );
 }

@@ -151,16 +151,22 @@ export interface Remark42Config {
   siteId: string;
 }
 
+export type GiscusBooleanString = '0' | '1';
 export interface GiscusConfig {
-  repo: string; // owner/repo format
+  repo: `${string}/${string}`; // owner/repo format
   repoId: string;
-  category: string;
-  categoryId: string;
-  mapping?: 'pathname' | 'url' | 'title' | 'og:title';
-  reactionsEnabled?: boolean;
-  emitMetadata?: boolean;
+  category?: string;
+  categoryId?: string;
+  mapping?: 'url' | 'title' | 'og:title' | 'specific' | 'number' | 'pathname';
+  term?: string; // Used when mapping is 'specific' or 'number'
+  strict?: GiscusBooleanString;
+  reactionsEnabled?: GiscusBooleanString;
+  emitMetadata?: GiscusBooleanString;
   inputPosition?: 'top' | 'bottom';
   lang?: string;
+  host?: string; // Custom giscus host (for self-hosted)
+  theme?: string;
+  loading?: 'lazy' | 'eager';
 }
 
 export interface WalineConfig {

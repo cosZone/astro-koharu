@@ -355,16 +355,19 @@ navigation:
 #   remark42: 自托管轻量级评论系统 (https://remark42.com/docs/getting-started/installation/)
 #     host: https://comment.example.com/ # Remark42 服务器地址
 #     siteId: your-site-id # 站点 ID
-#   giscus: 基于 GitHub Discussions 的评论系统 (https://giscus.app)
+#   giscus: 基于 GitHub Discussions 的评论系统 (https://giscus.app)（介绍文章 https://zhuanlan.zhihu.com/p/693434928）
 #     repo: GitHub 仓库名 (owner/repo 格式)
 #     repoId: 仓库 ID (从 giscus.app 获取)
 #     category: Discussion 分类名称
 #     categoryId: 分类 ID (从 giscus.app 获取)
-#     mapping: 映射方式 ('pathname' | 'url' | 'title' | 'og:title')
+#     mapping: 映射方式 ('pathname' | 'url' | 'title' | 'og:title'……)
 #     reactionsEnabled: 启用 reactions (默认: true)
 #     emitMetadata: 发送元数据 (默认: false)
 #     inputPosition: 输入框位置 ('top' | 'bottom', 默认: 'top')
 #     lang: 语言 (默认: 'zh-CN')
+#     host: 自定义 giscus 主机 (可选) 'https://giscus.app' | '...'
+#     theme: 主题 (可选) 'light' | 'dark' | '...'
+#     loading: 加载方式 (可选) 'lazy' | 'eager';
 #   waline: 简洁安全的评论系统 (https://waline.js.org) (https://waline.js.org/cookbook/import/project.html)
 #     serverURL: Waline 服务端地址 (必填)
 #     lang: 语言 (默认: 'zh-CN')
