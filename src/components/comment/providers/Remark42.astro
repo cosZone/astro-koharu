@@ -1,0 +1,186 @@
+---
+import { commentConfig } from '@/constants/site-config';
+import { normalizeUrl } from '@/lib/utils';
+
+declare global {
+  interface Window {
+    remark_config: {
+      host: string;
+      site_id: string;
+      components: string[];
+      max_shown_comments: number;
+      theme: string;
+      locale: string;
+      show_email_subscription: boolean;
+      simple_view: boolean;
+    };
+    REMARK42: {
+      createInstance: (config: {
+        node: HTMLElement;
+        host: string;
+        site_id: string;
+        max_shown_comments: number;
+        theme: string;
+        locale: string;
+        show_email_subscription: boolean;
+        simple_view: boolean;
+      }) => Remark42Instance;
+      ready: boolean;
+      changeTheme?: (theme: 'light' | 'dark') => void;
+    };
+  }
+
+  interface Remark42Instance {
+    destroy: () => void;
+  }
+}
+
+// Get Remark42 configuration from site config
+// Normalize URL to remove trailing slashes (prevents double-slash in script paths)
+const remarkUrl = normalizeUrl(commentConfig.remark42?.host ?? '');
+const remarkSiteId = commentConfig.remark42?.siteId ?? '';
+---
+
+<div id="remark42" class="mx-auto"></div>
+
+<script is:inline define:vars={{ remarkUrl, remarkSiteId }}>
+  let remark42Instance = null;
+  // Configuration for Remark42 - uses site config passed from server
+  window.remark_config = {
+    host: remarkUrl,
+    site_id: remarkSiteId,
+    components: ['embed', 'counter'],
+    max_shown_comments: 100,
+    theme: localStorage.getItem('theme') || 'light',
+    locale: 'en',
+    show_email_subscription: false,
+    simple_view: true,
+  };
+
+  // Initialize Remark42 instance
+  function initRemark42() {
+    if (window.REMARK42) {
+      // Destroy previous instance if exists
+      if (remark42Instance) {
+        remark42Instance.destroy();
+      }
+
+      // Create new instance
+      const node = document.getElementById('remark42');
+      if (node) {
+        remark42Instance = window.REMARK42.createInstance({
+          node,
+          host: window.remark_config.host,
+          site_id: window.remark_config.site_id,
+          max_shown_comments: window.remark_config.max_shown_comments,
+          theme: window.remark_config.theme,
+          locale: window.remark_config.locale,
+          show_email_subscription: window.remark_config.show_email_subscription,
+          simple_view: window.remark_config.simple_view,
+        });
+      }
+    }
+  }
+
+  // Load Remark42 scripts
+  (function (components, doc) {
+    for (let i = 0; i < components.length; i++) {
+      const script = doc.createElement('script');
+      const extension = 'noModule' in script ? '.mjs' : '.js';
+
+      if ('noModule' in script) {
+        script.type = 'module';
+      } else {
+        script.async = true;
+        script.defer = true;
+      }
+
+      script.src = `${window.remark_config.host}/web/${components[i]}${extension}`;
+      (doc.head || doc.body).appendChild(script);
+    }
+  })(window.remark_config.components || ['embed'], document);
+
+  // Initialize when Remark42 is ready or wait for it to be ready
+  document.addEventListener('DOMContentLoaded', () => {
+    if (window.REMARK42) {
+      initRemark42();
+    } else {
+      window.addEventListener('REMARK42::ready', () => {
+        initRemark42();
+      });
+    }
+  });
+
+  // Handle Astro page transitions
+  document.addEventListener('astro:page-load', () => {
+    initRemark42();
+  });
+
+  // Clean up before page transitions
+  document.addEventListener('astro:before-swap', () => {
+    if (remark42Instance) {
+      remark42Instance.destroy();
+    }
+  });
+
+  // Theme synchronization: Watch for theme changes and update Remark42
+  let themeObserver = null;
+  let themeChangeTimeout = null;
+
+  function cleanupThemeSync() {
+    if (themeObserver) {
+      themeObserver.disconnect();
+      themeObserver = null;
+    }
+    if (themeChangeTimeout) {
+      clearTimeout(themeChangeTimeout);
+      themeChangeTimeout = null;
+    }
+  }
+
+  function setupThemeSync() {
+    cleanupThemeSync();
+
+    themeObserver = new MutationObserver((mutations) => {
+      mutations.forEach((mutation) => {
+        if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
+          if (themeChangeTimeout) {
+            clearTimeout(themeChangeTimeout);
+          }
+
+          themeChangeTimeout = setTimeout(() => {
+            const isDark = document.documentElement.classList.contains('dark');
+            const newTheme = isDark ? 'dark' : 'light';
+
+            if (window.REMARK42?.changeTheme) {
+              window.REMARK42.changeTheme(newTheme);
+            }
+          }, 50);
+        }
+      });
+    });
+
+    themeObserver.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ['class'],
+    });
+  }
+
+  // Set up theme synchronization after Remark42 is loaded
+  document.addEventListener('DOMContentLoaded', () => {
+    if (window.REMARK42) {
+      setupThemeSync();
+    } else {
+      window.addEventListener('REMARK42::ready', () => {
+        setupThemeSync();
+      });
+    }
+  });
+
+  // Re-setup theme sync on page transitions
+  document.addEventListener('astro:page-load', () => {
+    setupThemeSync();
+  });
+
+  document.addEventListener('astro:before-swap', cleanupThemeSync);
+</script>

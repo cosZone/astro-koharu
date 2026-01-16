@@ -343,19 +343,80 @@ navigation:
 #   maxIterations: 最大迭代次数，影响雪花数量
 #   mobileMaxLayers: 移动端最大层数
 #   mobileMaxIterations: 移动端最大迭代次数
-# -----------------------------------------------------------------------------
+
+
 # =============================================================================
-# Comment System (Remark42)
+# Comment System
 # =============================================================================
-# host: Remark42 服务器地址
-# siteId: 站点 ID
-# enabled: 是否启用评论系统
+# provider: 评论系统提供商 ('remark42' | 'giscus' | 'waline' | 'none')
+#           设为 'none' 或不设置时禁用评论系统
+# 各提供商配置：
 # -----------------------------------------------------------------------------
+#   remark42: 自托管轻量级评论系统 (https://remark42.com/docs/getting-started/installation/)
+#     host: https://comment.example.com/ # Remark42 服务器地址
+#     siteId: your-site-id # 站点 ID
+#   giscus: 基于 GitHub Discussions 的评论系统 (https://giscus.app)
+#     repo: GitHub 仓库名 (owner/repo 格式)
+#     repoId: 仓库 ID (从 giscus.app 获取)
+#     category: Discussion 分类名称
+#     categoryId: 分类 ID (从 giscus.app 获取)
+#     mapping: 映射方式 ('pathname' | 'url' | 'title' | 'og:title')
+#     reactionsEnabled: 启用 reactions (默认: true)
+#     emitMetadata: 发送元数据 (默认: false)
+#     inputPosition: 输入框位置 ('top' | 'bottom', 默认: 'top')
+#     lang: 语言 (默认: 'zh-CN')
+#   waline: 简洁安全的评论系统 (https://waline.js.org) (https://waline.js.org/cookbook/import/project.html)
+#     serverURL: Waline 服务端地址 (必填)
+#     lang: 语言 (默认: 'zh-CN')
+#     dark: 暗黑模式 CSS 选择器 (默认: 'html.dark')
+#     meta: 评论者信息字段 (默认: ['nick', 'mail', 'link'])
+#     requiredMeta: 必填字段 (默认: ['nick'])
+#     login: 登录模式 ('enable' | 'disable' | 'force', 默认: 'enable')
+#     wordLimit: 评论字数限制 (0 = 无限制, 默认: 0)
+#     pageSize: 每页评论数 (默认: 10)
+#     imageUploader: 图片上传功能 (默认: false)
+#     highlighter: 代码高亮 (默认: true)
+#     texRenderer: LaTeX 渲染 (默认: false)
+#     search: 搜索功能 (默认: false)
+#     reaction: 文章反应功能 (默认: false)
+#     recaptchaV3Key: reCAPTCHA v3 Key (可选)
+#     turnstileKey: Cloudflare Turnstile Key (可选)
 comment:
+  provider: remark42  # 'remark42' | 'giscus' | 'waline' | 'none'
   remark42:
-    enabled: true
     host: https://comment.example.com/
     siteId: your-site-id
+  # giscus:
+  #   repo: username/repo              # GitHub 仓库名 (owner/repo 格式)
+  #   repoId: R_kgDOxxxxxx             # 仓库 ID (从 giscus.app 获取)
+  #   category: Announcements          # Discussion 分类名称
+  #   categoryId: DIC_kwDOxxxxxx       # 分类 ID (从 giscus.app 获取)
+  #   mapping: pathname                # 映射方式
+  #   reactionsEnabled: true           # 启用 reactions
+  #   emitMetadata: false              # 发送元数据
+  #   inputPosition: top               # 输入框位置
+  #   lang: zh-CN                      # 语言
+
+  # waline:
+  #   serverURL: https://your-waline.vercel.app  # Waline 服务端地址 (必填)
+  #   lang: zh-CN                      # 语言
+  #   dark: html.dark                  # 暗黑模式 CSS 选择器
+  #   meta:                            # 评论者信息字段
+  #     - nick
+  #     - mail
+  #     - link
+  #   requiredMeta:                    # 必填字段
+  #     - nick
+  #   login: enable                    # 登录模式
+  #   wordLimit: 0                     # 评论字数限制 (0 = 无限制)
+  #   pageSize: 10                     # 每页评论数
+  #   imageUploader: false             # 图片上传功能
+  #   highlighter: true                # 代码高亮
+  #   texRenderer: false               # LaTeX 渲染
+  #   search: false                    # 搜索功能
+  #   reaction: false                  # 文章反应功能
+  #   # recaptchaV3Key: ''             # reCAPTCHA v3 Key (可选)
+  #   # turnstileKey: ''               # Cloudflare Turnstile Key (可选)
 
 # =============================================================================
 # Analytics (Umami)

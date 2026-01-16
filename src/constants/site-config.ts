@@ -1,4 +1,6 @@
 // Import YAML config directly - processed by @rollup/plugin-yaml
+
+import type { CommentConfig } from '@/lib/config/types';
 import yamlConfig from '../../config/site.yaml';
 
 type SiteConfig = {
@@ -89,15 +91,6 @@ export const seoConfig = {
 };
 
 export const defaultCoverList = Array.from({ length: 21 }, (_, index) => index + 1).map((item) => `/img/cover/${item}.webp`);
-
-// Comment config types
-type CommentConfig = {
-  remark42?: {
-    enabled: boolean;
-    host: string;
-    siteId: string;
-  };
-};
 
 // Analytics config types
 type AnalyticsConfig = {

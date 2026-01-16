@@ -1,6 +1,5 @@
 ---
 import CustomContent from '@components/common/CustomContent.astro';
-import Remark from '@components/common/Remark.astro';
 import HomeSider from '@components/layout/HomeSider.astro';
 import SummaryPanel, { type SummarySource } from '@components/post/SummaryPanel';
 import Cover from '@components/ui/cover/Cover.astro';
@@ -12,6 +11,7 @@ import TwoColumnLayout from '@layouts/TwoColumnLayout.astro';
 import { buildCategoryPath, getCategoryArr, getPostDescription, getPostSummary, getSortedPosts } from '@lib/content';
 import { Icon } from 'astro-icon/components';
 import { formatInTimeZone } from 'date-fns-tz';
+import { Comment } from '@/components/comment';
 import { extractTextFromMarkdown } from '@/lib/sanitize';
 
 export async function getStaticPaths() {
@@ -129,7 +129,7 @@ if (post.data.description) {
       <article class="prose md:prose-sm dark:prose-invert">
         <CustomContent Content={Content} />
       </article>
-      <Remark />
+      <Comment />
     </div>
   </TwoColumnLayout>
 </Layout>

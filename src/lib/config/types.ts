@@ -144,14 +144,48 @@ export interface RouterItem {
 // Comment Configuration
 // =============================================================================
 
+export type CommentProvider = 'remark42' | 'giscus' | 'waline' | 'none';
+
 export interface Remark42Config {
-  enabled: boolean;
   host: string;
   siteId: string;
 }
 
+export interface GiscusConfig {
+  repo: string; // owner/repo format
+  repoId: string;
+  category: string;
+  categoryId: string;
+  mapping?: 'pathname' | 'url' | 'title' | 'og:title';
+  reactionsEnabled?: boolean;
+  emitMetadata?: boolean;
+  inputPosition?: 'top' | 'bottom';
+  lang?: string;
+}
+
+export interface WalineConfig {
+  serverURL: string;
+  lang?: string;
+  dark?: string;
+  meta?: ('nick' | 'mail' | 'link')[];
+  requiredMeta?: ('nick' | 'mail' | 'link')[];
+  login?: 'enable' | 'disable' | 'force';
+  wordLimit?: number | [number, number];
+  pageSize?: number;
+  imageUploader?: boolean;
+  highlighter?: boolean;
+  texRenderer?: boolean;
+  search?: boolean;
+  reaction?: boolean | string[];
+  recaptchaV3Key?: string;
+  turnstileKey?: string;
+}
+
 export interface CommentConfig {
+  provider?: CommentProvider;
   remark42?: Remark42Config;
+  giscus?: GiscusConfig;
+  waline?: WalineConfig;
 }
 
 // =============================================================================
