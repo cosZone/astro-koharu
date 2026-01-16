@@ -1,5 +1,6 @@
 import { init, type WalineInstance } from '@waline/client';
 import '@waline/client/style';
+import '@/styles/components/waline.css';
 import { useEffect, useRef } from 'react';
 import { commentConfig } from '@/constants/site-config';
 

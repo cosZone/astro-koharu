@@ -1,0 +1,100 @@
+/* Waline comment system theme - matching blog primary color */
+
+:root {
+  /* 主题色 - 使用博客的粉红色主题 */
+  --waline-theme-color: #e9546b;
+  --waline-active-color: #ed788c;
+
+  /* 布局颜色 - 匹配博客背景 */
+  --waline-bg-color: hsl(0 0% 100%);
+  --waline-bg-color-light: hsl(240 4.8% 95.9%);
+  --waline-bg-color-hover: hsl(240 4.8% 93%);
+  --waline-border-color: hsl(240 5.9% 90%);
+
+  /* 文字颜色 */
+  --waline-color: hsl(0 0% 20%);
+  --waline-light-grey: hsl(0 0% 35%);
+  --waline-dark-grey: hsl(0 0% 40%);
+
+  /* 徽章颜色 - 使用主题色 */
+  --waline-badge-color: #e9546b;
+
+  /* 代码块背景 */
+  --waline-code-bg-color: hsl(240 10% 3.9%);
+
+  /* 禁用状态 */
+  --waline-disable-bg-color: hsl(240 4.8% 95.9%);
+  --waline-disable-color: hsl(0 0% 73%);
+
+  /* 引用块 */
+  --waline-bq-color: hsl(240 4.8% 95.9%);
+
+  /* 信息区域 */
+  --waline-info-bg-color: hsl(240 4.8% 95.9%);
+  --waline-info-color: hsl(0 0% 35%);
+
+  /* 圆角 - 匹配博客风格 */
+  --waline-border: 1px solid var(--waline-border-color);
+  --waline-box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1);
+}
+
+/* 暗色模式 */
+html.dark {
+  /* 主题色 - 暗色模式稍亮 */
+  --waline-theme-color: #ed788c;
+  --waline-active-color: #f09aab;
+
+  /* 布局颜色 */
+  --waline-white: hsl(20 14.3% 4.1%);
+  --waline-bg-color: hsl(0 0% 13%);
+  --waline-bg-color-light: hsl(0 0% 15%);
+  --waline-bg-color-hover: hsl(0 0% 18%);
+  --waline-border-color: hsl(240 3.7% 15.9%);
+
+  /* 文字颜色 */
+  --waline-color: hsl(0 0% 95%);
+  --waline-light-grey: hsl(0 0% 63%);
+  --waline-dark-grey: hsl(0 0% 70%);
+
+  /* 徽章颜色 */
+  --waline-badge-color: #ed788c;
+
+  /* 禁用状态 */
+  --waline-disable-bg-color: hsl(0 0% 20%);
+  --waline-disable-color: hsl(0 0% 30%);
+
+  /* 引用块 */
+  --waline-bq-color: hsl(0 0% 15%);
+
+  /* 信息区域 */
+  --waline-info-bg-color: hsl(0 0% 15%);
+  --waline-info-color: hsl(0 0% 63%);
+}
+
+/* 额外的样式优化 */
+.wl-panel {
+  border-radius: 0.5rem;
+}
+
+.wl-card {
+  border-radius: 0.5rem;
+}
+
+.wl-btn {
+  border-radius: 0.375rem;
+  transition: all 0.2s ease;
+}
+
+.wl-btn:hover {
+  transform: translateY(-1px);
+}
+
+/* 输入框聚焦效果 */
+.wl-editor:focus {
+  border-color: var(--waline-theme-color);
+  box-shadow: 0 0 0 2px rgb(233 84 107 / 0.2);
+}
+
+html.dark .wl-editor:focus {
+  box-shadow: 0 0 0 2px rgb(237 120 140 / 0.2);
+}
