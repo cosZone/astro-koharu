@@ -77,6 +77,7 @@ pnpm dev
 - 基于 Astro 5.x，静态站点生成，性能优异
 - 优雅的深色/浅色主题切换
 - 基于 Pagefind 的无后端全站搜索
+- **可更换评论系统**：支持 Waline（推荐）、Giscus、Remark42 三种评论组件，配置文件一键切换，主题自动跟随
 - 完整的 Markdown 增强功能（GFM、代码高亮、自动目录、Mermaid 图表、Infographic 信息图）
 - 灵活的多级分类与标签系统
 - [可开关] 特色周刊/系列文章支持
@@ -166,11 +167,25 @@ pnpm koharu generate all          # 生成全部
 - 分类映射（中文分类名 → URL slug）
 - 友链列表
 - 公告系统
-- 评论系统（Remark42）
+- **评论系统**（Waline / Giscus / Remark42，推荐使用 Waline）
 - 数据统计（Umami）
 - 圣诞特辑开关
 
 详细配置说明请参考文档。
+
+### 评论系统切换
+
+在 `config/site.yaml` 中通过 `comment.provider` 字段一键切换评论系统：
+
+```yaml
+comment:
+  provider: waline # 'waline' | 'giscus' | 'remark42' | 'none'
+  waline:
+    serverURL: https://your-waline-server.vercel.app
+    # ... 其他配置
+```
+
+**推荐使用 Waline**：部署简单（支持 Vercel 一键部署）、功能丰富（Markdown、表情、邮件通知）、自带管理后台。详细配置请参考[完整使用指南](/src/content/blog/tools/astro-koharu-guide.md#如何添加评论功能)。
 
 ## 文档
 

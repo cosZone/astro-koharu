@@ -62,7 +62,7 @@ export default function Giscus() {
       reactionsEnabled={config?.reactionsEnabled}
       emitMetadata={config?.emitMetadata}
       inputPosition={config?.inputPosition ?? 'top'}
-      theme={config?.theme}
+      theme={config?.theme ?? theme}
       lang={config?.lang ?? 'zh-CN'}
       loading={config?.loading ?? 'lazy'}
     />

@@ -721,6 +721,7 @@ AI 摘要会保存在 `src/assets/summaries.json` 文件中，格式如下：
 **在哪里使用：**
 
 1. **文章详情页**：面包屑导航下方显示可折叠的 AI 摘要卡片
+
    - 默认收起状态，点击"展开"按钮触发
    - 展开后以打字机动画逐字显示摘要内容
    - 打字机动画仅播放一次，支持 `prefers-reduced-motion` 用户偏好
@@ -998,26 +999,31 @@ data
 **可用模板类型：**
 
 - **列表类** (`list-*`)：展示信息列表
+
   - `list-grid-badge-card` - 卡片网格布局
   - `list-grid-candy-card-lite` - 糖果风格卡片
   - `list-row-horizontal-icon-arrow` - 水平图标箭头列表
 
 - **流程/顺序类** (`sequence-*`)：展示步骤、流程或阶段
+
   - `sequence-zigzag-steps-underline-text` - 之字形步骤
   - `sequence-circular-simple` - 圆形流程
   - `sequence-roadmap-vertical-simple` - 垂直路线图
   - `sequence-pyramid-simple` - 金字塔结构
 
 - **对比类** (`compare-*`)：二元或多元对比
+
   - `compare-binary-horizontal-simple-fold` - 水平二元对比
   - `compare-swot` - SWOT 分析
   - `compare-hierarchy-left-right-circle-node-pill-badge` - 层级左右对比
 
 - **层级类** (`hierarchy-*`)：展示树形结构
+
   - `hierarchy-tree-tech-style-capsule-item` - 科技风格树形图
   - `hierarchy-tree-curved-line-rounded-rect-node` - 曲线连接树形图
 
 - **图表类** (`chart-*`)：数据可视化
+
   - `chart-column-simple` - 柱状图
   - `chart-bar-plain-text` - 条形图
   - `chart-pie-plain-text` - 饼图
@@ -1414,17 +1420,17 @@ git commit -m "merge: resolve conflicts"
 
 **更新时使用的 Git 命令：**
 
-| 操作 | 命令 |
-|------|------|
-| 检查工作区状态 | `git status --porcelain` |
-| 获取当前分支 | `git rev-parse --abbrev-ref HEAD` |
-| 检查 upstream | `git remote -v` |
-| 添加 upstream | `git remote add upstream https://github.com/cosZone/astro-koharu.git` |
-| 获取更新 | `git fetch upstream` |
-| 查看新提交数量 | `git rev-list --left-right --count HEAD...upstream/main` |
-| 查看新提交列表 | `git log HEAD..upstream/main --pretty=format:"%h|%s|%ar|%an"` |
-| 合并更新 | `git merge upstream/main --no-edit` |
-| 中止合并 | `git merge --abort` |
+| 操作           | 命令                                                                  |
+| -------------- | --------------------------------------------------------------------- | --- | --- | ----- |
+| 检查工作区状态 | `git status --porcelain`                                              |
+| 获取当前分支   | `git rev-parse --abbrev-ref HEAD`                                     |
+| 检查 upstream  | `git remote -v`                                                       |
+| 添加 upstream  | `git remote add upstream https://github.com/cosZone/astro-koharu.git` |
+| 获取更新       | `git fetch upstream`                                                  |
+| 查看新提交数量 | `git rev-list --left-right --count HEAD...upstream/main`              |
+| 查看新提交列表 | `git log HEAD..upstream/main --pretty=format:"%h                      | %s  | %ar | %an"` |
+| 合并更新       | `git merge upstream/main --no-edit`                                   |
+| 中止合并       | `git merge --abort`                                                   |
 
 #### 内容生成
 
@@ -1562,17 +1568,235 @@ cover: /img/cover/1.webp
 
 ### 如何添加评论功能？
 
-项目已集成 Remark42 评论系统，在 `config/site.yaml` 中配置：
+项目支持三种评论系统：**Waline**、**Giscus**、**Remark42**。在 `config/site.yaml` 的 `comment` 配置块中选择使用的提供商。
+
+#### Waline（推荐）
+
+[Waline](https://waline.js.org/) 是一个简洁、安全的评论系统，支持多种部署方式（Vercel、Railway、Zeabur 等）。
+
+**特点：**
+
+- 🚀 部署简单，支持多种平台一键部署
+- 💬 支持 Markdown、表情、@提及、邮件通知
+- 📊 内置浏览量统计、评论管理后台
+- 🔐 支持多种登录方式（匿名、社交账号）
+- 🛡️ 内置反垃圾评论、敏感词过滤
+- 🎨 自动跟随站点深色/浅色主题
+
+**前置要求：**
+
+1. 部署 Waline 服务端（[部署指南](https://waline.js.org/guide/deploy/)）
+2. 获取服务端 URL
+
+**配置示例：**
 
 ```yaml
 comment:
-  remark42:
-    enabled: true
-    host: https://your-remark-server.com/
-    siteId: your-site-id
+  provider: waline
+  waline:
+    serverURL: https://your-waline-server.vercel.app # Waline 服务端地址（必填）
+    lang: zh-CN # 语言
+    dark: html.dark # 暗黑模式 CSS 选择器
+    meta: # 评论者信息字段
+      - nick
+      - mail
+      - link
+    requiredMeta: # 必填字段
+      - nick
+    login: enable # 登录模式 ('enable' | 'disable' | 'force')
+    wordLimit: 0 # 评论字数限制 (0 = 无限制)
+    pageSize: 10 # 每页评论数
+    imageUploader: false # 图片上传功能
+    highlighter: true # 代码高亮
+    texRenderer: false # LaTeX 渲染
+    search: false # 搜索功能
+    reaction: false # 文章反应功能
+    # recaptchaV3Key: '' # reCAPTCHA v3 Key (可选)
+    # turnstileKey: '' # Cloudflare Turnstile Key (可选)
 ```
 
-如需使用其他评论系统（如 Giscus、Waline），可以修改 `src/components/common/Remark.astro`。
+**参数说明：**
+
+| 参数             | 类型                                   | 默认值                   | 说明                                 |
+| ---------------- | -------------------------------------- | ------------------------ | ------------------------------------ |
+| `serverURL`      | `string`                               | **必填**                 | Waline 服务端地址                    |
+| `lang`           | `string`                               | `'zh-CN'`                | 界面语言（支持 zh-CN, en, jp 等）    |
+| `dark`           | `string`                               | `'html.dark'`            | 暗黑模式 CSS 选择器                  |
+| `meta`           | `string[]`                             | `['nick','mail','link']` | 评论者信息字段                       |
+| `requiredMeta`   | `string[]`                             | `['nick']`               | 必填字段                             |
+| `login`          | `'enable'` \| `'disable'` \| `'force'` | `'enable'`               | 登录模式                             |
+| `wordLimit`      | `number`                               | `0`                      | 评论字数限制（0 = 无限制）           |
+| `pageSize`       | `number`                               | `10`                     | 每页评论数                           |
+| `imageUploader`  | `boolean`                              | `false`                  | 是否启用图片上传                     |
+| `highlighter`    | `boolean`                              | `true`                   | 是否启用代码高亮                     |
+| `texRenderer`    | `boolean`                              | `false`                  | 是否启用 LaTeX 渲染                  |
+| `search`         | `boolean`                              | `false`                  | 是否启用搜索功能                     |
+| `reaction`       | `boolean`                              | `false`                  | 是否启用文章反应功能                 |
+| `recaptchaV3Key` | `string`                               | -                        | reCAPTCHA v3 Key（可选，防垃圾评论） |
+| `turnstileKey`   | `string`                               | -                        | Cloudflare Turnstile Key（可选）     |
+
+**部署 Waline 服务端：**
+
+推荐使用 Vercel 一键部署：
+
+1. 访问 [Waline 快速开始](https://waline.js.org/guide/get-started/)
+2. 点击 "Deploy with Vercel" 按钮
+3. 登录 Vercel，授权 GitHub 仓库
+4. 配置环境变量（数据库连接、管理员邮箱等）
+5. 部署完成后获取服务端 URL（如 `https://your-waline.vercel.app`）
+
+**主题自动切换：**
+
+Waline 组件已实现主题自动切换，通过 `dark` 参数（默认 `html.dark`）自动跟随站点深色/浅色模式。
+
+**参考链接：**
+
+- [Waline 官网](https://waline.js.org/)
+- [部署指南](https://waline.js.org/guide/deploy/)
+- [配置参数](https://waline.js.org/reference/client/)
+
+#### Remark42
+
+[Remark42](https://remark42.com/) 是一个轻量级的自托管评论系统，隐私友好，无需第三方服务。
+
+**特点：**
+
+- 🔒 自托管，完全掌控数据
+- 🚫 无广告、无追踪
+- 💾 支持多种存储后端（BoltDB、Memory）
+- 🔐 支持多种社交登录（GitHub、Google、Twitter 等）
+- 📧 邮件通知、评论审核
+- 🎨 自动跟随站点深色/浅色主题
+
+**前置要求：**
+
+1. 部署 Remark42 服务端（[部署指南](https://remark42.com/docs/getting-started/installation/)）
+2. 配置站点 ID 和域名
+
+**配置示例：**
+
+```yaml
+comment:
+  provider: remark42
+  remark42:
+    host: https://comment.example.com/ # Remark42 服务器地址（必填）
+    siteId: your-site-id # 站点 ID（必填）
+```
+
+**参数说明：**
+
+| 参数     | 类型     | 说明                                                          |
+| -------- | -------- | ------------------------------------------------------------- |
+| `host`   | `string` | Remark42 服务器地址（**必填**，需带 `http://` 或 `https://`） |
+| `siteId` | `string` | 站点 ID（**必填**，在 Remark42 服务端配置中定义）             |
+
+**部署 Remark42 服务端：**
+
+推荐使用 Docker 部署：
+
+```bash
+docker run -d \
+  --name remark42 \
+  -p 8080:8080 \
+  -e REMARK_URL=https://comment.example.com \
+  -e SECRET=your-secret-key \
+  -e SITE=your-site-id \
+  -e AUTH_GITHUB_CID=your-github-client-id \
+  -e AUTH_GITHUB_CSEC=your-github-client-secret \
+  -v /path/to/data:/srv/var \
+  umputun/remark42:latest
+```
+
+详细配置请参考 [Remark42 安装指南](https://remark42.com/docs/getting-started/installation/)。
+
+**主题自动切换：**
+
+Remark42 组件已实现主题自动切换，使用 `MutationObserver` 监听站点主题变化，自动调用 `window.REMARK42.changeTheme()` 更新评论框主题。
+
+**参考链接：**
+
+- [Remark42 官网](https://remark42.com/)
+- [安装指南](https://remark42.com/docs/getting-started/installation/)
+- [配置文档](https://remark42.com/docs/configuration/)
+
+#### Giscus
+
+[Giscus](https://giscus.app) 是基于 GitHub Discussions 的评论系统，无需自建后端，评论数据存储在你的 GitHub 仓库中。
+
+具体配置可以看看这篇文章：https://zhuanlan.zhihu.com/p/693434928
+
+**前置要求：**
+
+1. 仓库必须是[公开的](https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/managing-repository-settings/setting-repository-visibility#making-a-repository-public)
+2. 安装 [giscus app](https://github.com/apps/giscus)
+3. 在仓库中[启用 Discussions 功能](https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/enabling-features-for-your-repository/enabling-or-disabling-github-discussions-for-a-repository)
+
+**获取配置参数：**
+
+1. 访问 [giscus.app](https://giscus.app/zh-CN)
+2. 输入你的仓库名称（格式：`owner/repo`）
+3. 选择页面与 Discussion 的映射方式（推荐 `pathname`）
+4. 选择 Discussion 分类（推荐 `Announcements`）
+5. 启用所需功能（reactions、评论框位置等）
+6. 复制生成的 `data-repo-id` 和 `data-category-id`
+
+**配置示例：**
+
+```yaml
+comment:
+  provider: giscus
+  giscus:
+    repo: username/repo # GitHub 仓库名 (owner/repo 格式)
+    repoId: R_kgDOxxxxxx # 仓库 ID (从 giscus.app 获取)
+    category: Announcements # Discussion 分类名称
+    categoryId: DIC_kwDOxxxxxx # 分类 ID (从 giscus.app 获取)
+    mapping: pathname # 映射方式
+    reactionsEnabled: "1" # 启用 reactions ('1' 启用, '0' 禁用)
+    emitMetadata: "0" # 发送元数据
+    inputPosition: top # 输入框位置 ('top' | 'bottom')
+    lang: zh-CN # 语言
+```
+
+**参数说明：**
+
+| 参数               | 类型                | 说明                                          |
+| ------------------ | ------------------- | --------------------------------------------- |
+| `repo`             | `string`            | GitHub 仓库，格式为 `owner/repo`              |
+| `repoId`           | `string`            | 仓库 ID，从 giscus.app 获取                   |
+| `category`         | `string`            | Discussion 分类名称                           |
+| `categoryId`       | `string`            | 分类 ID，从 giscus.app 获取                   |
+| `mapping`          | `string`            | 页面与 Discussion 的映射方式                  |
+| `term`             | `string`            | 当 `mapping` 为 `specific` 或 `number` 时使用 |
+| `strict`           | `'0' \| '1'`        | 严格匹配模式，默认 `'0'`                      |
+| `reactionsEnabled` | `'0' \| '1'`        | 是否启用 reactions，默认 `'1'`                |
+| `emitMetadata`     | `'0' \| '1'`        | 是否发送页面元数据，默认 `'0'`                |
+| `inputPosition`    | `'top' \| 'bottom'` | 评论输入框位置，默认 `'top'`                  |
+| `lang`             | `string`            | 界面语言，默认 `'zh-CN'`                      |
+| `host`             | `string`            | 自托管 Giscus 实例的地址（可选）              |
+| `theme`            | `string`            | 固定主题（不设置则跟随站点主题切换）          |
+| `loading`          | `'lazy' \| 'eager'` | 加载方式，默认 `'lazy'`                       |
+
+**映射方式说明：**
+
+- `pathname`（推荐）：使用页面路径匹配，如 `/post/my-article`
+- `url`：使用完整 URL 匹配
+- `title`：使用页面标题匹配
+- `og:title`：使用 Open Graph 标题匹配
+- `specific`：使用 `term` 参数指定的值
+- `number`：使用 `term` 参数指定的 Discussion 编号
+
+**主题自动切换：**
+
+本主题已实现 Giscus 评论框的主题自动切换，会跟随站点的深色/浅色模式自动调整。实现原理：
+
+1. 组件挂载时读取当前主题
+2. 使用 `MutationObserver` 监听 `document.documentElement` 的 `class` 变化
+3. 检测到主题切换时通过 `postMessage` 通知 Giscus iframe 更新主题
+
+**参考链接：**
+
+- [giscus 官网](https://giscus.app/zh-CN)
+- [giscus-component 文档](https://github.com/giscus/giscus-component)
 
 ### 草稿文章如何预览？
 
@@ -1583,7 +1807,7 @@ comment:
 - **关闭周刊**：设置 `featuredSeries.enabled = false`
 - **关闭搜索**：移除 `astro.config.mjs` 中的 `pagefind()` 集成
 - **关闭统计**：设置 `analytics.umami.enabled = false`
-- **关闭评论**：设置 `comment.remark42.enabled = false`
+- **关闭评论**：移除 `comment.provider` 配置或将其设置为空
 
 ### 如何更改文章 URL 格式？
 
