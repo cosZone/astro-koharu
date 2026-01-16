@@ -3,7 +3,7 @@ import HomeSider from '@components/layout/HomeSider.astro';
 import Cover from '@components/ui/cover/Cover.astro';
 import { CONTENT_PADDING } from '@constants/layout';
 import { seoConfig } from '@constants/site-config';
-import Remark from '@/components/common/Remark.astro';
+import { Comment } from '@/components/comment';
 import Layout from './Layout.astro';
 import TwoColumnLayout from './TwoColumnLayout.astro';
 
@@ -25,7 +25,7 @@ const { frontmatter } = Astro.props;
       <div class=`prose md:prose-sm dark:prose-invert`>
         <slot />
       </div>
-      <Remark />
+      <Comment />
     </div>
   </TwoColumnLayout>
 </Layout>

@@ -1,0 +1,115 @@
+/* Waline comment system theme - matching blog primary color
+ *
+ * Waline 评论系统主题样式
+ * 自定义指南: https://waline.js.org/guide/features/style.html
+ * CSS 变量参考: https://waline.js.org/reference/client/style.html
+ */
+
+:root {
+  /* === 主题色 (Theme Colors) === */
+  /* 主要主题色，用于按钮、链接等交互元素 */
+  --waline-theme-color: #e9546b;
+  /* 激活状态颜色，用于悬停、焦点状态 */
+  --waline-active-color: #ed788c;
+
+  /* === 布局颜色 (Layout Colors) === */
+  /* 主背景色 */
+  --waline-bg-color: hsl(0 0% 100%);
+  /* 浅背景色，用于输入框、卡片等 */
+  --waline-bg-color-light: hsl(240 4.8% 95.9%);
+  /* 悬停背景色 */
+  --waline-bg-color-hover: hsl(240 4.8% 93%);
+  /* 边框颜色 */
+  --waline-border-color: hsl(240 5.9% 90%);
+
+  /* === 文字颜色 (Text Colors) === */
+  /* 主要文字颜色 */
+  --waline-color: hsl(0 0% 20%);
+  /* 次要文字颜色（时间、元信息等） */
+  --waline-light-grey: hsl(0 0% 35%);
+  /* 深灰色文字 */
+  --waline-dark-grey: hsl(0 0% 40%);
+
+  /* === 徽章颜色 (Badge Colors) === */
+  /* 管理员、置顶等徽章颜色 */
+  --waline-badge-color: #e9546b;
+  --waline-badge-font-size: 0.75em;
+
+  /* === 代码块 (Code Block) === */
+  /* 代码块背景色 */
+  --waline-code-bg-color: hsl(240 10% 3.9%);
+  /* 代码块文字颜色 */
+  --waline-code-color: hsl(0 0% 95%);
+
+  /* === 禁用状态 (Disabled State) === */
+  /* 禁用元素背景色 */
+  --waline-disable-bg-color: hsl(240 4.8% 95.9%);
+  /* 禁用元素文字颜色 */
+  --waline-disable-color: hsl(0 0% 73%);
+
+  /* === 引用块 (Blockquote) === */
+  /* 引用块背景色 */
+  --waline-bq-color: hsl(240 4.8% 95.9%);
+
+  /* === 信息区域 (Info Area) === */
+  /* 信息提示背景色 */
+  --waline-info-bg-color: hsl(240 4.8% 95.9%);
+  /* 信息提示文字颜色 */
+  --waline-info-color: hsl(0 0% 35%);
+
+  /* === 边框与阴影 (Border & Shadow) === */
+  /* 统一边框样式 */
+  --waline-border: 1px solid var(--waline-border-color);
+  /* 统一阴影样式 */
+  --waline-box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1);
+  /* 圆角大小 */
+  --waline-border-radius: 0.5rem;
+
+  /* === 字体 (Typography) === */
+  /* 字体大小 */
+  --waline-font-size: 1rem;
+  /* 移动端字体大小 */
+  --waline-m-font-size: 0.875rem;
+}
+
+/* === 暗色模式 (Dark Mode) === */
+html.dark {
+  /* 主题色 - 暗色模式下使用更亮的颜色以保持对比度 */
+  --waline-theme-color: #ed788c;
+  --waline-active-color: #f09aab;
+
+  /* 布局颜色 */
+  --waline-white: hsl(20 14.3% 4.1%);
+  --waline-bg-color: hsl(0 0% 13%);
+  --waline-bg-color-light: hsl(0 0% 15%);
+  --waline-bg-color-hover: hsl(0 0% 18%);
+  --waline-border-color: hsl(240 3.7% 15.9%);
+
+  /* 文字颜色 */
+  --waline-color: hsl(0 0% 95%);
+  --waline-light-grey: hsl(0 0% 63%);
+  --waline-dark-grey: hsl(0 0% 70%);
+
+  /* 徽章颜色 */
+  --waline-badge-color: #ed788c;
+
+  /* 代码块在暗色模式下无需调整背景色 */
+
+  /* 禁用状态 */
+  --waline-disable-bg-color: hsl(0 0% 20%);
+  --waline-disable-color: hsl(0 0% 30%);
+
+  /* 引用块 */
+  --waline-bq-color: hsl(0 0% 15%);
+
+  /* 信息区域 */
+  --waline-info-bg-color: hsl(0 0% 15%);
+  --waline-info-color: hsl(0 0% 63%);
+}
+
+/* === 额外的样式优化 (Additional Styles) === */
+
+/* 移除评论面板默认外边距*/
+.wl-panel {
+  margin: 0;
+}

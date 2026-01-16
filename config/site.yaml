@@ -343,19 +343,118 @@ navigation:
 #   maxIterations: 最大迭代次数，影响雪花数量
 #   mobileMaxLayers: 移动端最大层数
 #   mobileMaxIterations: 移动端最大迭代次数
-# -----------------------------------------------------------------------------
+
+
 # =============================================================================
-# Comment System (Remark42)
+# Comment System
 # =============================================================================
-# host: Remark42 服务器地址
-# siteId: 站点 ID
-# enabled: 是否启用评论系统
+# provider: 评论系统提供商 ('remark42' | 'giscus' | 'waline' | 'none')
+#           设为 'none' 或不设置时禁用评论系统
+# 各提供商配置：
 # -----------------------------------------------------------------------------
+#   remark42: 自托管轻量级评论系统 (https://remark42.com/docs/getting-started/installation/)
+#     host: https://comment.example.com/ # Remark42 服务器地址
+#     siteId: your-site-id # 站点 ID
+#   giscus: 基于 GitHub Discussions 的评论系统 (https://giscus.app)（介绍文章 https://zhuanlan.zhihu.com/p/693434928）
+#     repo: GitHub 仓库名 (owner/repo 格式)
+#     repoId: 仓库 ID (从 giscus.app 获取)
+#     category: Discussion 分类名称
+#     categoryId: 分类 ID (从 giscus.app 获取)
+#     mapping: 映射方式 ('pathname' | 'url' | 'title' | 'og:title'……)
+#     reactionsEnabled: 启用 reactions (默认: '1') # 仅支持 '0' | '1'
+#     emitMetadata: 发送元数据 (默认: '0') # 仅支持 '0' | '1'
+#     inputPosition: 输入框位置 ('top' | 'bottom', 默认: 'top')
+#     lang: 语言 (默认: 'zh-CN')
+#     host: 自定义 giscus 主机 (可选) 'https://giscus.app' | '...'
+#     theme: 主题 (可选) 'light' | 'dark' | '...'
+#     loading: 加载方式 (可选) 'lazy' | 'eager';
+#   waline: 简洁安全的评论系统 (https://waline.js.org)
+#     serverURL: Waline 服务端地址 (必填)
+#     lang: 语言 (默认: 'zh-CN')
+#     dark: 暗黑模式支持 (默认: 'html.dark')
+#           - 字符串: CSS 选择器，当该选择器生效时启用暗黑模式
+#           - true: 根据设备自适应
+#           - false: 禁用暗黑模式
+#     meta: 评论者信息字段 (默认: ['nick', 'mail', 'link'])
+#     requiredMeta: 必填字段 (默认: [])
+#     login: 登录模式 ('enable' | 'disable' | 'force', 默认: 'enable')
+#     wordLimit: 评论字数限制
+#           - 单个数字: 最大字数限制
+#           - 数组 [min, max]: 最小和最大字数限制
+#           - 0: 无限制 (默认: 0)
+#     pageSize: 每页评论数 (默认: 10)
+#     imageUploader: 图片上传功能 (默认: false)
+#     highlighter: 代码高亮 (默认: true)
+#     texRenderer: LaTeX 渲染 (默认: false)
+#     search: 搜索功能 (默认: false)
+#     reaction: 文章反应功能
+#           - false: 禁用 (默认)
+#           - true: 启用默认反应
+#           - 数组: 自定义反应图标 URL 列表
+#     emoji: 表情包配置
+#           - false: 禁用表情包
+#           - true: 使用默认表情包
+#           - 数组: 自定义表情包列表 (默认: ['//unpkg.com/@waline/emojis@1.2.0/weibo'])
+#     commentSorting: 评论排序方式 ('latest' | 'oldest' | 'hottest', 默认: 'latest')
+#     noCopyright: 隐藏页脚版权信息 (默认: false)
+#     comment: 评论数统计 (默认: true)
+#     pageview: 页面访问量统计 (默认: true)
+#     recaptchaV3Key: reCAPTCHA v3 Key (可选)
+#     turnstileKey: Cloudflare Turnstile Key (可选)
+#     locale: 自定义语言显示 (可选)
 comment:
+  provider: remark42  # 'remark42' | 'giscus' | 'waline' | 'none'
   remark42:
-    enabled: true
     host: https://comment.example.com/
     siteId: your-site-id
+  # giscus:
+  #   repo: username/repo              # GitHub 仓库名 (owner/repo 格式)
+  #   repoId: R_kgDOxxxxxx             # 仓库 ID (从 giscus.app 获取)
+  #   category: Announcements          # Discussion 分类名称
+  #   categoryId: DIC_kwDOxxxxxx       # 分类 ID (从 giscus.app 获取)
+  #   mapping: pathname                # 映射方式
+  #   reactionsEnabled: '1'            # 启用 reactions ('0' | '1')
+  #   emitMetadata: '0'                # 发送元数据 ('0' | '1')
+  #   inputPosition: top               # 输入框位置 ('top' | 'bottom')
+  #   lang: zh-CN                      # 语言
+
+  # waline:
+  #   serverURL: https://your-waline.vercel.app  # Waline 服务端地址 (必填)
+  #   lang: zh-CN                      # 语言 (默认: 'zh-CN')
+  #   dark: html.dark                  # 暗黑模式 (默认: 'html.dark')
+  #                                    # 可选: true (自适应) | false (禁用) | CSS选择器字符串
+  #   meta:                            # 评论者信息字段 (默认: ['nick', 'mail', 'link'])
+  #     - nick
+  #     - mail
+  #     - link
+  #   requiredMeta:                    # 必填字段 (默认: [])
+  #     - nick
+  #   login: enable                    # 登录模式 ('enable' | 'disable' | 'force', 默认: 'enable')
+  #   wordLimit: 0                     # 评论字数限制 (0 = 无限制, 默认: 0)
+  #                                    # 可选: 单个数字 | [min, max] 数组
+  #   pageSize: 10                     # 每页评论数 (默认: 10)
+  #   imageUploader: false             # 图片上传功能 (默认: false)
+  #   highlighter: true                # 代码高亮 (默认: true)
+  #   texRenderer: false               # LaTeX 渲染 (默认: false)
+  #   search: false                    # 搜索功能 (默认: false)
+  #   reaction: false                  # 文章反应功能 (默认: false)
+  #                                    # 可选: true | false | 字符串数组 (自定义反应图标)
+  #   emoji: true                      # 表情包配置 (默认: ['//unpkg.com/@waline/emojis@1.2.0/weibo'])
+  #                                    # 可选: true | false | 字符串/对象数组
+  #                                    # 预设表情包: '//unpkg.com/@waline/emojis@1.2.0/weibo'
+  #                                    #           '//unpkg.com/@waline/emojis@1.2.0/alus'
+  #                                    #           '//unpkg.com/@waline/emojis@1.2.0/bilibili'
+  #                                    #           '//unpkg.com/@waline/emojis@1.2.0/qq'
+  #                                    #           '//unpkg.com/@waline/emojis@1.2.0/tieba'
+  #                                    #           '//unpkg.com/@waline/emojis@1.2.0/tw-emoji'
+  #   commentSorting: latest           # 评论排序 ('latest' | 'oldest' | 'hottest', 默认: 'latest')
+  #   noCopyright: false               # 隐藏页脚版权信息 (默认: false)
+  #   comment: true                    # 评论数统计 (默认: true)
+  #   pageview: true                   # 页面访问量统计 (默认: true)
+  #   # recaptchaV3Key: ''             # reCAPTCHA v3 Key (可选)
+  #   # turnstileKey: ''               # Cloudflare Turnstile Key (可选)
+  #   # locale:                        # 自定义语言显示 (可选)
+  #   #   placeholder: '请留言...'      # 自定义输入框占位文本
 
 # =============================================================================
 # Analytics (Umami)
