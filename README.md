@@ -185,7 +185,7 @@ comment:
     # ... 其他配置
 ```
 
-**推荐使用 Waline**：部署简单（支持 Vercel 一键部署）、功能丰富（Markdown、表情、邮件通知）、自带管理后台。详细配置请参考[完整使用指南](/src/content/blog/tools/astro-koharu-guide.md#如何添加评论功能)。
+**推荐使用 Waline**：自部署简单、功能丰富（Markdown、表情、邮件通知）、带访问量统计。详细配置请参考[完整使用指南](/src/content/blog/tools/astro-koharu-guide.md#如何添加评论功能)。
 
 ## 文档
 
