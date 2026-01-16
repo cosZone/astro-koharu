@@ -73,28 +73,5 @@ html.dark {
 
 /* 额外的样式优化 */
 .wl-panel {
-  border-radius: 0.5rem;
-}
-
-.wl-card {
-  border-radius: 0.5rem;
-}
-
-.wl-btn {
-  border-radius: 0.375rem;
-  transition: all 0.2s ease;
-}
-
-.wl-btn:hover {
-  transform: translateY(-1px);
-}
-
-/* 输入框聚焦效果 */
-.wl-editor:focus {
-  border-color: var(--waline-theme-color);
-  box-shadow: 0 0 0 2px rgb(233 84 107 / 0.2);
-}
-
-html.dark .wl-editor:focus {
-  box-shadow: 0 0 0 2px rgb(237 120 140 / 0.2);
+  margin: 0;
 }
