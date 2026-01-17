@@ -138,6 +138,8 @@ pages/ → components/ → hooks/ → lib/ → constants/
 
 **Content System**: Blog posts in `src/content/blog/` using Astro Content Collections. Hierarchical categories supporting `'工具'` or `['笔记', '前端', 'React']`.
 
+**Featured Series**: Special category-based content series with dedicated pages and homepage highlights. Configured via `featuredSeries` in `config/site.yaml`. Each series requires a unique `slug` (must not conflict with reserved routes) and `categoryName`. Supports multiple series, individual enable/disable, and homepage highlight control. Dynamic routes generated at `[seriesSlug].astro`.
+
 **Theme System**: Dark/light toggle with localStorage, inline check in `<head>` prevents FOUC.
 
 **Markdown**: Shiki highlighting, auto-generated heading IDs/links via rehype plugins, GFM support.

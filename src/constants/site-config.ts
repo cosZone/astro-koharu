@@ -27,6 +27,39 @@ type SiteConfig = {
 };
 
 /**
+ * Type guard to check if an unknown value is a valid FeaturedSeriesItem
+ * @param value - The value to check
+ * @returns true if the value is a valid FeaturedSeriesItem
+ */
+function isFeaturedSeriesItem(value: unknown): value is FeaturedSeriesItem {
+  if (typeof value !== 'object' || value === null) {
+    return false;
+  }
+
+  const item = value as Record<string, unknown>;
+
+  // Check required field: categoryName must be a non-empty string
+  if (typeof item.categoryName !== 'string' || item.categoryName.trim() === '') {
+    return false;
+  }
+
+  // Check optional but important fields
+  if (item.slug !== undefined && typeof item.slug !== 'string') {
+    return false;
+  }
+
+  if (item.label !== undefined && typeof item.label !== 'string') {
+    return false;
+  }
+
+  if (item.enabled !== undefined && typeof item.enabled !== 'boolean') {
+    return false;
+  }
+
+  return true;
+}
+
+/**
  * Normalize featured series config to array format
  * Supports both legacy single object and new array format
  * Validates all series configurations at build time
@@ -35,20 +68,35 @@ function normalizeFeaturedSeries(config: unknown): FeaturedSeriesItem[] {
   if (!config) return [];
 
   // Convert to array format
-  let items: FeaturedSeriesItem[];
+  let items: unknown[];
   if (Array.isArray(config)) {
-    items = config as FeaturedSeriesItem[];
+    items = config;
   } else {
     // Legacy single object format - convert to array with default slug
-    const legacyConfig = config as FeaturedSeriesItem;
-    const slug = legacyConfig.slug || yamlConfig.categoryMap?.[legacyConfig.categoryName] || 'series';
-    items = [{ ...legacyConfig, slug }];
+    items = [config];
+  }
+
+  // Validate each item using type guard
+  const validatedItems: FeaturedSeriesItem[] = [];
+  for (const [index, item] of items.entries()) {
+    if (!isFeaturedSeriesItem(item)) {
+      const itemStr = JSON.stringify(item, null, 2);
+      throw new Error(
+        `Featured series configuration error: Item at index ${index} is not a valid FeaturedSeriesItem.\n` +
+          `Expected an object with at least a 'categoryName' string field.\n` +
+          `Received: ${itemStr}`,
+      );
+    }
+
+    // Add default slug for legacy configs
+    const slug = item.slug || yamlConfig.categoryMap?.[item.categoryName] || 'series';
+    validatedItems.push({ ...item, slug });
   }
 
   // Validate each series configuration
   const slugSet = new Set<string>();
 
-  for (const item of items) {
+  for (const item of validatedItems) {
     const rawSlug = typeof item.slug === 'string' ? item.slug : '';
     const normalizedSlug = rawSlug.trim().toLowerCase();
 
@@ -100,7 +148,7 @@ function normalizeFeaturedSeries(config: unknown): FeaturedSeriesItem[] {
     }
   }
 
-  return items;
+  return validatedItems;
 }
 
 type SocialPlatform = {
