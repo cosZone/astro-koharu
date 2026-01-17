@@ -421,10 +421,10 @@ navigation:
 #     turnstileKey: Cloudflare Turnstile Key (可选)
 #     locale: 自定义语言显示 (可选)
 comment:
-  provider: remark42  # 'remark42' | 'giscus' | 'waline' | 'none'
-  remark42:
-    host: https://comment.example.com/
-    siteId: your-site-id
+  provider: none  # 'remark42' | 'giscus' | 'waline' | 'none'
+  # remark42:
+  #   host: https://comment.example.com/
+  #   siteId: your-site-id
   # giscus:
   #   repo: username/repo              # GitHub 仓库名 (owner/repo 格式)
   #   repoId: R_kgDOxxxxxx             # 仓库 ID (从 giscus.app 获取)
