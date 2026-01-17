@@ -48,10 +48,6 @@ export function filterNavItems(
   enabledSlugs: Set<string>,
   reservedSlugs: Set<string>,
 ): Router[] {
-  const hasConfiguredSeries = configuredSlugs.size > 0;
-  const hasEnabledSeries = enabledSlugs.size > 0;
-  const removeUnconfiguredSeriesLinks = !hasConfiguredSeries && !hasEnabledSeries;
-
   return items
     .map((item) => {
       // Recursively filter children first
@@ -60,11 +56,6 @@ export function filterNavItems(
 
       // Filter out disabled series routes
       if (slug && configuredSlugs.has(slug) && !enabledSlugs.has(slug)) {
-        return null;
-      }
-
-      // No series configured: drop single-segment links that look like series routes
-      if (slug && removeUnconfiguredSeriesLinks && !reservedSlugs.has(slug)) {
         return null;
       }
 
