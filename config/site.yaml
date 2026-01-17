@@ -42,6 +42,7 @@ categoryMap:
   # Secondary categories (for nested paths)
   前端: front-end
   # Add more as needed:
+  # 书摘: reading
   # 后端: back-end
   # 算法: algorithm
   # 项目: project
@@ -75,33 +76,48 @@ featuredCategories:
     description: 工具使用、效率提升
 
 # =============================================================================
-# Featured Series (Weekly)
-# 精选系列/周刊功能 - 用于展示定期更新的系列内容
+# Featured Series
+# 精选系列功能 - 用于展示定期更新的系列内容（支持多个系列）
 # =============================================================================
 # 字段说明：
-#   categoryName: 对应的分类名称（需在 categoryMap 中存在）
-#   label: 侧边栏/导航中显示的简短名称
-#   fullName: 系列页面标题显示的完整名称
-#   description: 系列介绍文字，支持多行
-#   cover: 系列页面头图路径（相对于 public 目录）
-#   enabled: 是否启用此功能（设为 false 可关闭）
-#   links: 相关链接配置
+#   slug: URL 路径（必填），如 'weekly' 对应 /weekly 路径
+#         注意：不能与保留路由冲突，包括：about, categories, tags, friends, posts, archives, api, _astro, rss.xml, sitemap.xml, robots.txt, favicon.ico 等
+#   categoryName: 对应的分类名称（必填，需在 categoryMap 中存在）
+#   label: 侧边栏/导航中显示的简短名称（可选）
+#   fullName: 系列页面标题显示的完整名称（可选）
+#   description: 系列介绍文字，支持多行 Markdown（可选）
+#   cover: 系列页面头图路径，相对于 public 目录（可选）
+#   enabled: 是否启用此系列，设为 false 可关闭（可选，默认 true）
+#   icon: 导航图标，Iconify 格式如 'ri:newspaper-line'（可选）
+#   highlightOnHome: 是否在首页高亮显示最新文章（可选，默认 true，显式设为 false 可禁用）
+#   links: 相关链接配置（可选）
 # -----------------------------------------------------------------------------
 featuredSeries:
-  categoryName: 周刊 # 必须与 categoryMap 中的分类名匹配
-  label: 我的周刊 # 简短名称
-  fullName: 我的技术周刊 # 完整名称
-  description: | # 支持多行文本
-    这是周刊/系列文章功能的示例配置。
-    你可以用它来发布定期更新的系列内容，如技术周刊、读书笔记系列等。
-    设置 enabled: false 可以关闭此功能。
-  cover: /img/weekly_header.webp # 系列页面头图
-  enabled: true # 总开关
-  links: # 相关链接（可选）
-    github: https://github.com/your-username/your-repo # (可选) GitHub 仓库
-    rss: /rss.xml # (可选) RSS 订阅链接
-    # chrome: https://chromewebstore.google.com/detail/your-extension-id # (可选) 浏览器插件
-    # docs: https://your-docs-url # (可选) 文档链接
+  - slug: weekly # URL 路径: /weekly
+    categoryName: 周刊 # 必须与 categoryMap 中的分类名匹配
+    label: 我的周刊 # 简短名称
+    fullName: 我的技术周刊 # 完整名称
+    description: | # 支持多行 Markdown
+      这是周刊/系列文章功能的示例配置。
+      你可以用它来发布定期更新的系列内容，如技术周刊、读书笔记系列等。
+      设置 enabled: false 可以关闭此功能。
+    cover: /img/weekly_header.webp # 系列页面头图
+    enabled: true # 启用此系列
+    icon: ri:newspaper-line # 导航图标
+    links: # 相关链接（可选）
+      github: https://github.com/your-username/your-repo # (可选) GitHub 仓库
+      rss: /rss.xml # (可选) RSS 订阅链接
+      # chrome: https://chromewebstore.google.com/detail/your-extension-id # (可选) 浏览器插件
+      # docs: https://your-docs-url # (可选) 文档链接
+  # 示例：添加第二个系列（取消注释启用）
+  # - slug: reading # URL 路径: /reading
+  #   categoryName: 书摘
+  #   label: 读书笔记
+  #   fullName: 我的读书笔记
+  #   description: 阅读记录与读后感
+  #   cover: /img/weekly_header.webp # 记得添加，我这里就是个示例
+  #   enabled: true
+  #   icon: ri:book-read-line
 
 # =============================================================================
 # Social Links
@@ -302,6 +318,8 @@ navigation:
   - name: 首页 # 菜单显示名称
     path: / # 链接路径
     icon: ri:home-heart-fill # 图标
+  # - name: 书摘
+  #   path: /reading
   - name: 周刊
     path: /weekly
     icon: ri:newspaper-line

@@ -21,6 +21,8 @@ const blogCollection = defineCollection({
     draft: z.boolean().optional(),
     // 目录编号控制
     tocNumbering: z.boolean().optional().default(true),
+    // 排除 AI 摘要生成
+    excludeFromSummary: z.boolean().optional(),
   }) satisfies z.ZodType<BlogSchema>,
 });
 

@@ -1,7 +1,8 @@
 // Import YAML config directly - processed by @rollup/plugin-yaml
 
-import type { CommentConfig } from '@/lib/config/types';
+import type { CommentConfig, FeaturedSeriesItem } from '@lib/config/types';
 import yamlConfig from '../../config/site.yaml';
+import { isReservedSlug, RESERVED_ROUTES } from './router';
 
 type SiteConfig = {
   title: string;
@@ -21,21 +22,86 @@ type SiteConfig = {
     label?: string;
     description?: string;
   }[];
-  featuredSeries?: {
-    categoryName: string;
-    label?: string;
-    enabled?: boolean;
-    fullName?: string;
-    description?: string;
-    cover?: string;
-    links?: {
-      github?: string;
-      rss?: string;
-      chrome?: string;
-      docs?: string;
-    };
-  };
+  /** Normalized array of featured series */
+  featuredSeries: FeaturedSeriesItem[];
 };
+
+/**
+ * Normalize featured series config to array format
+ * Supports both legacy single object and new array format
+ * Validates all series configurations at build time
+ */
+function normalizeFeaturedSeries(config: unknown): FeaturedSeriesItem[] {
+  if (!config) return [];
+
+  // Convert to array format
+  let items: FeaturedSeriesItem[];
+  if (Array.isArray(config)) {
+    items = config as FeaturedSeriesItem[];
+  } else {
+    // Legacy single object format - convert to array with default slug
+    const legacyConfig = config as FeaturedSeriesItem;
+    const slug = legacyConfig.slug || yamlConfig.categoryMap?.[legacyConfig.categoryName] || 'series';
+    items = [{ ...legacyConfig, slug }];
+  }
+
+  // Validate each series configuration
+  const slugSet = new Set<string>();
+
+  for (const item of items) {
+    const rawSlug = typeof item.slug === 'string' ? item.slug : '';
+    const normalizedSlug = rawSlug.trim().toLowerCase();
+
+    // Validate required fields
+    if (!normalizedSlug) {
+      throw new Error(
+        `Featured series configuration error: Missing or invalid "slug" field. ` + `Each series must have a non-empty slug.`,
+      );
+    }
+
+    if (!item.categoryName || typeof item.categoryName !== 'string' || item.categoryName.trim() === '') {
+      throw new Error(
+        `Featured series configuration error: Series "${item.slug}" is missing or has invalid "categoryName" field. ` +
+          `Each series must have a valid category name.`,
+      );
+    }
+
+    // Validate slug format (alphanumeric, hyphens, underscores only)
+    const slugPattern = /^[a-z0-9-_]+$/i;
+    if (!slugPattern.test(normalizedSlug)) {
+      throw new Error(
+        `Featured series configuration error: Invalid slug "${rawSlug}". ` +
+          `Slugs must contain only alphanumeric characters, hyphens, and underscores.`,
+      );
+    }
+
+    // Check for reserved slugs
+    if (isReservedSlug(normalizedSlug)) {
+      throw new Error(
+        `Featured series configuration error: Slug "${rawSlug}" conflicts with a reserved route. ` +
+          `Reserved routes are: ${Array.from(RESERVED_ROUTES).join(', ')}. ` +
+          `Please choose a different slug.`,
+      );
+    }
+
+    // Check for duplicate slugs
+    if (slugSet.has(normalizedSlug)) {
+      throw new Error(`Featured series configuration error: Duplicate slug "${rawSlug}". Each series must have a unique slug.`);
+    }
+    slugSet.add(normalizedSlug);
+    item.slug = normalizedSlug;
+
+    // Validate categoryName exists in categoryMap
+    if (yamlConfig.categoryMap && !yamlConfig.categoryMap[item.categoryName]) {
+      console.warn(
+        `[Warning] Featured series "${item.slug}": Category "${item.categoryName}" not found in categoryMap. ` +
+          `Consider adding it to config/site.yaml for proper URL mapping.`,
+      );
+    }
+  }
+
+  return items;
+}
 
 type SocialPlatform = {
   url: string;
@@ -76,7 +142,7 @@ export const siteConfig: SiteConfig = {
   startYear: yamlConfig.site.startYear,
   keywords: yamlConfig.site.keywords,
   featuredCategories: yamlConfig.featuredCategories,
-  featuredSeries: yamlConfig.featuredSeries,
+  featuredSeries: normalizeFeaturedSeries(yamlConfig.featuredSeries),
 };
 
 export const socialConfig: SocialConfig = yamlConfig.social ?? {};
@@ -148,3 +214,15 @@ export const christmasConfig: ChristmasConfig = yamlConfig.christmas || {
     mobileMaxIterations: 6,
   },
 };
+
+// =============================================================================
+// Series Slugs (Pre-computed for navigation filtering)
+// =============================================================================
+
+/** All configured series slugs (lowercase) */
+export const configuredSeriesSlugs = new Set(siteConfig.featuredSeries.map((series) => series.slug.toLowerCase()));
+
+/** Only enabled series slugs (lowercase) */
+export const enabledSeriesSlugs = new Set(
+  siteConfig.featuredSeries.filter((series) => series.enabled !== false).map((series) => series.slug.toLowerCase()),
+);

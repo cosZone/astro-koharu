@@ -40,15 +40,36 @@ export interface FeaturedSeriesLinks {
   docs?: string;
 }
 
-export interface FeaturedSeries {
+/**
+ * Single featured series configuration
+ */
+export interface FeaturedSeriesItem {
+  /** URL path for this series (e.g., 'weekly' → /weekly) */
+  slug: string;
+  /** Category name this series is based on */
   categoryName: string;
+  /** Short label for sidebar/navigation */
   label?: string;
+  /** Whether this series is enabled */
   enabled?: boolean;
+  /** Full name for page title */
   fullName?: string;
+  /** Series description (supports markdown) */
   description?: string;
+  /** Cover image path */
   cover?: string;
+  /** Navigation icon (Iconify format) */
+  icon?: string;
+  /** Whether to highlight latest post on home page */
+  highlightOnHome?: boolean;
+  /** Related links */
   links?: FeaturedSeriesLinks;
 }
+
+/**
+ * @deprecated Use FeaturedSeriesItem instead
+ */
+export type FeaturedSeries = FeaturedSeriesItem;
 
 // =============================================================================
 // Social Configuration
@@ -408,7 +429,8 @@ export interface ChristmasConfig {
 export interface SiteYamlConfig {
   site: SiteBasicConfig;
   featuredCategories?: FeaturedCategory[];
-  featuredSeries?: FeaturedSeries;
+  /** Featured series configuration - supports array (multiple series) or single object (legacy) */
+  featuredSeries?: FeaturedSeriesItem[] | FeaturedSeriesItem;
   social?: SocialConfig;
   friends?: FriendsConfig;
   announcements?: AnnouncementConfig[];

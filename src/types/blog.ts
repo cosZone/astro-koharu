@@ -17,6 +17,8 @@ export interface BlogSchema {
   sticky?: boolean;
   draft?: boolean;
   tocNumbering?: boolean;
+  /** Exclude this post from AI summary generation */
+  excludeFromSummary?: boolean;
 }
 
 /**

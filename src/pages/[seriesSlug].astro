@@ -1,0 +1,49 @@
+---
+import HomeSider from '@components/layout/HomeSider.astro';
+import PostList from '@components/post/PostList.astro';
+import SeriesCover from '@components/ui/cover/SeriesCover.astro';
+import { CONTENT_PADDING } from '@constants/layout';
+import { siteConfig } from '@constants/site-config';
+import Layout from '@layouts/Layout.astro';
+import TwoColumnLayout from '@layouts/TwoColumnLayout.astro';
+import type { FeaturedSeriesItem } from '@lib/config/types';
+import { getEnabledSeries, getPostsByCategory } from '@lib/content';
+import type { GetStaticPaths } from 'astro';
+
+export const getStaticPaths: GetStaticPaths = async () => {
+  // Reserved slug validation is performed in normalizeFeaturedSeries (site-config.ts)
+  // at config load time, so all enabled series here are guaranteed to have valid slugs
+  const enabledSeries = getEnabledSeries();
+
+  return enabledSeries.map((series) => ({
+    params: { seriesSlug: series.slug },
+    props: { series },
+  }));
+};
+
+interface Props {
+  series: FeaturedSeriesItem;
+}
+
+const { series } = Astro.props;
+
+// Get all posts for this series
+const seriesPosts = series.categoryName ? await getPostsByCategory(series.categoryName) : [];
+
+const pageTitle = series.fullName ?? series.label ?? series.categoryName;
+---
+
+<Layout title={`${pageTitle} | ${siteConfig.title}`} description={series.description?.slice(0, 160)}>
+  <TwoColumnLayout>
+    <SeriesCover slot="cover" series={series} />
+    <HomeSider slot="sider" />
+    <div class={`shadow-box bg-gradient-start mx-0 flex w-full flex-col ${CONTENT_PADDING.standard}`}>
+      <h2 class="shoka-decoration-circle group relative h-19 px-6 py-5 text-2xl/9 font-bold md:text-xl/9">
+        <a href="/" class="dashed-border text-muted-foreground group-hover:border-blue group-hover:text-blue border-b">首页</a>
+        <span class="text-muted-foreground text-lg md:text-base"> / </span>
+        共 {seriesPosts.length} 篇文章
+      </h2>
+      <PostList posts={seriesPosts} showPaginator={false} isSimple={true} />
+    </div>
+  </TwoColumnLayout>
+</Layout>

@@ -5,7 +5,9 @@
  * This maintains backward compatibility while organizing code better.
  */
 
-// Export category utilities
+// =============================================================================
+// Category Utilities
+// =============================================================================
 export {
   addCategoryRecursively,
   buildCategoryPath,
@@ -16,12 +18,26 @@ export {
   getCategoryNameByLink,
   getParentCategory,
 } from './content/categories';
-// Export post utilities
+
+// =============================================================================
+// Post Utilities
+// =============================================================================
 export {
+  // Core post functions
   getAdjacentSeriesPosts,
-  // Weekly/Featured series utilities
+  // Featured series functions
+  getEnabledSeries,
+  getFeaturedCategoryNames,
+  getHomeHighlightedPosts,
+  getHomePagePosts,
+  // Deprecated (kept for backwards compatibility)
+  /** @deprecated Use getHomeHighlightedPosts() instead */
   getLatestWeeklyPost,
+  getNonFeaturedPosts,
+  getNonFeaturedPostsBySticky,
+  /** @deprecated Use getNonFeaturedPosts() instead */
   getNonWeeklyPosts,
+  /** @deprecated Use getNonFeaturedPostsBySticky() instead */
   getNonWeeklyPostsBySticky,
   getPostCount,
   getPostDescription,
@@ -29,13 +45,22 @@ export {
   getPostLastCategory,
   getPostSummary,
   getPostsByCategory,
+  getPostsBySeriesSlug,
   getPostsBySticky,
   getRandomPosts,
+  getSeriesBySlug,
   getSeriesPosts,
   getSortedPosts,
+  /** @deprecated Use getPostsBySeriesSlug('weekly') instead */
   getWeeklyPosts,
 } from './content/posts';
-// Export tag utilities
+
+// =============================================================================
+// Tag Utilities
+// =============================================================================
 export { getAllTags, normalizeTag } from './content/tags';
-// Export types
+
+// =============================================================================
+// Types
+// =============================================================================
 export type { Category, CategoryListResult } from './content/types';
