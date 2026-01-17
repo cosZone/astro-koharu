@@ -36,11 +36,6 @@ const API_BASE_URL = 'http://127.0.0.1:1234/v1/';
 const API_KEY = 'lm-studio'; // LM Studio doesn't require a real key
 const DEFAULT_MODEL = 'qwen/qwen3-4b-2507';
 
-// Exclude patterns - posts matching these patterns won't get summaries
-const EXCLUDE_PATTERNS = [
-  'weekly-', // Exclude weekly newsletters
-];
-
 // --------- Parse CLI Arguments ---------
 function parseArgs(): { model: string; force: boolean } {
   const args = process.argv.slice(2);
@@ -86,10 +81,6 @@ interface SummaryOutput {
 }
 
 // --------- Utility Functions ---------
-
-function shouldExclude(slug: string): boolean {
-  return EXCLUDE_PATTERNS.some((pattern) => slug.includes(pattern));
-}
 
 function computeHash(content: string): string {
   return crypto.createHash('md5').update(content).digest('hex');
@@ -188,11 +179,12 @@ async function processFile(filePath: string): Promise<PostData | null> {
       return null;
     }
 
-    const slug = extractSlug(filePath, frontmatter.link as string | undefined);
-
-    if (shouldExclude(slug)) {
+    // Skip posts with excludeFromSummary: true in frontmatter
+    if (frontmatter.excludeFromSummary === true) {
       return null;
     }
+
+    const slug = extractSlug(filePath, frontmatter.link as string | undefined);
 
     const plainText = await getPlainText(body);
     const hash = computeHash(content);

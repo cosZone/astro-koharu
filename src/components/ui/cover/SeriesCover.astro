@@ -1,26 +1,32 @@
 ---
-import { siteConfig } from '@constants/site-config';
+import type { FeaturedSeriesItem } from '@lib/config/types';
 import { getLqipStyle } from '@lib/lqip';
+import { getSanitizeHtml } from '@lib/sanitize';
 import { Icon } from 'astro-icon/components';
 import { marked } from 'marked';
 import { MAX_WIDTH } from '@/constants/layout';
 import WaveSvg from './wave';
 
-const weeklyConfig = siteConfig.featuredSeries;
+interface Props {
+  series: FeaturedSeriesItem;
+}
 
-// 将 Markdown 转换为 HTML
-const descriptionHtml = weeklyConfig?.description ? marked.parse(weeklyConfig.description) : '';
+const { series } = Astro.props;
+
+// Convert Markdown description to HTML and sanitize for XSS protection
+const rawHtml = series.description ? await marked.parse(series.description) : '';
+const descriptionHtml = getSanitizeHtml(rawHtml);
 ---
 
 <div class="relative flex z-0 max-h-200 min-h-[70dvh] items-center justify-center overflow-hidden pb-6">
   <div class="absolute inset-0 h-full bg-black/40"></div>
-  <!-- 周刊封面图 -->
+  <!-- Series cover image -->
   {
-    weeklyConfig?.cover && (
-      <div class="absolute inset-0 -z-10 h-full w-full" style={getLqipStyle(weeklyConfig.cover)}>
+    series.cover && (
+      <div class="absolute inset-0 -z-10 h-full w-full" style={getLqipStyle(series.cover)}>
         <img
-          src={weeklyConfig.cover}
-          alt={weeklyConfig.fullName ?? weeklyConfig.label}
+          src={series.cover}
+          alt={series.fullName ?? series.label}
           class="h-full w-full object-cover"
           loading="eager"
           fetchpriority="high"
@@ -30,20 +36,20 @@ const descriptionHtml = weeklyConfig?.description ? marked.parse(weeklyConfig.de
     )
   }
 
-  <!-- 主要内容区域 -->
+  <!-- Main content area -->
   <div class={`relative z-10 flex flex-col items-center justify-center px-5 py-4 text-white ${MAX_WIDTH.content}`}>
-    <!-- 标题 -->
+    <!-- Title -->
     <h1 class="shadow-text text-center text-5xl font-bold md:text-3xl">
-      {weeklyConfig?.fullName ?? weeklyConfig?.label ?? '周刊'}
+      {series.fullName ?? series.label ?? series.categoryName}
     </h1>
 
-    <!-- 链接按钮组 -->
+    <!-- Link buttons -->
     {
-      weeklyConfig?.links && (
+      series.links && (
         <div class="mt-6 flex flex-wrap items-center justify-center gap-3">
-          {weeklyConfig.links.github && (
+          {series.links.github && (
             <a
-              href={weeklyConfig.links.github}
+              href={series.links.github}
               target="_blank"
               class="flex items-center gap-2 rounded-full bg-white/10 px-4 py-2 text-sm backdrop-blur-sm transition-all hover:scale-105 hover:bg-white/20"
             >
@@ -51,9 +57,9 @@ const descriptionHtml = weeklyConfig?.description ? marked.parse(weeklyConfig.de
               <span>GitHub</span>
             </a>
           )}
-          {weeklyConfig.links.rss && (
+          {series.links.rss && (
             <a
-              href={weeklyConfig.links.rss}
+              href={series.links.rss}
               target="_blank"
               data-astro-reload
               class="flex items-center gap-2 rounded-full bg-white/10 px-4 py-2 text-sm backdrop-blur-sm transition-all hover:scale-105 hover:bg-white/20"
@@ -62,9 +68,9 @@ const descriptionHtml = weeklyConfig?.description ? marked.parse(weeklyConfig.de
               <span>RSS 订阅</span>
             </a>
           )}
-          {weeklyConfig.links.chrome && (
+          {series.links.chrome && (
             <a
-              href={weeklyConfig.links.chrome}
+              href={series.links.chrome}
               target="_blank"
               class="flex items-center gap-2 rounded-full bg-white/10 px-4 py-2 text-sm backdrop-blur-sm transition-all hover:scale-105 hover:bg-white/20"
             >
@@ -72,9 +78,9 @@ const descriptionHtml = weeklyConfig?.description ? marked.parse(weeklyConfig.de
               <span>Chrome 插件</span>
             </a>
           )}
-          {weeklyConfig.links.docs && (
+          {series.links.docs && (
             <a
-              href={weeklyConfig.links.docs}
+              href={series.links.docs}
               target="_blank"
               class="flex items-center gap-2 rounded-full bg-white/10 px-4 py-2 text-sm backdrop-blur-sm transition-all hover:scale-105 hover:bg-white/20"
             >
@@ -86,9 +92,9 @@ const descriptionHtml = weeklyConfig?.description ? marked.parse(weeklyConfig.de
       )
     }
 
-    <!-- 描述信息 -->
+    <!-- Description -->
     {
-      weeklyConfig?.description && (
+      series.description && (
         <div class="shadow-text mt-8 max-w-3xl text-center">
           <div class="prose prose-invert mx-auto text-sm leading-relaxed md:text-xs" set:html={descriptionHtml} />
         </div>

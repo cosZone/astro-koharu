@@ -6,11 +6,11 @@
  */
 
 import ThemeToggle from '@components/theme/ThemeToggle';
-import { Routes, routers } from '@constants/router';
-import { siteConfig } from '@constants/site-config';
+import { RESERVED_ROUTES, routers } from '@constants/router';
+import { configuredSeriesSlugs, enabledSeriesSlugs } from '@constants/site-config';
 import { useScrollTrigger } from '@hooks/useScrollTrigger';
 import { Icon } from '@iconify/react';
-import { cn } from '@lib/utils';
+import { cn, filterNavItems } from '@lib/utils';
 import { useEffect, useRef, useState } from 'react';
 import DropdownNav from './DropdownNav';
 import { SearchTrigger } from './SearchDialog';
@@ -18,6 +18,9 @@ import { SearchTrigger } from './SearchDialog';
 interface NavigatorProps {
   currentPath: string;
 }
+
+// Pre-filter navigation items at module load (config is static)
+const filteredRouters = filterNavItems(routers, configuredSeriesSlugs, enabledSeriesSlugs, RESERVED_ROUTES);
 
 // Icon component for navigation items - uses @iconify/react for dynamic icons
 function NavIcon({ name }: { name: string }) {
@@ -131,14 +134,6 @@ export default function Navigator({ currentPath }: NavigatorProps) {
       }
     };
   }, []);
-
-  // Filter out weekly route if disabled
-  const filteredRouters = routers.filter((item) => {
-    if (item.path === Routes.Weekly && !siteConfig.featuredSeries?.enabled) {
-      return false;
-    }
-    return true;
-  });
 
   return (
     <div className="flex grow tablet:grow-0 items-center">

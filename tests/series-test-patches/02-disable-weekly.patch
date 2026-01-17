@@ -1,0 +1,12 @@
+diff --git a/config/site.yaml b/config/site.yaml
+--- a/config/site.yaml
++++ b/config/site.yaml
+@@ -103,7 +103,7 @@ featuredSeries:
+       你可以用它来发布定期更新的系列内容，如技术周刊、读书笔记系列等。
+       设置 enabled: false 可以关闭此功能。
+     cover: /img/weekly_header.webp # 系列页面头图
+-    enabled: true # 启用此系列
++    enabled: false # 禁用此系列（测试）
+     icon: ri:newspaper-line # 导航图标
+     links: # 相关链接（可选）
+       github: https://github.com/your-username/your-repo # (可选) GitHub 仓库

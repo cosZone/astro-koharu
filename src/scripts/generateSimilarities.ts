@@ -38,12 +38,6 @@ const INCLUDE_BODY = false;
 const USE_AI_SUMMARY = true;
 const SUMMARIES_FILE = 'src/assets/summaries.json';
 
-// Exclude patterns - posts matching these patterns won't be included in similarity calculations
-// They can still show related posts, but won't be recommended to other posts
-const EXCLUDE_PATTERNS = [
-  'weekly-', // Exclude weekly newsletters (FE Bits)
-];
-
 // Cache models locally
 env.cacheDir = './.cache/transformers';
 
@@ -71,13 +65,6 @@ interface SummaryEntry {
 type SummariesMap = Record<string, SummaryEntry>;
 
 // --------- Utility Functions ---------
-
-/**
- * Check if a slug should be excluded from similarity calculations
- */
-function shouldExclude(slug: string): boolean {
-  return EXCLUDE_PATTERNS.some((pattern) => slug.includes(pattern));
-}
 
 /**
  * Load AI-generated summaries from file
@@ -172,12 +159,13 @@ async function processFile(filePath: string, summaries: SummariesMap): Promise<P
       return null;
     }
 
-    const slug = extractSlug(filePath, frontmatter.link as string | undefined);
-
-    // Skip excluded patterns (e.g., weekly newsletters)
-    if (shouldExclude(slug)) {
+    // Skip posts with excludeFromSummary: true in frontmatter
+    // These posts won't be included in similarity calculations
+    if (frontmatter.excludeFromSummary === true) {
       return null;
     }
+
+    const slug = extractSlug(filePath, frontmatter.link as string | undefined);
 
     // Use AI summary if available, otherwise use description
     const aiSummary = summaries[slug]?.summary;

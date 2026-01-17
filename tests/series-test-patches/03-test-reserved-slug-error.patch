@@ -1,0 +1,13 @@
+diff --git a/config/site.yaml b/config/site.yaml
+--- a/config/site.yaml
++++ b/config/site.yaml
+@@ -95,7 +95,8 @@ featuredCategories:
+ #   links: 相关链接配置（可选）
+ # -----------------------------------------------------------------------------
+ featuredSeries:
+-  - slug: weekly # URL 路径: /weekly
++  # 测试保留路由冲突 - 应触发构建错误
++  - slug: categories # ❌ 这是保留路由，应该报错！
+     categoryName: 周刊 # 必须与 categoryMap 中的分类名匹配
+     label: 我的周刊 # 简短名称
+     fullName: 我的技术周刊 # 完整名称

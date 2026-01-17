@@ -2,18 +2,18 @@
 import HomeSider from '@components/layout/HomeSider.astro';
 import PostList from '@components/post/PostList.astro';
 import Cover from '@components/ui/cover/Cover.astro';
-import { CONTENT_PADDING } from '@constants/layout';
+import { CONTENT_PADDING, PAGINATION } from '@constants/layout';
 import { seoConfig } from '@constants/site-config';
 import Layout from '@layouts/Layout.astro';
 import TwoColumnLayout from '@layouts/TwoColumnLayout.astro';
-import { getNonWeeklyPosts } from '@lib/content';
+import { getNonFeaturedPosts } from '@lib/content';
 import type { PaginateFunction } from 'astro';
 import Divider from '@/components/ui/divider';
 
 export async function getStaticPaths({ paginate }: { paginate: PaginateFunction }) {
-  // 获取所有非周刊文章用于分页
-  const postCollections = await getNonWeeklyPosts();
-  return paginate(postCollections, { pageSize: 10 });
+  // 获取所有非系列文章用于分页
+  const postCollections = await getNonFeaturedPosts();
+  return paginate(postCollections, { pageSize: PAGINATION.pageSize });
 }
 
 const { page } = Astro.props;

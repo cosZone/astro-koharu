@@ -2,42 +2,41 @@
 import HomeSider from '@components/layout/HomeSider.astro';
 import PostList from '@components/post/PostList.astro';
 import Cover from '@components/ui/cover/Cover.astro';
-import { CONTENT_PADDING } from '@constants/layout';
+import { CONTENT_PADDING, PAGINATION } from '@constants/layout';
 import { seoConfig } from '@constants/site-config';
 import Layout from '@layouts/Layout.astro';
 import TwoColumnLayout from '@layouts/TwoColumnLayout.astro';
-import { getLatestWeeklyPost, getNonWeeklyPostsBySticky } from '@lib/content';
+import { getHomePagePosts } from '@lib/content';
 import type { Page } from 'astro';
 import type { BlogPost } from 'types/blog';
 import CategoryCards from '@/components/post/CategoryCards.astro';
 import Divider from '@/components/ui/divider';
 
-// 获取非周刊的置顶文章和普通文章
-const { stickyPosts: normalStickyPosts, allPosts: allNonWeeklyPosts } = await getNonWeeklyPostsBySticky();
+// 使用优化的单次查询获取所有首页数据
+const { highlightedPosts, stickyPosts: normalStickyPosts, regularPosts } = await getHomePagePosts();
 
-// 获取最新一篇周刊文章
-const latestWeeklyPost = await getLatestWeeklyPost();
+// 将高亮系列文章放在置顶列表开头
+const stickyPosts = [...highlightedPosts, ...normalStickyPosts];
 
-// 将周刊文章放在置顶列表开头
-const stickyPosts = latestWeeklyPost ? [latestWeeklyPost, ...normalStickyPosts] : normalStickyPosts;
-
-// 首页显示前10篇普通文章（不含周刊）
-const posts = allNonWeeklyPosts.slice(0, 10);
+// 首页显示前N篇普通文章（不含系列文章）
+const { pageSize } = PAGINATION;
+const posts = regularPosts.slice(0, pageSize);
+const totalRegularPosts = regularPosts.length;
 
 const page: Page<BlogPost> = {
   data: posts,
   start: 0,
-  end: Math.min(9, posts.length - 1),
-  size: 10,
-  total: allNonWeeklyPosts.length,
+  end: Math.min(pageSize - 1, posts.length - 1),
+  size: pageSize,
+  total: totalRegularPosts,
   currentPage: 1,
-  lastPage: Math.ceil(allNonWeeklyPosts.length / 10),
+  lastPage: Math.ceil(totalRegularPosts / pageSize),
   url: {
     current: '/',
     prev: undefined,
-    next: allNonWeeklyPosts.length > 10 ? '/posts/2' : undefined,
+    next: totalRegularPosts > pageSize ? '/posts/2' : undefined,
     first: '/',
-    last: `/posts/${Math.ceil(allNonWeeklyPosts.length / 10)}`,
+    last: `/posts/${Math.ceil(totalRegularPosts / pageSize)}`,
   },
 };
 ---

@@ -6,6 +6,7 @@ import { type CollectionEntry, getCollection } from 'astro:content';
 
 import summaries from '@assets/summaries.json';
 import { siteConfig } from '@constants/site-config';
+import type { FeaturedSeriesItem } from '@lib/config/types';
 import type { BlogPost } from 'types/blog';
 import { extractTextFromMarkdown } from '../sanitize';
 import { buildCategoryPath } from './categories';
@@ -232,61 +233,194 @@ function isPostInCategory(post: BlogPost, categoryName: string): boolean {
   return false;
 }
 
-/**
- * 获取所有周刊文章
- * @returns 周刊文章列表（按日期排序，最新的在前）
- */
-export async function getWeeklyPosts(): Promise<BlogPost[]> {
-  const { featuredSeries } = siteConfig;
-  if (!featuredSeries?.enabled || !featuredSeries.categoryName) {
-    return [];
-  }
+// =============================================================================
+// Featured Series Functions
+// =============================================================================
 
-  return await getPostsByCategory(featuredSeries.categoryName);
+/**
+ * 获取所有启用的 Featured Series
+ * @returns 启用的系列列表
+ */
+export function getEnabledSeries(): FeaturedSeriesItem[] {
+  return siteConfig.featuredSeries.filter((series) => series.enabled !== false);
 }
 
 /**
- * 获取最新一篇周刊文章
- * @returns 最新周刊文章或 null
+ * 根据 slug 查找 Featured Series
+ * @param slug 系列 slug
+ * @returns 系列配置或 undefined
  */
-export async function getLatestWeeklyPost(): Promise<BlogPost | null> {
-  const weeklyPosts = await getWeeklyPosts();
-  return weeklyPosts[0] ?? null;
+export function getSeriesBySlug(slug: string): FeaturedSeriesItem | undefined {
+  const normalizedSlug = slug.trim().toLowerCase();
+  return siteConfig.featuredSeries.find((series) => series.slug.toLowerCase() === normalizedSlug && series.enabled !== false);
 }
 
 /**
- * 获取所有非周刊文章（已排序）
- * @returns 非周刊文章列表（按日期排序，最新的在前）
+ * 获取某个 Featured Series 的所有文章
+ * @param slug 系列 slug
+ * @returns 文章列表（按日期排序，最新的在前）
  */
-export async function getNonWeeklyPosts(): Promise<BlogPost[]> {
-  const { featuredSeries } = siteConfig;
-  if (!featuredSeries?.enabled || !featuredSeries.categoryName) {
+export async function getPostsBySeriesSlug(slug: string): Promise<BlogPost[]> {
+  const series = getSeriesBySlug(slug);
+  if (!series) return [];
+
+  return await getPostsByCategory(series.categoryName);
+}
+
+/**
+ * 获取所有 Featured Series 的分类名
+ * @returns 分类名列表
+ */
+export function getFeaturedCategoryNames(): string[] {
+  return getEnabledSeries().map((series) => series.categoryName);
+}
+
+/**
+ * 获取所有非 Featured Series 的文章（已排序）
+ * @returns 非系列文章列表（按日期排序，最新的在前）
+ */
+export async function getNonFeaturedPosts(): Promise<BlogPost[]> {
+  const categoryNames = getFeaturedCategoryNames();
+  if (categoryNames.length === 0) {
     return await getSortedPosts();
   }
 
   const allPosts = await getSortedPosts();
-  return allPosts.filter((post) => !isPostInCategory(post, featuredSeries.categoryName));
+  return allPosts.filter((post) => !categoryNames.some((catName) => isPostInCategory(post, catName)));
 }
 
 /**
- * 获取非周刊文章，按置顶状态分组
- * @returns 置顶和非置顶的非周刊文章
+ * 获取非 Featured Series 文章，按置顶状态分组
+ * @returns 置顶文章和非置顶的普通文章（互斥，不重叠）
+ */
+export async function getNonFeaturedPostsBySticky(): Promise<{
+  stickyPosts: BlogPost[];
+  regularPosts: BlogPost[];
+}> {
+  const nonFeaturedPosts = await getNonFeaturedPosts();
+
+  const stickyPosts: BlogPost[] = [];
+  const regularPosts: BlogPost[] = [];
+
+  for (const post of nonFeaturedPosts) {
+    if (post.data?.sticky) {
+      stickyPosts.push(post);
+    } else {
+      regularPosts.push(post);
+    }
+  }
+
+  return { stickyPosts, regularPosts };
+}
+
+/**
+ * 获取所有 highlightOnHome=true 系列的最新文章
+ * @returns 最新文章列表（每个系列一篇）
+ */
+export async function getHomeHighlightedPosts(): Promise<BlogPost[]> {
+  const highlightedSeries = getEnabledSeries().filter((series) => series.highlightOnHome !== false);
+
+  const posts: BlogPost[] = [];
+  for (const series of highlightedSeries) {
+    const seriesPosts = await getPostsByCategory(series.categoryName);
+    if (seriesPosts[0]) {
+      posts.push(seriesPosts[0]);
+    }
+  }
+
+  return posts;
+}
+
+/**
+ * 优化的首页数据获取 - 单次遍历获取所有需要的数据
+ * @returns 包含高亮文章、置顶文章和普通文章的对象
+ */
+export async function getHomePagePosts(): Promise<{
+  highlightedPosts: BlogPost[];
+  stickyPosts: BlogPost[];
+  regularPosts: BlogPost[];
+}> {
+  const allPosts = await getSortedPosts();
+  const categoryNames = getFeaturedCategoryNames();
+  const highlightedSeries = getEnabledSeries().filter((series) => series.highlightOnHome !== false);
+
+  // 用于追踪每个高亮系列的最新文章
+  const seriesLatestMap = new Map<string, BlogPost>();
+
+  const stickyPosts: BlogPost[] = [];
+  const regularPosts: BlogPost[] = [];
+
+  // 单次遍历所有文章
+  for (const post of allPosts) {
+    const isFeatured = categoryNames.some((catName) => isPostInCategory(post, catName));
+
+    if (isFeatured) {
+      // 检查是否属于高亮系列
+      for (const series of highlightedSeries) {
+        if (isPostInCategory(post, series.categoryName)) {
+          // 只保留每个系列的最新文章（第一篇，因为已排序）
+          if (!seriesLatestMap.has(series.categoryName)) {
+            seriesLatestMap.set(series.categoryName, post);
+          }
+          break;
+        }
+      }
+      // 跳过系列文章，不加入普通列表
+      continue;
+    }
+
+    // 非系列文章，按置顶状态分类
+    if (post.data?.sticky) {
+      stickyPosts.push(post);
+    } else {
+      regularPosts.push(post);
+    }
+  }
+
+  // 提取高亮文章（保持系列定义的顺序）
+  const highlightedPosts: BlogPost[] = [];
+  for (const series of highlightedSeries) {
+    const post = seriesLatestMap.get(series.categoryName);
+    if (post) {
+      highlightedPosts.push(post);
+    }
+  }
+
+  return { highlightedPosts, stickyPosts, regularPosts };
+}
+
+// =============================================================================
+// Deprecated Functions (for backwards compatibility)
+// =============================================================================
+
+/**
+ * @deprecated Use getPostsBySeriesSlug('weekly') instead
+ */
+export async function getWeeklyPosts(): Promise<BlogPost[]> {
+  return await getPostsBySeriesSlug('weekly');
+}
+
+/**
+ * @deprecated Use getHomeHighlightedPosts() instead
+ */
+export async function getLatestWeeklyPost(): Promise<BlogPost | null> {
+  const posts = await getPostsBySeriesSlug('weekly');
+  return posts[0] ?? null;
+}
+
+/**
+ * @deprecated Use getNonFeaturedPosts() instead
+ */
+export async function getNonWeeklyPosts(): Promise<BlogPost[]> {
+  return await getNonFeaturedPosts();
+}
+
+/**
+ * @deprecated Use getNonFeaturedPostsBySticky() instead
  */
 export async function getNonWeeklyPostsBySticky(): Promise<{
   stickyPosts: BlogPost[];
-  allPosts: BlogPost[];
+  regularPosts: BlogPost[];
 }> {
-  const nonWeeklyPosts = await getNonWeeklyPosts();
-
-  const stickyPosts: BlogPost[] = [];
-  const allPosts: BlogPost[] = [];
-
-  for (const post of nonWeeklyPosts) {
-    if (post.data?.sticky) {
-      stickyPosts.push(post);
-    }
-    allPosts.push(post);
-  }
-
-  return { stickyPosts, allPosts };
+  return await getNonFeaturedPostsBySticky();
 }
