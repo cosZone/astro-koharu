@@ -1,0 +1,79 @@
+diff --git a/config/site.yaml b/config/site.yaml
+--- a/config/site.yaml
++++ b/config/site.yaml
+@@ -42,8 +42,8 @@ categoryMap:
+   周刊: weekly
+   # Secondary categories (for nested paths)
+   前端: front-end
++  书摘: reading
+   # Add more as needed:
+-  # 书摘: reading
+   # 后端: back-end
+   # 算法: algorithm
+   # 项目: project
+@@ -110,14 +110,13 @@ featuredSeries:
+       rss: /rss.xml # (可选) RSS 订阅链接
+       # chrome: https://chromewebstore.google.com/detail/your-extension-id # (可选) 浏览器插件
+       # docs: https://your-docs-url # (可选) 文档链接
+-  # 示例：添加第二个系列（取消注释启用）
+-  # - slug: reading # URL 路径: /reading
+-  #   categoryName: 书摘
+-  #   label: 读书笔记
+-  #   fullName: 我的读书笔记
+-  #   description: 阅读记录与读后感
+-  #   cover: /img/weekly_header.webp # 记得添加，我这里就是个示例
+-  #   enabled: true
+-  #   icon: ri:book-read-line
++  - slug: reading
++    categoryName: 书摘
++    label: 读书笔记
++    fullName: 我的读书笔记
++    description: 阅读记录与读后感
++    cover: /img/weekly_header.webp
++    enabled: true
++    icon: ri:book-read-line
+ 
+ # =============================================================================
+@@ -318,8 +317,9 @@ navigation:
+   - name: 首页 # 菜单显示名称
+     path: / # 链接路径
+     icon: ri:home-heart-fill # 图标
+-  # - name: 书摘
+-  #   path: /reading
++  - name: 书摘
++    path: /reading
++    icon: ri:book-read-line
+   - name: 周刊
+     path: /weekly
+     icon: ri:newspaper-line
+diff --git a/src/content/blog/reading/test-book.md b/src/content/blog/reading/test-book.md
+new file mode 100644
+--- /dev/null
++++ b/src/content/blog/reading/test-book.md
+@@ -0,0 +1,25 @@
++---
++title: 《测试书籍》读后感
++date: 2025-01-15
++categories:
++  - 书摘
++tags:
++  - 读书笔记
++  - 测试
++description: 这是一篇用于测试多系列功能的书摘文章
++---
++
++# 《测试书籍》读后感
++
++这是一篇用于测试多系列功能的书摘文章。
++
++## 内容摘要
++
++这本书讲述了...（测试内容）
++
++## 读后感
++
++读完这本书后，我感到...（测试内容）
++
++## 推荐指数
++
++⭐⭐⭐⭐⭐ 五星推荐！
