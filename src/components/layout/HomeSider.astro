@@ -39,7 +39,7 @@ const { prevPost, nextPost } =
     type === HomeSiderType.POST && (
       <HomeSiderSegmented
         client:only="react"
-        className="my-4 flex w-full justify-between text-sm/6"
+        className="my-4 tablet:mb-0 flex w-full justify-between text-sm/6"
         itemClass="grow"
         defaultValue={defaultSegmentType}
         id="inner-home-sider"
@@ -48,7 +48,7 @@ const { prevPost, nextPost } =
   }
 
   <sider-content
-    class="vertical-scrollbar scroll-gutter-stable w-full flex-1 overflow-x-hidden overflow-y-auto md:pt-4 md:pl-3"
+    class="vertical-scrollbar scroll-gutter-stable w-full flex-1 overflow-x-hidden overflow-y-auto md:pt-2 md:pl-3"
     data-type={type}
     data-default-type={defaultSegmentType}
   >

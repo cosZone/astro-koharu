@@ -49,6 +49,7 @@
   html {
     scrollbar-gutter: stable;
     background: linear-gradient(to top, var(--gradient-bg-end) 0, var(--gradient-bg-start) 30%) no-repeat bottom;
+    overflow: auto;
   }
 
   .vertical-scrollbar::-webkit-scrollbar {

@@ -23,10 +23,10 @@ import { Icon } from 'astro-icon/components';
 >
   <div
     id="infographic-fullscreen-content"
-    class="bg-background relative flex h-[85vh] w-[90vw] max-w-6xl flex-col overflow-hidden rounded-xl opacity-0 shadow-2xl transition-opacity duration-200 md:max-w-[90vw]"
+    class="bg-background relative flex h-[80vh] w-[90vw] max-w-6xl flex-col overflow-hidden rounded-xl opacity-0 shadow-2xl transition-opacity duration-200 md:max-w-[90vw]"
   >
     <!-- Toolbar -->
-    <div class="border-border bg-muted/50 flex shrink-0 items-center justify-between border-b px-4 py-3 backdrop-blur-sm">
+    <div class="border-border bg-muted/50 flex shrink-0 items-center justify-between tablet:flex-col border-b px-4 py-2 backdrop-blur-sm tablet:items-stretch tablet:px-2">
       <div class="flex items-center gap-3">
         <div class="flex gap-2">
           <span class="h-3 w-3 rounded-full bg-[#ff5f56]"></span>
@@ -35,9 +35,9 @@ import { Icon } from 'astro-icon/components';
         </div>
         <span class="text-muted-foreground font-mono text-xs font-medium tracking-wider uppercase"> infographic </span>
       </div>
-      <div class="flex items-center gap-1">
+      <div class="flex items-center gap-1 tablet:flex-wrap">
         <!-- Zoom info -->
-        <span id="infographic-zoom-level" class="text-muted-foreground mr-2 text-sm">100%</span>
+        <span id="infographic-zoom-level" class="text-muted-foreground mr-2 text-sm tablet:ml-auto">100%</span>
         <!-- Reset zoom button -->
         <button
           id="infographic-fullscreen-reset"
