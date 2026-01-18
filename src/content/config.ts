@@ -12,7 +12,7 @@ const blogCollection = defineCollection({
     tags: z.array(z.string()).optional(),
     // 兼容老 Hexo 博客
     subtitle: z.string().optional(),
-    catalog: z.boolean().optional(),
+    catalog: z.boolean().optional().default(true),
     categories: z
       .array(z.string())
       .or(z.array(z.array(z.string())))

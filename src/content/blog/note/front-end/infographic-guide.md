@@ -1,7 +1,6 @@
 ---
 title: Infographic 信息图指南
 link: infographic-guide
-catalog: true
 date: 2026-01-03 12:00:00
 description: 详细介绍如何在 Markdown 中使用 @antv/infographic 创建精美的信息图表，包含各种模板的实用示例
 tags:
@@ -9,8 +8,7 @@ tags:
   - 可视化
   - Markdown
 categories:
-  - 笔记
-  - 前端
+  - [笔记, 前端]
 ---
 
 本文将详细介绍如何在 Markdown 中使用 [@antv/infographic](https://infographic.antv.vision/) 创建各种精美的信息图表。
