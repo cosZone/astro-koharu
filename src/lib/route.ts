@@ -8,7 +8,7 @@ export function routeBuilder<T extends Routes>(route: T, param: RouteParams<type
   if (!param) return href;
   switch (route) {
     case Routes.Post:
-      href += `/${param?.data?.link ?? param?.slug}`;
+      href += `/${encodeURIComponent(param?.data?.link ?? param?.slug)}`;
       break;
     default:
       break;

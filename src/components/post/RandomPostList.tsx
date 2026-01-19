@@ -28,7 +28,7 @@ export default function RandomPostList({ postsPool, count }: Props) {
         {posts.map((post, index) => (
           <a
             key={post.slug}
-            href={`/post/${post.link ?? post.slug}`}
+            href={`/post/${encodeURIComponent(post.link ?? post.slug)}`}
             className="group flex gap-3 rounded-md p-2 text-sm transition-colors duration-300 hover:bg-foreground/5 hover:text-primary"
           >
             <span className="shrink-0 font-mono text-foreground/30">{index + 1}</span>

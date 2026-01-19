@@ -58,7 +58,7 @@ export {
 // =============================================================================
 // Tag Utilities
 // =============================================================================
-export { getAllTags, normalizeTag } from './content/tags';
+export { buildTagPath, getAllTags, normalizeTag, tagToSlug } from './content/tags';
 
 // =============================================================================
 // Types

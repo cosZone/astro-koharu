@@ -56,7 +56,7 @@ const years = Object.keys(postsByYear).sort((a, b) => Number(b) - Number(a));
                       {formatInTimeZone(post.data.date, 'UTC', 'yyyy-MM-dd')}
                     </span>
                     <a
-                      href={`/post/${post.data?.link ?? post.slug}`}
+                      href={`/post/${encodeURIComponent(post.data?.link ?? post.slug)}`}
                       class="dashed-border text-primary hover:text-blue truncate transition-colors"
                     >
                       {post.data.title}
