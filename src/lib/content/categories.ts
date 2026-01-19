@@ -89,7 +89,7 @@ export function getCategoryLinks(categories?: Category[], parentLink?: string): 
   if (!categories?.length) return [];
   const res: string[] = [];
   categories.forEach((category: Category) => {
-    const link = categoryMap[category.name];
+    const link = encodeURIComponent(categoryMap[category.name]);
     const fullLink = parentLink ? `${parentLink}/${link}` : link;
     res.push(fullLink);
     if (category?.children?.length) {
@@ -115,7 +115,7 @@ export function getCategoryNameByLink(link: string): string {
   const segments = cleanLink.split('/').filter(Boolean); // Filter out empty segments
   if (segments.length === 0) return '';
 
-  const lastSegment = segments[segments.length - 1];
+  const lastSegment = decodeURIComponent(segments[segments.length - 1]);
   const res = Object.keys(categoryMap).find((key) => categoryMap[key] === lastSegment) ?? '';
   return res;
 }
@@ -175,7 +175,7 @@ export function buildCategoryPath(categoryNames: string | string[]): string {
   const names = Array.isArray(categoryNames) ? categoryNames : [categoryNames];
   if (names.length === 0) return '';
 
-  const slugs = names.map((name) => categoryMap[name]);
+  const slugs = names.map((name) => encodeURIComponent(categoryMap[name]));
   return `/categories/${slugs.join('/')}`;
 }
 

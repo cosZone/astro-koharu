@@ -1890,6 +1890,43 @@ comment:
 link: my-custom-url
 ```
 
+### URL 特殊字符处理
+
+文章链接（`link`）和标签（`tags`）支持包含特殊字符，系统会自动进行 URL 编码处理。
+
+**文章链接特殊字符：**
+
+```yaml
+---
+title: C# 学习笔记
+link: test-C#  # 包含 # 字符
+---
+```
+
+访问时 URL 会自动编码为 `/post/test-C%23`，确保浏览器正确解析。
+
+**标签特殊字符：**
+
+```yaml
+tags:
+  - C#
+  - C++
+  - .NET
+  - Node.js
+```
+
+标签会自动转换为 URL 安全的格式：
+- `C#` → `/tags/c%23`
+- `C++` → `/tags/c%2B%2B`
+- `.NET` → `/tags/.net`
+- `Node.js` → `/tags/node.js`
+
+**注意事项：**
+
+- 特殊字符包括：`#`、`+`、`&`、`?`、`%`、空格等
+- 标签中的 `/` 会被替换为 `-`（如 `前端/React` → `前端-react`）
+- 分类名称通过 `categoryMap` 映射，建议使用纯英文 slug 避免编码问题
+
 ## 参考资源
 
 - [Astro 官方文档](https://docs.astro.build/)

@@ -47,7 +47,7 @@ const posts = await getPostsByCategory(rootCategory?.name ?? '');
           {posts.map((post) => (
             <p class="shoka-decoration-circle group text-primary hover:text-blue relative px-6 py-2 text-base/9">
               <span class="text-muted-foreground mr-2 text-xs">{formatInTimeZone(post.data.date, 'UTC', 'yy-MM-dd')}</span>
-              <a href={'/post/' + post?.data?.link} class="dashed-border">
+              <a href={`/post/${encodeURIComponent(post?.data?.link ?? post.slug)}`} class="dashed-border">
                 {post?.data?.title}
               </a>
             </p>

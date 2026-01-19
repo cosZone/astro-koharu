@@ -1,3 +1,5 @@
+import { buildTagPath } from '@lib/content/tags';
+
 const TAG_COLORS = [
   'from-blue-400/10 to-indigo-300/10 hover:from-blue-400/80 hover:to-indigo-300/80 text-blue-400/70 hover:text-blue-50',
   'from-pink-300/10 to-rose-200/10 hover:from-pink-300/80 hover:to-rose-200/80 text-pink-400/70 hover:text-pink-50',
@@ -14,7 +16,7 @@ interface TagItemProps {
 export function TagItem({ tag, count, colorIndex }: TagItemProps) {
   return (
     <a
-      href={`/tags/${tag.replace(/\//g, '-')}`}
+      href={buildTagPath(tag)}
       aria-label={`查看标签「${tag}」的 ${count} 篇文章`}
       className={`relative flex items-center rounded-lg bg-linear-to-r px-3 py-1.5 text-sm transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg ${TAG_COLORS[colorIndex]}`}
     >

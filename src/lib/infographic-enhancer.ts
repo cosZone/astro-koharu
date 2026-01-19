@@ -5,9 +5,6 @@
 
 import { copyToClipboard, createCodeViewIcon, createDiagramViewIcon } from './code-block-enhancer';
 
-// Font registration flag
-let fontRegistered = false;
-
 // Track active observers and timeouts for cleanup
 let activeObservers: MutationObserver[] = [];
 let activeTimeouts: ReturnType<typeof setTimeout>[] = [];
@@ -104,38 +101,10 @@ function isDarkMode(): boolean {
 }
 
 /**
- * Register custom font for infographic
- */
-async function ensureFontRegistered(): Promise<void> {
-  if (fontRegistered) return;
-
-  const { registerFont } = await import('@antv/infographic');
-
-  registerFont({
-    fontFamily: '寒蝉全圆体',
-    name: '寒蝉全圆体',
-    baseUrl: '/fonts/ChillRoundFRegular/result.css',
-    fontWeight: { regular: 'regular' },
-  });
-
-  registerFont({
-    fontFamily: '寒蝉全圆体',
-    name: '寒蝉全圆体 Bold',
-    baseUrl: '/fonts/ChillRoundFBold/result.css',
-    fontWeight: { bold: 'bold' },
-  });
-
-  fontRegistered = true;
-}
-
-/**
  * Dynamically import and render infographic
  */
 async function renderInfographic(container: HTMLElement, source: string): Promise<unknown> {
   const { Infographic } = await import('@antv/infographic');
-
-  // Register custom font before rendering
-  await ensureFontRegistered();
 
   // Use built-in themes: 'default', 'dark', 'hand-drawn'
   const theme = isDarkMode() ? 'dark' : 'default';
@@ -367,9 +336,6 @@ function enhanceAllInfographics(): void {
  */
 async function reRenderAllInfographics(): Promise<void> {
   const { Infographic } = await import('@antv/infographic');
-
-  // Ensure font is registered
-  await ensureFontRegistered();
 
   const theme = isDarkMode() ? 'dark' : 'default';
 

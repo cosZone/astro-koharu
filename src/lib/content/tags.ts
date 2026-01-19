@@ -10,6 +10,19 @@ import type { BlogPost } from 'types/blog';
 export const normalizeTag = (tag: string) => tag.toLowerCase();
 
 /**
+ * Convert tag to URL-safe slug
+ * Replaces `/` with `-` and encodes special characters
+ */
+export const tagToSlug = (tag: string) => encodeURIComponent(normalizeTag(tag).replace(/\//g, '-'));
+
+/**
+ * Build tag URL path
+ * @param tag Tag name
+ * @returns URL path like "/tags/c%23"
+ */
+export const buildTagPath = (tag: string) => `/tags/${tagToSlug(tag)}`;
+
+/**
  * Get all tags with their counts (case-insensitive)
  */
 export const getAllTags = (posts: BlogPost[]) => {

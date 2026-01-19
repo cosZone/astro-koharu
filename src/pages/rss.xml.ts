@@ -50,7 +50,7 @@ export async function GET(context: APIContext) {
         ];
 
         const postSlug = post.data.link ?? post.slug;
-        const postLink = `/post/${postSlug}`;
+        const postLink = `/post/${encodeURIComponent(postSlug)}`;
 
         return {
           title: post.data.title,
