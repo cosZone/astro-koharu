@@ -1,4 +1,5 @@
 import type { GenerateType } from '../constants/generate';
+import type { CreatorType } from '../creators';
 
 export interface ParsedArgs {
   command: string;
@@ -18,12 +19,15 @@ export interface ParsedArgs {
   skipBackup: boolean;
   tag: string | null;
   rebase: boolean;
+  // New command options
+  newType: CreatorType | null;
 }
 
 /**
  * 解析命令行参数
  */
 const GENERATE_TYPES = ['lqips', 'similarities', 'summaries', 'all'] as const;
+const NEW_TYPES = ['post', 'friend'] as const;
 
 export function parseArgs(argv: string[] = process.argv.slice(2)): ParsedArgs {
   const args: ParsedArgs = {
@@ -42,6 +46,7 @@ export function parseArgs(argv: string[] = process.argv.slice(2)): ParsedArgs {
     skipBackup: false,
     tag: null,
     rebase: false,
+    newType: null,
   };
 
   for (let i = 0; i < argv.length; i++) {
@@ -83,6 +88,11 @@ export function parseArgs(argv: string[] = process.argv.slice(2)): ParsedArgs {
         // For generate command, second positional arg is the type
         if (GENERATE_TYPES.includes(arg as (typeof GENERATE_TYPES)[number])) {
           args.generateType = arg as GenerateType | 'all';
+        }
+      } else if (args.command === 'new' && !args.newType) {
+        // For new command, second positional arg is the content type
+        if (NEW_TYPES.includes(arg as (typeof NEW_TYPES)[number])) {
+          args.newType = arg as CreatorType;
         }
       } else {
         args.backupFile = arg;

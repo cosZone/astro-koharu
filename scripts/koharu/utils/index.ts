@@ -22,10 +22,21 @@ export {
   runGenerateAll,
   runScript,
 } from './generate-operations';
-
+// New operations
+export {
+  appendFriend,
+  createPost,
+  formatDate,
+  generatePostFrontmatter,
+  generateSlug,
+  getCategoryMap,
+  getCategoryTree,
+  isValidUrl,
+  loadSiteConfig,
+  postExists,
+} from './new-operations';
 // Restore operations
 export { getRestorePreview, type RestorePreviewItem, restoreBackup } from './restore-operations';
-
 // Tar utilities
 export { tarCreate, tarExtract, tarExtractManifest, tarList } from './tar';
 // Update state machine

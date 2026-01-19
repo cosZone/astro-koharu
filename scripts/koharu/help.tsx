@@ -28,6 +28,7 @@ export function HelpApp({ showReturnHint = false, onComplete }: HelpAppProps) {
       <Box flexDirection="column" marginBottom={1}>
         <Text bold>用法:</Text>
         <Text> pnpm koharu 交互式主菜单</Text>
+        <Text> pnpm koharu new 新建内容</Text>
         <Text> pnpm koharu backup 备份博客内容和配置</Text>
         <Text> pnpm koharu restore 从备份恢复</Text>
         <Text> pnpm koharu generate 生成内容资产</Text>
@@ -60,6 +61,13 @@ export function HelpApp({ showReturnHint = false, onComplete }: HelpAppProps) {
         <Text> pnpm koharu generate all 生成全部</Text>
         <Text> --model {'<name>'} 指定 LLM 模型</Text>
         <Text> --force 强制重新生成</Text>
+      </Box>
+
+      <Box flexDirection="column" marginBottom={1}>
+        <Text bold>新建选项:</Text>
+        <Text> pnpm koharu new 交互式选择内容类型</Text>
+        <Text> pnpm koharu new post 新建博客文章</Text>
+        <Text> pnpm koharu new friend 新建友情链接</Text>
       </Box>
 
       <Box flexDirection="column">
