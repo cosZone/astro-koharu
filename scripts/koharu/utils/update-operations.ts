@@ -300,8 +300,33 @@ export function mergeUpstream(options: MergeOptions = {}): MergeResult {
         git(`commit -m "Downgrade to ${normalizedTag}"`);
       }
     } else {
-      // 升级使用 merge
-      git(`merge ${targetRef} --no-edit`);
+      // 默认使用 squash merge 保持提交历史干净线性
+      // --allow-unrelated-histories 确保首次更新时正常工作
+      git(`merge --squash --allow-unrelated-histories ${targetRef}`);
+
+      // 检查是否有变化需要提交
+      const status = gitSafe('status --porcelain') || '';
+      if (status.trim().length > 0) {
+        // 获取目标版本信息用于 commit message
+        let versionInfo = 'latest';
+        if (normalizedTag) {
+          versionInfo = normalizedTag;
+        } else {
+          // 尝试从 package.json 获取版本
+          const packageJsonContent = gitSafe(`show ${targetRef}:package.json`);
+          if (packageJsonContent) {
+            try {
+              const packageJson = JSON.parse(packageJsonContent);
+              if (packageJson.version) {
+                versionInfo = `v${packageJson.version}`;
+              }
+            } catch {
+              // JSON parse failed, use 'latest'
+            }
+          }
+        }
+        git(`commit -m "chore: update theme to ${versionInfo}\n\nSquashed merge from upstream"`);
+      }
     }
     return {
       success: true,

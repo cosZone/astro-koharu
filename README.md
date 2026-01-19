@@ -178,6 +178,8 @@ pnpm koharu update --rebase
 pnpm koharu update --rebase --dry-run
 ```
 
+> **💡 更新说明：** 默认使用 **squash merge** 方式更新，将上游所有提交压缩为单个提交，保持你的提交历史干净线性。
+
 ### 内容生成
 
 ```bash

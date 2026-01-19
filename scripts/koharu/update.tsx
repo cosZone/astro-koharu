@@ -410,13 +410,18 @@ export function UpdateApp({
                     </Text>
                   </Box>
                 )}
-                <Text>
-                  {stateOptions.rebase
-                    ? `确认执行 rebase 到${stateOptions.targetTag ? `版本 v${updateInfo.latestVersion}` : '上游最新'}？（历史将被重写）`
-                    : updateInfo.isDowngrade
-                      ? `确认回退到版本 v${updateInfo.latestVersion}？`
-                      : `确认更新到${stateOptions.targetTag ? `版本 v${updateInfo.latestVersion}` : '最新版本'}？`}
-                </Text>
+                <Box flexDirection="column">
+                  <Text>
+                    {stateOptions.rebase
+                      ? `确认执行 rebase 到${stateOptions.targetTag ? `版本 v${updateInfo.latestVersion}` : '上游最新'}？（历史将被重写）`
+                      : updateInfo.isDowngrade
+                        ? `确认回退到版本 v${updateInfo.latestVersion}？`
+                        : `确认更新到${stateOptions.targetTag ? `版本 v${updateInfo.latestVersion}` : '最新版本'}？`}
+                  </Text>
+                  {!stateOptions.rebase && !updateInfo.isDowngrade && (
+                    <Text dimColor>{'  '}将使用 squash merge 保持提交历史线性</Text>
+                  )}
+                </Box>
                 <ConfirmInput onConfirm={handleUpdateConfirm} onCancel={handleUpdateCancel} />
               </Box>
             )
@@ -428,7 +433,13 @@ export function UpdateApp({
       {status === 'merging' && (
         <Box>
           <Spinner
-            label={stateOptions.rebase ? '正在执行 rebase...' : updateInfo?.isDowngrade ? '正在回退版本...' : '正在合并更新...'}
+            label={
+              stateOptions.rebase
+                ? '正在执行 rebase...'
+                : updateInfo?.isDowngrade
+                  ? '正在回退版本...'
+                  : '正在合并更新（squash merge）...'
+            }
           />
         </Box>
       )}
@@ -451,6 +462,7 @@ export function UpdateApp({
               已回退到版本: <Text color="cyan">v{updateInfo.latestVersion}</Text>
             </Text>
           )}
+          {!updateInfo?.isDowngrade && !stateOptions.rebase && <Text dimColor>使用 squash merge 保持提交历史线性</Text>}
           {backupFile && (
             <Text>
               备份文件: <Text color="cyan">{backupFile}</Text>

@@ -258,6 +258,8 @@ pnpm koharu update --check
 pnpm koharu update --skip-backup
 ```
 
+> **💡 更新说明：** 默认使用 **squash merge** 方式更新，将上游所有提交压缩为单个提交，保持你的提交历史干净线性。
+
 更新过程中会自动：
 1. 检查工作区状态
 2. 备份你的个人内容（可选）
