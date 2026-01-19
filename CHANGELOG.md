@@ -4,6 +4,25 @@ All notable changes to this project will be documented in this file. See [conven
 
 ---
 
+## [2.3.2](https://github.com/cosZone/astro-koharu/compare/v2.2.0..v2.3.2) - 2026-01-19
+
+- Fixes #53：修复分类、标签、文章 URL 中特殊字符的编码问题
+- 增强 Koharu CLI：新增 `new` 命令创建文章/友链；`update` 支持指定版本更新/回退与 Release 信息展示
+  ![](https://r2.cosine.ren/i/2026/01/68ddb04e6e59cded79cf423a120ceeef.gif)
+  ![](https://r2.cosine.ren/i/2026/01/c950141278a157c5166b24535936cd53.gif)
+
+## [2.2.0](https://github.com/cosZone/astro-koharu/compare/v2.1.0..v2.2.0) - 2026-01-17
+
+- v2.2.0 by @yusixian in https://github.com/cosZone/astro-koharu/pull/47
+- Feat/weekly slug by @yusixian in https://github.com/cosZone/astro-koharu/pull/46
+- Feat/comment slug by @yusixian in https://github.com/cosZone/astro-koharu/pull/45
+
+新加了自定义其他系列文章的功能，现在可以简单新增以下如图所示的系列文章了，还是以分类功能为基础。
+然后评论区现在支持切换三种评论组件了（waline / remark42 / giscus）
+
+![](https://r2.cosine.ren/i/2026/01/9caacaeaa2c22fc74e2aeb5b95513350.webp)
+![](https://r2.cosine.ren/i/2026/01/1e44232d7b78a496bd12c54320442b6c.webp)
+
 ## [2.1.0](https://github.com/cosZone/astro-koharu/compare/v2.0.0..v2.1.0) - 2026-01-15
 
 ### Bug Fixes
