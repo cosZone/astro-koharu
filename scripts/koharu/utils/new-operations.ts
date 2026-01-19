@@ -10,15 +10,41 @@ import type { CategoryTreeItem, FriendData, PostData } from '../creators/types';
  * Converts Chinese characters to pinyin, removes special characters
  */
 export function generateSlug(title: string): string {
-  // Convert Chinese to pinyin with spaces between words
-  const pinyinStr = pinyin(title, {
-    toneType: 'none',
-    type: 'array',
-    v: true,
-  }).join('-');
+  const tokens: string[] = [];
+  let latinBuffer = '';
 
-  // Clean up the slug
-  return pinyinStr
+  const isAsciiWordChar = (char: string) => /[A-Za-z0-9]/.test(char);
+  const isCjkChar = (char: string) => /[\u4e00-\u9fff]/.test(char);
+
+  const flushLatin = () => {
+    if (!latinBuffer) return;
+    tokens.push(latinBuffer);
+    latinBuffer = '';
+  };
+
+  for (const char of title) {
+    if (isAsciiWordChar(char)) {
+      latinBuffer += char;
+      continue;
+    }
+
+    flushLatin();
+
+    if (isCjkChar(char)) {
+      const result = pinyin(char, {
+        toneType: 'none',
+        type: 'array',
+        v: true,
+      });
+      const value = Array.isArray(result) ? result[0] : result;
+      if (value) tokens.push(value);
+    }
+  }
+
+  flushLatin();
+
+  return tokens
+    .join('-')
     .toLowerCase()
     .replace(/[^a-z0-9-]/g, '-') // Replace non-alphanumeric with hyphens
     .replace(/-+/g, '-') // Collapse multiple hyphens

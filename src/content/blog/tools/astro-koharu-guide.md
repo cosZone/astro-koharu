@@ -252,6 +252,18 @@ categoryMap:
 
 ### 创建文章
 
+**方式一：使用 Koharu CLI（推荐）**
+
+使用交互式 CLI 工具快速创建文章：
+
+```bash
+pnpm koharu new post
+```
+
+CLI 工具会引导你输入标题、分类、标签等信息，自动生成 frontmatter 和 markdown 文件。
+
+**方式二：手动创建**
+
 在 `src/content/blog/` 目录下创建 Markdown 文件。目录结构会影响文章的分类：
 
 ```plain
@@ -1295,6 +1307,9 @@ pnpm knip             # 查找未使用的文件和依赖
 
 # Koharu CLI
 pnpm koharu                   # 交互式主菜单
+pnpm koharu new               # 新建内容（交互式选择）
+pnpm koharu new post          # 新建博客文章
+pnpm koharu new friend        # 新建友情链接
 pnpm koharu backup            # 备份博客内容（--full 完整备份）
 pnpm koharu restore           # 还原备份（--latest, --dry-run）
 pnpm koharu update            # 更新主题（--check, --skip-backup, --force, --tag, --rebase, --dry-run）
@@ -1404,12 +1419,68 @@ Docker 端口可在 `.env` 中配置 `BLOG_PORT=4321`。
 
 ### Koharu CLI
 
-博客自带交互式命令行工具，提供备份还原、主题更新、内容生成等功能。
+博客自带交互式命令行工具，提供备份还原、主题更新、内容生成、新建内容等功能。
 
 **启动方式：**
 
 ```bash
 pnpm koharu              # 交互式主菜单
+```
+
+#### 新建内容
+
+使用 CLI 快速创建博客文章和友链：
+
+```bash
+# 交互式选择创建类型（文章或友链）
+pnpm koharu new
+
+# 或直接指定类型
+pnpm koharu new post     # 新建博客文章
+pnpm koharu new friend   # 新建友情链接
+```
+
+**新建博客文章功能：**
+
+- 交互式输入文章信息：
+  - **标题** - 文章标题（必填）
+  - **Slug** - 自定义 URL（可选，默认根据标题自动生成拼音）
+  - **描述** - 文章摘要（可选）
+  - **分类** - 从已有分类中选择（必选）
+  - **标签** - 添加标签，逗号分隔（可选）
+  - **草稿** - 是否保存为草稿（默认否）
+- 自动生成 frontmatter（包含 title、date、categories、tags 等）
+- 检查文件是否已存在，避免覆盖
+- 文章保存在对应的分类目录下（如 `src/content/blog/note/front-end/my-post.md`）
+
+**新建友情链接功能：**
+
+- 交互式输入友链信息：
+  - **站点名称** - 友站的名称（必填）
+  - **站点 URL** - 友站的链接（必填，需完整 URL）
+  - **站长昵称** - 友站站长的昵称（必填）
+  - **站点描述** - 友站的简介（必填）
+  - **头像 URL** - 友站的头像链接（必填）
+  - **主题色** - 友站的主题色（可选，可选择预设颜色或自定义十六进制）
+- 自动追加到 `config/site.yaml` 的 `friends.data` 数组
+- 保留 YAML 文件的格式和注释
+
+**使用示例：**
+
+```bash
+# 创建新文章
+pnpm koharu new post
+# 按提示输入：
+# 标题: React Hooks 使用指南
+# Slug: (自动生成 react-hooks-shi-yong-zhi-nan，可修改或清空)
+# 描述: React Hooks 的完整使用教程
+# 分类: 选择"笔记 → 前端"
+# 标签: React, Hooks, 教程
+# 草稿: 否
+
+# 创建友链
+pnpm koharu new friend
+# 按提示输入友站信息
 ```
 
 #### 备份与还原
