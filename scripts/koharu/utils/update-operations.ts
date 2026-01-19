@@ -183,6 +183,7 @@ export function getUpdateInfo(targetTag?: string): UpdateInfo {
       behindCount: 0,
       aheadCount: 0,
       commits: [],
+      localCommits: [],
       currentVersion: getVersion(),
       latestVersion: 'unknown',
       isDowngrade: false,
@@ -216,6 +217,10 @@ export function getUpdateInfo(targetTag?: string): UpdateInfo {
     commits = parseCommits(commitsOutput);
   }
 
+  // 获取本地领先于 target 的 commits（rebase 时将被重放）
+  const localCommitsOutput = gitSafe(`log ${targetRef}..HEAD --pretty=format:"${commitFormat}" --no-merges`) || '';
+  const localCommits = parseCommits(localCommitsOutput);
+
   // 获取目标版本号
   let parsedVersion = 'unknown';
   if (normalizedTag) {
@@ -241,23 +246,52 @@ export function getUpdateInfo(targetTag?: string): UpdateInfo {
     behindCount,
     aheadCount,
     commits,
+    localCommits,
     currentVersion: getVersion(),
     latestVersion: parsedVersion,
     isDowngrade,
   };
 }
 
+/** 合并操作选项 */
+export interface MergeOptions {
+  /** 目标版本 tag（如 "v2.1.0"），不指定时使用 upstream/main */
+  targetTag?: string;
+  /** 是否为降级操作，降级时使用 checkout + commit 保留历史 */
+  isDowngrade?: boolean;
+  /** 使用 rebase 模式：将本地提交重放到目标引用之上（重写历史） */
+  rebase?: boolean;
+}
+
 /**
- * 执行合并或降级
- * @param targetTag 可选的目标版本 tag，不指定时合并 upstream/main
- * @param isDowngrade 是否为降级操作，降级时使用 checkout + commit 保留历史
+ * 执行合并、降级或 rebase 操作
+ *
+ * @param options - 合并选项
+ * @returns 合并结果，包含成功状态、冲突信息等
+ *
+ * @example
+ * // 普通合并到 upstream/main
+ * mergeUpstream();
+ *
+ * // 合并到指定 tag
+ * mergeUpstream({ targetTag: 'v2.1.0' });
+ *
+ * // Rebase 到 upstream/main（重写历史）
+ * mergeUpstream({ rebase: true });
+ *
+ * // Rebase 到指定 tag（将本地提交重放到 tag 之上）
+ * mergeUpstream({ targetTag: 'v2.1.0', rebase: true });
  */
-export function mergeUpstream(targetTag?: string, isDowngrade?: boolean): MergeResult {
+export function mergeUpstream(options: MergeOptions = {}): MergeResult {
+  const { targetTag, isDowngrade, rebase } = options;
   const normalizedTag = targetTag ? normalizeTag(targetTag) : null;
   const targetRef = normalizedTag || `${UPSTREAM_REMOTE}/${MAIN_BRANCH}`;
 
   try {
-    if (isDowngrade && normalizedTag) {
+    if (rebase) {
+      // Rebase 模式：将本地提交重放到目标引用之上
+      git(`rebase ${targetRef}`);
+    } else if (isDowngrade && normalizedTag) {
       // 降级使用 checkout + commit 保留提交历史
       git(`checkout ${normalizedTag} -- .`);
       // 检查是否有变化需要提交
@@ -292,6 +326,8 @@ export function mergeUpstream(targetTag?: string, isDowngrade?: boolean): MergeR
         success: false,
         hasConflict: true,
         conflictFiles,
+        // 如果是 rebase 模式，标记为 rebase 冲突
+        isRebaseConflict: rebase,
       };
     }
 
@@ -334,6 +370,18 @@ function getConflictFiles(): string[] {
 export function abortMerge(): boolean {
   try {
     git('merge --abort');
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * 中止 rebase
+ */
+export function abortRebase(): boolean {
+  try {
+    git('rebase --abort');
     return true;
   } catch {
     return false;

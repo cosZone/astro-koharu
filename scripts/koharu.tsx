@@ -41,6 +41,8 @@ koharu - astro-koharu CLI
   --skip-backup            跳过备份步骤
   --force                  跳过确认提示
   --tag <version>          指定目标版本（如 v2.0.0）
+  --rebase                 使用 rebase 模式（重写历史，强制备份）
+  --dry-run                预览 rebase 操作（不实际执行）
 
 清理选项:
   --keep N                 保留最近 N 个备份，删除其余
@@ -161,6 +163,8 @@ function KoharuApp() {
           skipBackup={args.skipBackup}
           force={args.force}
           targetTag={args.tag || undefined}
+          rebase={args.rebase}
+          dryRun={args.dryRun}
           showReturnHint={fromMenu}
           onComplete={handleComplete}
         />

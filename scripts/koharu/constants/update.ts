@@ -40,6 +40,8 @@ export interface UpdateInfo {
   aheadCount: number;
   /** 新提交列表（升级时为新增提交，降级时为将移除的提交） */
   commits: CommitInfo[];
+  /** 本地领先的提交列表（rebase 时将被重放的提交） */
+  localCommits: CommitInfo[];
   /** 当前版本 */
   currentVersion: string;
   /** 最新版本（或目标版本） */
@@ -57,6 +59,8 @@ export interface MergeResult {
   conflictFiles: string[];
   /** 错误信息 */
   error?: string;
+  /** 是否为 rebase 冲突 */
+  isRebaseConflict?: boolean;
 }
 
 /** GitHub Release 信息 */
@@ -93,6 +97,10 @@ export interface UpdateOptions {
   force: boolean;
   /** 指定更新到的目标版本 tag (如 "v2.1.0" 或 "2.1.0") */
   targetTag?: string;
+  /** 使用 rebase 模式（重写历史） */
+  rebase: boolean;
+  /** 预览操作（不实际执行），仅在 rebase 模式下有效 */
+  dryRun: boolean;
 }
 
 /** 状态机 State */

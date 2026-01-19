@@ -141,6 +141,15 @@ pnpm koharu update --check
 
 # 跳过备份直接更新
 pnpm koharu update --skip-backup
+
+# 更新到指定版本
+pnpm koharu update --tag v2.1.0
+
+# 使用 rebase 模式（重写历史，强制备份）
+pnpm koharu update --rebase
+
+# 预览 rebase 操作（不实际执行）
+pnpm koharu update --rebase --dry-run
 ```
 
 ### 内容生成

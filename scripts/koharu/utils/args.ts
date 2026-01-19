@@ -17,6 +17,7 @@ export interface ParsedArgs {
   check: boolean;
   skipBackup: boolean;
   tag: string | null;
+  rebase: boolean;
 }
 
 /**
@@ -40,6 +41,7 @@ export function parseArgs(argv: string[] = process.argv.slice(2)): ParsedArgs {
     check: false,
     skipBackup: false,
     tag: null,
+    rebase: false,
   };
 
   for (let i = 0; i < argv.length; i++) {
@@ -72,6 +74,8 @@ export function parseArgs(argv: string[] = process.argv.slice(2)): ParsedArgs {
     } else if (arg === '--tag' && argv[i + 1]) {
       args.tag = argv[i + 1];
       i++;
+    } else if (arg === '--rebase') {
+      args.rebase = true;
     } else if (!arg.startsWith('--') && !arg.startsWith('-')) {
       if (!args.command) {
         args.command = arg;

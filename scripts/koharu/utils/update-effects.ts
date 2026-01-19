@@ -92,7 +92,11 @@ export const statusEffects: Partial<Record<UpdateStatus, EffectFn>> = {
   },
 
   merging: (state, dispatch) => {
-    const result = mergeUpstream(state.options.targetTag, state.updateInfo?.isDowngrade);
+    const result = mergeUpstream({
+      targetTag: state.options.targetTag,
+      isDowngrade: state.updateInfo?.isDowngrade,
+      rebase: state.options.rebase,
+    });
     dispatch({ type: 'MERGED', payload: result });
     return undefined;
   },

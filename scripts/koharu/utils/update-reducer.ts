@@ -43,8 +43,8 @@ export function updateReducer(state: UpdateState, action: UpdateAction): UpdateS
         return { ...state, status: 'up-to-date', updateInfo };
       }
 
-      // 决定下一步：备份确认 or 预览
-      const nextStatus = options.skipBackup || options.force ? 'preview' : 'backup-confirm';
+      // Rebase 模式强制备份（忽略 skipBackup 和 force）
+      const nextStatus = options.rebase ? 'backup-confirm' : options.skipBackup || options.force ? 'preview' : 'backup-confirm';
       return { ...state, status: nextStatus, updateInfo };
     }
 
