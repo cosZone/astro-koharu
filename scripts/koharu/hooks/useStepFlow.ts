@@ -1,3 +1,4 @@
+import { useInput } from 'ink';
 import { useCallback, useEffect, useState } from 'react';
 import { AUTO_EXIT_DELAY } from '../constants';
 import { usePressAnyKey } from './usePressAnyKey';
@@ -23,6 +24,8 @@ export function useStepFlow<TStep extends string>({
 }: UseStepFlowOptions<TStep>) {
   const [step, setStep] = useState<TStep>(initialStep);
   const retimer = useRetimer();
+  const normalizedStep = normalizeStep ? normalizeStep(step) : step;
+  const isInputStep = inputSteps.includes(normalizedStep);
 
   const getStepStatus = useCallback(
     (stepId: TStep): 'completed' | 'active' | 'pending' => {
@@ -38,6 +41,33 @@ export function useStepFlow<TStep extends string>({
       return 'pending';
     },
     [step, inputSteps, normalizeStep],
+  );
+
+  const goBack = useCallback(
+    (fromStep: TStep = step): boolean => {
+      const normalizedFromStep = normalizeStep ? normalizeStep(fromStep) : fromStep;
+
+      if (normalizeStep && normalizedFromStep !== fromStep) {
+        setStep(normalizedFromStep);
+        return true;
+      }
+
+      const currentIndex = inputSteps.indexOf(normalizedFromStep);
+      if (currentIndex > 0) {
+        setStep(inputSteps[currentIndex - 1]);
+        return true;
+      }
+
+      if (currentIndex === 0) return false;
+
+      if (inputSteps.length > 0) {
+        setStep(inputSteps[inputSteps.length - 1]);
+        return true;
+      }
+
+      return false;
+    },
+    [inputSteps, normalizeStep, step],
   );
 
   // Auto-exit on done/error
@@ -57,10 +87,22 @@ export function useStepFlow<TStep extends string>({
     onComplete(step === ('done' as TStep)),
   );
 
+  useInput(
+    (_input, key) => {
+      if (!key.escape) return;
+      const moved = goBack();
+      if (!moved) {
+        onComplete(false);
+      }
+    },
+    { isActive: isInputStep },
+  );
+
   return {
     step,
     setStep,
     getStepStatus,
     retimer,
+    goBack,
   };
 }

@@ -1,6 +1,6 @@
 import { Select, TextInput } from '@inkjs/ui';
 import { Box, Text } from 'ink';
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { ConfirmScreen, CreatingScreen, DoneScreen, ErrorScreen, StepItem } from '../components';
 import { useStepFlow } from '../hooks';
 import { appendFriend, isValidUrl } from '../utils/new-operations';
@@ -44,7 +44,7 @@ export function FriendCreator({ onComplete, showReturnHint = false }: CreatorPro
   const [operationError, setOperationError] = useState('');
 
   // Step flow management
-  const { step, setStep, getStepStatus } = useStepFlow({
+  const { step, setStep, getStepStatus, goBack } = useStepFlow({
     initialStep: 'site' as Step,
     inputSteps: INPUT_STEPS,
     onComplete,
@@ -74,6 +74,12 @@ export function FriendCreator({ onComplete, showReturnHint = false }: CreatorPro
     },
     [site, url, owner, desc, image, color],
   );
+
+  useEffect(() => {
+    if (step) {
+      setInputError((prev) => (prev ? '' : prev));
+    }
+  }, [step]);
 
   const handleSiteSubmit = useCallback(
     (value: string) => {
@@ -194,8 +200,8 @@ export function FriendCreator({ onComplete, showReturnHint = false }: CreatorPro
   }, [site, url, owner, desc, image, color, setStep]);
 
   const handleCancel = useCallback(() => {
-    onComplete(false);
-  }, [onComplete]);
+    goBack('confirm');
+  }, [goBack]);
 
   const renderCurrentInput = () => {
     switch (step) {
@@ -203,7 +209,7 @@ export function FriendCreator({ onComplete, showReturnHint = false }: CreatorPro
         return (
           <Box marginTop={1}>
             <Text dimColor>{'> '}</Text>
-            <TextInput onSubmit={handleSiteSubmit} />
+            <TextInput defaultValue={site} onSubmit={handleSiteSubmit} />
           </Box>
         );
       case 'url':
@@ -211,7 +217,7 @@ export function FriendCreator({ onComplete, showReturnHint = false }: CreatorPro
           <Box flexDirection="column">
             <Box marginTop={1}>
               <Text dimColor>{'> '}</Text>
-              <TextInput defaultValue="https://" onSubmit={handleUrlSubmit} />
+              <TextInput defaultValue={url || 'https://'} onSubmit={handleUrlSubmit} />
             </Box>
             <Text dimColor> 直接输入域名或删除后粘贴完整 URL</Text>
           </Box>
@@ -220,14 +226,14 @@ export function FriendCreator({ onComplete, showReturnHint = false }: CreatorPro
         return (
           <Box marginTop={1}>
             <Text dimColor>{'> '}</Text>
-            <TextInput onSubmit={handleOwnerSubmit} />
+            <TextInput defaultValue={owner} onSubmit={handleOwnerSubmit} />
           </Box>
         );
       case 'desc':
         return (
           <Box marginTop={1}>
             <Text dimColor>{'> '}</Text>
-            <TextInput onSubmit={handleDescSubmit} />
+            <TextInput defaultValue={desc} onSubmit={handleDescSubmit} />
           </Box>
         );
       case 'image':
@@ -235,7 +241,7 @@ export function FriendCreator({ onComplete, showReturnHint = false }: CreatorPro
           <Box flexDirection="column">
             <Box marginTop={1}>
               <Text dimColor>{'> '}</Text>
-              <TextInput defaultValue="https://" onSubmit={handleImageSubmit} />
+              <TextInput defaultValue={image || 'https://'} onSubmit={handleImageSubmit} />
             </Box>
             <Text dimColor> 直接输入路径或删除后粘贴完整 URL</Text>
           </Box>
@@ -247,7 +253,7 @@ export function FriendCreator({ onComplete, showReturnHint = false }: CreatorPro
           <Box flexDirection="column">
             <Box marginTop={1}>
               <Text dimColor>{'> '}</Text>
-              <TextInput onSubmit={handleCustomColorSubmit} />
+              <TextInput defaultValue={color} onSubmit={handleCustomColorSubmit} />
             </Box>
             <Text dimColor> 如: #FF5733</Text>
           </Box>
@@ -291,6 +297,9 @@ export function FriendCreator({ onComplete, showReturnHint = false }: CreatorPro
     return <ErrorScreen title="新建友情链接" error={operationError} showReturnHint={showReturnHint} />;
   }
 
+  const normalizedStep = step === 'color-custom' ? 'color' : step;
+  const showBackHint = INPUT_STEPS.includes(normalizedStep);
+
   return (
     <Box flexDirection="column">
       <Box marginBottom={1}>
@@ -310,6 +319,12 @@ export function FriendCreator({ onComplete, showReturnHint = false }: CreatorPro
           {getStepStatus(config.id) === 'active' && renderCurrentInput()}
         </StepItem>
       ))}
+
+      {showBackHint && (
+        <Box marginTop={1}>
+          <Text dimColor>按 Esc 返回上一步，首步按 Esc 退出</Text>
+        </Box>
+      )}
     </Box>
   );
 }

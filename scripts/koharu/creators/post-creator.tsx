@@ -39,7 +39,7 @@ export function PostCreator({ onComplete, showReturnHint = false }: CreatorProps
   const [categories, setCategories] = useState<CategoryTreeItem[]>([]);
 
   // Step flow management
-  const { step, setStep, getStepStatus } = useStepFlow({
+  const { step, setStep, getStepStatus, goBack } = useStepFlow({
     initialStep: 'title' as Step,
     inputSteps: INPUT_STEPS,
     onComplete,
@@ -50,6 +50,12 @@ export function PostCreator({ onComplete, showReturnHint = false }: CreatorProps
   useEffect(() => {
     getCategoryTree().then(setCategories).catch(console.error);
   }, []);
+
+  useEffect(() => {
+    if (step) {
+      setInputError((prev) => (prev ? '' : prev));
+    }
+  }, [step]);
 
   // Get display value for a completed step
   const getStepDisplayValue = useCallback(
@@ -178,8 +184,8 @@ export function PostCreator({ onComplete, showReturnHint = false }: CreatorProps
   }, [category, slug, title, description, tags, draft, setStep]);
 
   const handleCancel = useCallback(() => {
-    onComplete(false);
-  }, [onComplete]);
+    goBack('confirm');
+  }, [goBack]);
 
   const categoryOptions = categories.map((c) => ({
     label: c.level > 0 ? `  └ ${c.name}` : c.name,
@@ -192,7 +198,7 @@ export function PostCreator({ onComplete, showReturnHint = false }: CreatorProps
         return (
           <Box marginTop={1}>
             <Text dimColor>{'> '}</Text>
-            <TextInput onSubmit={handleTitleSubmit} />
+            <TextInput defaultValue={title} onSubmit={handleTitleSubmit} />
           </Box>
         );
       case 'slug':
@@ -200,7 +206,7 @@ export function PostCreator({ onComplete, showReturnHint = false }: CreatorProps
           <Box flexDirection="column">
             <Box marginTop={1}>
               <Text dimColor>{'> '}</Text>
-              <TextInput defaultValue={autoSlug} onSubmit={handleSlugSubmit} />
+              <TextInput defaultValue={slug || autoSlug} onSubmit={handleSlugSubmit} />
             </Box>
             <Text dimColor> 直接回车使用，清空后回车则不生成 link 字段</Text>
           </Box>
@@ -209,7 +215,7 @@ export function PostCreator({ onComplete, showReturnHint = false }: CreatorProps
         return (
           <Box marginTop={1}>
             <Text dimColor>{'> '}</Text>
-            <TextInput onSubmit={handleDescriptionSubmit} />
+            <TextInput defaultValue={description} onSubmit={handleDescriptionSubmit} />
           </Box>
         );
       case 'category':
@@ -219,7 +225,7 @@ export function PostCreator({ onComplete, showReturnHint = false }: CreatorProps
           <Box flexDirection="column">
             <Box marginTop={1}>
               <Text dimColor>{'> '}</Text>
-              <TextInput onSubmit={handleTagsSubmit} />
+              <TextInput defaultValue={tags.join(', ')} onSubmit={handleTagsSubmit} />
             </Box>
             <Text dimColor> 逗号分隔多个标签，如: 标签1, 标签2</Text>
           </Box>
@@ -273,6 +279,8 @@ export function PostCreator({ onComplete, showReturnHint = false }: CreatorProps
     return <ErrorScreen title="新建博客文章" error={operationError} showReturnHint={showReturnHint} />;
   }
 
+  const showBackHint = INPUT_STEPS.includes(step);
+
   return (
     <Box flexDirection="column">
       <Box marginBottom={1}>
@@ -292,6 +300,12 @@ export function PostCreator({ onComplete, showReturnHint = false }: CreatorProps
           {getStepStatus(config.id) === 'active' && renderCurrentInput()}
         </StepItem>
       ))}
+
+      {showBackHint && (
+        <Box marginTop={1}>
+          <Text dimColor>按 Esc 返回上一步，首步按 Esc 退出</Text>
+        </Box>
+      )}
     </Box>
   );
 }
