@@ -40,6 +40,7 @@ koharu - astro-koharu CLI
   --check                  仅检查更新（不执行）
   --skip-backup            跳过备份步骤
   --force                  跳过确认提示
+  --tag <version>          指定目标版本（如 v2.0.0）
 
 清理选项:
   --keep N                 保留最近 N 个备份，删除其余
@@ -159,6 +160,7 @@ function KoharuApp() {
           checkOnly={args.check}
           skipBackup={args.skipBackup}
           force={args.force}
+          targetTag={args.tag || undefined}
           showReturnHint={fromMenu}
           onComplete={handleComplete}
         />

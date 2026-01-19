@@ -2,9 +2,11 @@ import { execSync, spawn } from 'node:child_process';
 import { PROJECT_ROOT } from '../constants/paths';
 import {
   type CommitInfo,
+  GITHUB_REPO,
   type GitStatusInfo,
   MAIN_BRANCH,
   type MergeResult,
+  type ReleaseInfo,
   UPSTREAM_REMOTE,
   UPSTREAM_URL,
   type UpdateInfo,
@@ -162,9 +164,17 @@ function parseCommits(output: string): CommitInfo[] {
 }
 
 /**
- * 获取更新信息
+ * 规范化版本号为带 v 前缀的格式
  */
-export function getUpdateInfo(): UpdateInfo {
+function normalizeTag(tag: string): string {
+  return tag.startsWith('v') ? tag : `v${tag}`;
+}
+
+/**
+ * 获取更新信息
+ * @param targetTag 可选的目标版本 tag，不指定时更新到 upstream/main
+ */
+export function getUpdateInfo(targetTag?: string): UpdateInfo {
   const hasUpstream = hasUpstreamRemote();
 
   if (!hasUpstream) {
@@ -175,32 +185,54 @@ export function getUpdateInfo(): UpdateInfo {
       commits: [],
       currentVersion: getVersion(),
       latestVersion: 'unknown',
+      isDowngrade: false,
     };
   }
 
+  // 确定目标引用：指定 tag 或 upstream/main
+  const normalizedTag = targetTag ? normalizeTag(targetTag) : null;
+  const targetRef = normalizedTag || `${UPSTREAM_REMOTE}/${MAIN_BRANCH}`;
+
   // Get ahead/behind counts
-  const revList = gitSafe(`rev-list --left-right --count HEAD...${UPSTREAM_REMOTE}/${MAIN_BRANCH}`) || '0\t0';
+  const revList = gitSafe(`rev-list --left-right --count HEAD...${targetRef}`) || '0\t0';
   const [aheadStr, behindStr] = revList.split('\t');
   const aheadCount = Number.parseInt(aheadStr, 10) || 0;
   const behindCount = Number.parseInt(behindStr, 10) || 0;
 
-  // Get new commits from upstream
-  const commitFormat = '%h|%s|%ar|%an';
-  const commitsOutput =
-    gitSafe(`log HEAD..${UPSTREAM_REMOTE}/${MAIN_BRANCH} --pretty=format:"${commitFormat}" --no-merges`) || '';
-  const commits = parseCommits(commitsOutput);
+  // 判断是否为降级操作：指定 tag 且 HEAD 在目标之前（aheadCount > 0, behindCount === 0）
+  const isDowngrade = Boolean(normalizedTag && aheadCount > 0 && behindCount === 0);
 
-  // Try to get latest version from upstream package.json
+  // Get commits
+  const commitFormat = '%h|%s|%ar|%an';
+  let commits: CommitInfo[];
+
+  if (isDowngrade) {
+    // 降级：获取将被移除的 commits（从目标到 HEAD 的 commits）
+    const commitsOutput = gitSafe(`log ${targetRef}..HEAD --pretty=format:"${commitFormat}" --no-merges`) || '';
+    commits = parseCommits(commitsOutput);
+  } else {
+    // 升级：获取新增的 commits（从 HEAD 到目标的 commits）
+    const commitsOutput = gitSafe(`log HEAD..${targetRef} --pretty=format:"${commitFormat}" --no-merges`) || '';
+    commits = parseCommits(commitsOutput);
+  }
+
+  // 获取目标版本号
   let parsedVersion = 'unknown';
-  const packageJsonContent = gitSafe(`show ${UPSTREAM_REMOTE}/${MAIN_BRANCH}:package.json`);
-  if (packageJsonContent) {
-    try {
-      const packageJson = JSON.parse(packageJsonContent);
-      if (packageJson.version) {
-        parsedVersion = packageJson.version;
+  if (normalizedTag) {
+    // 使用 tag 名作为版本号（去掉 v 前缀）
+    parsedVersion = normalizedTag.replace(/^v/, '');
+  } else {
+    // Try to get latest version from upstream package.json
+    const packageJsonContent = gitSafe(`show ${UPSTREAM_REMOTE}/${MAIN_BRANCH}:package.json`);
+    if (packageJsonContent) {
+      try {
+        const packageJson = JSON.parse(packageJsonContent);
+        if (packageJson.version) {
+          parsedVersion = packageJson.version;
+        }
+      } catch {
+        // JSON parse failed, keep 'unknown'
       }
-    } catch {
-      // JSON parse failed, keep 'unknown'
     }
   }
 
@@ -211,21 +243,48 @@ export function getUpdateInfo(): UpdateInfo {
     commits,
     currentVersion: getVersion(),
     latestVersion: parsedVersion,
+    isDowngrade,
   };
 }
 
 /**
- * 执行合并
+ * 执行合并或降级
+ * @param targetTag 可选的目标版本 tag，不指定时合并 upstream/main
+ * @param isDowngrade 是否为降级操作，降级时使用 checkout + commit 保留历史
  */
-export function mergeUpstream(): MergeResult {
+export function mergeUpstream(targetTag?: string, isDowngrade?: boolean): MergeResult {
+  const normalizedTag = targetTag ? normalizeTag(targetTag) : null;
+  const targetRef = normalizedTag || `${UPSTREAM_REMOTE}/${MAIN_BRANCH}`;
+
   try {
-    git(`merge ${UPSTREAM_REMOTE}/${MAIN_BRANCH} --no-edit`);
+    if (isDowngrade && normalizedTag) {
+      // 降级使用 checkout + commit 保留提交历史
+      git(`checkout ${normalizedTag} -- .`);
+      // 检查是否有变化需要提交
+      const status = gitSafe('status --porcelain') || '';
+      if (status.trim().length > 0) {
+        git(`commit -m "Downgrade to ${normalizedTag}"`);
+      }
+    } else {
+      // 升级使用 merge
+      git(`merge ${targetRef} --no-edit`);
+    }
     return {
       success: true,
       hasConflict: false,
       conflictFiles: [],
     };
   } catch (error) {
+    // 降级可能产生冲突（checkout 文件后的 commit 失败等情况）
+    if (isDowngrade) {
+      return {
+        success: false,
+        hasConflict: false,
+        conflictFiles: [],
+        error: error instanceof Error ? error.message : String(error),
+      };
+    }
+
     const conflictFiles = getConflictFiles();
 
     if (conflictFiles.length > 0) {
@@ -314,4 +373,100 @@ export function installDeps(onOutput?: (data: string) => void): Promise<{ succes
       resolve({ success: false, error: err.message });
     });
   });
+}
+
+/**
+ * 检查 tag 是否存在于 upstream remote
+ */
+export function tagExists(tag: string): boolean {
+  const normalizedTag = normalizeTag(tag);
+  return Boolean(gitSafe(`show-ref --verify refs/tags/${normalizedTag}`));
+}
+
+/**
+ * 获取最近的 tags 列表
+ */
+export function listRecentTags(limit = 5): string[] {
+  const output = gitSafe('tag --sort=-creatordate --list "v*"') || '';
+  return output
+    .split('\n')
+    .map((line) => line.trim())
+    .filter((line) => line.length > 0)
+    .slice(0, limit);
+}
+
+/**
+ * 从 GitHub API 获取 Release 信息
+ */
+export async function fetchReleaseInfo(version: string): Promise<ReleaseInfo | null> {
+  const tag = normalizeTag(version);
+  const url = `https://api.github.com/repos/${GITHUB_REPO}/releases/tags/${tag}`;
+
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 3000);
+
+  try {
+    const response = await fetch(url, {
+      signal: controller.signal,
+      headers: {
+        Accept: 'application/vnd.github.v3+json',
+        'User-Agent': 'astro-koharu-cli',
+      },
+    });
+
+    clearTimeout(timeoutId);
+
+    if (!response.ok) {
+      return null;
+    }
+
+    const data = await response.json();
+    return {
+      tagName: data.tag_name,
+      url: data.html_url,
+      body: data.body || null,
+    };
+  } catch {
+    clearTimeout(timeoutId);
+    return null;
+  }
+}
+
+/**
+ * 构建 Release 页面 URL (不依赖 API)
+ */
+export function buildReleaseUrl(version: string): string {
+  const tag = normalizeTag(version);
+  return `https://github.com/${GITHUB_REPO}/releases/tag/${tag}`;
+}
+
+/**
+ * 从 Release body 提取简要内容
+ */
+export function extractReleaseSummary(body: string | null, maxLines = 5, maxChars = 300): string[] {
+  if (!body) return [];
+
+  const lines = body
+    .split('\n')
+    .map((line) => line.trim())
+    // 移除 Markdown 标题标记
+    .map((line) => line.replace(/^#{1,6}\s*/, ''))
+    // 过滤空行和纯标题行
+    .filter((line) => line.length > 0);
+
+  const result: string[] = [];
+  let totalChars = 0;
+
+  for (const line of lines) {
+    if (result.length >= maxLines || totalChars >= maxChars) break;
+    result.push(line);
+    totalChars += line.length;
+  }
+
+  // 如果有截断，添加省略提示
+  if (result.length < lines.length) {
+    result.push('...');
+  }
+
+  return result;
 }

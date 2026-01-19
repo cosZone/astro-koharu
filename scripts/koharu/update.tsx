@@ -1,19 +1,20 @@
 import path from 'node:path';
 import { ConfirmInput, Spinner } from '@inkjs/ui';
 import { Box, Text } from 'ink';
-import { useCallback, useEffect, useReducer } from 'react';
+import { useCallback, useEffect, useReducer, useState } from 'react';
 import { AUTO_EXIT_DELAY } from './constants';
-import type { UpdateOptions } from './constants/update';
+import type { ReleaseInfo, UpdateOptions } from './constants/update';
 import { usePressAnyKey, useRetimer } from './hooks';
 import { runBackup } from './utils/backup-operations';
 import { statusEffects } from './utils/update-effects';
-import { abortMerge } from './utils/update-operations';
+import { abortMerge, buildReleaseUrl, extractReleaseSummary, fetchReleaseInfo } from './utils/update-operations';
 import { createInitialState, updateReducer } from './utils/update-reducer';
 
 interface UpdateAppProps {
   checkOnly?: boolean;
   skipBackup?: boolean;
   force?: boolean;
+  targetTag?: string;
   showReturnHint?: boolean;
   onComplete?: () => void;
 }
@@ -22,13 +23,18 @@ export function UpdateApp({
   checkOnly = false,
   skipBackup = false,
   force = false,
+  targetTag,
   showReturnHint = false,
   onComplete,
 }: UpdateAppProps) {
-  const options: UpdateOptions = { checkOnly, skipBackup, force };
+  const options: UpdateOptions = { checkOnly, skipBackup, force, targetTag };
   const [state, dispatch] = useReducer(updateReducer, options, createInitialState);
 
-  const { status, gitStatus, updateInfo, mergeResult, backupFile, error, options: stateOptions } = state;
+  // Release 信息异步加载
+  const [releaseInfo, setReleaseInfo] = useState<ReleaseInfo | null>(null);
+  const [releaseLoading, setReleaseLoading] = useState(false);
+
+  const { status, gitStatus, updateInfo, mergeResult, backupFile, error, branchWarning, options: stateOptions } = state;
   const retimer = useRetimer();
 
   // 统一完成处理
@@ -51,6 +57,23 @@ export function UpdateApp({
       handleComplete();
     }
   }, [status, stateOptions.checkOnly, handleComplete]);
+
+  // 在 preview 状态异步加载 Release 信息
+  useEffect(() => {
+    if (status === 'preview' && updateInfo?.latestVersion && updateInfo.latestVersion !== 'unknown') {
+      setReleaseLoading(true);
+      fetchReleaseInfo(updateInfo.latestVersion)
+        .then((info) => {
+          setReleaseInfo(info);
+        })
+        .catch(() => {
+          // 静默失败
+        })
+        .finally(() => {
+          setReleaseLoading(false);
+        });
+    }
+  }, [status, updateInfo?.latestVersion]);
 
   // 核心：单一 effect 处理所有副作用
   useEffect(() => {
@@ -187,13 +210,90 @@ export function UpdateApp({
             </Box>
           )}
 
-          <Text bold>发现 {updateInfo.behindCount} 个新提交:</Text>
+          {/* 降级警告 */}
+          {updateInfo.isDowngrade && (
+            <Box marginBottom={1} flexDirection="column">
+              <Text color="yellow" bold>
+                ⚠ 这是一个降级操作，将回退到旧版本
+              </Text>
+              <Text color="yellow">{'  '}降级会覆盖所有主题文件，请确保已备份您的自定义内容</Text>
+              {!backupFile && <Text color="red">{'  '}⚠ 您尚未执行备份！强烈建议先取消并执行备份</Text>}
+            </Box>
+          )}
+
+          {/* 分支警告 */}
+          {branchWarning && (
+            <Box marginBottom={1}>
+              <Text color="yellow">⚠ {branchWarning}</Text>
+            </Box>
+          )}
+
+          {/* 版本信息 */}
+          <Box marginBottom={1}>
+            <Text bold>
+              {updateInfo.isDowngrade ? (
+                <>
+                  回退到版本: <Text color="cyan">v{updateInfo.currentVersion}</Text> →{' '}
+                  <Text color="yellow">v{updateInfo.latestVersion}</Text>
+                </>
+              ) : stateOptions.targetTag ? (
+                <>
+                  更新到指定版本: <Text color="cyan">v{updateInfo.currentVersion}</Text> →{' '}
+                  <Text color="green">v{updateInfo.latestVersion}</Text>
+                </>
+              ) : (
+                <>
+                  发现新版本: <Text color="cyan">v{updateInfo.currentVersion}</Text> →{' '}
+                  <Text color="green">v{updateInfo.latestVersion}</Text>
+                </>
+              )}
+            </Text>
+          </Box>
+
+          {/* Release 信息 (仅升级时显示) */}
+          {!updateInfo.isDowngrade && (
+            <Box marginBottom={1} flexDirection="column">
+              {releaseLoading ? (
+                <Text dimColor>正在获取更新说明...</Text>
+              ) : releaseInfo?.body ? (
+                <>
+                  <Text bold color="magenta">
+                    更新内容:
+                  </Text>
+                  {extractReleaseSummary(releaseInfo.body).map((line, index) => (
+                    // biome-ignore lint/suspicious/noArrayIndexKey: static list from release summary
+                    <Text key={index} dimColor>
+                      {'  '}
+                      {line}
+                    </Text>
+                  ))}
+                </>
+              ) : (
+                <Text dimColor>（无法获取详细更新说明）</Text>
+              )}
+              {updateInfo.latestVersion !== 'unknown' && (
+                <Box marginTop={1}>
+                  <Text>
+                    查看完整说明:{' '}
+                    <Text color="blue" underline>
+                      {buildReleaseUrl(updateInfo.latestVersion)}
+                    </Text>
+                  </Text>
+                </Box>
+              )}
+            </Box>
+          )}
+
+          {/* Commit 列表 */}
+          <Text bold>
+            {updateInfo.isDowngrade ? `将移除 ${updateInfo.aheadCount} 个提交:` : `发现 ${updateInfo.behindCount} 个新提交:`}
+          </Text>
           <Box marginTop={1} flexDirection="column">
             {updateInfo.commits.slice(0, 10).map((commit) => (
               <Text key={commit.hash}>
-                <Text color="yellow">
+                <Text color={updateInfo.isDowngrade ? 'red' : 'yellow'}>
                   {'  '}
-                  {commit.hash}
+                  {updateInfo.isDowngrade ? '-' : '+'} {commit.hash}
                 </Text>
                 <Text> {commit.message}</Text>
                 <Text dimColor> ({commit.date})</Text>
@@ -206,15 +306,22 @@ export function UpdateApp({
             )}
           </Box>
 
-          {updateInfo.aheadCount > 0 && (
+          {/* 仅升级时显示本地领先提示 */}
+          {!updateInfo.isDowngrade && updateInfo.aheadCount > 0 && (
             <Box marginTop={1}>
               <Text color="yellow">提示: 本地比上游模板多 {updateInfo.aheadCount} 个提交</Text>
             </Box>
           )}
 
           {stateOptions.checkOnly ? (
-            <Box marginTop={1}>
-              <Text dimColor>这是检查模式，未执行更新</Text>
+            <Box marginTop={1} flexDirection="column">
+              <Text dimColor>这是检查模式，未执行{updateInfo.isDowngrade ? '回退' : '更新'}</Text>
+              {updateInfo.isDowngrade && (
+                <Box marginTop={1}>
+                  <Text color="yellow">提示: 执行降级前请务必先备份您的博客内容</Text>
+                  <Text dimColor>{'  '}pnpm koharu backup # 执行备份</Text>
+                </Box>
+              )}
               {showReturnHint && (
                 <Box marginTop={1}>
                   <Text dimColor>按任意键返回主菜单...</Text>
@@ -224,7 +331,18 @@ export function UpdateApp({
           ) : (
             !stateOptions.force && (
               <Box marginTop={1} flexDirection="column">
-                <Text>确认更新到最新版本？</Text>
+                {updateInfo.isDowngrade && !backupFile && (
+                  <Box marginBottom={1}>
+                    <Text color="red" bold>
+                      ⚠ 警告: 未备份！降级后需要手动恢复您的博客内容
+                    </Text>
+                  </Box>
+                )}
+                <Text>
+                  {updateInfo.isDowngrade
+                    ? `确认回退到版本 v${updateInfo.latestVersion}？`
+                    : `确认更新到${stateOptions.targetTag ? `版本 v${updateInfo.latestVersion}` : '最新版本'}？`}
+                </Text>
                 <ConfirmInput onConfirm={handleUpdateConfirm} onCancel={handleUpdateCancel} />
               </Box>
             )
@@ -235,7 +353,7 @@ export function UpdateApp({
       {/* Merging */}
       {status === 'merging' && (
         <Box>
-          <Spinner label="正在合并更新..." />
+          <Spinner label={updateInfo?.isDowngrade ? '正在回退版本...' : '正在合并更新...'} />
         </Box>
       )}
 
@@ -250,15 +368,48 @@ export function UpdateApp({
       {status === 'done' && (
         <Box flexDirection="column">
           <Text bold color="green">
-            更新完成
+            {updateInfo?.isDowngrade ? '版本回退完成' : '更新完成'}
           </Text>
+          {updateInfo?.isDowngrade && (
+            <Text>
+              已回退到版本: <Text color="cyan">v{updateInfo.latestVersion}</Text>
+            </Text>
+          )}
           {backupFile && (
             <Text>
               备份文件: <Text color="cyan">{backupFile}</Text>
             </Text>
           )}
+          {/* 升级时显示 Release 链接 */}
+          {!updateInfo?.isDowngrade && updateInfo?.latestVersion && updateInfo.latestVersion !== 'unknown' && (
+            <Box marginTop={1}>
+              <Text>
+                查看更新内容:{' '}
+                <Text color="blue" underline>
+                  {buildReleaseUrl(updateInfo.latestVersion)}
+                </Text>
+              </Text>
+            </Box>
+          )}
+          {/* 降级后的恢复提示 */}
+          {updateInfo?.isDowngrade && (
+            <Box marginTop={1} flexDirection="column">
+              <Text color="yellow" bold>
+                ⚠ 重要: 请立即恢复您的博客内容！
+              </Text>
+              {backupFile ? (
+                <>
+                  <Text>{'  '}执行以下命令恢复备份:</Text>
+                  <Text color="cyan">{'  '}pnpm koharu restore --latest</Text>
+                </>
+              ) : (
+                <Text color="red">{'  '}您未执行备份，请手动恢复 src/content/blog 和 config/site.yaml</Text>
+              )}
+            </Box>
+          )}
           <Box marginTop={1} flexDirection="column">
             <Text dimColor>后续步骤:</Text>
+            {updateInfo?.isDowngrade && backupFile && <Text dimColor>{'  '}pnpm koharu restore --latest # 恢复备份</Text>}
             <Text dimColor>{'  '}pnpm dev # 启动开发服务器测试</Text>
           </Box>
           {showReturnHint && (
@@ -273,10 +424,10 @@ export function UpdateApp({
       {status === 'up-to-date' && (
         <Box flexDirection="column">
           <Text bold color="green">
-            已是最新版本
+            {stateOptions.targetTag ? '已是该版本' : '已是最新版本'}
           </Text>
           <Text>
-            当前版本: <Text color="cyan">{updateInfo?.currentVersion}</Text>
+            当前版本: <Text color="cyan">v{updateInfo?.currentVersion}</Text>
           </Text>
           {showReturnHint && (
             <Box marginTop={1}>

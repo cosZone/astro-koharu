@@ -16,6 +16,7 @@ export interface ParsedArgs {
   // Update command options
   check: boolean;
   skipBackup: boolean;
+  tag: string | null;
 }
 
 /**
@@ -38,6 +39,7 @@ export function parseArgs(argv: string[] = process.argv.slice(2)): ParsedArgs {
     model: null,
     check: false,
     skipBackup: false,
+    tag: null,
   };
 
   for (let i = 0; i < argv.length; i++) {
@@ -67,6 +69,9 @@ export function parseArgs(argv: string[] = process.argv.slice(2)): ParsedArgs {
       args.check = true;
     } else if (arg === '--skip-backup') {
       args.skipBackup = true;
+    } else if (arg === '--tag' && argv[i + 1]) {
+      args.tag = argv[i + 1];
+      i++;
     } else if (!arg.startsWith('--') && !arg.startsWith('-')) {
       if (!args.command) {
         args.command = arg;
