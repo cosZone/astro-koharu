@@ -8,6 +8,7 @@ import { CleanApp } from './koharu/clean.js';
 import { GenerateApp } from './koharu/generate.js';
 import { HelpApp } from './koharu/help.js';
 import { ListApp } from './koharu/list.js';
+import { NewApp } from './koharu/new.js';
 import { RestoreApp } from './koharu/restore.js';
 import { BACKUP_DIR, getBackupList, parseArgs } from './koharu/shared.js';
 import { UpdateApp } from './koharu/update.js';
@@ -27,6 +28,7 @@ koharu - astro-koharu CLI
   pnpm koharu clean        清理旧备份
   pnpm koharu list         查看所有备份
   pnpm koharu generate     生成内容资产
+  pnpm koharu new          新建内容
 
 备份选项:
   --full                   完整备份（包含所有图片和资产）
@@ -40,6 +42,9 @@ koharu - astro-koharu CLI
   --check                  仅检查更新（不执行）
   --skip-backup            跳过备份步骤
   --force                  跳过确认提示
+  --tag <version>          指定目标版本（如 v2.0.0）
+  --rebase                 使用 rebase 模式（重写历史，强制备份）
+  --dry-run                预览 rebase 操作（不实际执行）
 
 清理选项:
   --keep N                 保留最近 N 个备份，删除其余
@@ -52,13 +57,18 @@ koharu - astro-koharu CLI
   --model <name>                    指定 LLM 模型 (用于 summaries)
   --force                           强制重新生成 (用于 summaries)
 
+新建选项:
+  pnpm koharu new                   交互式选择内容类型
+  pnpm koharu new post              新建博客文章
+  pnpm koharu new friend            新建友情链接
+
 通用选项:
   --help, -h               显示帮助信息
 `);
   process.exit(0);
 }
 
-type AppMode = 'menu' | 'backup' | 'restore' | 'update' | 'clean' | 'list' | 'help' | 'generate';
+type AppMode = 'menu' | 'backup' | 'restore' | 'update' | 'clean' | 'list' | 'help' | 'generate' | 'new';
 
 function KoharuApp() {
   const { exit } = useApp();
@@ -73,6 +83,7 @@ function KoharuApp() {
     if (args.command === 'list') return 'list';
     if (args.command === 'help') return 'help';
     if (args.command === 'generate') return 'generate';
+    if (args.command === 'new') return 'new';
     return 'menu';
   });
 
@@ -126,8 +137,9 @@ function KoharuApp() {
         <Box flexDirection="column">
           <Text>请选择操作:</Text>
           <Select
-            visibleOptionCount={8}
+            visibleOptionCount={10}
             options={[
+              { label: '新建 - 创建博客文章或友链', value: 'new' },
               { label: '备份 - 备份博客内容和配置', value: 'backup' },
               { label: '还原 - 从备份恢复', value: 'restore' },
               { label: '更新 - 更新主题', value: 'update' },
@@ -159,6 +171,9 @@ function KoharuApp() {
           checkOnly={args.check}
           skipBackup={args.skipBackup}
           force={args.force}
+          targetTag={args.tag || undefined}
+          rebase={args.rebase}
+          dryRun={args.dryRun}
           showReturnHint={fromMenu}
           onComplete={handleComplete}
         />
@@ -178,6 +193,10 @@ function KoharuApp() {
           showReturnHint={fromMenu}
           onComplete={handleComplete}
         />
+      )}
+
+      {mode === 'new' && (
+        <NewApp initialType={args.newType || undefined} showReturnHint={fromMenu} onComplete={handleComplete} />
       )}
     </Box>
   );

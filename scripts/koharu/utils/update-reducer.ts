@@ -17,33 +17,34 @@ export function updateReducer(state: UpdateState, action: UpdateAction): UpdateS
       if (action.type !== 'GIT_CHECKED') return state;
       const { payload: gitStatus } = action;
 
-      // 分支检查
-      if (gitStatus.currentBranch !== MAIN_BRANCH) {
-        return {
-          ...state,
-          status: 'error',
-          error: `仅支持在 ${MAIN_BRANCH} 分支执行更新，当前分支: ${gitStatus.currentBranch}`,
-        };
-      }
+      // 分支检查 - 非 main 分支仅警告，不阻止更新
+      const branchWarning =
+        gitStatus.currentBranch !== MAIN_BRANCH
+          ? `当前在 ${gitStatus.currentBranch} 分支，建议在 ${MAIN_BRANCH} 分支执行更新`
+          : '';
 
       // 工作区脏检查
       if (!gitStatus.isClean && !options.force) {
-        return { ...state, status: 'dirty-warning', gitStatus };
+        return { ...state, status: 'dirty-warning', gitStatus, branchWarning };
       }
 
-      return { ...state, status: 'fetching', gitStatus };
+      return { ...state, status: 'fetching', gitStatus, branchWarning };
     }
 
     case 'fetching': {
       if (action.type !== 'FETCHED') return state;
       const { payload: updateInfo } = action;
 
-      if (updateInfo.behindCount === 0) {
+      // 升级：behindCount > 0
+      // 降级：isDowngrade && aheadCount > 0
+      const hasChanges = updateInfo.behindCount > 0 || (updateInfo.isDowngrade && updateInfo.aheadCount > 0);
+
+      if (!hasChanges) {
         return { ...state, status: 'up-to-date', updateInfo };
       }
 
-      // 决定下一步：备份确认 or 预览
-      const nextStatus = options.skipBackup || options.force ? 'preview' : 'backup-confirm';
+      // Rebase 模式强制备份（忽略 skipBackup 和 force）
+      const nextStatus = options.rebase ? 'backup-confirm' : options.skipBackup || options.force ? 'preview' : 'backup-confirm';
       return { ...state, status: nextStatus, updateInfo };
     }
 
@@ -114,6 +115,7 @@ export function createInitialState(options: UpdateOptions): UpdateState {
     mergeResult: null,
     backupFile: '',
     error: '',
+    branchWarning: '',
     options,
   };
 }

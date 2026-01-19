@@ -102,6 +102,7 @@ pnpm dev
 
 ```bash
 pnpm koharu              # 交互式主菜单
+pnpm koharu new          # 新建内容（文章/友链）
 pnpm koharu backup       # 备份博客内容和配置
 pnpm koharu restore      # 从备份恢复
 pnpm koharu update       # 更新主题
@@ -109,6 +110,31 @@ pnpm koharu generate     # 生成内容资产 (LQIP, 相似度, AI 摘要)
 pnpm koharu clean        # 清理旧备份
 pnpm koharu list         # 查看所有备份
 ```
+
+### 新建内容
+
+快速创建博客文章和友链：
+
+```bash
+# 交互式选择创建类型
+pnpm koharu new
+
+# 或直接指定类型
+pnpm koharu new post     # 新建博客文章（交互式输入标题、分类、标签等）
+pnpm koharu new friend   # 新建友情链接（自动追加到 config/site.yaml）
+```
+
+**新建文章功能**：
+- 自动生成拼音 slug
+- 选择已有分类
+- 支持多标签
+- 检查文件重复
+- 自动创建 frontmatter
+
+**新建友链功能**：
+- 交互式输入友站信息
+- 自动追加到配置文件
+- 保留 YAML 格式和注释
 
 ### 备份与还原
 
@@ -141,6 +167,15 @@ pnpm koharu update --check
 
 # 跳过备份直接更新
 pnpm koharu update --skip-backup
+
+# 更新到指定版本
+pnpm koharu update --tag v2.1.0
+
+# 使用 rebase 模式（重写历史，强制备份）
+pnpm koharu update --rebase
+
+# 预览 rebase 操作（不实际执行）
+pnpm koharu update --rebase --dry-run
 ```
 
 ### 内容生成

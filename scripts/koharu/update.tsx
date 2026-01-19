@@ -1,19 +1,22 @@
 import path from 'node:path';
 import { ConfirmInput, Spinner } from '@inkjs/ui';
 import { Box, Text } from 'ink';
-import { useCallback, useEffect, useReducer } from 'react';
+import { useCallback, useEffect, useReducer, useState } from 'react';
 import { AUTO_EXIT_DELAY } from './constants';
-import type { UpdateOptions } from './constants/update';
+import type { ReleaseInfo, UpdateOptions } from './constants/update';
 import { usePressAnyKey, useRetimer } from './hooks';
 import { runBackup } from './utils/backup-operations';
 import { statusEffects } from './utils/update-effects';
-import { abortMerge } from './utils/update-operations';
+import { abortMerge, abortRebase, buildReleaseUrl, extractReleaseSummary, fetchReleaseInfo } from './utils/update-operations';
 import { createInitialState, updateReducer } from './utils/update-reducer';
 
 interface UpdateAppProps {
   checkOnly?: boolean;
   skipBackup?: boolean;
   force?: boolean;
+  targetTag?: string;
+  rebase?: boolean;
+  dryRun?: boolean;
   showReturnHint?: boolean;
   onComplete?: () => void;
 }
@@ -22,13 +25,20 @@ export function UpdateApp({
   checkOnly = false,
   skipBackup = false,
   force = false,
+  targetTag,
+  rebase = false,
+  dryRun = false,
   showReturnHint = false,
   onComplete,
 }: UpdateAppProps) {
-  const options: UpdateOptions = { checkOnly, skipBackup, force };
+  const options: UpdateOptions = { checkOnly, skipBackup, force, targetTag, rebase, dryRun };
   const [state, dispatch] = useReducer(updateReducer, options, createInitialState);
 
-  const { status, gitStatus, updateInfo, mergeResult, backupFile, error, options: stateOptions } = state;
+  // Release 信息异步加载
+  const [releaseInfo, setReleaseInfo] = useState<ReleaseInfo | null>(null);
+  const [releaseLoading, setReleaseLoading] = useState(false);
+
+  const { status, gitStatus, updateInfo, mergeResult, backupFile, error, branchWarning, options: stateOptions } = state;
   const retimer = useRetimer();
 
   // 统一完成处理
@@ -45,12 +55,29 @@ export function UpdateApp({
     }
   }, [status, handleComplete]);
 
-  // checkOnly 模式在 preview 状态完成
+  // checkOnly 或 dryRun 模式在 preview 状态完成
   useEffect(() => {
-    if (status === 'preview' && stateOptions.checkOnly) {
+    if (status === 'preview' && (stateOptions.checkOnly || stateOptions.dryRun)) {
       handleComplete();
     }
-  }, [status, stateOptions.checkOnly, handleComplete]);
+  }, [status, stateOptions.checkOnly, stateOptions.dryRun, handleComplete]);
+
+  // 在 preview 状态异步加载 Release 信息
+  useEffect(() => {
+    if (status === 'preview' && updateInfo?.latestVersion && updateInfo.latestVersion !== 'unknown') {
+      setReleaseLoading(true);
+      fetchReleaseInfo(updateInfo.latestVersion)
+        .then((info) => {
+          setReleaseInfo(info);
+        })
+        .catch(() => {
+          // 静默失败
+        })
+        .finally(() => {
+          setReleaseLoading(false);
+        });
+    }
+  }, [status, updateInfo?.latestVersion]);
 
   // 核心：单一 effect 处理所有副作用
   useEffect(() => {
@@ -59,12 +86,12 @@ export function UpdateApp({
     return effect(state, dispatch);
   }, [status, state]);
 
-  // Force 模式自动确认
+  // Force 模式自动确认（checkOnly 和 dryRun 模式除外）
   useEffect(() => {
-    if (status === 'preview' && stateOptions.force && !stateOptions.checkOnly) {
+    if (status === 'preview' && stateOptions.force && !stateOptions.checkOnly && !stateOptions.dryRun) {
       dispatch({ type: 'UPDATE_CONFIRM' });
     }
-  }, [status, stateOptions.force, stateOptions.checkOnly]);
+  }, [status, stateOptions.force, stateOptions.checkOnly, stateOptions.dryRun]);
 
   // 交互处理器
   const handleBackupConfirm = useCallback(() => {
@@ -90,13 +117,22 @@ export function UpdateApp({
     }
   }, [onComplete]);
 
+  const handleAbortRebase = useCallback(() => {
+    const success = abortRebase();
+    if (success) {
+      onComplete?.();
+    } else {
+      dispatch({ type: 'ERROR', error: '无法中止 rebase，请手动执行 git rebase --abort' });
+    }
+  }, [onComplete]);
+
   // 按任意键返回菜单
   usePressAnyKey(
     (status === 'done' ||
       status === 'error' ||
       status === 'up-to-date' ||
       status === 'dirty-warning' ||
-      (status === 'preview' && stateOptions.checkOnly)) &&
+      (status === 'preview' && (stateOptions.checkOnly || stateOptions.dryRun))) &&
       showReturnHint,
     () => {
       onComplete?.();
@@ -152,13 +188,31 @@ export function UpdateApp({
       {/* Backup confirmation */}
       {status === 'backup-confirm' && (
         <Box flexDirection="column">
-          <Text>更新前是否备份当前内容？</Text>
+          {stateOptions.rebase && (
+            <Box marginBottom={1} flexDirection="column">
+              <Text color="yellow" bold>
+                ⚠ Rebase 模式强制要求备份
+              </Text>
+              {stateOptions.skipBackup && (
+                <Text color="yellow" dimColor>
+                  {'  '}（--skip-backup 已被忽略）
+                </Text>
+              )}
+            </Box>
+          )}
+          <Text>{stateOptions.rebase ? '即将执行备份（Rebase 模式必须备份）' : '更新前是否备份当前内容？'}</Text>
           <Box marginTop={1}>
-            <ConfirmInput onConfirm={handleBackupConfirm} onCancel={handleBackupSkip} />
+            {stateOptions.rebase ? (
+              <ConfirmInput onConfirm={handleBackupConfirm} onCancel={handleUpdateCancel} />
+            ) : (
+              <ConfirmInput onConfirm={handleBackupConfirm} onCancel={handleBackupSkip} />
+            )}
           </Box>
-          <Box marginTop={1}>
-            <Text dimColor>提示: 使用 --skip-backup 跳过此提示</Text>
-          </Box>
+          {!stateOptions.rebase && (
+            <Box marginTop={1}>
+              <Text dimColor>提示: 使用 --skip-backup 跳过此提示</Text>
+            </Box>
+          )}
         </Box>
       )}
 
@@ -179,6 +233,15 @@ export function UpdateApp({
       {/* Preview */}
       {status === 'preview' && updateInfo && (
         <Box flexDirection="column">
+          {/* Rebase 模式警告 */}
+          {stateOptions.rebase && (
+            <Box marginBottom={1}>
+              <Text color="red" bold>
+                ⚠ REBASE 模式 - 历史将被重写！
+              </Text>
+            </Box>
+          )}
+
           {backupFile && (
             <Box marginBottom={1}>
               <Text color="green">
@@ -187,13 +250,90 @@ export function UpdateApp({
             </Box>
           )}
 
-          <Text bold>发现 {updateInfo.behindCount} 个新提交:</Text>
+          {/* 降级警告 */}
+          {updateInfo.isDowngrade && !stateOptions.rebase && (
+            <Box marginBottom={1} flexDirection="column">
+              <Text color="yellow" bold>
+                ⚠ 这是一个降级操作，将回退到旧版本
+              </Text>
+              <Text color="yellow">{'  '}降级会覆盖所有主题文件，请确保已备份您的自定义内容</Text>
+              {!backupFile && <Text color="red">{'  '}⚠ 您尚未执行备份！强烈建议先取消并执行备份</Text>}
+            </Box>
+          )}
+
+          {/* 分支警告 */}
+          {branchWarning && (
+            <Box marginBottom={1}>
+              <Text color="yellow">⚠ {branchWarning}</Text>
+            </Box>
+          )}
+
+          {/* 版本信息 */}
+          <Box marginBottom={1}>
+            <Text bold>
+              {updateInfo.isDowngrade ? (
+                <>
+                  回退到版本: <Text color="cyan">v{updateInfo.currentVersion}</Text> →{' '}
+                  <Text color="yellow">v{updateInfo.latestVersion}</Text>
+                </>
+              ) : stateOptions.targetTag ? (
+                <>
+                  更新到指定版本: <Text color="cyan">v{updateInfo.currentVersion}</Text> →{' '}
+                  <Text color="green">v{updateInfo.latestVersion}</Text>
+                </>
+              ) : (
+                <>
+                  发现新版本: <Text color="cyan">v{updateInfo.currentVersion}</Text> →{' '}
+                  <Text color="green">v{updateInfo.latestVersion}</Text>
+                </>
+              )}
+            </Text>
+          </Box>
+
+          {/* Release 信息 (仅升级时显示) */}
+          {!updateInfo.isDowngrade && (
+            <Box marginBottom={1} flexDirection="column">
+              {releaseLoading ? (
+                <Text dimColor>正在获取更新说明...</Text>
+              ) : releaseInfo?.body ? (
+                <>
+                  <Text bold color="magenta">
+                    更新内容:
+                  </Text>
+                  {extractReleaseSummary(releaseInfo.body).map((line, index) => (
+                    // biome-ignore lint/suspicious/noArrayIndexKey: static list from release summary
+                    <Text key={index} dimColor>
+                      {'  '}
+                      {line}
+                    </Text>
+                  ))}
+                </>
+              ) : (
+                <Text dimColor>（无法获取详细更新说明）</Text>
+              )}
+              {updateInfo.latestVersion !== 'unknown' && (
+                <Box marginTop={1}>
+                  <Text>
+                    查看完整说明:{' '}
+                    <Text color="blue" underline>
+                      {buildReleaseUrl(updateInfo.latestVersion)}
+                    </Text>
+                  </Text>
+                </Box>
+              )}
+            </Box>
+          )}
+
+          {/* Commit 列表 */}
+          <Text bold>
+            {updateInfo.isDowngrade ? `将移除 ${updateInfo.aheadCount} 个提交:` : `发现 ${updateInfo.behindCount} 个新提交:`}
+          </Text>
           <Box marginTop={1} flexDirection="column">
             {updateInfo.commits.slice(0, 10).map((commit) => (
               <Text key={commit.hash}>
-                <Text color="yellow">
+                <Text color={updateInfo.isDowngrade ? 'red' : 'yellow'}>
                   {'  '}
-                  {commit.hash}
+                  {updateInfo.isDowngrade ? '-' : '+'} {commit.hash}
                 </Text>
                 <Text> {commit.message}</Text>
                 <Text dimColor> ({commit.date})</Text>
@@ -206,15 +346,54 @@ export function UpdateApp({
             )}
           </Box>
 
-          {updateInfo.aheadCount > 0 && (
+          {/* 仅升级时显示本地领先提示 */}
+          {!updateInfo.isDowngrade && updateInfo.aheadCount > 0 && (
             <Box marginTop={1}>
               <Text color="yellow">提示: 本地比上游模板多 {updateInfo.aheadCount} 个提交</Text>
             </Box>
           )}
 
-          {stateOptions.checkOnly ? (
-            <Box marginTop={1}>
-              <Text dimColor>这是检查模式，未执行更新</Text>
+          {stateOptions.checkOnly || stateOptions.dryRun ? (
+            <Box marginTop={1} flexDirection="column">
+              <Text dimColor>
+                {stateOptions.dryRun
+                  ? '这是 dry-run 模式，未执行实际操作'
+                  : `这是检查模式，未执行${updateInfo.isDowngrade ? '回退' : '更新'}`}
+              </Text>
+              {stateOptions.dryRun && stateOptions.rebase && (
+                <Box marginTop={1} flexDirection="column">
+                  <Text>如果执行 rebase，将会:</Text>
+                  <Text dimColor>{'  '}• 将本地提交重放到目标引用之上</Text>
+                  <Text dimColor>{'  '}• 重写提交历史（commit hash 会改变）</Text>
+                  <Text dimColor>{'  '}• 需要先执行备份</Text>
+                  {updateInfo.localCommits.length > 0 && (
+                    <Box marginTop={1} flexDirection="column">
+                      <Text bold>将被重放的本地提交 ({updateInfo.localCommits.length} 个):</Text>
+                      {updateInfo.localCommits.slice(0, 10).map((commit) => (
+                        <Text key={commit.hash}>
+                          <Text color="cyan">
+                            {'  '}
+                            {commit.hash}
+                          </Text>
+                          <Text> {commit.message}</Text>
+                          <Text dimColor> ({commit.date})</Text>
+                        </Text>
+                      ))}
+                      {updateInfo.localCommits.length > 10 && (
+                        <Text dimColor>
+                          {'  '}... 还有 {updateInfo.localCommits.length - 10} 个提交
+                        </Text>
+                      )}
+                    </Box>
+                  )}
+                </Box>
+              )}
+              {updateInfo.isDowngrade && !stateOptions.dryRun && (
+                <Box marginTop={1}>
+                  <Text color="yellow">提示: 执行降级前请务必先备份您的博客内容</Text>
+                  <Text dimColor>{'  '}pnpm koharu backup # 执行备份</Text>
+                </Box>
+              )}
               {showReturnHint && (
                 <Box marginTop={1}>
                   <Text dimColor>按任意键返回主菜单...</Text>
@@ -224,7 +403,20 @@ export function UpdateApp({
           ) : (
             !stateOptions.force && (
               <Box marginTop={1} flexDirection="column">
-                <Text>确认更新到最新版本？</Text>
+                {updateInfo.isDowngrade && !backupFile && !stateOptions.rebase && (
+                  <Box marginBottom={1}>
+                    <Text color="red" bold>
+                      ⚠ 警告: 未备份！降级后需要手动恢复您的博客内容
+                    </Text>
+                  </Box>
+                )}
+                <Text>
+                  {stateOptions.rebase
+                    ? `确认执行 rebase 到${stateOptions.targetTag ? `版本 v${updateInfo.latestVersion}` : '上游最新'}？（历史将被重写）`
+                    : updateInfo.isDowngrade
+                      ? `确认回退到版本 v${updateInfo.latestVersion}？`
+                      : `确认更新到${stateOptions.targetTag ? `版本 v${updateInfo.latestVersion}` : '最新版本'}？`}
+                </Text>
                 <ConfirmInput onConfirm={handleUpdateConfirm} onCancel={handleUpdateCancel} />
               </Box>
             )
@@ -235,7 +427,9 @@ export function UpdateApp({
       {/* Merging */}
       {status === 'merging' && (
         <Box>
-          <Spinner label="正在合并更新..." />
+          <Spinner
+            label={stateOptions.rebase ? '正在执行 rebase...' : updateInfo?.isDowngrade ? '正在回退版本...' : '正在合并更新...'}
+          />
         </Box>
       )}
 
@@ -250,15 +444,63 @@ export function UpdateApp({
       {status === 'done' && (
         <Box flexDirection="column">
           <Text bold color="green">
-            更新完成
+            {stateOptions.rebase ? 'Rebase 完成' : updateInfo?.isDowngrade ? '版本回退完成' : '更新完成'}
           </Text>
+          {updateInfo?.isDowngrade && !stateOptions.rebase && (
+            <Text>
+              已回退到版本: <Text color="cyan">v{updateInfo.latestVersion}</Text>
+            </Text>
+          )}
           {backupFile && (
             <Text>
               备份文件: <Text color="cyan">{backupFile}</Text>
             </Text>
           )}
+          {/* Rebase 完成后的警告 */}
+          {stateOptions.rebase && (
+            <Box marginTop={1} flexDirection="column">
+              <Text color="yellow" bold>
+                ⚠ 您的提交历史已与上游同步
+              </Text>
+              <Text color="yellow">{'  '}如需恢复，请执行:</Text>
+              <Text color="cyan">{'  '}pnpm koharu restore --latest</Text>
+            </Box>
+          )}
+          {/* 升级时显示 Release 链接 */}
+          {!updateInfo?.isDowngrade &&
+            !stateOptions.rebase &&
+            updateInfo?.latestVersion &&
+            updateInfo.latestVersion !== 'unknown' && (
+              <Box marginTop={1}>
+                <Text>
+                  查看更新内容:{' '}
+                  <Text color="blue" underline>
+                    {buildReleaseUrl(updateInfo.latestVersion)}
+                  </Text>
+                </Text>
+              </Box>
+            )}
+          {/* 降级后的恢复提示 */}
+          {updateInfo?.isDowngrade && !stateOptions.rebase && (
+            <Box marginTop={1} flexDirection="column">
+              <Text color="yellow" bold>
+                ⚠ 重要: 请立即恢复您的博客内容！
+              </Text>
+              {backupFile ? (
+                <>
+                  <Text>{'  '}执行以下命令恢复备份:</Text>
+                  <Text color="cyan">{'  '}pnpm koharu restore --latest</Text>
+                </>
+              ) : (
+                <Text color="red">{'  '}您未执行备份，请手动恢复 src/content/blog 和 config/site.yaml</Text>
+              )}
+            </Box>
+          )}
           <Box marginTop={1} flexDirection="column">
             <Text dimColor>后续步骤:</Text>
+            {(updateInfo?.isDowngrade || stateOptions.rebase) && backupFile && (
+              <Text dimColor>{'  '}pnpm koharu restore --latest # 恢复备份</Text>
+            )}
             <Text dimColor>{'  '}pnpm dev # 启动开发服务器测试</Text>
           </Box>
           {showReturnHint && (
@@ -273,10 +515,10 @@ export function UpdateApp({
       {status === 'up-to-date' && (
         <Box flexDirection="column">
           <Text bold color="green">
-            已是最新版本
+            {stateOptions.targetTag ? '已是该版本' : '已是最新版本'}
           </Text>
           <Text>
-            当前版本: <Text color="cyan">{updateInfo?.currentVersion}</Text>
+            当前版本: <Text color="cyan">v{updateInfo?.currentVersion}</Text>
           </Text>
           {showReturnHint && (
             <Box marginTop={1}>
@@ -290,7 +532,7 @@ export function UpdateApp({
       {status === 'conflict' && mergeResult && (
         <Box flexDirection="column">
           <Text bold color="yellow">
-            发现合并冲突
+            {mergeResult.isRebaseConflict ? '发现 Rebase 冲突' : '发现合并冲突'}
           </Text>
           <Box marginTop={1} flexDirection="column">
             <Text>冲突文件:</Text>
@@ -302,8 +544,17 @@ export function UpdateApp({
           </Box>
           <Box marginTop={1} flexDirection="column">
             <Text>你可以:</Text>
-            <Text dimColor>{'  '}1. 手动解决冲突后运行: git add . && git commit</Text>
-            <Text dimColor>{'  '}2. 中止合并恢复到更新前状态</Text>
+            {mergeResult.isRebaseConflict ? (
+              <>
+                <Text dimColor>{'  '}1. 手动解决冲突后运行: git add . && git rebase --continue</Text>
+                <Text dimColor>{'  '}2. 中止 rebase 恢复到更新前状态</Text>
+              </>
+            ) : (
+              <>
+                <Text dimColor>{'  '}1. 手动解决冲突后运行: git add . && git commit</Text>
+                <Text dimColor>{'  '}2. 中止合并恢复到更新前状态</Text>
+              </>
+            )}
           </Box>
           {backupFile && (
             <Box marginTop={1}>
@@ -313,8 +564,11 @@ export function UpdateApp({
             </Box>
           )}
           <Box marginTop={1} flexDirection="column">
-            <Text>是否中止合并？</Text>
-            <ConfirmInput onConfirm={handleAbortMerge} onCancel={() => onComplete?.()} />
+            <Text>{mergeResult.isRebaseConflict ? '是否中止 rebase？' : '是否中止合并？'}</Text>
+            <ConfirmInput
+              onConfirm={mergeResult.isRebaseConflict ? handleAbortRebase : handleAbortMerge}
+              onCancel={() => onComplete?.()}
+            />
           </Box>
         </Box>
       )}

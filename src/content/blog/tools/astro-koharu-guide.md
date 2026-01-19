@@ -117,45 +117,45 @@ featuredCategories:
 
 ```yaml
 featuredSeries:
-  - slug: weekly              # URL 路径: /weekly（必填，作为页面路由）
-    categoryName: 周刊        # 分类名称（用于匹配文章）
-    label: FE Bits            # 显示标签
-    fullName: FE Bits 前端周周谈  # 完整名称
-    description: |            # 描述（支持多行）
+  - slug: weekly # URL 路径: /weekly（必填，作为页面路由）
+    categoryName: 周刊 # 分类名称（用于匹配文章）
+    label: FE Bits # 显示标签
+    fullName: FE Bits 前端周周谈 # 完整名称
+    description: | # 描述（支持多行）
       之前在自己的频道进行一些输出，于是有了这个周刊！
       更新时间期望是在每周天
-    cover: /img/weekly_header.webp  # 封面图
-    enabled: true             # 是否启用
-    icon: ri:newspaper-line   # 导航图标（可选）
-    highlightOnHome: true     # 是否在首页高亮最新文章（可选，默认 true）
-    links:                    # 相关链接
+    cover: /img/weekly_header.webp # 封面图
+    enabled: true # 是否启用
+    icon: ri:newspaper-line # 导航图标（可选）
+    highlightOnHome: true # 是否在首页高亮最新文章（可选，默认 true）
+    links: # 相关链接
       github: https://github.com/your-username/your-repo
       rss: /rss.xml
 
-  - slug: reading             # URL 路径: /reading
+  - slug: reading # URL 路径: /reading
     categoryName: 书摘
     label: 读书笔记
     fullName: 我的读书笔记
     description: 读书摘录与感悟
     cover: /img/reading_header.webp
     enabled: true
-    highlightOnHome: false    # 此系列不在首页高亮
+    highlightOnHome: false # 此系列不在首页高亮
 ```
 
 **字段说明：**
 
-| 字段 | 必填 | 说明 |
-|------|------|------|
-| `slug` | ✅ | URL 路径，如 `weekly` 对应 `/weekly` |
-| `categoryName` | ✅ | 分类名称，用于匹配文章 |
-| `label` | ❌ | 显示标签（默认使用 categoryName） |
-| `enabled` | ❌ | 是否启用此系列（默认 true） |
-| `fullName` | ❌ | 完整名称（用于页面标题） |
-| `description` | ❌ | 系列描述 |
-| `cover` | ❌ | 封面图片路径 |
-| `icon` | ❌ | 导航图标（Iconify 格式） |
-| `highlightOnHome` | ❌ | 是否在首页高亮最新文章（默认 true） |
-| `links` | ❌ | 相关链接（github、rss 等） |
+| 字段              | 必填 | 说明                                 |
+| ----------------- | ---- | ------------------------------------ |
+| `slug`            | ✅   | URL 路径，如 `weekly` 对应 `/weekly` |
+| `categoryName`    | ✅   | 分类名称，用于匹配文章               |
+| `label`           | ❌   | 显示标签（默认使用 categoryName）    |
+| `enabled`         | ❌   | 是否启用此系列（默认 true）          |
+| `fullName`        | ❌   | 完整名称（用于页面标题）             |
+| `description`     | ❌   | 系列描述                             |
+| `cover`           | ❌   | 封面图片路径                         |
+| `icon`            | ❌   | 导航图标（Iconify 格式）             |
+| `highlightOnHome` | ❌   | 是否在首页高亮最新文章（默认 true）  |
+| `links`           | ❌   | 相关链接（github、rss 等）           |
 
 ### 社交媒体配置
 
@@ -194,10 +194,10 @@ navigation:
     path: /
     icon: fa6-solid:house-chimney
   - name: 周刊
-    path: /weekly            # 对应 featuredSeries 中 slug: weekly 的系列
+    path: /weekly # 对应 featuredSeries 中 slug: weekly 的系列
     icon: ri:newspaper-line
   - name: 读书笔记
-    path: /reading           # 对应 featuredSeries 中 slug: reading 的系列
+    path: /reading # 对应 featuredSeries 中 slug: reading 的系列
     icon: ri:book-open-line
   - name: 文章
     icon: ri:quill-pen-ai-fill
@@ -235,8 +235,8 @@ categoryMap:
   随笔: life
   笔记: note
   工具: tools
-  周刊: weekly      # 用于分类页面 /categories/weekly
-  书摘: reading     # 用于分类页面 /categories/reading
+  周刊: weekly # 用于分类页面 /categories/weekly
+  书摘: reading # 用于分类页面 /categories/reading
   # Secondary categories (for nested paths)
   前端: front-end
   # Add more as needed:
@@ -251,6 +251,18 @@ categoryMap:
 ## 文章系统
 
 ### 创建文章
+
+**方式一：使用 Koharu CLI（推荐）**
+
+使用交互式 CLI 工具快速创建文章：
+
+```bash
+pnpm koharu new post
+```
+
+CLI 工具会引导你输入标题、分类、标签等信息，自动生成 frontmatter 和 markdown 文件。
+
+**方式二：手动创建**
 
 在 `src/content/blog/` 目录下创建 Markdown 文件。目录结构会影响文章的分类：
 
@@ -397,8 +409,8 @@ sticky: true
 ---
 title: FE Bits Vol.16
 categories:
-  - 周刊  # 对应某个 featuredSeries 的 categoryName
-excludeFromSummary: true  # 可选：排除 AI 摘要生成
+  - 周刊 # 对应某个 featuredSeries 的 categoryName
+excludeFromSummary: true # 可选：排除 AI 摘要生成
 ---
 ```
 
@@ -406,7 +418,7 @@ excludeFromSummary: true  # 可选：排除 AI 摘要生成
 ---
 title: 《代码大全》读书笔记
 categories:
-  - 书摘  # 对应另一个 featuredSeries 的 categoryName
+  - 书摘 # 对应另一个 featuredSeries 的 categoryName
 ---
 ```
 
@@ -546,11 +558,11 @@ tocNumbering: false # 关闭目录编号（默认为 true）
 featuredSeries:
   - slug: weekly
     categoryName: 周刊
-    highlightOnHome: true   # 首页展示最新周刊
+    highlightOnHome: true # 首页展示最新周刊
     # ...
   - slug: reading
     categoryName: 书摘
-    highlightOnHome: false  # 不在首页展示
+    highlightOnHome: false # 不在首页展示
     # ...
 ```
 
@@ -679,7 +691,7 @@ pnpm generate:similarities
 ```yaml
 ---
 title: 周刊第 1 期
-excludeFromSummary: true  # 排除此文章的相似度计算和 AI 摘要生成
+excludeFromSummary: true # 排除此文章的相似度计算和 AI 摘要生成
 ---
 ```
 
@@ -1295,9 +1307,12 @@ pnpm knip             # 查找未使用的文件和依赖
 
 # Koharu CLI
 pnpm koharu                   # 交互式主菜单
+pnpm koharu new               # 新建内容（交互式选择）
+pnpm koharu new post          # 新建博客文章
+pnpm koharu new friend        # 新建友情链接
 pnpm koharu backup            # 备份博客内容（--full 完整备份）
 pnpm koharu restore           # 还原备份（--latest, --dry-run）
-pnpm koharu update            # 更新主题（--check, --skip-backup, --force）
+pnpm koharu update            # 更新主题（--check, --skip-backup, --force, --tag, --rebase, --dry-run）
 pnpm koharu generate          # 生成内容资产（交互式选择）
 pnpm koharu generate lqips    # 生成 LQIP 占位符
 pnpm koharu generate similarities  # 生成相似度向量
@@ -1404,12 +1419,68 @@ Docker 端口可在 `.env` 中配置 `BLOG_PORT=4321`。
 
 ### Koharu CLI
 
-博客自带交互式命令行工具，提供备份还原、主题更新、内容生成等功能。
+博客自带交互式命令行工具，提供备份还原、主题更新、内容生成、新建内容等功能。
 
 **启动方式：**
 
 ```bash
 pnpm koharu              # 交互式主菜单
+```
+
+#### 新建内容
+
+使用 CLI 快速创建博客文章和友链：
+
+```bash
+# 交互式选择创建类型（文章或友链）
+pnpm koharu new
+
+# 或直接指定类型
+pnpm koharu new post     # 新建博客文章
+pnpm koharu new friend   # 新建友情链接
+```
+
+**新建博客文章功能：**
+
+- 交互式输入文章信息：
+  - **标题** - 文章标题（必填）
+  - **Slug** - 自定义 URL（可选，默认根据标题自动生成拼音）
+  - **描述** - 文章摘要（可选）
+  - **分类** - 从已有分类中选择（必选）
+  - **标签** - 添加标签，逗号分隔（可选）
+  - **草稿** - 是否保存为草稿（默认否）
+- 自动生成 frontmatter（包含 title、date、categories、tags 等）
+- 检查文件是否已存在，避免覆盖
+- 文章保存在对应的分类目录下（如 `src/content/blog/note/front-end/my-post.md`）
+
+**新建友情链接功能：**
+
+- 交互式输入友链信息：
+  - **站点名称** - 友站的名称（必填）
+  - **站点 URL** - 友站的链接（必填，需完整 URL）
+  - **站长昵称** - 友站站长的昵称（必填）
+  - **站点描述** - 友站的简介（必填）
+  - **头像 URL** - 友站的头像链接（必填）
+  - **主题色** - 友站的主题色（可选，可选择预设颜色或自定义十六进制）
+- 自动追加到 `config/site.yaml` 的 `friends.data` 数组
+- 保留 YAML 文件的格式和注释
+
+**使用示例：**
+
+```bash
+# 创建新文章
+pnpm koharu new post
+# 按提示输入：
+# 标题: React Hooks 使用指南
+# Slug: (自动生成 react-hooks-shi-yong-zhi-nan，可修改或清空)
+# 描述: React Hooks 的完整使用教程
+# 分类: 选择"笔记 → 前端"
+# 标签: React, Hooks, 教程
+# 草稿: 否
+
+# 创建友链
+pnpm koharu new friend
+# 按提示输入友站信息
 ```
 
 #### 备份与还原
@@ -1457,7 +1528,46 @@ pnpm koharu update --skip-backup
 
 # 强制模式（跳过工作区检查和确认）
 pnpm koharu update --force
+
+# 更新到指定版本（如 v2.1.0）
+pnpm koharu update --tag v2.1.0
+
+# 使用 rebase 模式（重写历史，完全同步上游）
+pnpm koharu update --rebase
+
+# 组合使用：rebase 到指定版本
+pnpm koharu update --rebase --tag v2.1.0
+
+# 预览 rebase 操作（不实际执行）
+pnpm koharu update --rebase --dry-run
 ```
+
+**选项说明：**
+
+| 选项            | 说明                                              |
+| --------------- | ------------------------------------------------- |
+| `--check`       | 仅检查更新，不执行合并                            |
+| `--skip-backup` | 跳过备份步骤                                      |
+| `--force`       | 强制模式，跳过工作区检查和确认                    |
+| `--tag`         | 指定目标版本（如 `v2.1.0`），支持升级和降级       |
+| `--rebase`      | Rebase 模式，重写历史完全同步上游（强制要求备份） |
+| `--dry-run`     | 预览 rebase 操作，不实际执行（仅 rebase 模式）    |
+
+**关于 Rebase 模式：**
+
+Rebase 模式适用于需要完全同步上游历史的场景，执行 `git rebase upstream/main`（或指定的 tag），将本地提交重放到目标引用之上。
+
+⚠️ **注意**：Rebase 模式会重写 Git 历史，请确保已备份重要内容。CLI 会在 rebase 模式下强制要求备份（忽略 `--skip-backup` 和 `--force`）。
+
+**使用 `--dry-run` 预览：**
+
+在执行 rebase 前，可以使用 `--dry-run` 预览操作效果：
+
+```bash
+pnpm koharu update --rebase --dry-run
+```
+
+这会显示将要进行的操作，但不会实际执行 rebase，方便你了解 rebase 会如何影响本地提交。
 
 **更新流程说明：**
 
@@ -1874,7 +1984,7 @@ comment:
   ```yaml
   featuredSeries:
     - slug: weekly
-      enabled: false  # 禁用此系列
+      enabled: false # 禁用此系列
       # ...
   ```
 - **关闭所有系列**：将 `featuredSeries` 设为空数组 `[]`

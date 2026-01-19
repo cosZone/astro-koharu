@@ -8,11 +8,11 @@ import { defineConfig } from 'astro/config';
 import icon from 'astro-icon';
 import mermaid from 'astro-mermaid';
 import pagefind from 'astro-pagefind';
-import jsYaml from 'js-yaml';
 import rehypeAutolinkHeadings from 'rehype-autolink-headings';
 import rehypeSlug from 'rehype-slug';
 import { visualizer } from 'rollup-plugin-visualizer';
 import svgr from 'vite-plugin-svgr';
+import YAML from 'yaml';
 import { rehypeImagePlaceholder } from './src/lib/markdown/rehype-image-placeholder.ts';
 import { remarkLinkEmbed } from './src/lib/markdown/remark-link-embed.ts';
 import { normalizeUrl } from './src/lib/utils.ts';
@@ -22,7 +22,7 @@ import { normalizeUrl } from './src/lib/utils.ts';
 function loadConfigForAstro() {
   const configPath = path.join(process.cwd(), 'config', 'site.yaml');
   const content = fs.readFileSync(configPath, 'utf8');
-  return jsYaml.load(content);
+  return YAML.parse(content);
 }
 
 const yamlConfig = loadConfigForAstro();

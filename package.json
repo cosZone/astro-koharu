@@ -27,7 +27,6 @@
   },
   "dependencies": {
     "@antv/infographic": "^0.2.4",
-    "@astrojs/check": "^0.9.6",
     "@astrojs/react": "^4.4.2",
     "@astrojs/rss": "^4.0.14",
     "@floating-ui/react": "^0.27.16",
@@ -85,6 +84,7 @@
     "unist-util-visit": "^5.0.0"
   },
   "devDependencies": {
+    "@astrojs/check": "^0.9.6",
     "@biomejs/biome": "^2.3.10",
     "@huggingface/transformers": "^3.8.1",
     "@iconify/react": "^5.2.1",
@@ -94,7 +94,6 @@
     "@tailwindcss/container-queries": "^0.1.1",
     "@tailwindcss/typography": "^0.5.19",
     "@types/hast": "^3.0.4",
-    "@types/js-yaml": "^4.0.9",
     "@types/mdast": "^4.0.4",
     "@types/node": "^24.10.1",
     "@types/sanitize-html": "^2.16.0",
@@ -106,9 +105,9 @@
     "gray-matter": "^4.0.3",
     "husky": "^9.1.7",
     "ink": "^6.6.0",
-    "js-yaml": "^4.1.1",
     "knip": "^5.71.0",
     "lint-staged": "^15.5.2",
+    "pinyin-pro": "^3.28.0",
     "remark": "^15.0.1",
     "rollup-plugin-visualizer": "^6.0.5",
     "sharp": "^0.34.5",
@@ -116,7 +115,8 @@
     "tsx": "^4.21.0",
     "typescript": "^5.9.3",
     "vite": "^7.3.1",
-    "vite-plugin-svgr": "^4.5.0"
+    "vite-plugin-svgr": "^4.5.0",
+    "yaml": "^2.8.2"
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx,json,astro}": [

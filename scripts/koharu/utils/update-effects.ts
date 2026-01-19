@@ -7,7 +7,9 @@ import {
   getUpdateInfo,
   hasUpstreamTrackingRef,
   installDeps,
+  listRecentTags,
   mergeUpstream,
+  tagExists,
 } from './update-operations';
 
 /** Effect 函数类型：接收当前状态和 dispatch，可返回 cleanup 函数 */
@@ -69,7 +71,19 @@ export const statusEffects: Partial<Record<UpdateStatus, EffectFn>> = {
           return undefined;
         }
       }
-      const info = getUpdateInfo();
+
+      // 如果指定了 targetTag，验证其存在性
+      if (state.options.targetTag && !tagExists(state.options.targetTag)) {
+        const recentTags = listRecentTags(5);
+        const tagsHint = recentTags.length > 0 ? `\n可用的版本: ${recentTags.join(', ')}` : '';
+        dispatch({
+          type: 'ERROR',
+          error: `Tag "${state.options.targetTag}" 不存在${tagsHint}`,
+        });
+        return undefined;
+      }
+
+      const info = getUpdateInfo(state.options.targetTag);
       dispatch({ type: 'FETCHED', payload: info });
     } catch (err) {
       dispatch({ type: 'ERROR', error: err instanceof Error ? err.message : String(err) });
@@ -77,8 +91,12 @@ export const statusEffects: Partial<Record<UpdateStatus, EffectFn>> = {
     return undefined;
   },
 
-  merging: (_state, dispatch) => {
-    const result = mergeUpstream();
+  merging: (state, dispatch) => {
+    const result = mergeUpstream({
+      targetTag: state.options.targetTag,
+      isDowngrade: state.updateInfo?.isDowngrade,
+      rebase: state.options.rebase,
+    });
     dispatch({ type: 'MERGED', payload: result });
     return undefined;
   },

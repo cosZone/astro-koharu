@@ -4,6 +4,9 @@ export const UPSTREAM_REMOTE = 'upstream';
 /** Upstream 仓库 URL */
 export const UPSTREAM_URL = 'https://github.com/cosZone/astro-koharu.git';
 
+/** GitHub 仓库路径 (用于 API 调用) */
+export const GITHUB_REPO = 'cosZone/astro-koharu';
+
 /** 主分支名称 */
 export const MAIN_BRANCH = 'main';
 
@@ -35,12 +38,16 @@ export interface UpdateInfo {
   behindCount: number;
   /** 本地领先于 upstream 的提交数 */
   aheadCount: number;
-  /** 新提交列表 */
+  /** 新提交列表（升级时为新增提交，降级时为将移除的提交） */
   commits: CommitInfo[];
+  /** 本地领先的提交列表（rebase 时将被重放的提交） */
+  localCommits: CommitInfo[];
   /** 当前版本 */
   currentVersion: string;
-  /** 最新版本 */
+  /** 最新版本（或目标版本） */
   latestVersion: string;
+  /** 是否为降级操作 */
+  isDowngrade: boolean;
 }
 
 /** 合并结果 */
@@ -52,6 +59,18 @@ export interface MergeResult {
   conflictFiles: string[];
   /** 错误信息 */
   error?: string;
+  /** 是否为 rebase 冲突 */
+  isRebaseConflict?: boolean;
+}
+
+/** GitHub Release 信息 */
+export interface ReleaseInfo {
+  /** Tag 名称，如 "v2.2.0" */
+  tagName: string;
+  /** Release 页面 URL */
+  url: string;
+  /** Release Notes (Markdown) */
+  body: string | null;
 }
 
 // ============ 状态机类型 ============
@@ -76,6 +95,12 @@ export interface UpdateOptions {
   checkOnly: boolean;
   skipBackup: boolean;
   force: boolean;
+  /** 指定更新到的目标版本 tag (如 "v2.1.0" 或 "2.1.0") */
+  targetTag?: string;
+  /** 使用 rebase 模式（重写历史） */
+  rebase: boolean;
+  /** 预览操作（不实际执行），仅在 rebase 模式下有效 */
+  dryRun: boolean;
 }
 
 /** 状态机 State */
@@ -86,6 +111,8 @@ export interface UpdateState {
   mergeResult: MergeResult | null;
   backupFile: string;
   error: string;
+  /** 非 main 分支警告信息 */
+  branchWarning: string;
   options: UpdateOptions;
 }
 

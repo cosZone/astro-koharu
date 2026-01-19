@@ -11,9 +11,6 @@ importers:
       '@antv/infographic':
         specifier: ^0.2.4
         version: 0.2.4
-      '@astrojs/check':
-        specifier: ^0.9.6
-        version: 0.9.6(prettier-plugin-astro@0.14.1)(prettier@3.7.4)(typescript@5.9.3)
       '@astrojs/react':
         specifier: ^4.4.2
         version: 4.4.2(@types/node@24.10.1)(@types/react-dom@19.2.3(@types/react@19.2.7))(@types/react@19.2.7)(jiti@2.6.1)(lightningcss@1.30.2)(react-dom@19.2.1(react@19.2.1))(react@19.2.1)(terser@5.37.0)(tsx@4.21.0)(yaml@2.8.2)
@@ -180,6 +177,9 @@ importers:
         specifier: ^5.0.0
         version: 5.0.0
     devDependencies:
+      '@astrojs/check':
+        specifier: ^0.9.6
+        version: 0.9.6(prettier-plugin-astro@0.14.1)(prettier@3.7.4)(typescript@5.9.3)
       '@biomejs/biome':
         specifier: ^2.3.10
         version: 2.3.10
@@ -207,9 +207,6 @@ importers:
       '@types/hast':
         specifier: ^3.0.4
         version: 3.0.4
-      '@types/js-yaml':
-        specifier: ^4.0.9
-        version: 4.0.9
       '@types/mdast':
         specifier: ^4.0.4
         version: 4.0.4
@@ -243,15 +240,15 @@ importers:
       ink:
         specifier: ^6.6.0
         version: 6.6.0(@types/react@19.2.7)(react@19.2.1)
-      js-yaml:
-        specifier: ^4.1.1
-        version: 4.1.1
       knip:
         specifier: ^5.71.0
         version: 5.71.0(@types/node@24.10.1)(typescript@5.9.3)
       lint-staged:
         specifier: ^15.5.2
         version: 15.5.2
+      pinyin-pro:
+        specifier: ^3.28.0
+        version: 3.28.0
       remark:
         specifier: ^15.0.1
         version: 15.0.1
@@ -276,6 +273,9 @@ importers:
       vite-plugin-svgr:
         specifier: ^4.5.0
         version: 4.5.0(rollup@4.53.3)(typescript@5.9.3)(vite@7.3.1(@types/node@24.10.1)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.37.0)(tsx@4.21.0)(yaml@2.8.2))
+      yaml:
+        specifier: ^2.8.2
+        version: 2.8.2
 
 packages:
 
@@ -2220,9 +2220,6 @@ packages:
 
   '@types/http-cache-semantics@4.0.4':
     resolution: {integrity: sha512-1m0bIFVc7eJWyve9S0RnuRgcQqF/Xd5QsUZAZeQFr1Q3/p9JWoQQEqmVy+DPTNpGXwhgIetAoYF8JSc33q29QA==}
-
-  '@types/js-yaml@4.0.9':
-    resolution: {integrity: sha512-k4MGaQl5TGo/iipqb2UDG2UwjXziSWkh0uysQelTlJpX1qGlpUZYm8PnO4DxG1qBomtJUdYJ6qR6xdIah10JLg==}
 
   '@types/json-schema@7.0.15':
     resolution: {integrity: sha512-5+fP8P8MFNC+AyZCDxrB2pkZFPGzqQWUzpSeuuVLvm8VMcorNYavBqoFcxK8bQz4Qsbn4oUEEem4wDLfcysGHA==}
@@ -5512,6 +5509,9 @@ packages:
     resolution: {integrity: sha512-eG2dWTVw5bzqGRztnHExczNxt5VGsE6OwTeCG3fdUf9KBsZzO3R5OIIIzWR+iZA0NtZ+RDVdaoE2dK1cn6jH4g==}
     engines: {node: '>=0.10'}
     hasBin: true
+
+  pinyin-pro@3.28.0:
+    resolution: {integrity: sha512-mMRty6RisoyYNphJrTo3pnvp3w8OMZBrXm9YSWkxhAfxKj1KZk2y8T2PDIZlDDRsvZ0No+Hz6FI4sZpA6Ey25g==}
 
   piscina@3.2.0:
     resolution: {integrity: sha512-yn/jMdHRw+q2ZJhFhyqsmANcbF6V2QwmD84c6xRau+QpQOmtrBCoRGdvTfeuFDYXB5W2m6MfLkjkvQa9lUSmIA==}
@@ -8958,8 +8958,6 @@ snapshots:
       '@types/unist': 3.0.3
 
   '@types/http-cache-semantics@4.0.4': {}
-
-  '@types/js-yaml@4.0.9': {}
 
   '@types/json-schema@7.0.15': {}
 
@@ -13265,6 +13263,8 @@ snapshots:
   picomatch@4.0.3: {}
 
   pidtree@0.6.0: {}
+
+  pinyin-pro@3.28.0: {}
 
   piscina@3.2.0:
     dependencies:
