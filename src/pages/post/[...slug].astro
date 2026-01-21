@@ -9,6 +9,7 @@ import { siteConfig } from '@constants/site-config';
 import Layout from '@layouts/Layout.astro';
 import TwoColumnLayout from '@layouts/TwoColumnLayout.astro';
 import { buildCategoryPath, getCategoryArr, getPostDescription, getPostSummary, getSortedPosts } from '@lib/content';
+import { encodeSlug } from '@lib/route';
 import { Icon } from 'astro-icon/components';
 import { formatInTimeZone } from 'date-fns-tz';
 import { Comment } from '@/components/comment';
@@ -20,7 +21,7 @@ export async function getStaticPaths() {
   return postCollections.map((post) => {
     const link = post.data?.link ?? post.slug;
     return {
-      params: { slug: link },
+      params: { slug: encodeSlug(link) },
       props: { post },
     };
   });

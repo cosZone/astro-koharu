@@ -1,7 +1,7 @@
 {
   "name": "astro-koharu",
   "type": "module",
-  "version": "2.3.3",
+  "version": "2.3.4",
   "scripts": {
     "dev": "astro dev",
     "generate:lqips": "npx tsx src/scripts/generateLqips.ts",

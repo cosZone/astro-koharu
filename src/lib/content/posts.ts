@@ -342,6 +342,7 @@ export async function getHomePagePosts(): Promise<{
 }> {
   const allPosts = await getSortedPosts();
   const highlightedSeries = getEnabledSeries().filter((series) => series.highlightOnHome !== false);
+  const categoryNames = getFeaturedCategoryNames();
 
   // 用于追踪每个高亮系列的最新文章
   const seriesLatestMap = new Map<string, BlogPost>();
@@ -351,21 +352,20 @@ export async function getHomePagePosts(): Promise<{
 
   // 单次遍历所有文章
   for (const post of allPosts) {
-    let isHighlighted = false;
+    // 检查是否属于任何 featured 系列
+    const isFeatured = categoryNames.some((catName) => isPostInCategory(post, catName));
 
-    // 检查是否属于高亮系列，并记录最新文章
-    for (const series of highlightedSeries) {
-      if (isPostInCategory(post, series.categoryName)) {
-        if (!seriesLatestMap.has(series.categoryName)) {
-          seriesLatestMap.set(series.categoryName, post);
-          isHighlighted = true; // 这篇文章会被高亮显示
+    if (isFeatured) {
+      // 检查是否属于高亮系列，并记录最新文章
+      for (const series of highlightedSeries) {
+        if (isPostInCategory(post, series.categoryName)) {
+          if (!seriesLatestMap.has(series.categoryName)) {
+            seriesLatestMap.set(series.categoryName, post);
+          }
+          break;
         }
-        break;
       }
-    }
-
-    // 只有被高亮的文章不重复加入列表，其他文章正常分类
-    if (isHighlighted) {
+      // 跳过所有 featured 系列文章，不加入普通列表
       continue;
     }
 
