@@ -125,6 +125,13 @@ const isPostPage = Astro.url.pathname.startsWith('/post/');
       })();
     </script>
     <script>
+      // CMS edit mode initialization
+      import { initCmsState } from '@/store/cms';
+
+      if (document.readyState !== 'loading') initCmsState();
+      document.addEventListener('astro:page-load', initCmsState);
+    </script>
+    <script>
       // CodePen embed initialization for Astro page transitions
       // https://blog.codepen.io/documentation/embedded-pens/
 

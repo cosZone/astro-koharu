@@ -423,6 +423,34 @@ export interface ChristmasConfig {
 }
 
 // =============================================================================
+// CMS Configuration (Backend-less Local Editor Integration)
+// =============================================================================
+
+export interface EditorConfig {
+  /** Unique identifier for the editor */
+  id: string;
+  /** Display name */
+  name: string;
+  /** Iconify icon identifier (e.g., 'ri:vscode-line') */
+  icon: string;
+  /** URL template with placeholders: {path}, {line}, {column} */
+  urlTemplate: string;
+  /** Whether this is the default editor */
+  default?: boolean;
+}
+
+export interface CMSConfig {
+  /** Whether CMS features are enabled */
+  enabled: boolean;
+  /** Absolute path to the local project directory */
+  localProjectPath: string;
+  /** Relative path from project root to content directory (default: 'src/content/blog') */
+  contentRelativePath?: string;
+  /** List of configured editors */
+  editors: EditorConfig[];
+}
+
+// =============================================================================
 // Root Configuration Type
 // =============================================================================
 
@@ -440,4 +468,6 @@ export interface SiteYamlConfig {
   analytics?: AnalyticsConfig;
   categoryMap?: Record<string, string>; // TODO: i18n, now use eg: { '随笔': 'life' }
   christmas?: ChristmasConfig;
+  /** CMS configuration for local editor integration */
+  cms?: CMSConfig;
 }
