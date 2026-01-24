@@ -59,6 +59,17 @@
     background: hsl(var(--primary) / 0.5); /* thumb color */
     border-radius: 0.5rem;
   }
+
+  .horizontal-scrollbar::-webkit-scrollbar {
+    display: block;
+    height: var(--scrollbar-width, 0.5rem);
+    background: hsl(var(--background)); /* background color */
+  }
+
+  .horizontal-scrollbar::-webkit-scrollbar-thumb {
+    background: hsl(var(--primary) / 0.5); /* thumb color */
+    border-radius: 0.5rem;
+  }
 }
 
 /* utils */
