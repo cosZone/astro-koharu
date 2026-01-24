@@ -11,10 +11,10 @@
 import { cmsConfig } from '@constants/site-config';
 import { useIsMounted } from '@hooks/useIsMounted';
 import { Icon } from '@iconify/react';
-import { getDefaultEditor, getFullFilePath, openInEditor } from '@lib/cms';
+import { getFullFilePath, openInEditor } from '@lib/cms';
 import { cn } from '@lib/utils';
 import { useStore } from '@nanostores/react';
-import { cmsEditMode, enableEditMode, initCmsState, preferredEditor, setPreferredEditor } from '@store/cms';
+import { cmsEditMode, enableEditMode, initCmsState } from '@store/cms';
 import { useCallback, useEffect, useState } from 'react';
 import {
   DropdownMenu,
@@ -35,7 +35,6 @@ interface EditButtonProps {
 export default function EditButton({ postId }: EditButtonProps) {
   const isMounted = useIsMounted();
   const isEditMode = useStore(cmsEditMode);
-  const preferredEditorId = useStore(preferredEditor);
   const [isEditorOpen, setIsEditorOpen] = useState(false);
 
   const { enabled, editors, localProjectPath, contentRelativePath = 'src/content/blog' } = cmsConfig;
@@ -55,15 +54,6 @@ export default function EditButton({ postId }: EditButtonProps) {
     enableEditMode();
   }, []);
 
-  // Get the preferred editor or default
-  const getEditor = useCallback((): EditorConfig | null => {
-    if (preferredEditorId) {
-      const preferred = editors.find((e) => e.id === preferredEditorId);
-      if (preferred) return preferred;
-    }
-    return getDefaultEditor(editors);
-  }, [preferredEditorId, editors]);
-
   // Handle editor click
   const handleEditorClick = useCallback(
     (editor: EditorConfig) => {
@@ -73,7 +63,6 @@ export default function EditButton({ postId }: EditButtonProps) {
       }
 
       const filePath = getFullFilePath(localProjectPath, contentRelativePath, postId);
-      setPreferredEditor(editor.id);
       openInEditor(editor, filePath);
     },
     [localProjectPath, contentRelativePath, postId],
@@ -83,8 +72,6 @@ export default function EditButton({ postId }: EditButtonProps) {
   if (!isMounted || !enabled) {
     return null;
   }
-
-  const currentEditor = getEditor();
 
   // Hidden entry button for non-edit mode
   if (!isEditMode) {
@@ -120,7 +107,7 @@ export default function EditButton({ postId }: EditButtonProps) {
               'text-sm',
             )}
             aria-label="Edit this post"
-            title={`Edit in ${currentEditor?.name ?? 'editor'}`}
+            title="Edit this post"
           >
             <Icon icon="ri:edit-line" className="h-3.5 w-3.5" />
             <span className="font-medium">Edit</span>
@@ -139,16 +126,12 @@ export default function EditButton({ postId }: EditButtonProps) {
             <>
               <DropdownMenuSeparator />
               <DropdownMenuLabel>Open in local editor</DropdownMenuLabel>
-              {editors.map((editor) => {
-                const isPreferred = editor.id === preferredEditorId;
-                return (
-                  <DropdownMenuItem key={editor.id} onClick={() => handleEditorClick(editor)} className="cursor-pointer gap-2">
-                    <Icon icon={editor.icon} className="h-4 w-4" />
-                    <span>{editor.name}</span>
-                    {isPreferred && <Icon icon="ri:check-line" className="ml-auto h-4 w-4 text-primary" />}
-                  </DropdownMenuItem>
-                );
-              })}
+              {editors.map((editor) => (
+                <DropdownMenuItem key={editor.id} onClick={() => handleEditorClick(editor)} className="cursor-pointer gap-2">
+                  <Icon icon={editor.icon} className="h-4 w-4" />
+                  <span>{editor.name}</span>
+                </DropdownMenuItem>
+              ))}
             </>
           )}
         </DropdownMenuContent>

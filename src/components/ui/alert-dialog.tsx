@@ -56,7 +56,7 @@ const AlertDialogContent = forwardRef<
     <AlertDialogPrimitive.Content
       ref={ref}
       className={cn(
-        'data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 fixed top-1/2 left-1/2 z-50 grid w-full max-w-lg -translate-x-1/2 -translate-y-1/2 gap-4 border bg-background p-6 shadow-lg duration-200 data-[state=closed]:animate-out data-[state=open]:animate-in sm:rounded-lg',
+        'data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 fixed top-1/2 left-1/2 z-50 grid w-full max-w-lg -translate-x-1/2 -translate-y-1/2 gap-4 rounded-xl border bg-background p-6 shadow-lg duration-200 data-[state=closed]:animate-out data-[state=open]:animate-in',
         className,
       )}
       {...props}
@@ -98,7 +98,7 @@ const AlertDialogAction = forwardRef<
   <AlertDialogPrimitive.Action
     ref={ref}
     className={cn(
-      'inline-flex h-10 items-center justify-center rounded-md bg-primary px-4 py-2 font-medium text-primary-foreground text-sm ring-offset-background transition-colors',
+      'inline-flex h-10 items-center justify-center rounded-lg bg-primary px-4 py-2 font-medium text-primary-foreground text-sm ring-offset-background transition-colors',
       'hover:bg-primary/90 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
       'disabled:pointer-events-none disabled:opacity-50',
       className,
@@ -115,7 +115,7 @@ const AlertDialogCancel = forwardRef<
   <AlertDialogPrimitive.Cancel
     ref={ref}
     className={cn(
-      'inline-flex h-10 items-center justify-center rounded-md border border-input bg-background px-4 py-2 font-medium text-sm ring-offset-background transition-colors',
+      'inline-flex h-10 items-center justify-center rounded-lg border border-input bg-background px-4 py-2 font-medium text-sm ring-offset-background transition-colors',
       'hover:bg-accent hover:text-accent-foreground focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
       'disabled:pointer-events-none disabled:opacity-50',
       'mt-2 sm:mt-0',

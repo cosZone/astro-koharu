@@ -3,15 +3,12 @@
  *
  * Dropdown menu for selecting which editor to open the file in.
  * Displays configured editors with their icons and names.
- * Remembers user's last selection.
  */
 
 import { cmsConfig } from '@constants/site-config';
 import { Icon } from '@iconify/react';
 import { getFullFilePath, openInEditor } from '@lib/cms';
 import { cn } from '@lib/utils';
-import { useStore } from '@nanostores/react';
-import { preferredEditor, setPreferredEditor } from '@store/cms';
 import { useCallback } from 'react';
 import type { EditorConfig } from '@/types/cms';
 
@@ -25,7 +22,6 @@ interface EditorSelectorProps {
 }
 
 export default function EditorSelector({ postId, onSelect, className }: EditorSelectorProps) {
-  const preferredEditorId = useStore(preferredEditor);
   const { editors, localProjectPath, contentRelativePath = 'src/content/blog' } = cmsConfig;
 
   const handleEditorClick = useCallback(
@@ -36,7 +32,6 @@ export default function EditorSelector({ postId, onSelect, className }: EditorSe
       }
 
       const filePath = getFullFilePath(localProjectPath, contentRelativePath, postId);
-      setPreferredEditor(editor.id);
       openInEditor(editor, filePath);
       onSelect?.();
     },
@@ -64,25 +59,17 @@ export default function EditorSelector({ postId, onSelect, className }: EditorSe
   return (
     <div className={cn('flex flex-col gap-1 p-2', className)}>
       <div className="px-2 py-1 text-muted-foreground text-xs">Open in editor</div>
-      {editors.map((editor) => {
-        const isPreferred = editor.id === preferredEditorId;
-        return (
-          <button
-            key={editor.id}
-            type="button"
-            onClick={() => handleEditorClick(editor)}
-            className={cn(
-              'flex items-center gap-2 rounded-md px-3 py-2 text-sm transition-colors',
-              'hover:bg-white/10',
-              isPreferred && 'bg-white/5',
-            )}
-          >
-            <Icon icon={editor.icon} className="h-4 w-4" />
-            <span>{editor.name}</span>
-            {isPreferred && <Icon icon="ri:check-line" className="ml-auto h-4 w-4 text-primary" />}
-          </button>
-        );
-      })}
+      {editors.map((editor) => (
+        <button
+          key={editor.id}
+          type="button"
+          onClick={() => handleEditorClick(editor)}
+          className={cn('flex items-center gap-2 rounded-md px-3 py-2 text-sm transition-colors', 'hover:bg-white/10')}
+        >
+          <Icon icon={editor.icon} className="h-4 w-4" />
+          <span>{editor.name}</span>
+        </button>
+      ))}
     </div>
   );
 }

@@ -9,4 +9,6 @@ export type { ReadPostResult } from './api';
 
 // Browser editor API
 export { readPost, writePost } from './api';
-export { buildEditorUrl, getDefaultEditor, getFullFilePath, openInEditor } from './editor-url';
+// Category utilities
+export { detectNewCategories, extractCategoryNames, generateCategorySlug } from './category';
+export { buildEditorUrl, getFullFilePath, openInEditor } from './editor-url';

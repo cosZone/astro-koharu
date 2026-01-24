@@ -17,8 +17,6 @@ export interface EditorConfig {
   icon: string;
   /** URL template with placeholders: {path}, {line}, {column} */
   urlTemplate: string;
-  /** Whether this is the default editor */
-  default?: boolean;
 }
 
 /**

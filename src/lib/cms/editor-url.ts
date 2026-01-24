@@ -46,17 +46,6 @@ export function getFullFilePath(localProjectPath: string, contentRelativePath: s
 }
 
 /**
- * Find the default editor from a list of editors
- *
- * @param editors - List of editor configurations
- * @returns The default editor, or the first editor if none is marked as default
- */
-export function getDefaultEditor(editors: EditorConfig[]): EditorConfig | null {
-  if (editors.length === 0) return null;
-  return editors.find((e) => e.default) ?? editors[0];
-}
-
-/**
  * Open a file in the specified editor
  *
  * @param editor - Editor configuration

@@ -12,7 +12,7 @@ import { useCreateBlockNote } from '@blocknote/react';
 import { BlockNoteView } from '@blocknote/shadcn';
 import { useIsDarkTheme } from '@hooks/useIsDarkTheme';
 import { Icon } from '@iconify/react';
-import { readPost, writePost } from '@lib/cms';
+import { detectNewCategories, readPost, writePost } from '@lib/cms';
 import { cn } from '@lib/utils';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { toast } from 'sonner';
@@ -29,6 +29,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import type { BlogSchema } from '@/types/blog';
+import { CategoryMappingDialog } from './CategoryMappingDialog';
 import { FrontmatterEditor } from './FrontmatterEditor';
 
 interface PostEditorProps {
@@ -45,6 +46,8 @@ export function PostEditor({ postId, isOpen, onClose }: PostEditorProps) {
   const [frontmatter, setFrontmatter] = useState<BlogSchema | null>(null);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
+  const [showMappingDialog, setShowMappingDialog] = useState(false);
+  const [pendingMappings, setPendingMappings] = useState<Record<string, string>>({});
   const initialContentRef = useRef<string>('');
   const isDark = useIsDarkTheme();
 
@@ -88,41 +91,82 @@ export function PostEditor({ postId, isOpen, onClose }: PostEditorProps) {
     loadPost();
   }, [isOpen, postId, editor]);
 
-  // Handle save
+  // Perform the actual save operation
+  const doSave = useCallback(
+    async (categoryMappings?: Record<string, string>) => {
+      if (!frontmatter) return;
+
+      setStatus('saving');
+
+      try {
+        // Convert blocks to markdown
+        const markdown = editor.blocksToMarkdownLossy(editor.document);
+
+        // Process dates
+        const now = new Date();
+        const updatedFrontmatter = { ...frontmatter };
+
+        if (!updatedFrontmatter.date) {
+          // New post: set date
+          updatedFrontmatter.date = now;
+        } else {
+          // Editing: set updated
+          updatedFrontmatter.updated = now;
+        }
+
+        // Write to file with optional category mappings
+        await writePost(postId, updatedFrontmatter, markdown, categoryMappings);
+
+        setFrontmatter(updatedFrontmatter);
+        setHasUnsavedChanges(false);
+        setStatus('ready');
+
+        if (categoryMappings && Object.keys(categoryMappings).length > 0) {
+          toast.success('Post saved with new category mappings');
+        } else {
+          toast.success('Post saved successfully');
+        }
+      } catch (err) {
+        console.error('[PostEditor] Failed to save post:', err);
+        toast.error(err instanceof Error ? err.message : 'Failed to save post');
+        setStatus('ready');
+      }
+    },
+    [editor, frontmatter, postId],
+  );
+
+  // Handle save - check for new categories first
   const handleSave = useCallback(async () => {
     if (!frontmatter || status === 'saving') return;
 
-    setStatus('saving');
+    // Check for new categories
+    const newMappings = detectNewCategories(frontmatter.categories);
 
-    try {
-      // Convert blocks to markdown
-      const markdown = editor.blocksToMarkdownLossy(editor.document);
-
-      // Process dates
-      const now = new Date();
-      const updatedFrontmatter = { ...frontmatter };
-
-      if (!updatedFrontmatter.date) {
-        // New post: set date
-        updatedFrontmatter.date = now;
-      } else {
-        // Editing: set updated
-        updatedFrontmatter.updated = now;
-      }
-
-      // Write to file
-      await writePost(postId, updatedFrontmatter, markdown);
-
-      setFrontmatter(updatedFrontmatter);
-      setHasUnsavedChanges(false);
-      setStatus('ready');
-      toast.success('Post saved successfully');
-    } catch (err) {
-      console.error('[PostEditor] Failed to save post:', err);
-      toast.error(err instanceof Error ? err.message : 'Failed to save post');
-      setStatus('ready');
+    if (Object.keys(newMappings).length > 0) {
+      // Show dialog for user to confirm/edit mappings
+      setPendingMappings(newMappings);
+      setShowMappingDialog(true);
+      return;
     }
-  }, [frontmatter, status, editor, postId]);
+
+    // No new categories, save directly
+    await doSave();
+  }, [frontmatter, status, doSave]);
+
+  // Handle category mapping confirmation
+  const handleMappingConfirm = useCallback(
+    async (mappings: Record<string, string>) => {
+      setShowMappingDialog(false);
+      await doSave(mappings);
+    },
+    [doSave],
+  );
+
+  // Handle category mapping cancellation
+  const handleMappingCancel = useCallback(() => {
+    setShowMappingDialog(false);
+    setPendingMappings({});
+  }, []);
 
   // Keyboard shortcut: Cmd/Ctrl+S to save
   useEffect(() => {
@@ -270,6 +314,14 @@ export function PostEditor({ postId, isOpen, onClose }: PostEditorProps) {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Category Mapping Dialog */}
+      <CategoryMappingDialog
+        isOpen={showMappingDialog}
+        mappings={pendingMappings}
+        onConfirm={handleMappingConfirm}
+        onCancel={handleMappingCancel}
+      />
     </Dialog>
   );
 }

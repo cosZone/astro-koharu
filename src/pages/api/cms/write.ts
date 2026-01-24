@@ -51,6 +51,82 @@ interface WriteRequestBody {
   postId: string;
   frontmatter: BlogSchema;
   content: string;
+  categoryMappings?: Record<string, string>;
+}
+
+// Config file path
+const CONFIG_PATH = 'config/site.yaml';
+
+/**
+ * Adds new category mappings to config/site.yaml
+ * Preserves the existing file structure and adds to the categoryMap section
+ */
+async function addCategoryMappings(mappings: Record<string, string>): Promise<void> {
+  const configPath = path.join(process.cwd(), CONFIG_PATH);
+  const content = await fs.readFile(configPath, 'utf-8');
+
+  // Parse YAML
+  const config = yaml.load(content) as Record<string, unknown>;
+
+  // Get or create categoryMap
+  const categoryMap = (config.categoryMap as Record<string, string>) || {};
+
+  // Add new mappings
+  for (const [name, slug] of Object.entries(mappings)) {
+    categoryMap[name] = slug;
+  }
+
+  // Update config
+  config.categoryMap = categoryMap;
+
+  // Serialize back to YAML
+  // We need to preserve comments, so we'll do a targeted replacement instead
+  // Find the categoryMap section and add entries there
+  const lines = content.split('\n');
+  const newLines: string[] = [];
+  let inCategoryMap = false;
+  let categoryMapIndent = '';
+  let insertedMappings = false;
+
+  for (const line of lines) {
+    // Check if we're entering categoryMap section
+    if (/^categoryMap:\s*$/.test(line)) {
+      inCategoryMap = true;
+      newLines.push(line);
+      continue;
+    }
+
+    // Check if we're leaving categoryMap section (new top-level key)
+    if (inCategoryMap && /^[a-zA-Z]/.test(line) && !line.startsWith(' ') && !line.startsWith('#')) {
+      // Insert new mappings before leaving
+      if (!insertedMappings) {
+        for (const [name, slug] of Object.entries(mappings)) {
+          newLines.push(`${categoryMapIndent}${name}: ${slug}`);
+        }
+        insertedMappings = true;
+      }
+      inCategoryMap = false;
+    }
+
+    // Get indent level for categoryMap entries
+    if (inCategoryMap && /^\s+\S/.test(line) && !categoryMapIndent) {
+      const match = line.match(/^(\s+)/);
+      if (match) {
+        categoryMapIndent = match[1];
+      }
+    }
+
+    newLines.push(line);
+  }
+
+  // If we never left categoryMap (it's at the end), insert now
+  if (inCategoryMap && !insertedMappings) {
+    for (const [name, slug] of Object.entries(mappings)) {
+      newLines.push(`${categoryMapIndent}${name}: ${slug}`);
+    }
+  }
+
+  await fs.writeFile(configPath, newLines.join('\n'), 'utf-8');
 }
 
 /**
@@ -84,7 +160,7 @@ export const POST: APIRoute = async ({ request }) => {
 
   try {
     const body = (await request.json()) as WriteRequestBody;
-    const { postId, frontmatter, content } = body;
+    const { postId, frontmatter, content, categoryMappings } = body;
 
     if (!postId) {
       return new Response(JSON.stringify({ error: 'Missing postId' }), {
@@ -158,6 +234,12 @@ export const POST: APIRoute = async ({ request }) => {
         },
       },
     });
+
+    // Add new category mappings if provided
+    if (categoryMappings && Object.keys(categoryMappings).length > 0) {
+      await addCategoryMappings(categoryMappings);
+      console.log('[CMS Write API] Added category mappings:', categoryMappings);
+    }
 
     // Ensure the directory exists
     const dirPath = path.dirname(filePath);

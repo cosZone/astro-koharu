@@ -45,9 +45,15 @@ export async function readPost(postId: string): Promise<ReadPostResult> {
  * @param postId - The post ID (e.g., 'note/front-end/theme.md')
  * @param frontmatter - The post frontmatter
  * @param content - The post content (markdown)
+ * @param categoryMappings - Optional new category mappings to add to config/site.yaml
  * @throws Error if the request fails
  */
-export async function writePost(postId: string, frontmatter: BlogSchema, content: string): Promise<void> {
+export async function writePost(
+  postId: string,
+  frontmatter: BlogSchema,
+  content: string,
+  categoryMappings?: Record<string, string>,
+): Promise<void> {
   const response = await fetch('/api/cms/write', {
     method: 'POST',
     headers: {
@@ -57,6 +63,7 @@ export async function writePost(postId: string, frontmatter: BlogSchema, content
       postId,
       frontmatter,
       content,
+      categoryMappings,
     }),
   });
 

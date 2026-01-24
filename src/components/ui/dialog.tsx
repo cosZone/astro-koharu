@@ -117,7 +117,7 @@ const DialogContent = forwardRef<React.ComponentRef<typeof DialogPrimitive.Conte
               <motion.div
                 key="dialog-content"
                 className={cn(
-                  'fixed top-1/2 left-1/2 z-50 grid w-full max-w-lg gap-4 border bg-background p-6 shadow-lg',
+                  'fixed top-1/2 left-1/2 z-50 grid w-full max-w-lg gap-4 rounded-xl border bg-background p-6 shadow-lg',
                   'duration-200',
                   className,
                 )}

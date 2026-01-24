@@ -8,7 +8,7 @@
 import { Icon } from '@iconify/react';
 import { cn } from '@lib/utils';
 import { format } from 'date-fns';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import type { BlogSchema } from '@/types/blog';
 
 interface FrontmatterEditorProps {
@@ -24,42 +24,39 @@ interface FrontmatterEditorProps {
 function formatCategoryDisplay(categories?: string[] | string[][]): string {
   if (!categories || categories.length === 0) return '';
 
-  return categories
-    .map((cat) => {
-      if (Array.isArray(cat)) {
-        return cat.join(' > ');
-      }
-      return cat;
-    })
-    .join(', ');
+  // Handle nested array format [['笔记', '前端']]
+  const first = categories[0];
+  if (Array.isArray(first)) {
+    return first.join(' > ');
+  }
+
+  // Handle flat array format ['笔记', '前端']
+  return categories.join(' > ');
 }
 
 /**
  * Parses category input string back to the correct format
  * '工具' -> ['工具']
  * '笔记 > 前端' -> [['笔记', '前端']]
- * '工具, 笔记 > 前端' -> ['工具', ['笔记', '前端']]
+ * '笔记>前端' -> [['笔记', '前端']] (tolerant parsing)
  */
 function parseCategoryInput(input: string): string[] | string[][] {
-  if (!input.trim()) return [];
+  const trimmed = input.trim();
+  if (!trimmed) return [];
 
-  const parts = input.split(',').map((p) => p.trim());
-
-  // Check if any part contains ' > ' (multi-level)
-  const hasMultiLevel = parts.some((p) => p.includes(' > '));
-
-  if (hasMultiLevel) {
-    // Return as nested arrays
-    return parts.map((p) => {
-      if (p.includes(' > ')) {
-        return p.split(' > ').map((s) => s.trim());
-      }
-      return [p];
-    });
+  // Check if contains '>' (with or without spaces around it)
+  if (trimmed.includes('>')) {
+    // Split by '>' with optional surrounding spaces
+    const parts = trimmed
+      .split(/\s*>\s*/)
+      .map((s) => s.trim())
+      .filter(Boolean);
+    // Return as nested array format [['笔记', '前端']]
+    return [parts];
   }
 
-  // Simple single-level categories
-  return parts;
+  // Simple single-level category ['工具']
+  return [trimmed];
 }
 
 export function FrontmatterEditor({ frontmatter, onChange }: FrontmatterEditorProps) {
@@ -67,11 +64,23 @@ export function FrontmatterEditor({ frontmatter, onChange }: FrontmatterEditorPr
   const [categoryInput, setCategoryInput] = useState(formatCategoryDisplay(frontmatter.categories));
   const [tagInput, setTagInput] = useState(frontmatter.tags?.join(', ') || '');
 
+  // Track if category/tag inputs are focused to prevent useEffect from overwriting during typing
+  const categoryFocusedRef = useRef(false);
+  const tagFocusedRef = useRef(false);
+
   // Sync local state when frontmatter prop changes (e.g., when loading a new post)
+  // Skip sync if the input is currently focused (user is typing)
   useEffect(() => {
-    setCategoryInput(formatCategoryDisplay(frontmatter.categories));
-    setTagInput(frontmatter.tags?.join(', ') || '');
-  }, [frontmatter.categories, frontmatter.tags]);
+    if (!categoryFocusedRef.current) {
+      setCategoryInput(formatCategoryDisplay(frontmatter.categories));
+    }
+  }, [frontmatter.categories]);
+
+  useEffect(() => {
+    if (!tagFocusedRef.current) {
+      setTagInput(frontmatter.tags?.join(', ') || '');
+    }
+  }, [frontmatter.tags]);
 
   const updateField = useCallback(
     <K extends keyof BlogSchema>(field: K, value: BlogSchema[K]) => {
@@ -80,26 +89,22 @@ export function FrontmatterEditor({ frontmatter, onChange }: FrontmatterEditorPr
     [frontmatter, onChange],
   );
 
-  const handleCategoryChange = useCallback(
-    (value: string) => {
-      setCategoryInput(value);
-      const parsed = parseCategoryInput(value);
-      updateField('categories', parsed.length > 0 ? parsed : undefined);
-    },
-    [updateField],
-  );
+  // Update categories only on blur to allow free typing of '>' character
+  const handleCategoryBlur = useCallback(() => {
+    categoryFocusedRef.current = false;
+    const parsed = parseCategoryInput(categoryInput);
+    updateField('categories', parsed.length > 0 ? parsed : undefined);
+  }, [categoryInput, updateField]);
 
-  const handleTagChange = useCallback(
-    (value: string) => {
-      setTagInput(value);
-      const tags = value
-        .split(',')
-        .map((t) => t.trim())
-        .filter(Boolean);
-      updateField('tags', tags.length > 0 ? tags : undefined);
-    },
-    [updateField],
-  );
+  // Update tags only on blur
+  const handleTagBlur = useCallback(() => {
+    tagFocusedRef.current = false;
+    const tags = tagInput
+      .split(',')
+      .map((t) => t.trim())
+      .filter(Boolean);
+    updateField('tags', tags.length > 0 ? tags : undefined);
+  }, [tagInput, updateField]);
 
   return (
     <div className="rounded-lg border border-border bg-muted/30">
@@ -190,22 +195,27 @@ export function FrontmatterEditor({ frontmatter, onChange }: FrontmatterEditorPr
 
           {/* Categories */}
           <div className="space-y-1.5">
-            <label htmlFor="fm-categories" className="block font-medium text-sm">
-              Categories
+            <label htmlFor="fm-categories" className="block text-sm">
+              <span className="font-medium">Categories</span>
+              <span className="ml-2 font-normal text-muted-foreground">e.g., 笔记 {'>'} 前端</span>
             </label>
             <input
               id="fm-categories"
               type="text"
               value={categoryInput}
-              onChange={(e) => handleCategoryChange(e.target.value)}
+              onChange={(e) => setCategoryInput(e.target.value)}
+              onFocus={() => {
+                categoryFocusedRef.current = true;
+              }}
+              onBlur={handleCategoryBlur}
+              onKeyDown={(e) => e.stopPropagation()}
               className={cn(
                 'w-full rounded-md border border-input bg-background px-3 py-2',
                 'text-sm placeholder:text-muted-foreground',
                 'focus:outline-none focus:ring-2 focus:ring-ring',
               )}
-              placeholder="e.g., '笔记 > 前端' for nested, or '工具, 笔记' for multiple"
+              placeholder="笔记 > 前端"
             />
-            <p className="text-muted-foreground text-xs">Use {'>'} for nested categories, comma for multiple</p>
           </div>
 
           {/* Tags */}
@@ -217,7 +227,12 @@ export function FrontmatterEditor({ frontmatter, onChange }: FrontmatterEditorPr
               id="fm-tags"
               type="text"
               value={tagInput}
-              onChange={(e) => handleTagChange(e.target.value)}
+              onChange={(e) => setTagInput(e.target.value)}
+              onFocus={() => {
+                tagFocusedRef.current = true;
+              }}
+              onBlur={handleTagBlur}
+              onKeyDown={(e) => e.stopPropagation()}
               className={cn(
                 'w-full rounded-md border border-input bg-background px-3 py-2',
                 'text-sm placeholder:text-muted-foreground',
@@ -246,51 +261,24 @@ export function FrontmatterEditor({ frontmatter, onChange }: FrontmatterEditorPr
             />
           </div>
 
-          {/* Toggles Row */}
-          <div className="flex flex-wrap gap-4">
-            {/* Draft */}
-            <label className="flex cursor-pointer items-center gap-2">
-              <input
-                type="checkbox"
-                checked={frontmatter.draft || false}
-                onChange={(e) => updateField('draft', e.target.checked || undefined)}
-                className="h-4 w-4 rounded border-input"
-              />
-              <span className="text-sm">Draft</span>
+          {/* Custom Link */}
+          <div className="space-y-1.5">
+            <label htmlFor="fm-link" className="block text-sm">
+              <span className="font-medium">Custom Link</span>
+              <span className="ml-2 font-normal text-muted-foreground">Override the default URL slug</span>
             </label>
-
-            {/* Sticky */}
-            <label className="flex cursor-pointer items-center gap-2">
-              <input
-                type="checkbox"
-                checked={frontmatter.sticky || false}
-                onChange={(e) => updateField('sticky', e.target.checked || undefined)}
-                className="h-4 w-4 rounded border-input"
-              />
-              <span className="text-sm">Sticky</span>
-            </label>
-
-            {/* Catalog */}
-            <label className="flex cursor-pointer items-center gap-2">
-              <input
-                type="checkbox"
-                checked={frontmatter.catalog !== false}
-                onChange={(e) => updateField('catalog', e.target.checked ? undefined : false)}
-                className="h-4 w-4 rounded border-input"
-              />
-              <span className="text-sm">Show Catalog</span>
-            </label>
-
-            {/* TOC Numbering */}
-            <label className="flex cursor-pointer items-center gap-2">
-              <input
-                type="checkbox"
-                checked={frontmatter.tocNumbering !== false}
-                onChange={(e) => updateField('tocNumbering', e.target.checked ? undefined : false)}
-                className="h-4 w-4 rounded border-input"
-              />
-              <span className="text-sm">TOC Numbering</span>
-            </label>
+            <input
+              id="fm-link"
+              type="text"
+              value={frontmatter.link || ''}
+              onChange={(e) => updateField('link', e.target.value || undefined)}
+              className={cn(
+                'w-full rounded-md border border-input bg-background px-3 py-2',
+                'text-sm placeholder:text-muted-foreground',
+                'focus:outline-none focus:ring-2 focus:ring-ring',
+              )}
+              placeholder="custom-url-slug"
+            />
           </div>
 
           {/* Advanced Section */}
@@ -321,35 +309,63 @@ export function FrontmatterEditor({ frontmatter, onChange }: FrontmatterEditorPr
                 />
               </div>
 
-              {/* Link */}
-              <div className="space-y-1.5">
-                <label htmlFor="fm-link" className="block font-medium text-sm">
-                  Custom Link
+              {/* Toggles */}
+              <div className="flex flex-wrap gap-4">
+                {/* Draft */}
+                <label className="flex cursor-pointer items-center gap-2">
+                  <input
+                    type="checkbox"
+                    checked={frontmatter.draft || false}
+                    onChange={(e) => updateField('draft', e.target.checked || undefined)}
+                    className="h-4 w-4 rounded border-input"
+                  />
+                  <span className="text-sm">Draft</span>
                 </label>
-                <input
-                  id="fm-link"
-                  type="text"
-                  value={frontmatter.link || ''}
-                  onChange={(e) => updateField('link', e.target.value || undefined)}
-                  className={cn(
-                    'w-full rounded-md border border-input bg-background px-3 py-2',
-                    'text-sm placeholder:text-muted-foreground',
-                    'focus:outline-none focus:ring-2 focus:ring-ring',
-                  )}
-                  placeholder="Custom link path"
-                />
-              </div>
 
-              {/* Exclude from Summary */}
-              <label className="flex cursor-pointer items-center gap-2">
-                <input
-                  type="checkbox"
-                  checked={frontmatter.excludeFromSummary || false}
-                  onChange={(e) => updateField('excludeFromSummary', e.target.checked || undefined)}
-                  className="h-4 w-4 rounded border-input"
-                />
-                <span className="text-sm">Exclude from AI Summary</span>
-              </label>
+                {/* Sticky */}
+                <label className="flex cursor-pointer items-center gap-2">
+                  <input
+                    type="checkbox"
+                    checked={frontmatter.sticky || false}
+                    onChange={(e) => updateField('sticky', e.target.checked || undefined)}
+                    className="h-4 w-4 rounded border-input"
+                  />
+                  <span className="text-sm">Sticky</span>
+                </label>
+
+                {/* Catalog */}
+                <label className="flex cursor-pointer items-center gap-2">
+                  <input
+                    type="checkbox"
+                    checked={frontmatter.catalog !== false}
+                    onChange={(e) => updateField('catalog', e.target.checked ? undefined : false)}
+                    className="h-4 w-4 rounded border-input"
+                  />
+                  <span className="text-sm">Show Catalog</span>
+                </label>
+
+                {/* TOC Numbering */}
+                <label className="flex cursor-pointer items-center gap-2">
+                  <input
+                    type="checkbox"
+                    checked={frontmatter.tocNumbering !== false}
+                    onChange={(e) => updateField('tocNumbering', e.target.checked ? undefined : false)}
+                    className="h-4 w-4 rounded border-input"
+                  />
+                  <span className="text-sm">TOC Numbering</span>
+                </label>
+
+                {/* Exclude from Summary */}
+                <label className="flex cursor-pointer items-center gap-2">
+                  <input
+                    type="checkbox"
+                    checked={frontmatter.excludeFromSummary || false}
+                    onChange={(e) => updateField('excludeFromSummary', e.target.checked || undefined)}
+                    className="h-4 w-4 rounded border-input"
+                  />
+                  <span className="text-sm">Exclude from AI Summary</span>
+                </label>
+              </div>
             </div>
           </details>
         </div>

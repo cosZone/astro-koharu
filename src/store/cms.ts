@@ -9,7 +9,6 @@ import { cmsConfig } from '@constants/site-config';
 import { atom } from 'nanostores';
 
 const EDIT_MODE_KEY = 'cms-edit-mode';
-const EDITOR_KEY = 'cms-preferred-editor';
 
 /**
  * CMS edit mode state
@@ -18,13 +17,6 @@ const EDITOR_KEY = 'cms-preferred-editor';
  * Persists to localStorage for convenience.
  */
 export const cmsEditMode = atom<boolean>(false);
-
-/**
- * Preferred editor ID
- *
- * Stores the user's last selected editor for quick access.
- */
-export const preferredEditor = atom<string | null>(null);
 
 /**
  * Initialize CMS state from URL parameters and localStorage
@@ -57,9 +49,6 @@ export function initCmsState(): void {
     // Fall back to localStorage
     cmsEditMode.set(localStorage.getItem(EDIT_MODE_KEY) === 'true');
   }
-
-  // Load preferred editor
-  preferredEditor.set(localStorage.getItem(EDITOR_KEY));
 }
 
 /**
@@ -91,17 +80,5 @@ export function disableEditMode(): void {
   cmsEditMode.set(false);
   if (typeof localStorage !== 'undefined') {
     localStorage.setItem(EDIT_MODE_KEY, 'false');
-  }
-}
-
-/**
- * Set the preferred editor
- *
- * @param editorId - The editor ID to set as preferred
- */
-export function setPreferredEditor(editorId: string): void {
-  preferredEditor.set(editorId);
-  if (typeof localStorage !== 'undefined') {
-    localStorage.setItem(EDITOR_KEY, editorId);
   }
 }
