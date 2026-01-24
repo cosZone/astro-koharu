@@ -28,6 +28,20 @@ function loadConfigForAstro() {
 
 const yamlConfig = loadConfigForAstro();
 
+// Load CMS config for adapter decision
+function loadCmsConfig() {
+  const configPath = path.join(process.cwd(), 'config', 'cms.yaml');
+  if (!fs.existsSync(configPath)) return { enabled: false };
+  const content = fs.readFileSync(configPath, 'utf8');
+  return YAML.parse(content) || { enabled: false };
+}
+
+const cmsConfig = loadCmsConfig();
+
+// Enable Node adapter only in dev mode with CMS enabled
+const isDev = process.env.NODE_ENV !== 'production';
+const useCmsAdapter = isDev && cmsConfig?.enabled;
+
 // Get Umami analytics config from YAML
 const umamiConfig = yamlConfig.analytics?.umami;
 const umamiEnabled = umamiConfig?.enabled ?? false;
@@ -67,7 +81,7 @@ function conditionalSnowfall() {
 // https://astro.build/config
 export default defineConfig({
   site: yamlConfig.site.url,
-  adapter: node({ mode: 'standalone' }),
+  adapter: useCmsAdapter ? node({ mode: 'standalone' }) : undefined,
   compressHTML: true,
   markdown: {
     // Enable GitHub Flavored Markdown

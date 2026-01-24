@@ -14,8 +14,6 @@ import matter from 'gray-matter';
 import yaml from 'js-yaml';
 import type { BlogSchema } from '@/types/blog';
 
-export const prerender = false;
-
 // Content directory relative to project root
 const CONTENT_DIR = 'src/content/blog';
 

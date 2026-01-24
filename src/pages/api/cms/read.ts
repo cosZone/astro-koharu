@@ -11,8 +11,6 @@ import { cmsConfig } from '@constants/site-config';
 import type { APIRoute } from 'astro';
 import matter from 'gray-matter';
 
-export const prerender = false;
-
 // Content directory relative to project root
 const CONTENT_DIR = 'src/content/blog';
 
