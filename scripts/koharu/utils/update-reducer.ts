@@ -35,9 +35,13 @@ export function updateReducer(state: UpdateState, action: UpdateAction): UpdateS
       if (action.type !== 'FETCHED') return state;
       const { payload: updateInfo } = action;
 
+      // 版本号相同时不需要更新（squash merge 后 commit 不同但版本相同）
+      const versionsMatch = updateInfo.currentVersion === updateInfo.latestVersion && updateInfo.latestVersion !== 'unknown';
+
       // 升级：behindCount > 0
       // 降级：isDowngrade && aheadCount > 0
-      const hasChanges = updateInfo.behindCount > 0 || (updateInfo.isDowngrade && updateInfo.aheadCount > 0);
+      const hasChanges =
+        !versionsMatch && (updateInfo.behindCount > 0 || (updateInfo.isDowngrade && updateInfo.aheadCount > 0));
 
       if (!hasChanges) {
         return { ...state, status: 'up-to-date', updateInfo };

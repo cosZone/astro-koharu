@@ -19,6 +19,7 @@ export interface SiteBasicConfig {
   author?: string;
   url: string;
   startYear?: number;
+  defaultOgImage?: string;
   keywords?: string[];
 }
 

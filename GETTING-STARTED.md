@@ -57,6 +57,7 @@ site:
   description: 博客简介            # 一句话介绍
   author: 你的名字                # 文章作者
   url: https://your-domain.com/   # 部署后的域名
+  defaultOgImage: /img/avatar.webp # 默认 Open Graph 图片
   startYear: 2024                 # 建站年份
   avatar: /img/avatar.webp        # 头像路径
   showLogo: true                  # 是否显示 logo
