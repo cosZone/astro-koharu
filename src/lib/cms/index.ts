@@ -5,4 +5,8 @@
  * via URL protocols (vscode://, cursor://, zed://, etc.)
  */
 
+export type { ReadPostResult } from './api';
+
+// Browser editor API
+export { readPost, writePost } from './api';
 export { buildEditorUrl, getDefaultEditor, getFullFilePath, openInEditor } from './editor-url';
