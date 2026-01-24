@@ -1,8 +1,10 @@
 import fs from 'node:fs';
 import path from 'node:path';
+import cloudflare from '@astrojs/cloudflare';
+import netlify from '@astrojs/netlify';
 import node from '@astrojs/node';
-import vercel from '@astrojs/vercel';
 import react from '@astrojs/react';
+import vercel from '@astrojs/vercel';
 import yaml from '@rollup/plugin-yaml';
 import tailwindcss from '@tailwindcss/vite';
 import umami from '@yeskunall/astro-umami';
@@ -39,16 +41,42 @@ function loadCmsConfig() {
 
 const cmsConfig = loadCmsConfig();
 
-// Choose adapter based on environment:
-// - Vercel: use @astrojs/vercel (detected by VERCEL=1 env var)
-// - Local dev with CMS: use @astrojs/node for SSR API routes
-// - Local build: use @astrojs/node for prerender: false pages
-const isDev = process.env.NODE_ENV !== 'production';
-const isVercel = process.env.VERCEL === '1';
-const shouldUseAdapter = (isDev && cmsConfig?.enabled) || (!isDev && !isVercel);
+/**
+ * Select adapter based on environment
+ * 按需渲染适配器，选择最合适的适配器：https://docs.astro.build/en/guides/on-demand-rendering/
+ *
+ * Priority:
+ * 1. Check if adapter is needed (dev with CMS or production build)
+ * 2. Detect platform: Vercel > Cloudflare > Netlify
+ * 3. Fallback: Node.js (standalone mode)
+ * 4. No adapter: static build
+ */
+function selectAdapter() {
+  const isDev = process.env.NODE_ENV !== 'production';
 
-// Select the appropriate adapter
-const adapter = isVercel ? vercel() : (shouldUseAdapter ? node({ mode: 'standalone' }) : undefined);
+  // Determine if adapter is needed
+  const needsAdapter = isDev ? cmsConfig?.enabled : true;
+
+  // Static build without adapter
+  if (!needsAdapter) {
+    return undefined;
+  }
+
+  // Platform detection
+  const isVercel = process.env.VERCEL === '1';
+  const isCloudflare = process.env.CF_PAGES === '1' || !!process.env.CLOUDFLARE;
+  const isNetlify = process.env.NETLIFY === 'true';
+
+  // Select platform-specific adapter
+  if (isVercel) return vercel();
+  if (isCloudflare) return cloudflare();
+  if (isNetlify) return netlify();
+
+  // Fallback: Node.js standalone (for self-hosting or undetected platforms)
+  return node({ mode: 'standalone' });
+}
+
+const adapter = selectAdapter();
 
 // Get Umami analytics config from YAML
 const umamiConfig = yamlConfig.analytics?.umami;
