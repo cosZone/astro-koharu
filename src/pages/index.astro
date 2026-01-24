@@ -48,8 +48,12 @@ const page: Page<BlogPost> = {
     <div
       class={`bg-gradient-start shadow-box tablet:shadow-none flex flex-col gap-4 overflow-hidden  ${CONTENT_PADDING.standard}`}
     >
-      <Divider>置顶文章</Divider>
-      {stickyPosts.length > 0 && <PostList posts={stickyPosts} showPaginator={false} />}
+      {stickyPosts.length > 0 && (
+        <>
+          <Divider>置顶文章</Divider>
+          <PostList posts={stickyPosts} showPaginator={false} />
+        </>
+      )}
       <Divider>文章列表</Divider>
       <PostList posts={posts} page={page} showPaginator={true} baseUrl="/posts" isHomePage={true} />
       <Divider className="mt-6">精选分类</Divider>

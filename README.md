@@ -96,6 +96,7 @@ pnpm dev
 - 无后端站点公告系统：可通过配置文件管理公告，支持时间控制、多条公告堆叠、自定义颜色、hover 已读
 - 有样式的 [RSS](https://blog.cosine.ren/rss.xml) 订阅源链接
 - **Koharu CLI**：交互式命令行工具，支持备份/还原、内容生成、备份管理
+- 无后端 CMS（本地编辑器 / 浏览器编辑）：文章页支持在 `config/cms.yaml` 启用编辑按钮，在 dev 模式内置浏览器编辑器与本地编辑器协议跳转（VS Code / Cursor / Zed），具体配置见 `config/cms.yaml`，后续考虑拓展更多 cms 功能，一键修改文件路径等。
 
 ## Koharu CLI
 
@@ -210,6 +211,7 @@ pnpm koharu generate all          # 生成全部
 - **评论系统**（Waline / Giscus / Remark42，推荐使用 Waline）
 - 数据统计（Umami）
 - 圣诞特辑开关
+- 本地 CMS 配置（`config/cms.yaml`，用于浏览器编辑/本地编辑器协议跳转）
 
 详细配置说明请参考文档。
 

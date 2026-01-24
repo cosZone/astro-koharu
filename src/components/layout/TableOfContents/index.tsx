@@ -48,18 +48,16 @@ export function TableOfContents({ defaultExpanded = false, enableNumbering = tru
 
   return (
     <nav
-      className={`toc-container max-h-[90dvh] overflow-auto ${enableNumbering ? '' : 'toc-no-numbering'}`}
+      className={`toc-container vertical-scrollbar scroll-gutter-stable flex h-full flex-col gap-2 overflow-auto pr-1 [--scrollbar-width:0.25rem] ${enableNumbering ? '' : 'toc-no-numbering'}`}
       aria-label="文章目录"
     >
-      <div className="space-y-1 pr-2">
-        <HeadingList
-          headings={headings}
-          depth={0}
-          activeId={activeId}
-          expandedIds={expandedIds}
-          onHeadingClick={handleHeadingClick}
-        />
-      </div>
+      <HeadingList
+        headings={headings}
+        depth={0}
+        activeId={activeId}
+        expandedIds={expandedIds}
+        onHeadingClick={handleHeadingClick}
+      />
     </nav>
   );
 }

@@ -28,8 +28,9 @@ import { AnimatePresence, motion } from 'motion/react';
 import type React from 'react';
 import { createContext, forwardRef, useCallback, useContext, useState } from 'react';
 
-// Context for animation state
+// Context for animation state and open state
 interface DialogContextValue {
+  isOpen: boolean;
   isAnimating: boolean;
   setIsAnimating: (v: boolean) => void;
 }
@@ -53,7 +54,7 @@ function Dialog({ children, open, onOpenChange, ...props }: DialogProps) {
   );
 
   return (
-    <DialogContext.Provider value={{ isAnimating, setIsAnimating }}>
+    <DialogContext.Provider value={{ isOpen: !!open, isAnimating, setIsAnimating }}>
       <DialogPrimitive.Root open={open} onOpenChange={handleOpenChange} {...props}>
         {children}
       </DialogPrimitive.Root>
@@ -90,58 +91,65 @@ interface DialogContentProps extends React.ComponentPropsWithoutRef<typeof Dialo
 const DialogContent = forwardRef<React.ComponentRef<typeof DialogPrimitive.Content>, DialogContentProps>(
   ({ className, children, showClose = true, overlayClassName, ...props }, ref) => {
     const context = useContext(DialogContext);
+    const isOpen = context?.isOpen ?? false;
 
     return (
       <DialogPortal forceMount>
         <AnimatePresence mode="wait">
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: animation.duration.fast / 1000 }}
-            onAnimationStart={() => context?.setIsAnimating(true)}
-            onAnimationComplete={() => context?.setIsAnimating(false)}
-          >
-            <DialogOverlay className={overlayClassName} />
-          </motion.div>
+          {isOpen && (
+            <motion.div
+              key="dialog-overlay"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: animation.duration.fast / 1000 }}
+              onAnimationStart={() => context?.setIsAnimating(true)}
+              onAnimationComplete={() => context?.setIsAnimating(false)}
+            >
+              <DialogOverlay className={overlayClassName} />
+            </motion.div>
+          )}
         </AnimatePresence>
 
         <AnimatePresence mode="wait">
-          <DialogPrimitive.Content ref={ref} asChild {...props}>
-            <motion.div
-              className={cn(
-                'fixed top-1/2 left-1/2 z-50 grid w-full max-w-lg gap-4 border bg-background p-6 shadow-lg',
-                'duration-200',
-                className,
-              )}
-              initial={{ opacity: 0, scale: 0.95, x: '-50%', y: '-48%' }}
-              animate={{ opacity: 1, scale: 1, x: '-50%', y: '-50%' }}
-              exit={{ opacity: 0, scale: 0.95, x: '-50%', y: '-48%' }}
-              transition={animation.spring.default}
-            >
-              {children}
-              {showClose && (
-                <DialogPrimitive.Close className="absolute top-4 right-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-hidden focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="24"
-                    height="24"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  >
-                    <title>Close</title>
-                    <line x1="18" y1="6" x2="6" y2="18" />
-                    <line x1="6" y1="6" x2="18" y2="18" />
-                  </svg>
-                  <span className="sr-only">Close</span>
-                </DialogPrimitive.Close>
-              )}
-            </motion.div>
-          </DialogPrimitive.Content>
+          {isOpen && (
+            <DialogPrimitive.Content ref={ref} asChild {...props}>
+              <motion.div
+                key="dialog-content"
+                className={cn(
+                  'fixed top-1/2 left-1/2 z-50 grid w-full max-w-lg gap-4 rounded-xl border bg-background p-6 shadow-lg',
+                  'duration-200',
+                  className,
+                )}
+                initial={{ opacity: 0, scale: 0.95, x: '-50%', y: '-48%' }}
+                animate={{ opacity: 1, scale: 1, x: '-50%', y: '-50%' }}
+                exit={{ opacity: 0, scale: 0.95, x: '-50%', y: '-48%' }}
+                transition={animation.spring.default}
+              >
+                {children}
+                {showClose && (
+                  <DialogPrimitive.Close className="absolute top-4 right-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-hidden focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="24"
+                      height="24"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <title>Close</title>
+                      <line x1="18" y1="6" x2="6" y2="18" />
+                      <line x1="6" y1="6" x2="18" y2="18" />
+                    </svg>
+                    <span className="sr-only">Close</span>
+                  </DialogPrimitive.Close>
+                )}
+              </motion.div>
+            </DialogPrimitive.Content>
+          )}
         </AnimatePresence>
       </DialogPortal>
     );

@@ -149,22 +149,17 @@ const lqipProps = getLqipProps(finalCover);
       showTags && (
         <div
           class={cn(
-            '@container mt-1 flex gap-2',
+            'horizontal-scrollbar [--scrollbar-width:0.25rem] flex gap-2 pt-1 pb-1 overflow-auto',
             hideCover ? 'justify-start' : { 'justify-end': !leftClip },
-            'md:justify-start',
+            leftClip ? 'mr-18' : 'ml-18',
+            'md:mx-0 md:justify-start',
           )}
         >
           {data?.data.tags?.length
             ? data?.data.tags.map((tag: string, index: number) => (
                 <a href={buildTagPath(tag)}>
                   <Badge
-                    className={cn(
-                      'hover:text-badge-primary/80 hidden cursor-pointer gap-0.5 border-none px-1 text-xs font-bold whitespace-nowrap transition-colors duration-300 @md:flex',
-                      {
-                        '@xs:flex': index < 2,
-                        '@sm:flex': index < 3,
-                      },
-                    )}
+                    className='hover:text-badge-primary/80 shrink-0 cursor-pointer gap-0.5 border-none px-1 text-xs font-bold whitespace-nowrap transition-colors duration-300 flex'
                     variant="outline"
                   >
                     <Icon name="fa6-solid:tags" /> {tag}

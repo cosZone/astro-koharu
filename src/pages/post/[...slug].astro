@@ -5,13 +5,14 @@ import SummaryPanel, { type SummarySource } from '@components/post/SummaryPanel'
 import Cover from '@components/ui/cover/Cover.astro';
 import { HomeSiderType } from '@constants/enum';
 import { CONTENT_PADDING } from '@constants/layout';
-import { siteConfig } from '@constants/site-config';
+import { cmsConfig, siteConfig } from '@constants/site-config';
 import Layout from '@layouts/Layout.astro';
 import TwoColumnLayout from '@layouts/TwoColumnLayout.astro';
 import { buildCategoryPath, getCategoryArr, getPostDescription, getPostSummary, getSortedPosts } from '@lib/content';
 import { encodeSlug } from '@lib/route';
 import { Icon } from 'astro-icon/components';
 import { formatInTimeZone } from 'date-fns-tz';
+import { EditButton } from '@/components/cms';
 import { Comment } from '@/components/comment';
 import { extractTextFromMarkdown } from '@/lib/sanitize';
 
@@ -22,11 +23,11 @@ export async function getStaticPaths() {
     const link = post.data?.link ?? post.slug;
     return {
       params: { slug: encodeSlug(link) },
-      props: { post },
+      props: { post, postId: post.id },
     };
   });
 }
-const { post } = Astro.props;
+const { post, postId } = Astro.props;
 const { Content } = await post.render();
 const { title, categories = [], tags = [], date } = post?.data ?? {};
 
@@ -98,28 +99,33 @@ if (post.data.description) {
     <HomeSider slot="sider" type={HomeSiderType.POST} post={post} />
     <div class={`shadow-box bg-gradient-start flex flex-col gap-2 ${CONTENT_PADDING.standard}`}>
       <!-- Breadcrumb Navigation -->
-      <nav class="text-muted-foreground flex items-center gap-2 text-sm">
-        <div class="flex items-center gap-1">
-          <!-- Home Icon and Link -->
-          <Icon name="fa6-solid:house-chimney" class="h-4 w-4" />
-          <a href="/" aria-label="返回首页">
-            <span class="hover:text-blue transition-colors duration-300">首页</span>
-          </a>
+      <nav class="text-muted-foreground flex items-center justify-between gap-2 text-sm">
+        <div class="flex items-center gap-2">
+          <div class="flex items-center gap-1">
+            <!-- Home Icon and Link -->
+            <Icon name="fa6-solid:house-chimney" class="h-4 w-4" />
+            <a href="/" aria-label="返回首页">
+              <span class="hover:text-blue transition-colors duration-300">首页</span>
+            </a>
+          </div>
+          <!-- Category Breadcrumbs -->
+          {
+            breadcrumbCategories.map((category, index) => (
+              <>
+                <Icon name="ri:arrow-right-s-line" class="text-muted-foreground/60 h-4 w-4" />
+                <a
+                  href={category.link}
+                  class={`hover:text-blue transition-colors duration-300 ${index === breadcrumbCategories.length - 1 ? 'text-primary bg-primary/10 hover:text-primary hover:bg-primary/20 rounded-full px-2.5 py-1' : ''}`}
+                  aria-label={`前往${category.name}分类`}
+                >
+                  {category.name}
+                </a>
+              </>
+            ))
+          }
         </div>
-        <!-- Category Breadcrumbs -->
         {
-          breadcrumbCategories.map((category, index) => (
-            <>
-              <Icon name="ri:arrow-right-s-line" class="text-muted-foreground/60 h-4 w-4" />
-              <a
-                href={category.link}
-                class={`hover:text-blue transition-colors duration-300 ${index === breadcrumbCategories.length - 1 ? 'text-primary bg-primary/10 hover:text-primary hover:bg-primary/20 rounded-full px-2.5 py-1' : ''}`}
-                aria-label={`前往${category.name}分类`}
-              >
-                {category.name}
-              </a>
-            </>
-          ))
+          import.meta.env.DEV && cmsConfig.enabled && <EditButton client:only="react" postId={postId} />
         }
       </nav>
       {

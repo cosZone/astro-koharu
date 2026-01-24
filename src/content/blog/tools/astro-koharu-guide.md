@@ -94,6 +94,48 @@ site:
     - 前端
 ```
 
+### 本地 CMS 编辑器（无后端）
+
+本项目内置“无后端 CMS”能力：在 `config/cms.yaml` 开启编辑按钮后，可直接在 dev 环境中在浏览器内编辑文章，或一键跳转到本地编辑器（VS Code / Cursor / Zed 等）。
+
+![](https://r2.cosine.ren/i/2026/01/a1c1d69ef48c758010e553e882e470db.webp)
+![](https://r2.cosine.ren/i/2026/01/6c6956e3b49729ddf272669f3f738f13.webp)
+![](https://r2.cosine.ren/i/2026/01/1d86afe19ed2fe921990657685393c2d.webp)
+
+**配置文件：** `config/cms.yaml`
+
+```yaml
+enabled: true # 是否启用本地 CMS 功能（仅开发环境）
+localProjectPath: "/Users/yourname/Documents/Programming/me/astro-koharu" # 本地项目（绝对路径） 例如: '/Users/yourname/path/to/astro-koharu'
+contentRelativePath: "src/content/blog" # 博客内容目录
+editors:
+  - id: vscode
+    name: VS Code
+    icon: devicon-plain:vscode # 可从 https://icon-sets.iconify.design/ 中搜寻图标
+    urlTemplate: "vscode://file{path}"
+  - id: cursor
+    name: Cursor
+    icon: simple-icons:cursor
+    urlTemplate: "cursor://file{path}"
+  - id: zed
+    name: Zed
+    icon: simple-icons:zedindustries
+    urlTemplate: "zed://file{path}"
+  # - id: obsidian
+  #   name: Obsidian
+  #   icon: simple-icons:obsidian
+  #   urlTemplate: 'obsidian://open?vault=koharu-content&file={relativePath}' # 这里的 reletivePath 是相对 content 目录的地址。
+```
+
+**使用说明：**
+
+- `enabled` 关闭后不显示编辑入口。
+- `localProjectPath` 必须是本机的绝对路径，否则无法生成正确的本地文件路径。
+- `urlTemplate` 支持 `{path}` `{relativePath}` `{line}` `{column}` 占位符，可按编辑器协议自行扩展。
+- 浏览器编辑器无需本地编辑器协议，适合在移动端或临时环境快速修改。
+
+后续考虑制作整体的文章管理、分类管理等视图，也是无后端的。
+
 **特色分类配置：**
 
 在首页底部展示的精选分类卡片：

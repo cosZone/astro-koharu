@@ -18,14 +18,9 @@
   color utility to any element that depends on these defaults.
 */
 @layer base {
-  *,
-  ::after,
-  ::before,
-  ::backdrop,
-  ::file-selector-button {
-    border-color: var(--color-gray-200, currentColor);
+  * {
+    @apply border-border;
   }
-
   button {
     @apply cursor-pointer;
   }
@@ -35,7 +30,9 @@
     background: linear-gradient(to top, var(--gradient-bg-end) 0, var(--gradient-bg-start) 30%) no-repeat bottom;
     scroll-behavior: smooth;
     letter-spacing: 0.02em;
+    color: var(--color-foreground);
   }
+
   h1,
   h2,
   h3,
@@ -59,6 +56,17 @@
   }
 
   .vertical-scrollbar::-webkit-scrollbar-thumb {
+    background: hsl(var(--primary) / 0.5); /* thumb color */
+    border-radius: 0.5rem;
+  }
+
+  .horizontal-scrollbar::-webkit-scrollbar {
+    display: block;
+    height: var(--scrollbar-width, 0.5rem);
+    background: hsl(var(--background)); /* background color */
+  }
+
+  .horizontal-scrollbar::-webkit-scrollbar-thumb {
     background: hsl(var(--primary) / 0.5); /* thumb color */
     border-radius: 0.5rem;
   }

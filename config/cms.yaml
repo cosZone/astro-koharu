@@ -1,0 +1,43 @@
+# =============================================================================
+# CMS Configuration (Backend-less Local Editor Integration)
+# =============================================================================
+# 无后端 CMS 系统 - 通过 URL 协议打开本地编辑器编辑博客文章
+# 核心思路：利用 vscode://、cursor:// 等自定义 URL 协议，将操作系统和本地应用作为 CMS 层
+# -----------------------------------------------------------------------------
+# 字段说明：
+#   enabled: 是否启用 CMS 功能（仅在开发环境生效）
+#   localProjectPath: 本地项目的绝对路径（必填，用于生成文件完整路径）
+#   contentRelativePath: 博客内容相对于项目根目录的路径（默认: 'src/content/blog'）
+#   editors: 编辑器配置列表
+#     - id: 编辑器唯一标识符
+#     - name: 编辑器显示名称
+#     - icon: Iconify 图标标识（可从 https://icon-sets.iconify.design/ 中搜寻）
+#     - urlTemplate: URL 模板，支持以下占位符：
+#         {path} - 文件绝对路径
+#         {relativePath} - 相对于内容目录的路径
+# -----------------------------------------------------------------------------
+# 使用方法：
+#   1. 配置 localProjectPath 为你的项目绝对路径
+#   2. 开发环境（pnpm dev）：编辑按钮会自动显示在文章页面
+#   3. 生产环境（pnpm build）：不会注入编辑按钮
+# -----------------------------------------------------------------------------
+enabled: true # 是否启用本地 CMS 功能（仅开发环境）
+localProjectPath: '/Users/yourname/Documents/Programming/me/astro-koharu' # 本地项目（绝对路径） 例如: '/Users/yourname/path/to/astro-koharu'
+contentRelativePath: 'src/content/blog' # 博客内容目录
+editors:
+  - id: vscode
+    name: VS Code
+    icon: devicon-plain:vscode # 可从 https://icon-sets.iconify.design/ 中搜寻图标
+    urlTemplate: 'vscode://file{path}'
+  - id: cursor
+    name: Cursor
+    icon: simple-icons:cursor
+    urlTemplate: 'cursor://file{path}'
+  - id: zed
+    name: Zed
+    icon: simple-icons:zedindustries
+    urlTemplate: 'zed://file{path}'
+  # - id: obsidian
+  #   name: Obsidian
+  #   icon: simple-icons:obsidian
+  #   urlTemplate: 'obsidian://open?vault=koharu-content&file={relativePath}' # 这里的 reletivePath 是相对 content 目录的地址。
