@@ -94,6 +94,7 @@ pnpm dev
 - [可开关] AI 自动摘要生成，自动生成摘要。
 - [可开关] 圣诞特辑：包含雪花飘落、圣诞配色、圣诞帽装饰、灯串装饰等节日氛围效果
 - 无后端站点公告系统：可通过配置文件管理公告，支持时间控制、多条公告堆叠、自定义颜色、hover 已读
+- **无后端 CMS（本地编辑器 / 浏览器编辑）**：文章页支持 `?edit=true` 开启编辑模式，内置浏览器编辑器与本地编辑器协议跳转（VS Code / Cursor / Zed），配置见 `config/cms.yaml`
 - 有样式的 [RSS](https://blog.cosine.ren/rss.xml) 订阅源链接
 - **Koharu CLI**：交互式命令行工具，支持备份/还原、内容生成、备份管理
 
@@ -210,6 +211,7 @@ pnpm koharu generate all          # 生成全部
 - **评论系统**（Waline / Giscus / Remark42，推荐使用 Waline）
 - 数据统计（Umami）
 - 圣诞特辑开关
+- 本地 CMS 配置（`config/cms.yaml`，用于浏览器编辑/本地编辑器协议跳转）
 
 详细配置说明请参考文档。
 

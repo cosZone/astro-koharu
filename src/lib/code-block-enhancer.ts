@@ -154,7 +154,7 @@ export async function copyToClipboard(text: string): Promise<boolean> {
     await navigator.clipboard.writeText(text);
     return true;
   } catch (err) {
-    // Fallback for older browsers
+    // Fallback for older browsers that don't support Clipboard API
     try {
       const textArea = document.createElement('textarea');
       textArea.value = text;
@@ -164,7 +164,9 @@ export async function copyToClipboard(text: string): Promise<boolean> {
       document.body.appendChild(textArea);
       textArea.focus();
       textArea.select();
-      const success = document.execCommand('copy');
+      // Use deprecated execCommand as fallback for ancient browsers
+      // Cast to unknown first to avoid TypeScript deprecation warning
+      const success = (document as unknown as { execCommand: (cmd: string) => boolean }).execCommand('copy');
       document.body.removeChild(textArea);
       return success;
     } catch {

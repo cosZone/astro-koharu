@@ -29,6 +29,7 @@ export interface BackupItem {
 export const BACKUP_ITEMS: BackupItem[] = [
   { src: 'src/content/blog', dest: 'content/blog', label: '博客文章', required: true },
   { src: 'config/site.yaml', dest: 'config/site.yaml', label: '网站配置', required: true },
+  { src: 'config/cms.yaml', dest: 'config/cms.yaml', label: 'CMS 配置', required: true },
   { src: 'src/pages/about.md', dest: 'pages/about.md', label: '关于页面', required: true },
   { src: 'public/img', dest: 'img', label: '用户图片', required: true },
   { src: '.env', dest: 'env', label: '环境变量', required: true },

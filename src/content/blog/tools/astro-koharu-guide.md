@@ -94,6 +94,43 @@ site:
     - 前端
 ```
 
+### 本地 CMS 编辑器（无后端）
+
+本项目内置“无后端 CMS”能力：在文章页开启编辑模式后，可直接在浏览器内编辑文章，或一键跳转到本地编辑器（VS Code / Cursor / Zed 等）。
+
+**开启方式：**
+
+1. 进入任意文章页面，追加 `?edit=true`（如 `https://yoursite.com/post/xxx?edit=true`）。
+2. 或在面包屑旁的隐藏编辑入口处点击启用编辑模式（Hover 可见）。
+
+![](https://r2.cosine.ren/i/2026/01/a1c1d69ef48c758010e553e882e470db.webp)
+![](https://r2.cosine.ren/i/2026/01/6c6956e3b49729ddf272669f3f738f13.webp)
+![](https://r2.cosine.ren/i/2026/01/1d86afe19ed2fe921990657685393c2d.webp)
+
+**配置文件：** `config/cms.yaml`
+
+```yaml
+enabled: true
+localProjectPath: "/Users/yourname/path/to/astro-koharu" # 本地项目绝对路径（必填，用于生成完整文件路径）
+contentRelativePath: "src/content/blog" # 内容目录（默认）
+editors:
+  - id: vscode
+    name: VS Code
+    icon: devicon-plain:vscode
+    urlTemplate: "vscode://file{path}:{line}"
+  - id: cursor
+    name: Cursor
+    icon: simple-icons:cursor
+    urlTemplate: "cursor://file{path}"
+```
+
+**使用说明：**
+
+- `enabled` 关闭后不显示编辑入口。
+- `localProjectPath` 必须是本机的绝对路径，否则无法生成正确的本地文件路径。
+- `urlTemplate` 支持 `{path}` `{relativePath}` `{line}` `{column}` 占位符，可按编辑器协议自行扩展。
+- 浏览器编辑器无需本地编辑器协议，适合在移动端或临时环境快速修改。
+
 **特色分类配置：**
 
 在首页底部展示的精选分类卡片：

@@ -43,3 +43,4 @@ editors:
   #   name: Obsidian
   #   icon: simple-icons:obsidian
   #   urlTemplate: 'obsidian://open?vault=koharu-content&file={relativePath}' # 这里的 reletivePath 是相对 content 目录的地址。
+  
