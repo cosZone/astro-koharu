@@ -10,18 +10,27 @@ import type { EditorConfig } from '@/types/cms';
 /**
  * Build an editor URL from a template and file path
  *
- * @param urlTemplate - URL template with placeholders: {path}, {line}, {column}
+ * @param urlTemplate - URL template with placeholders: {path}, {relativePath}, {line}, {column}
  * @param filePath - Absolute path to the file
+ * @param relativePath - Relative path from content directory (e.g., 'note/theme.md')
  * @param line - Line number to jump to (default: 1)
  * @param column - Column number (default: 1)
  * @returns The constructed editor URL
  *
  * @example
- * buildEditorUrl('vscode://file{path}:{line}', '/Users/me/project/file.md', 10)
+ * buildEditorUrl('vscode://file{path}:{line}', '/Users/me/project/file.md', 'note/file.md', 10)
  * // Returns: 'vscode://file/Users/me/project/file.md:10'
+ *
+ * @example
+ * buildEditorUrl('obsidian://open?file={relativePath}', '/Users/me/project/file.md', 'note/file.md')
+ * // Returns: 'obsidian://open?file=note/file.md'
  */
-export function buildEditorUrl(urlTemplate: string, filePath: string, line = 1, column = 1): string {
-  return urlTemplate.replace('{path}', filePath).replace('{line}', String(line)).replace('{column}', String(column));
+export function buildEditorUrl(urlTemplate: string, filePath: string, relativePath: string, line = 1, column = 1): string {
+  return urlTemplate
+    .replace('{path}', filePath)
+    .replace('{relativePath}', relativePath)
+    .replace('{line}', String(line))
+    .replace('{column}', String(column));
 }
 
 /**
@@ -50,9 +59,10 @@ export function getFullFilePath(localProjectPath: string, contentRelativePath: s
  *
  * @param editor - Editor configuration
  * @param filePath - Absolute path to the file
+ * @param relativePath - Relative path from content directory
  * @param line - Line number to jump to (default: 1)
  */
-export function openInEditor(editor: EditorConfig, filePath: string, line = 1): void {
-  const url = buildEditorUrl(editor.urlTemplate, filePath, line);
+export function openInEditor(editor: EditorConfig, filePath: string, relativePath: string, line = 1): void {
+  const url = buildEditorUrl(editor.urlTemplate, filePath, relativePath, line);
   window.location.href = url;
 }

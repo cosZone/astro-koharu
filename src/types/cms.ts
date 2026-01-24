@@ -28,7 +28,7 @@ export interface CMSConfig {
   /** Absolute path to the local project directory */
   localProjectPath: string;
   /** Relative path from project root to content directory (default: 'src/content/blog') */
-  contentRelativePath?: string;
+  contentRelativePath: string;
   /** List of configured editors */
   editors: EditorConfig[];
 }

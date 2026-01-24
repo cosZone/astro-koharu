@@ -63,7 +63,7 @@ export default function EditButton({ postId }: EditButtonProps) {
       }
 
       const filePath = getFullFilePath(localProjectPath, contentRelativePath, postId);
-      openInEditor(editor, filePath);
+      openInEditor(editor, filePath, postId);
     },
     [localProjectPath, contentRelativePath, postId],
   );

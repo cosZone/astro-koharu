@@ -426,27 +426,11 @@ export interface ChristmasConfig {
 // CMS Configuration (Backend-less Local Editor Integration)
 // =============================================================================
 
-export interface EditorConfig {
-  /** Unique identifier for the editor */
-  id: string;
-  /** Display name */
-  name: string;
-  /** Iconify icon identifier (e.g., 'ri:vscode-line') */
-  icon: string;
-  /** URL template with placeholders: {path}, {line}, {column} */
-  urlTemplate: string;
-}
+// Import CMS types from @/types/cms
+import type { CMSConfig } from '@/types/cms';
 
-export interface CMSConfig {
-  /** Whether CMS features are enabled */
-  enabled: boolean;
-  /** Absolute path to the local project directory */
-  localProjectPath: string;
-  /** Relative path from project root to content directory (default: 'src/content/blog') */
-  contentRelativePath?: string;
-  /** List of configured editors */
-  editors: EditorConfig[];
-}
+// Re-export CMS types for backward compatibility
+export type { CMSConfig, EditorConfig } from '@/types/cms';
 
 // =============================================================================
 // Root Configuration Type

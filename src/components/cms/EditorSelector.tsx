@@ -32,7 +32,7 @@ export default function EditorSelector({ postId, onSelect, className }: EditorSe
       }
 
       const filePath = getFullFilePath(localProjectPath, contentRelativePath, postId);
-      openInEditor(editor, filePath);
+      openInEditor(editor, filePath, postId);
       onSelect?.();
     },
     [localProjectPath, contentRelativePath, postId, onSelect],
