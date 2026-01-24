@@ -15,6 +15,7 @@ type SiteConfig = {
   author?: string;
   site: string;
   startYear?: number;
+  defaultOgImage?: string;
   keywords?: string[];
   featuredCategories?: {
     link: string;
@@ -188,6 +189,7 @@ export const siteConfig: SiteConfig = {
   author: yamlConfig.site.author,
   site: yamlConfig.site.url,
   startYear: yamlConfig.site.startYear,
+  defaultOgImage: yamlConfig.site.defaultOgImage,
   keywords: yamlConfig.site.keywords,
   featuredCategories: yamlConfig.featuredCategories,
   featuredSeries: normalizeFeaturedSeries(yamlConfig.featuredSeries),

@@ -20,6 +20,7 @@ site:
   showLogo: true # 是否显示 Logo
   author: Author # 作者名称 - 请修改为你的名字
   url: https://koharu.cosine.ren # 站点 URL 用于 RSS 和 SEO
+  defaultOgImage: /img/cover/1.webp # 默认 Open Graph 图片
   startYear: 2024 # 建站年份
   keywords: # SEO 关键词
     - 博客
