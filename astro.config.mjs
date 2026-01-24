@@ -67,7 +67,7 @@ function conditionalSnowfall() {
 // https://astro.build/config
 export default defineConfig({
   site: yamlConfig.site.url,
-  adapter: node({ mode: 'standalone' }),
+  // adapter: node({ mode: 'standalone' }),
   compressHTML: true,
   markdown: {
     // Enable GitHub Flavored Markdown
