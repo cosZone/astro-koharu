@@ -1,6 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import node from '@astrojs/node';
+import vercel from '@astrojs/vercel';
 import react from '@astrojs/react';
 import yaml from '@rollup/plugin-yaml';
 import tailwindcss from '@tailwindcss/vite';
@@ -27,6 +28,27 @@ function loadConfigForAstro() {
 }
 
 const yamlConfig = loadConfigForAstro();
+
+// Load CMS config for adapter decision
+function loadCmsConfig() {
+  const configPath = path.join(process.cwd(), 'config', 'cms.yaml');
+  if (!fs.existsSync(configPath)) return { enabled: false };
+  const content = fs.readFileSync(configPath, 'utf8');
+  return YAML.parse(content) || { enabled: false };
+}
+
+const cmsConfig = loadCmsConfig();
+
+// Choose adapter based on environment:
+// - Vercel: use @astrojs/vercel (detected by VERCEL=1 env var)
+// - Local dev with CMS: use @astrojs/node for SSR API routes
+// - Local build: use @astrojs/node for prerender: false pages
+const isDev = process.env.NODE_ENV !== 'production';
+const isVercel = process.env.VERCEL === '1';
+const shouldUseAdapter = (isDev && cmsConfig?.enabled) || (!isDev && !isVercel);
+
+// Select the appropriate adapter
+const adapter = isVercel ? vercel() : (shouldUseAdapter ? node({ mode: 'standalone' }) : undefined);
 
 // Get Umami analytics config from YAML
 const umamiConfig = yamlConfig.analytics?.umami;
@@ -67,7 +89,7 @@ function conditionalSnowfall() {
 // https://astro.build/config
 export default defineConfig({
   site: yamlConfig.site.url,
-  adapter: node({ mode: 'standalone' }),
+  adapter,
   compressHTML: true,
   markdown: {
     // Enable GitHub Flavored Markdown

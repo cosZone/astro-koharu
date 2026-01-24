@@ -11,6 +11,9 @@ import { cmsConfig } from '@constants/site-config';
 import type { APIRoute } from 'astro';
 import matter from 'gray-matter';
 
+// In production, prerender as static (returns 403 anyway)
+// In development, use SSR for dynamic API handling
+// export const prerender = !import.meta.env.PROD;
 export const prerender = false;
 
 // Content directory relative to project root

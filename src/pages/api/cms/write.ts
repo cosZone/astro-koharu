@@ -14,6 +14,9 @@ import matter from 'gray-matter';
 import yaml from 'js-yaml';
 import type { BlogSchema } from '@/types/blog';
 
+// In production, prerender as static (returns 403 anyway)
+// In development, use SSR for dynamic API handling
+// export const prerender = !import.meta.env.PROD;
 export const prerender = false;
 
 // Content directory relative to project root
