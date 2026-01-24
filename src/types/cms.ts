@@ -25,6 +25,8 @@ export interface EditorConfig {
 export interface CMSConfig {
   /** Whether CMS features are enabled */
   enabled: boolean;
+  /** Whether CMS features are enabled in production (default: false) */
+  enableInProduction?: boolean;
   /** Absolute path to the local project directory */
   localProjectPath: string;
   /** Relative path from project root to content directory (default: 'src/content/blog') */

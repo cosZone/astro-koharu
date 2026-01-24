@@ -269,6 +269,7 @@ export const christmasConfig: ChristmasConfig = yamlConfig.christmas || {
 // Map YAML CMS config with defaults
 export const cmsConfig: CMSConfig = {
   enabled: rawCmsConfig?.enabled ?? false,
+  enableInProduction: rawCmsConfig?.enableInProduction ?? false,
   localProjectPath: rawCmsConfig?.localProjectPath ?? '',
   contentRelativePath: rawCmsConfig?.contentRelativePath ?? 'src/content/blog',
   editors: rawCmsConfig?.editors ?? [],

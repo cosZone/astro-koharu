@@ -2,10 +2,8 @@
  * EditButton Component
  *
  * Inline edit button for post pages, displayed next to breadcrumb navigation.
- * Only visible when edit mode is enabled (via ?edit=true or localStorage).
+ * Visibility is controlled at build-time via Astro page conditions.
  * Opens a dropdown menu with editor selection on click.
- *
- * In non-edit mode, shows a hidden entry button that becomes visible on hover.
  */
 
 import { cmsConfig } from '@constants/site-config';
@@ -13,9 +11,7 @@ import { useIsMounted } from '@hooks/useIsMounted';
 import { Icon } from '@iconify/react';
 import { getFullFilePath, openInEditor } from '@lib/cms';
 import { cn } from '@lib/utils';
-import { useStore } from '@nanostores/react';
-import { cmsEditMode, enableEditMode, initCmsState } from '@store/cms';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useState } from 'react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -34,24 +30,13 @@ interface EditButtonProps {
 
 export default function EditButton({ postId }: EditButtonProps) {
   const isMounted = useIsMounted();
-  const isEditMode = useStore(cmsEditMode);
   const [isEditorOpen, setIsEditorOpen] = useState(false);
 
-  const { enabled, editors, localProjectPath, contentRelativePath = 'src/content/blog' } = cmsConfig;
-
-  // Initialize CMS state on mount
-  useEffect(() => {
-    initCmsState();
-  }, []);
+  const { editors, localProjectPath, contentRelativePath = 'src/content/blog' } = cmsConfig;
 
   // Handle opening browser editor
   const handleBrowserEdit = useCallback(() => {
     setIsEditorOpen(true);
-  }, []);
-
-  // Handle hidden entry click (enable edit mode)
-  const handleHiddenEntryClick = useCallback(() => {
-    enableEditMode();
   }, []);
 
   // Handle editor click
@@ -68,32 +53,10 @@ export default function EditButton({ postId }: EditButtonProps) {
     [localProjectPath, contentRelativePath, postId],
   );
 
-  // Don't render if not mounted or not enabled
-  if (!isMounted || !enabled) {
+  // Don't render if not mounted
+  if (!isMounted) {
     return null;
   }
-
-  // Hidden entry button for non-edit mode
-  if (!isEditMode) {
-    return (
-      <button
-        type="button"
-        onClick={handleHiddenEntryClick}
-        className={cn(
-          'flex items-center justify-center rounded-full p-1.5 transition-all duration-200',
-          'opacity-0 hover:opacity-30 focus:opacity-30',
-          'text-muted-foreground hover:text-foreground',
-        )}
-        aria-label="Enable edit mode"
-        title="Enable edit mode"
-      >
-        <Icon icon="ri:edit-line" className="h-3.5 w-3.5" />
-      </button>
-    );
-  }
-
-  // Note: Browser editor is always available when CMS is enabled,
-  // so no error state is needed here. Local editors are optional.
 
   return (
     <>

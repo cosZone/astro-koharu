@@ -5,7 +5,7 @@ import SummaryPanel, { type SummarySource } from '@components/post/SummaryPanel'
 import Cover from '@components/ui/cover/Cover.astro';
 import { HomeSiderType } from '@constants/enum';
 import { CONTENT_PADDING } from '@constants/layout';
-import { siteConfig } from '@constants/site-config';
+import { cmsConfig, siteConfig } from '@constants/site-config';
 import Layout from '@layouts/Layout.astro';
 import TwoColumnLayout from '@layouts/TwoColumnLayout.astro';
 import { buildCategoryPath, getCategoryArr, getPostDescription, getPostSummary, getSortedPosts } from '@lib/content';
@@ -124,7 +124,11 @@ if (post.data.description) {
             ))
           }
         </div>
-        <EditButton client:idle postId={postId} />
+        {
+          (import.meta.env.DEV || cmsConfig.enableInProduction) && cmsConfig.enabled && (
+            <EditButton client:only="react" postId={postId} />
+          )
+        }
       </nav>
       {
         summaryText && summarySource && (
