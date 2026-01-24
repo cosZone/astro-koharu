@@ -125,9 +125,7 @@ if (post.data.description) {
           }
         </div>
         {
-          (import.meta.env.DEV || cmsConfig.enableInProduction) && cmsConfig.enabled && (
-            <EditButton client:only="react" postId={postId} />
-          )
+          import.meta.env.DEV && cmsConfig.enabled && <EditButton client:only="react" postId={postId} />
         }
       </nav>
       {

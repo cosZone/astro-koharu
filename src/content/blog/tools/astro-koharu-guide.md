@@ -105,18 +105,26 @@ site:
 **配置文件：** `config/cms.yaml`
 
 ```yaml
-enabled: true
-localProjectPath: "/Users/yourname/path/to/astro-koharu" # 本地项目绝对路径（必填，用于生成完整文件路径）
-contentRelativePath: "src/content/blog" # 内容目录（默认）
+enabled: true # 是否启用本地 CMS 功能（仅开发环境）
+localProjectPath: "/Users/yourname/Documents/Programming/me/astro-koharu" # 本地项目（绝对路径） 例如: '/Users/yourname/path/to/astro-koharu'
+contentRelativePath: "src/content/blog" # 博客内容目录
 editors:
   - id: vscode
     name: VS Code
-    icon: devicon-plain:vscode
-    urlTemplate: "vscode://file{path}:{line}"
+    icon: devicon-plain:vscode # 可从 https://icon-sets.iconify.design/ 中搜寻图标
+    urlTemplate: "vscode://file{path}"
   - id: cursor
     name: Cursor
     icon: simple-icons:cursor
     urlTemplate: "cursor://file{path}"
+  - id: zed
+    name: Zed
+    icon: simple-icons:zedindustries
+    urlTemplate: "zed://file{path}"
+  # - id: obsidian
+  #   name: Obsidian
+  #   icon: simple-icons:obsidian
+  #   urlTemplate: 'obsidian://open?vault=koharu-content&file={relativePath}' # 这里的 reletivePath 是相对 content 目录的地址。
 ```
 
 **使用说明：**
