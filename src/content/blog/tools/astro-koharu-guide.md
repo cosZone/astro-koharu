@@ -96,12 +96,7 @@ site:
 
 ### 本地 CMS 编辑器（无后端）
 
-本项目内置“无后端 CMS”能力：在文章页开启编辑模式后，可直接在浏览器内编辑文章，或一键跳转到本地编辑器（VS Code / Cursor / Zed 等）。
-
-**开启方式：**
-
-1. 进入任意文章页面，追加 `?edit=true`（如 `https://yoursite.com/post/xxx?edit=true`）。
-2. 或在面包屑旁的隐藏编辑入口处点击启用编辑模式（Hover 可见）。
+本项目内置“无后端 CMS”能力：在 `config/cms.yaml` 开启编辑按钮后，可直接在 dev 环境中在浏览器内编辑文章，或一键跳转到本地编辑器（VS Code / Cursor / Zed 等）。
 
 ![](https://r2.cosine.ren/i/2026/01/a1c1d69ef48c758010e553e882e470db.webp)
 ![](https://r2.cosine.ren/i/2026/01/6c6956e3b49729ddf272669f3f738f13.webp)
@@ -130,6 +125,8 @@ editors:
 - `localProjectPath` 必须是本机的绝对路径，否则无法生成正确的本地文件路径。
 - `urlTemplate` 支持 `{path}` `{relativePath}` `{line}` `{column}` 占位符，可按编辑器协议自行扩展。
 - 浏览器编辑器无需本地编辑器协议，适合在移动端或临时环境快速修改。
+
+后续考虑制作整体的文章管理、分类管理等视图，也是无后端的。
 
 **特色分类配置：**
 
