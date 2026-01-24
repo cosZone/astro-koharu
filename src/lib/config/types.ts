@@ -424,6 +424,16 @@ export interface ChristmasConfig {
 }
 
 // =============================================================================
+// CMS Configuration (Backend-less Local Editor Integration)
+// =============================================================================
+
+// Import CMS types from @/types/cms
+import type { CMSConfig } from '@/types/cms';
+
+// Re-export CMS types for backward compatibility
+export type { CMSConfig, EditorConfig } from '@/types/cms';
+
+// =============================================================================
 // Root Configuration Type
 // =============================================================================
 
@@ -441,4 +451,6 @@ export interface SiteYamlConfig {
   analytics?: AnalyticsConfig;
   categoryMap?: Record<string, string>; // TODO: i18n, now use eg: { '随笔': 'life' }
   christmas?: ChristmasConfig;
+  /** CMS configuration for local editor integration */
+  cms?: CMSConfig;
 }

@@ -1,5 +1,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
+import node from '@astrojs/node';
 import react from '@astrojs/react';
 import yaml from '@rollup/plugin-yaml';
 import tailwindcss from '@tailwindcss/vite';
@@ -66,6 +67,7 @@ function conditionalSnowfall() {
 // https://astro.build/config
 export default defineConfig({
   site: yamlConfig.site.url,
+  adapter: node({ mode: 'standalone' }),
   compressHTML: true,
   markdown: {
     // Enable GitHub Flavored Markdown
