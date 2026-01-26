@@ -136,10 +136,10 @@ async function getPlainText(markdown: string): Promise<string> {
  * Extract slug from file path, with support for custom link field
  */
 function extractSlug(filePath: string, link?: string): string {
-  if (link) return link;
+  if (link) return link.toLowerCase();
   // Extract from path: src/content/blog/foo/bar.md -> foo/bar
   const relativePath = filePath.replace(/^src\/content\/blog\//, '').replace(/\.md$/, '');
-  return relativePath;
+  return relativePath.toLowerCase();
 }
 
 /**

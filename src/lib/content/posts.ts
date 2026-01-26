@@ -32,7 +32,22 @@ export function getPostDescription(post: BlogPost, maxLength: number = 150): str
  */
 export function getPostSummary(slug: string): string | null {
   const data = summaries as SummariesData;
-  return data[slug]?.summary ?? null;
+
+  // Fast path: exact match (O(1))
+  const exactMatch = data[slug]?.summary ?? null;
+  if (exactMatch) return exactMatch;
+
+  // Fallback: case-insensitive search for backward compatibility
+  const lowerSlug = slug.toLowerCase();
+  const keys = Object.keys(data);
+
+  for (const key of keys) {
+    if (key.toLowerCase() === lowerSlug) {
+      return data[key].summary;
+    }
+  }
+
+  return null;
 }
 
 /**

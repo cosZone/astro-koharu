@@ -31,9 +31,23 @@ try {
  * @returns Array of similar post data with similarity scores
  */
 export function getRelatedPostSlugs(currentSlug: string, count: number = 5): SimilarPost[] {
-  const related = similarityData[currentSlug];
-  if (!related) return [];
-  return related.slice(0, count);
+  // Fast path: exact match (O(1))
+  const exactMatch = similarityData[currentSlug];
+  if (exactMatch) {
+    return exactMatch.slice(0, count);
+  }
+
+  // Fallback: case-insensitive search for backward compatibility
+  const lowerSlug = currentSlug.toLowerCase();
+  const keys = Object.keys(similarityData);
+
+  for (const key of keys) {
+    if (key.toLowerCase() === lowerSlug) {
+      return similarityData[key].slice(0, count);
+    }
+  }
+
+  return [];
 }
 
 /**

@@ -120,9 +120,9 @@ async function getPlainText(markdown: string): Promise<string> {
 }
 
 function extractSlug(filePath: string, link?: string): string {
-  if (link) return link;
+  if (link) return link.toLowerCase();
   const relativePath = filePath.replace(/^src\/content\/blog\//, '').replace(/\.md$/, '');
-  return relativePath;
+  return relativePath.toLowerCase();
 }
 
 // --------- LLM API ---------
