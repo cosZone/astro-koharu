@@ -367,6 +367,31 @@ excludeFromSummary: false # 是否排除 AI 摘要和相似度计算（默认 fa
 - 如果省略描述，系统会自动使用 AI 生成的摘要（需运行 `pnpm generate:summaries`）
 - 如果既没有手写描述也没有 AI 摘要，则自动提取文章正文的前 150 个字符
 
+**关于 link 字段（自定义 URL）：**
+
+⚠️ **重要**：`link` 字段会被**自动转换为小写**，以保持 URL 的一致性和规范性。
+
+- **规范化行为**：无论你输入 `MyPost`、`myPost` 还是 `mypost`，最终 URL 都会是 `/post/mypost`
+- **文件名大小写无关**：文章文件名可以使用任意大小写（如 `MyPost.md`），系统会自动处理
+- **AI 摘要和相似度**：生成的 `summaries.json` 和 `similarities.json` 中的 key 也会统一为小写
+- **最佳实践**：建议直接使用小写和连字符（如 `my-awesome-post`），避免混淆
+
+```yaml
+# ✅ 推荐写法
+link: my-awesome-post  # URL: /post/my-awesome-post
+
+# ⚠️ 会被转为小写
+link: MyAwesomePost    # URL: /post/myawesomepost（不是 /post/MyAwesomePost）
+link: My-Awesome-Post  # URL: /post/my-awesome-post
+```
+
+如果省略 `link` 字段，系统会使用文件名（同样会转为小写）：
+
+```yaml
+# 文件: src/content/blog/MyPost.md
+# 省略 link 字段 → URL: /post/mypost
+```
+
 ### 分类系统
 
 astro-koharu 支持灵活的分类配置：
