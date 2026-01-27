@@ -2,6 +2,7 @@
  * useMediaQuery Hook
  *
  * Hook for responding to media query changes (responsive breakpoints).
+ * Uses useSyncExternalStore for optimal React 18+ compatibility.
  *
  * @example
  * ```tsx
@@ -15,7 +16,7 @@
  * ```
  */
 
-import { useEffect, useState } from 'react';
+import { useSyncExternalStore } from 'react';
 
 /**
  * Hook for media query matching
@@ -24,34 +25,27 @@ import { useEffect, useState } from 'react';
  * @returns Whether the media query matches
  */
 export function useMediaQuery(query: string): boolean {
-  // Always initialize with false to avoid hydration mismatch
-  // The actual value will be set in useEffect after mount
-  const [matches, setMatches] = useState(false);
+  return useSyncExternalStore(
+    (callback) => {
+      // Ensure we're in browser environment
+      if (typeof window === 'undefined' || !window.matchMedia) {
+        return () => {};
+      }
 
-  useEffect(() => {
-    // Ensure we're in browser environment
-    if (typeof window === 'undefined' || !window.matchMedia) {
-      return;
-    }
-
-    const mediaQuery = window.matchMedia(query);
-
-    // Update state with current match
-    setMatches(mediaQuery.matches);
-
-    // Define change handler
-    const handleChange = (event: MediaQueryListEvent) => {
-      setMatches(event.matches);
-    };
-
-    // Modern browsers use addEventListener
-    mediaQuery.addEventListener('change', handleChange);
-    return () => {
-      mediaQuery.removeEventListener('change', handleChange);
-    };
-  }, [query]);
-
-  return matches;
+      const mediaQuery = window.matchMedia(query);
+      // Use callback as the listener (it triggers re-render)
+      mediaQuery.addEventListener('change', callback);
+      return () => mediaQuery.removeEventListener('change', callback);
+    },
+    () => {
+      // Get current snapshot
+      if (typeof window === 'undefined' || !window.matchMedia) {
+        return false;
+      }
+      return window.matchMedia(query).matches;
+    },
+    () => false, // SSR snapshot - always false to avoid hydration mismatch
+  );
 }
 
 /**

@@ -11,7 +11,7 @@ import { configuredSeriesSlugs, enabledSeriesSlugs } from '@constants/site-confi
 import { useScrollTrigger } from '@hooks/useScrollTrigger';
 import { Icon } from '@iconify/react';
 import { cn, filterNavItems } from '@lib/utils';
-import { useEffect, useRef, useState } from 'react';
+import { memo, useEffect, useRef, useState } from 'react';
 import DropdownNav from './DropdownNav';
 import { SearchTrigger } from './SearchDialog';
 
@@ -52,7 +52,7 @@ function ButtonLink({ url, label, isActive, children }: ButtonLinkProps) {
   );
 }
 
-export default function Navigator({ currentPath }: NavigatorProps) {
+const Navigator = memo(function Navigator({ currentPath }: NavigatorProps) {
   const { isBeyond, direction } = useScrollTrigger({
     triggerDistance: 0.45,
     throttleMs: 80,
@@ -159,7 +159,9 @@ export default function Navigator({ currentPath }: NavigatorProps) {
       </div>
     </div>
   );
-}
+});
+
+export default Navigator;
 
 /**
  * Hook for header scroll behavior

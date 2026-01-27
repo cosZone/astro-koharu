@@ -288,7 +288,7 @@ const ogImage = ogImagePath ? new URL(ogImagePath, Astro.site).href : undefined;
       </main>
       <FloatingGroup client:only="react" />
       <MobileDrawer type={siderType} post={post} />
-      <SearchDialog client:load />
+      <SearchDialog client:idle />
       <SearchPortal />
       <CodeBlockFullscreen client:load />
       <MermaidFullscreen />

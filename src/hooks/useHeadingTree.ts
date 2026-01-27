@@ -71,69 +71,71 @@ function buildHeadingTree(flatHeadings: Array<{ id: string; text: string; level:
  */
 export function useHeadingTree(): Heading[] {
   const [headings, setHeadings] = useState<Heading[]>([]);
-  const [_pageKey, setPageKey] = useState(0);
 
-  // 监听 Astro 页面切换，触发重新构建 heading tree
   useEffect(() => {
-    const handlePageLoad = () => setPageKey((k) => k + 1);
-    document.addEventListener('astro:page-load', handlePageLoad);
-    return () => document.removeEventListener('astro:page-load', handlePageLoad);
+    const buildTree = () => {
+      const articleContent = document.querySelector('article');
+      if (!articleContent) {
+        setHeadings([]);
+        return;
+      }
+
+      // Get all heading elements, excluding those inside .link-preview-block
+      // Using :not() pseudo-class for better performance (single DOM traversal)
+      const headingElements = articleContent.querySelectorAll(
+        'h1:not(.link-preview-block h1), ' +
+          'h2:not(.link-preview-block h2), ' +
+          'h3:not(.link-preview-block h3), ' +
+          'h4:not(.link-preview-block h4), ' +
+          'h5:not(.link-preview-block h5), ' +
+          'h6:not(.link-preview-block h6)',
+      );
+
+      // If no headings, don't show TOC
+      if (headingElements.length === 0) {
+        setHeadings([]);
+        return;
+      }
+
+      // Process heading elements (convert NodeList to Array for map)
+      const flatHeadings: Array<{ id: string; text: string; level: number }> = Array.from(headingElements).map(
+        (heading, index) => {
+          // Use existing ID or create fallback ID
+          let id = heading.id;
+          if (!id) {
+            // Create slug-like ID from text content
+            const text = heading.textContent || '';
+            id =
+              text
+                .toLowerCase()
+                .replace(/[^\w\s-]/g, '') // Remove special characters except words, spaces, hyphens
+                .replace(/\s+/g, '-') // Replace spaces with hyphens
+                .trim() || `heading-${index}`; // Fallback to index-based ID
+
+            // Set the ID on the element for future use
+            heading.id = id;
+          }
+
+          return {
+            id,
+            text: heading.textContent || '',
+            level: parseInt(heading.tagName.substring(1), 10), // Get heading level (1-6)
+          };
+        },
+      );
+
+      // Build hierarchical structure
+      const headingTree = buildHeadingTree(flatHeadings);
+
+      // Numbering is now handled by CSS counters (see post.css)
+      setHeadings(headingTree);
+    };
+
+    // Build tree on mount and page navigation
+    buildTree();
+    document.addEventListener('astro:page-load', buildTree);
+    return () => document.removeEventListener('astro:page-load', buildTree);
   }, []);
-
-  useEffect(() => {
-    const articleContent = document.querySelector('article');
-    if (!articleContent) {
-      setHeadings([]);
-      return;
-    }
-
-    // Get all heading elements, excluding those inside .link-preview-block
-    // Using :not() pseudo-class for better performance (single DOM traversal)
-    const headingElements = articleContent.querySelectorAll(
-      'h1:not(.link-preview-block h1), ' +
-        'h2:not(.link-preview-block h2), ' +
-        'h3:not(.link-preview-block h3), ' +
-        'h4:not(.link-preview-block h4), ' +
-        'h5:not(.link-preview-block h5), ' +
-        'h6:not(.link-preview-block h6)',
-    );
-
-    // If no headings, don't show TOC
-    if (headingElements.length === 0) return;
-
-    // Process heading elements (convert NodeList to Array for map)
-    const flatHeadings: Array<{ id: string; text: string; level: number }> = Array.from(headingElements).map(
-      (heading, index) => {
-        // Use existing ID or create fallback ID
-        let id = heading.id;
-        if (!id) {
-          // Create slug-like ID from text content
-          const text = heading.textContent || '';
-          id =
-            text
-              .toLowerCase()
-              .replace(/[^\w\s-]/g, '') // Remove special characters except words, spaces, hyphens
-              .replace(/\s+/g, '-') // Replace spaces with hyphens
-              .trim() || `heading-${index}`; // Fallback to index-based ID
-
-          // Set the ID on the element for future use
-          heading.id = id;
-        }
-
-        return {
-          id,
-          text: heading.textContent || '',
-          level: parseInt(heading.tagName.substring(1), 10), // Get heading level (1-6)
-        };
-      },
-    );
-
-    // Build hierarchical structure
-    const headingTree = buildHeadingTree(flatHeadings);
-
-    // Numbering is now handled by CSS counters (see post.css)
-    setHeadings(headingTree);
-  }, []); // pageKey 变化时重新构建 heading tree
 
   return headings;
 }

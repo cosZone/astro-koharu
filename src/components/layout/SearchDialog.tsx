@@ -61,14 +61,19 @@ export default function SearchDialog() {
     return results;
   }, []);
 
+  // Use ref to track selectedIndex without causing effect re-runs
+  const selectedIndexRef = useRef(selectedIndex);
+  selectedIndexRef.current = selectedIndex;
+
   // Clear selection
   const clearSelection = useCallback(() => {
     const items = getSelectableItems();
-    if (selectedIndex >= 0 && selectedIndex < items.length) {
-      items[selectedIndex]?.removeAttribute('data-selected');
+    const currentIndex = selectedIndexRef.current;
+    if (currentIndex >= 0 && currentIndex < items.length) {
+      items[currentIndex]?.removeAttribute('data-selected');
     }
     setSelectedIndex(-1);
-  }, [selectedIndex, getSelectableItems]);
+  }, [getSelectableItems]);
 
   // Select a result
   const selectResult = useCallback(
@@ -80,10 +85,11 @@ export default function SearchDialog() {
       }
 
       const newIndex = Math.max(-1, Math.min(index, items.length - 1));
+      const currentIndex = selectedIndexRef.current;
 
       // Remove old selection
-      if (selectedIndex >= 0 && selectedIndex < items.length) {
-        items[selectedIndex]?.removeAttribute('data-selected');
+      if (currentIndex >= 0 && currentIndex < items.length) {
+        items[currentIndex]?.removeAttribute('data-selected');
       }
 
       setSelectedIndex(newIndex);
@@ -96,15 +102,16 @@ export default function SearchDialog() {
         searchInput?.focus();
       }
     },
-    [selectedIndex, getSelectableItems],
+    [getSelectableItems],
   );
 
   // Navigate to selected result
   const navigateToSelected = useCallback(() => {
     const items = getSelectableItems();
-    if (selectedIndex < 0 || selectedIndex >= items.length) return;
+    const currentIndex = selectedIndexRef.current;
+    if (currentIndex < 0 || currentIndex >= items.length) return;
 
-    const selectedItem = items[selectedIndex];
+    const selectedItem = items[currentIndex];
 
     if (selectedItem.classList.contains('pagefind-ui__button')) {
       selectedItem.click();
@@ -117,20 +124,21 @@ export default function SearchDialog() {
       closeModal();
       window.location.href = link.href;
     }
-  }, [selectedIndex, getSelectableItems]);
+  }, [getSelectableItems]);
 
   // Handle keyboard navigation
   useEffect(() => {
     if (!isOpen) return;
 
     const handleKeyDown = (e: KeyboardEvent) => {
+      const currentIndex = selectedIndexRef.current;
       if (e.key === 'ArrowDown') {
         e.preventDefault();
-        selectResult(selectedIndex + 1);
+        selectResult(currentIndex + 1);
       } else if (e.key === 'ArrowUp') {
         e.preventDefault();
-        selectResult(selectedIndex - 1);
-      } else if (e.key === 'Enter' && selectedIndex >= 0) {
+        selectResult(currentIndex - 1);
+      } else if (e.key === 'Enter' && currentIndex >= 0) {
         e.preventDefault();
         navigateToSelected();
       }
@@ -138,7 +146,7 @@ export default function SearchDialog() {
 
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [isOpen, selectedIndex, selectResult, navigateToSelected]);
+  }, [isOpen, selectResult, navigateToSelected]);
 
   // Setup mutation observer to clear selection when results change
   useEffect(() => {

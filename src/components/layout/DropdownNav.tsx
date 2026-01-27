@@ -1,9 +1,8 @@
 import Popover from '@components/ui/popover';
 import type { Router } from '@constants/router';
-import { useToggle } from '@hooks/useToggle';
 import { Icon } from '@iconify/react';
 import { cn } from '@lib/utils';
-import { memo, useCallback } from 'react';
+import { memo, useCallback, useState } from 'react';
 
 interface DropdownNavProps {
   item: Router;
@@ -11,7 +10,7 @@ interface DropdownNavProps {
 }
 
 const DropdownNavComponent = ({ item, className }: DropdownNavProps) => {
-  const { isOpen, setIsOpen } = useToggle({ defaultOpen: false });
+  const [isOpen, setIsOpen] = useState(false);
   const { name, icon, children } = item;
 
   const renderDropdownContent = useCallback(

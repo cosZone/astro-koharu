@@ -30,7 +30,7 @@ const { prevPost, nextPost } =
 
 <div
   class={cn(
-    'page-home-sider shadow-home-sider sticky top-0 overscroll-none self-start flex min-w-64 max-w-64 flex-col items-stretch tablet:hidden overflow-auto h-screen px-2 scroll-gutter-stable',
+    'page-home-sider shadow-home-sider sticky top-0 tablet:overscroll-none self-start flex min-w-64 max-w-64 flex-col items-stretch tablet:hidden overflow-auto h-screen px-2 scroll-gutter-stable',
     className,
   )}
   transition:name={isDrawer ? 'page-home-sider-drawer' : 'page-home-sider'}
@@ -48,7 +48,7 @@ const { prevPost, nextPost } =
   }
 
   <sider-content
-    class="vertical-scrollbar flex-1 overflow-x-hidden overflow-y-auto md:pt-2 md:pl-3 -mx-2"
+    class="vertical-scrollbar flex-1 overflow-x-hidden overflow-y-auto md:pt-2 md:pl-3 tablet:-mx-2"
     data-type={type}
     data-default-type={defaultSegmentType}
   >
@@ -56,7 +56,7 @@ const { prevPost, nextPost } =
       <HomeInfo className={type === HomeSiderType.HOME ? 'pt-18 md:pt-0' : ''} />
     </div>
     <div slot="directory" class="sider-slot overflow-hidden h-full" data-slot-type="directory">
-      {type === HomeSiderType.POST && <TableOfContents client:load enableNumbering={post?.data.tocNumbering ?? true} />}
+      {type === HomeSiderType.POST && <TableOfContents client:only="react" enableNumbering={post?.data.tocNumbering ?? true} />}
     </div>
     <div slot="series" class="sider-slot" data-slot-type="series">
       {type === HomeSiderType.POST && <SeriesPostList client:load posts={seriesPosts} currentPostSlug={post?.slug} />}

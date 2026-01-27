@@ -1,4 +1,3 @@
-import { useMemo } from 'react';
 import { cn, shuffleArray } from '@/lib/utils';
 import type { RandomPostItem } from './RandomPostList';
 
@@ -13,12 +12,8 @@ export default function RelatedPostList({ posts, fallbackPool, fallbackCount, st
   const hasRelatedPosts = posts.length > 0;
 
   // Shuffle fallback posts on client-side for fresh randomization
-  const fallbackPosts = useMemo(() => {
-    if (fallbackPool.length <= fallbackCount) {
-      return shuffleArray(fallbackPool);
-    }
-    return shuffleArray(fallbackPool).slice(0, fallbackCount);
-  }, [fallbackPool, fallbackCount]);
+  const fallbackPosts =
+    fallbackPool.length <= fallbackCount ? shuffleArray(fallbackPool) : shuffleArray(fallbackPool).slice(0, fallbackCount);
 
   const displayPosts = hasRelatedPosts ? posts : fallbackPosts;
   const title = hasRelatedPosts ? '相关文章' : '';

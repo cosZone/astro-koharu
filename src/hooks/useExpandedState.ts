@@ -143,13 +143,11 @@ export function useExpandedState({
 
   /**
    * Check if a heading is expanded
+   * Inlined to avoid unnecessary callback recreation on expandedIds changes
    */
-  const isExpanded = useCallback(
-    (id: string): boolean => {
-      return expandedIds.has(id);
-    },
-    [expandedIds],
-  );
+  const isExpanded = (id: string): boolean => {
+    return expandedIds.has(id);
+  };
 
   /**
    * Toggle expand/collapse for a heading
