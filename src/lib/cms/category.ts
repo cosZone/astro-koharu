@@ -6,19 +6,19 @@
  */
 
 import { categoryMap } from '@constants/category';
-import { pinyin } from 'pinyin-pro';
+import { generateSlug } from '@lib/slug';
 
 /**
- * Generates a URL-friendly slug from a category name (typically Chinese).
- * Uses pinyin conversion for Chinese characters.
+ * Generates a URL-friendly slug from a category name.
+ * Delegates to the shared generateSlug utility.
  *
  * @example
  * generateCategorySlug('算法') // 'suan-fa'
  * generateCategorySlug('前端') // 'qian-duan'
+ * generateCategorySlug('React') // 'react'
  */
 export function generateCategorySlug(name: string): string {
-  const pinyinStr = pinyin(name, { toneType: 'none', type: 'array' }).join('-');
-  return pinyinStr.toLowerCase().replace(/[^a-z0-9-]/g, '');
+  return generateSlug(name);
 }
 
 /**

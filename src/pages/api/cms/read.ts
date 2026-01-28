@@ -10,6 +10,7 @@ import path from 'node:path';
 import { cmsConfig } from '@constants/site-config';
 import type { APIRoute } from 'astro';
 import matter from 'gray-matter';
+import yaml from 'js-yaml';
 
 // In production, prerender as static (returns 403 anyway)
 // In development, use SSR for dynamic API handling
@@ -85,7 +86,16 @@ export const GET: APIRoute = async ({ url }) => {
     const fileContent = await fs.readFile(filePath, 'utf-8');
 
     // Parse frontmatter and content
-    const { data: frontmatter, content } = matter(fileContent);
+    // Use JSON_SCHEMA to prevent js-yaml from auto-parsing dates as UTC
+    // This keeps dates as strings (e.g., "2026-01-03 20:00:00") to preserve local time semantics
+    const { data: frontmatter, content } = matter(fileContent, {
+      engines: {
+        yaml: {
+          parse: (str) => yaml.load(str, { schema: yaml.JSON_SCHEMA }) as object,
+          stringify: (obj) => yaml.dump(obj),
+        },
+      },
+    });
 
     return new Response(JSON.stringify({ frontmatter, content }), {
       status: 200,

@@ -48,6 +48,7 @@ export function PostEditor({ postId, isOpen, onClose }: PostEditorProps) {
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const [showMappingDialog, setShowMappingDialog] = useState(false);
   const [pendingMappings, setPendingMappings] = useState<Record<string, string>>({});
+  const [originalUpdated, setOriginalUpdated] = useState<Date | undefined>();
   const initialContentRef = useRef<string>('');
   const isDark = useIsDarkTheme();
 
@@ -73,6 +74,7 @@ export function PostEditor({ postId, isOpen, onClose }: PostEditorProps) {
       try {
         const data = await readPost(postId);
         setFrontmatter(data.frontmatter);
+        setOriginalUpdated(data.frontmatter.updated);
         initialContentRef.current = data.content;
 
         // Parse markdown to blocks and load into editor
@@ -111,14 +113,19 @@ export function PostEditor({ postId, isOpen, onClose }: PostEditorProps) {
           updatedFrontmatter.date = now;
           updatedFrontmatter.updated = now;
         } else {
-          // Existing post: only update 'updated', preserve original 'date'
-          updatedFrontmatter.updated = now;
+          // Existing post: only auto-update 'updated' if user hasn't manually modified it
+          const userModifiedUpdated = frontmatter.updated?.getTime() !== originalUpdated?.getTime();
+          if (!userModifiedUpdated) {
+            updatedFrontmatter.updated = now;
+          }
+          // Otherwise, preserve the user's manual modification (already in updatedFrontmatter)
         }
 
         // Write to file with optional category mappings
         await writePost(postId, updatedFrontmatter, markdown, categoryMappings);
 
         setFrontmatter(updatedFrontmatter);
+        setOriginalUpdated(updatedFrontmatter.updated);
         setHasUnsavedChanges(false);
         setStatus('ready');
 
@@ -133,7 +140,7 @@ export function PostEditor({ postId, isOpen, onClose }: PostEditorProps) {
         setStatus('ready');
       }
     },
-    [editor, frontmatter, postId],
+    [editor, frontmatter, originalUpdated, postId],
   );
 
   // Handle save - check for new categories first

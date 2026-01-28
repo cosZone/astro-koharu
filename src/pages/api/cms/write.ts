@@ -9,7 +9,7 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import { cmsConfig } from '@constants/site-config';
 import type { APIRoute } from 'astro';
-import { format } from 'date-fns';
+import { format, parse, parseISO } from 'date-fns';
 import matter from 'gray-matter';
 import yaml from 'js-yaml';
 import type { BlogSchema } from '@/types/blog';
@@ -206,17 +206,31 @@ export const POST: APIRoute = async ({ request }) => {
       });
     }
 
-    // Convert dates from strings to Date objects if needed
-    const processedFrontmatter = { ...frontmatter };
-    if (typeof processedFrontmatter.date === 'string') {
-      processedFrontmatter.date = new Date(processedFrontmatter.date);
+    // Convert date strings to Date objects
+    // Frontend sends ISO strings (e.g., "2026-01-03T12:00:00.000Z") via JSON.stringify
+    // We parse these to Date objects for proper local time formatting
+    const processedFrontmatter: Record<string, unknown> = { ...frontmatter };
+    const dateStr = processedFrontmatter.date;
+    if (typeof dateStr === 'string') {
+      // ISO format (with 'T' and 'Z') from JSON.stringify
+      if (dateStr.includes('T')) {
+        processedFrontmatter.date = parseISO(dateStr);
+      } else {
+        // Local time format (e.g., "2026-01-03 20:00:00")
+        processedFrontmatter.date = parse(dateStr, 'yyyy-MM-dd HH:mm:ss', new Date());
+      }
     }
-    if (typeof processedFrontmatter.updated === 'string') {
-      processedFrontmatter.updated = new Date(processedFrontmatter.updated);
+    const updatedStr = processedFrontmatter.updated;
+    if (typeof updatedStr === 'string') {
+      if (updatedStr.includes('T')) {
+        processedFrontmatter.updated = parseISO(updatedStr);
+      } else {
+        processedFrontmatter.updated = parse(updatedStr, 'yyyy-MM-dd HH:mm:ss', new Date());
+      }
     }
 
     // Serialize frontmatter for YAML
-    const serializedFrontmatter = serializeFrontmatter(processedFrontmatter);
+    const serializedFrontmatter = serializeFrontmatter(processedFrontmatter as unknown as BlogSchema);
 
     // Generate the file content with gray-matter using custom YAML engine
     // flowLevel: 2 ensures nested arrays use flow style [a, b] instead of block style
