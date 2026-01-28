@@ -1,22 +1,23 @@
 ---
-import type { CollectionEntry } from 'astro:content';
 import { Badge } from '@components/ui/badge';
 import { Button } from '@components/ui/button';
 import { categoryMap } from '@constants/category';
 import { Routes } from '@constants/router';
 import { siteConfig } from '@constants/site-config';
 import { type Category, getCategoryByLink, getCategoryList, getParentCategory, getPostsByCategory } from '@lib/content';
+import { toPostRefs } from '@lib/content/transforms';
 import { getLqipStyle } from '@lib/lqip';
 import { routeBuilder } from '@lib/route';
 import { cn } from '@lib/utils';
 import { Icon } from 'astro-icon/components';
+import type { PostRef } from '@/types/blog';
 import FlippedCard from './FlippedCard.astro';
 
 interface CategoryWithPosts {
   link: string;
   label?: string;
   image: string;
-  posts: CollectionEntry<'blog'>[];
+  posts: PostRef[];
   category: Category | null;
   parentCategory: Category | null;
 }
@@ -33,7 +34,7 @@ const categoryPosts: CategoryWithPosts[] = await Promise.all(
       image: category.image,
       category: categoryInfo,
       parentCategory: getParentCategory(categoryInfo, categories),
-      posts: posts,
+      posts: toPostRefs(posts),
     };
   }) || [],
 );
@@ -97,7 +98,7 @@ const categoryPosts: CategoryWithPosts[] = await Promise.all(
                   href={routeBuilder(Routes.Post, post)}
                   class="text-primary hover:text-blue truncate text-left transition-colors duration-300"
                 >
-                  {post.data.title}
+                  {post.title}
                 </a>
               ))}
             </div>

@@ -211,6 +211,7 @@ Biome (line width: 128, single quotes, trailing commas). Tailwind classes must b
 - Use `useMemo()` for expensive computations only
 - Use `useCallback()` only when passing to memoized children
 - Use `useSyncExternalStore` for scroll events (see `useCurrentHeading`)
+- **Avoid large props**: Never pass large data (like `body` content) as props. Pre-compute derived values (e.g., `wordCount`, `readingTime`) instead. Large props get serialized into HTML when passed to client components, causing page bloat.
 
 ### Code Reuse Patterns
 1. **Pure Functions** (`src/lib/`): Extract when used 2+ times

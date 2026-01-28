@@ -1,9 +1,9 @@
 import { cn, shuffleArray } from '@/lib/utils';
-import type { RandomPostItem } from './RandomPostList';
+import type { PostRefWithCategory } from '@/types/blog';
 
 interface Props {
-  posts: RandomPostItem[];
-  fallbackPool: RandomPostItem[]; // Pool to randomly select from when no related posts
+  posts: PostRefWithCategory[];
+  fallbackPool: PostRefWithCategory[]; // Pool to randomly select from when no related posts
   fallbackCount: number; // Number of fallback posts to display
   startIndex?: number; // Starting index for fallback post numbering
 }

@@ -8,6 +8,7 @@ import Layout from '@layouts/Layout.astro';
 import TwoColumnLayout from '@layouts/TwoColumnLayout.astro';
 import type { FeaturedSeriesItem } from '@lib/config/types';
 import { getEnabledSeries, getPostsByCategory } from '@lib/content';
+import { toPostCardDataList } from '@lib/content/transforms';
 import type { GetStaticPaths } from 'astro';
 
 export const getStaticPaths: GetStaticPaths = async () => {
@@ -27,8 +28,8 @@ interface Props {
 
 const { series } = Astro.props;
 
-// Get all posts for this series
-const seriesPosts = series.categoryName ? await getPostsByCategory(series.categoryName) : [];
+// Get all posts for this series (transform to card data)
+const seriesPosts = series.categoryName ? toPostCardDataList(await getPostsByCategory(series.categoryName)) : [];
 
 const pageTitle = series.fullName ?? series.label ?? series.categoryName;
 ---

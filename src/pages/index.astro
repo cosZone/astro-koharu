@@ -7,6 +7,7 @@ import { seoConfig } from '@constants/site-config';
 import Layout from '@layouts/Layout.astro';
 import TwoColumnLayout from '@layouts/TwoColumnLayout.astro';
 import { getHomePagePosts } from '@lib/content';
+import { toPostCardDataList } from '@lib/content/transforms';
 import type { Page } from 'astro';
 import type { BlogPost } from 'types/blog';
 import CategoryCards from '@/components/post/CategoryCards.astro';
@@ -15,18 +16,19 @@ import Divider from '@/components/ui/divider';
 // 使用优化的单次查询获取所有首页数据
 const { highlightedPosts, stickyPosts: normalStickyPosts, regularPosts } = await getHomePagePosts();
 
-// 将高亮系列文章放在置顶列表开头
-const stickyPosts = [...highlightedPosts, ...normalStickyPosts];
+// 将高亮系列文章放在置顶列表开头（转换为卡片数据）
+const stickyPosts = toPostCardDataList([...highlightedPosts, ...normalStickyPosts]);
 
 // 首页显示前N篇普通文章（不含系列文章）
 const { pageSize } = PAGINATION;
-const posts = regularPosts.slice(0, pageSize);
+const regularPostsSlice = regularPosts.slice(0, pageSize);
+const posts = toPostCardDataList(regularPostsSlice);
 const totalRegularPosts = regularPosts.length;
 
 const page: Page<BlogPost> = {
-  data: posts,
+  data: regularPostsSlice,
   start: 0,
-  end: Math.min(pageSize - 1, posts.length - 1),
+  end: Math.min(pageSize - 1, regularPostsSlice.length - 1),
   size: pageSize,
   total: totalRegularPosts,
   currentPage: 1,

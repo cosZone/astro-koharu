@@ -5,10 +5,10 @@
 import { Routes } from '@constants/router';
 import { routeBuilder } from '@lib/route';
 import { cn } from '@lib/utils';
-import type { BlogPost } from '@/types/blog';
+import type { PostRef } from '@/types/blog';
 
 interface SeriesPostListProps {
-  posts: BlogPost[];
+  posts: PostRef[];
   currentPostSlug?: string;
   className?: string;
 }
@@ -49,7 +49,7 @@ export function SeriesPostList({ posts, currentPostSlug, className }: SeriesPost
                 isActive ? 'text-primary' : 'text-foreground group-hover:text-primary',
               )}
             >
-              {post.data.title}
+              {post.title}
             </span>
           </a>
         );

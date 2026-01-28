@@ -4,17 +4,16 @@ import { Badge } from '@components/ui/badge';
 import { Button } from '@components/ui/button';
 import { Routes } from '@constants/router';
 import { defaultCoverList } from '@constants/site-config';
-import { buildCategoryPath, buildTagPath, getCategoryArr, getPostDescriptionWithSummary } from '@lib/content';
+import { buildCategoryPath, buildTagPath, getCategoryArr } from '@lib/content';
 import { getLqipProps } from '@lib/lqip';
 import { routeBuilder } from '@lib/route';
 import { cn } from '@lib/utils';
 import { Icon } from 'astro-icon/components';
 import { formatInTimeZone } from 'date-fns-tz';
-import readingTime from 'reading-time';
-import type { BlogPost } from 'types/blog';
+import type { PostCardData } from '@/types/blog';
 
 export interface PostItemCardProps {
-  data: BlogPost;
+  data: PostCardData;
   leftClip?: boolean;
   randomCover: string;
   showTags?: boolean;
@@ -34,20 +33,18 @@ const {
 const showTags = showTagsProp ?? !isSimple;
 const hideCover = hideCoverProp ?? isSimple;
 
-const { cover, date, catalog, categories, title, draft } = data?.data ?? {};
-const { body } = data ?? {};
+const { cover, date, categories, title, draft, description, slug, link, tags, wordCount, readingTime } = data ?? {};
 
-const readState = readingTime(body ?? '');
 const finalCover = cover ?? randomCover ?? defaultCoverList[0];
-const href = routeBuilder(Routes.Post, data as BlogPost);
+const href = routeBuilder(Routes.Post, { slug, link, title });
 const isDraft = import.meta.env.DEV && draft === true;
 
 const categoryArr = getCategoryArr(categories?.[0]);
 const categoryLink = buildCategoryPath(categoryArr);
 const categoryStr = categoryArr?.length ? categoryArr[categoryArr.length - 1] : '';
 
-// 使用统一的工具函数获取文章描述（带 AI 摘要 fallback）
-const postDescription = getPostDescriptionWithSummary(data);
+// 直接使用 description（已在 PostCardData 中计算好）
+const postDescription = description ?? '';
 
 // 获取 LQIP 样式用于图片占位符
 const lqipProps = getLqipProps(finalCover);
@@ -91,7 +88,7 @@ const lqipProps = getLqipProps(finalCover);
   >
     <div class={cn('flex w-full justify-between', { 'order-2 justify-start gap-4 pb-3 md:pb-0': isSimple })}>
       {
-        catalog === false ? null : (
+        categoryStr && (
           <a href={categoryLink} class="flex-center hover:text-blue text-muted-foreground text-xs transition duration-300">
             <Icon name="gg:flag" />
             {categoryStr}
@@ -109,15 +106,15 @@ const lqipProps = getLqipProps(finalCover);
         }
         <p class="flex-center gap-1">
           <Icon name="fa6-solid:pen-nib" />
-          {readState?.words} 字
+          {wordCount} 字
         </p>
         <button
           class="flex-center gap-1 md:hidden"
-          title={`预计阅读时长: ${readState?.minutes} min`}
+          title={`预计阅读时长: ${readingTime}`}
           data-tooltip-placement="top"
         >
           <Icon name="fa6-solid:clock" />
-          {readState?.text}
+          {readingTime}
         </button>
       </div>
     </div>
@@ -155,8 +152,8 @@ const lqipProps = getLqipProps(finalCover);
             'md:mx-0 md:justify-start',
           )}
         >
-          {data?.data.tags?.length
-            ? data?.data.tags.map((tag: string, index: number) => (
+          {tags?.length
+            ? tags.map((tag: string) => (
                 <a href={buildTagPath(tag)}>
                   <Badge
                     className='hover:text-badge-primary/80 shrink-0 cursor-pointer gap-0.5 border-none px-1 text-xs font-bold whitespace-nowrap transition-colors duration-300 flex'

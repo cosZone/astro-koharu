@@ -1,6 +1,7 @@
 ---
-import { getPostLastCategory, getSortedPosts } from '@lib/content';
+import { getSortedPosts } from '@lib/content';
 import { getRelatedPosts, hasSimilarityData } from '@lib/content/similarities';
+import { toPostRefWithCategory } from '@lib/content/transforms';
 import type { BlogPost } from 'types/blog';
 import PostFooterLists from './PostFooterLists';
 import RandomPostList from './RandomPostList';
@@ -11,14 +12,6 @@ interface Props {
 }
 
 const { post } = Astro.props;
-
-// Helper to convert BlogPost to serializable format
-const toPostItem = (p: BlogPost) => ({
-  slug: p.slug,
-  link: p.data.link,
-  title: p.data.title,
-  categoryName: getPostLastCategory(p).name,
-});
 
 // Check if similarity data is available
 const hasData = hasSimilarityData();
@@ -34,12 +27,12 @@ const leftCount = totalPosts <= 10 ? Math.ceil(totalPosts / 2) : 5;
 const rightCount = totalPosts <= 10 ? Math.floor(totalPosts / 2) : 5;
 
 // Prepare post pools for client-side randomization
-const allPostItems = allPosts.map(toPostItem);
+const allPostItems = allPosts.map(toPostRefWithCategory);
 const leftPool = totalPosts <= 10 ? allPostItems : allPostItems.slice(0, Math.floor(totalPosts / 2));
 const rightPool = totalPosts <= 10 ? allPostItems : allPostItems.slice(Math.floor(totalPosts / 2));
 
 // Get related posts if current post is provided and similarity data exists
-const relatedPosts = hasData && post ? getRelatedPosts(post, allPosts, 5).map(toPostItem) : [];
+const relatedPosts = hasData && post ? getRelatedPosts(post, allPosts, 5).map(toPostRefWithCategory) : [];
 ---
 
 <div class="tablet:grid-cols-1 grid grid-cols-2 gap-4 px-10 md:px-6">

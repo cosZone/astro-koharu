@@ -7,6 +7,7 @@ import { seoConfig } from '@constants/site-config';
 import Layout from '@layouts/Layout.astro';
 import TwoColumnLayout from '@layouts/TwoColumnLayout.astro';
 import { getNonFeaturedPosts } from '@lib/content';
+import { toPostCardDataList } from '@lib/content/transforms';
 import type { PaginateFunction } from 'astro';
 import Divider from '@/components/ui/divider';
 
@@ -17,6 +18,7 @@ export async function getStaticPaths({ paginate }: { paginate: PaginateFunction 
 }
 
 const { page } = Astro.props;
+const postCardData = toPostCardDataList(page.data);
 ---
 
 <Layout title={seoConfig.title}>
@@ -27,7 +29,7 @@ const { page } = Astro.props;
       class={`shadow-box bg-gradient-start tablet:shadow-none flex flex-col gap-4 overflow-hidden ${CONTENT_PADDING.standard}`}
     >
       <Divider>文章列表</Divider>
-      <PostList posts={page.data} page={page} />
+      <PostList posts={postCardData} page={page} />
     </div>
   </TwoColumnLayout>
 </Layout>

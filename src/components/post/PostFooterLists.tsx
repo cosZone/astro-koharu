@@ -1,10 +1,10 @@
 import { cn, shuffleArray } from '@lib/utils';
 import { useMemo } from 'react';
-import type { RandomPostItem } from './RandomPostList';
+import type { PostRefWithCategory } from '@/types/blog';
 
 interface Props {
-  allPosts: RandomPostItem[];
-  relatedPosts: RandomPostItem[];
+  allPosts: PostRefWithCategory[];
+  relatedPosts: PostRefWithCategory[];
   leftCount: number;
   rightCount: number;
 }

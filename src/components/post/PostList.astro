@@ -3,12 +3,12 @@ import EmptySvg from '@components/svg/EmptySvg';
 import { defaultCoverList } from '@constants/site-config';
 import type { Page } from 'astro';
 import { shuffle } from 'es-toolkit';
-import type { BlogPost } from 'types/blog';
+import type { BlogPost, PostCardData } from 'types/blog';
 import Paginator from './Paginator.astro';
 import PostItemCard from './PostItemCard.astro';
 
 interface Props {
-  posts?: BlogPost[];
+  posts?: PostCardData[];
   page?: Page<BlogPost>;
   showPaginator?: boolean;
   baseUrl?: string; // 分页基础路径
@@ -34,7 +34,7 @@ const covers = shuffle(defaultCoverList);
       <div class="flex flex-col gap-4">
         {posts.map((post, index) => (
           <PostItemCard
-            key={post.id}
+            key={post.slug}
             data={post}
             showTags={!isSimple}
             leftClip={index % 2 === 0}

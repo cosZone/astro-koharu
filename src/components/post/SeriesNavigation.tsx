@@ -6,11 +6,11 @@ import { useIsMounted } from '@hooks/useIsMounted';
 import { routeBuilder } from '@lib/route';
 import { cn } from '@lib/utils';
 import { RiArrowDownSLine, RiArrowLeftSLine, RiArrowRightSLine, RiArrowUpSLine } from 'react-icons/ri';
-import type { BlogPost } from '@/types/blog';
+import type { PostRef } from '@/types/blog';
 
 interface SeriesNavigationProps {
-  prevPost?: BlogPost | null;
-  nextPost?: BlogPost | null;
+  prevPost?: PostRef | null;
+  nextPost?: PostRef | null;
   className?: string;
 }
 
@@ -37,10 +37,10 @@ export function SeriesNavigation({ prevPost, nextPost, className }: SeriesNaviga
                 'text-muted-foreground hover:bg-accent hover:text-primary',
                 'min-w-0 max-w-[45%] flex-1',
               )}
-              title={prevPost.data.title}
+              title={prevPost.title}
             >
               <RiArrowLeftSLine className="h-4 w-4 shrink-0" />
-              <span className="truncate text-xs">{prevPost.data.title}</span>
+              <span className="truncate text-xs">{prevPost.title}</span>
             </a>
           )
         ) : (
@@ -57,9 +57,9 @@ export function SeriesNavigation({ prevPost, nextPost, className }: SeriesNaviga
                 'text-muted-foreground hover:bg-accent hover:text-primary',
                 'min-w-0 max-w-[45%] flex-1 justify-end text-right',
               )}
-              title={nextPost.data.title}
+              title={nextPost.title}
             >
-              <span className="truncate text-xs">{nextPost.data.title}</span>
+              <span className="truncate text-xs">{nextPost.title}</span>
               <RiArrowRightSLine className="h-4 w-4 shrink-0" />
             </a>
           )

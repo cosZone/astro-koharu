@@ -1,15 +1,9 @@
 import { shuffleArray } from '@lib/utils';
 import { useMemo } from 'react';
-
-export interface RandomPostItem {
-  slug: string;
-  link?: string;
-  title: string;
-  categoryName?: string;
-}
+import type { PostRefWithCategory } from '@/types/blog';
 
 interface Props {
-  postsPool: RandomPostItem[]; // Pool to randomly select from
+  postsPool: PostRefWithCategory[]; // Pool to randomly select from
   count: number; // Number of posts to display
 }
 
