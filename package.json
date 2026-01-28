@@ -39,6 +39,7 @@
     "@blocknote/shadcn": "^0.46.1",
     "@floating-ui/react": "^0.27.16",
     "@giscus/react": "^3.1.0",
+    "@hookform/resolvers": "^5.2.2",
     "@iconify-json/fa6-regular": "^1.2.4",
     "@iconify-json/fa6-solid": "^1.2.4",
     "@iconify-json/gg": "^1.2.2",
@@ -83,6 +84,7 @@
     "react": "^19.2.1",
     "react-dom": "^19.2.1",
     "react-error-boundary": "^5.0.0",
+    "react-hook-form": "^7.71.1",
     "react-icons": "^5.5.0",
     "react-tweet": "^3.2.2",
     "reading-time": "^1.5.0",
@@ -94,7 +96,8 @@
     "tailwindcss": "^4.1.17",
     "tailwindcss-animate": "^1.0.7",
     "three": "^0.182.0",
-    "unist-util-visit": "^5.0.0"
+    "unist-util-visit": "^5.0.0",
+    "zod": "^3.25.76"
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.6",

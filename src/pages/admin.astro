@@ -1,0 +1,46 @@
+---
+/**
+ * CMS Admin Page
+ *
+ * Full-page dashboard for managing blog posts.
+ * Only accessible in development mode when CMS is enabled.
+ */
+export const prerender = false;
+
+import { CMSDashboardPage } from '@components/cms';
+import { cmsConfig } from '@constants/site-config';
+import '@styles/index.css';
+
+// Guard: Only accessible in dev mode with CMS enabled
+if (!import.meta.env.DEV || !cmsConfig.enabled) {
+  return Astro.redirect('/404');
+}
+---
+
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>CMS Dashboard</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.ico" />
+
+    <script is:inline>
+      // Theme initialization - prevent FOUC
+      (function() {
+        function getTheme() {
+          if (localStorage.theme === 'dark') return 'dark';
+          if (localStorage.theme === 'light') return 'light';
+          return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        }
+        var root = document.documentElement;
+        var theme = getTheme();
+        root.classList.toggle('dark', theme === 'dark');
+      })();
+    </script>
+  </head>
+  <body class="bg-background text-foreground">
+    <CMSDashboardPage client:only="react" />
+  </body>
+</html>

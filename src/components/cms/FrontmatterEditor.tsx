@@ -2,13 +2,16 @@
  * FrontmatterEditor Component
  *
  * A form editor for blog post frontmatter.
- * Supports all frontmatter fields from the blog schema.
+ * Uses react-hook-form with Zod validation.
  */
 
+import { zodResolver } from '@hookform/resolvers/zod';
 import { Icon } from '@iconify/react';
+import { type FrontmatterFormData, frontmatterSchema } from '@lib/cms';
 import { cn } from '@lib/utils';
 import { format } from 'date-fns';
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { useForm } from 'react-hook-form';
 import type { BlogSchema } from '@/types/blog';
 
 interface FrontmatterEditorProps {
@@ -59,52 +62,112 @@ function parseCategoryInput(input: string): string[] | string[][] {
   return [trimmed];
 }
 
+/**
+ * Convert BlogSchema to form data format
+ */
+function toFormData(fm: BlogSchema): FrontmatterFormData {
+  return {
+    title: fm.title,
+    date: fm.date ? format(fm.date, "yyyy-MM-dd'T'HH:mm") : undefined,
+    updated: fm.updated ? format(fm.updated, "yyyy-MM-dd'T'HH:mm") : undefined,
+    description: fm.description || undefined,
+    categories: formatCategoryDisplay(fm.categories),
+    tags: fm.tags?.join(', ') || undefined,
+    cover: fm.cover || undefined,
+    link: fm.link || undefined,
+    subtitle: fm.subtitle || undefined,
+    draft: fm.draft || false,
+    sticky: fm.sticky || false,
+    catalog: fm.catalog !== false,
+    tocNumbering: fm.tocNumbering !== false,
+    excludeFromSummary: fm.excludeFromSummary || false,
+  };
+}
+
+/**
+ * Convert form data back to BlogSchema format
+ */
+function toBlogSchema(data: FrontmatterFormData, originalDate: Date): BlogSchema {
+  const tags = data.tags
+    ?.split(',')
+    .map((t) => t.trim())
+    .filter(Boolean);
+  const categories = data.categories ? parseCategoryInput(data.categories) : undefined;
+
+  return {
+    title: data.title,
+    date: data.date ? new Date(data.date) : originalDate,
+    updated: data.updated ? new Date(data.updated) : undefined,
+    description: data.description || undefined,
+    categories: categories && categories.length > 0 ? categories : undefined,
+    tags: tags && tags.length > 0 ? tags : undefined,
+    cover: data.cover || undefined,
+    link: data.link || undefined,
+    subtitle: data.subtitle || undefined,
+    draft: data.draft || undefined,
+    sticky: data.sticky || undefined,
+    catalog: data.catalog ? undefined : false,
+    tocNumbering: data.tocNumbering ? undefined : false,
+    excludeFromSummary: data.excludeFromSummary || undefined,
+  };
+}
+
 export function FrontmatterEditor({ frontmatter, onChange }: FrontmatterEditorProps) {
   const [isExpanded, setIsExpanded] = useState(true);
-  const [categoryInput, setCategoryInput] = useState(formatCategoryDisplay(frontmatter.categories));
-  const [tagInput, setTagInput] = useState(frontmatter.tags?.join(', ') || '');
 
-  // Track if category/tag inputs are focused to prevent useEffect from overwriting during typing
+  // Track if category/tag inputs are focused to prevent overwriting during typing
   const categoryFocusedRef = useRef(false);
   const tagFocusedRef = useRef(false);
 
-  // Sync local state when frontmatter prop changes (e.g., when loading a new post)
-  // Skip sync if the input is currently focused (user is typing)
+  const {
+    register,
+    watch,
+    setValue,
+    formState: { errors },
+  } = useForm<FrontmatterFormData>({
+    resolver: zodResolver(frontmatterSchema),
+    defaultValues: toFormData(frontmatter),
+    mode: 'onChange',
+  });
+
+  // Reset form when frontmatter prop changes (e.g., loading a new post)
+  // Skip category/tag fields if they're focused
   useEffect(() => {
-    if (!categoryFocusedRef.current) {
-      setCategoryInput(formatCategoryDisplay(frontmatter.categories));
-    }
-  }, [frontmatter.categories]);
+    const newData = toFormData(frontmatter);
+    const keysToUpdate = Object.keys(newData) as (keyof FrontmatterFormData)[];
 
+    for (const key of keysToUpdate) {
+      if (key === 'categories' && categoryFocusedRef.current) continue;
+      if (key === 'tags' && tagFocusedRef.current) continue;
+      setValue(key, newData[key]);
+    }
+  }, [frontmatter, setValue]);
+
+  // Sync form changes to parent via watch subscription
   useEffect(() => {
-    if (!tagFocusedRef.current) {
-      setTagInput(frontmatter.tags?.join(', ') || '');
-    }
-  }, [frontmatter.tags]);
+    const subscription = watch((value) => {
+      // Only sync when not in the middle of typing categories/tags
+      if (categoryFocusedRef.current || tagFocusedRef.current) return;
 
-  const updateField = useCallback(
-    <K extends keyof BlogSchema>(field: K, value: BlogSchema[K]) => {
-      onChange({ ...frontmatter, [field]: value });
-    },
-    [frontmatter, onChange],
-  );
+      const schema = toBlogSchema(value as FrontmatterFormData, frontmatter.date);
+      onChange(schema);
+    });
+    return () => subscription.unsubscribe();
+  }, [watch, onChange, frontmatter.date]);
 
-  // Update categories only on blur to allow free typing of '>' character
+  // Handle category blur - parse and sync
   const handleCategoryBlur = useCallback(() => {
     categoryFocusedRef.current = false;
-    const parsed = parseCategoryInput(categoryInput);
-    updateField('categories', parsed.length > 0 ? parsed : undefined);
-  }, [categoryInput, updateField]);
+    const currentValues = watch();
+    onChange(toBlogSchema(currentValues, frontmatter.date));
+  }, [watch, onChange, frontmatter.date]);
 
-  // Update tags only on blur
+  // Handle tag blur - parse and sync
   const handleTagBlur = useCallback(() => {
     tagFocusedRef.current = false;
-    const tags = tagInput
-      .split(',')
-      .map((t) => t.trim())
-      .filter(Boolean);
-    updateField('tags', tags.length > 0 ? tags : undefined);
-  }, [tagInput, updateField]);
+    const currentValues = watch();
+    onChange(toBlogSchema(currentValues, frontmatter.date));
+  }, [watch, onChange, frontmatter.date]);
 
   return (
     <div className="rounded-lg border border-border bg-muted/30">
@@ -127,15 +190,16 @@ export function FrontmatterEditor({ frontmatter, onChange }: FrontmatterEditorPr
             <input
               id="fm-title"
               type="text"
-              value={frontmatter.title}
-              onChange={(e) => updateField('title', e.target.value)}
+              {...register('title')}
               className={cn(
                 'w-full rounded-md border border-input bg-background px-3 py-2',
                 'text-sm placeholder:text-muted-foreground',
                 'focus:outline-none focus:ring-2 focus:ring-ring',
+                errors.title && 'border-destructive',
               )}
               placeholder="Post title"
             />
+            {errors.title && <p className="text-destructive text-xs">{errors.title.message}</p>}
           </div>
 
           {/* Date and Updated */}
@@ -147,8 +211,7 @@ export function FrontmatterEditor({ frontmatter, onChange }: FrontmatterEditorPr
               <input
                 id="fm-date"
                 type="datetime-local"
-                value={frontmatter.date ? format(frontmatter.date, "yyyy-MM-dd'T'HH:mm") : ''}
-                onChange={(e) => e.target.value && updateField('date', new Date(e.target.value))}
+                {...register('date')}
                 className={cn(
                   'w-full rounded-md border border-input bg-background px-3 py-2',
                   'text-sm placeholder:text-muted-foreground',
@@ -163,8 +226,7 @@ export function FrontmatterEditor({ frontmatter, onChange }: FrontmatterEditorPr
               <input
                 id="fm-updated"
                 type="datetime-local"
-                value={frontmatter.updated ? format(frontmatter.updated, "yyyy-MM-dd'T'HH:mm") : ''}
-                onChange={(e) => updateField('updated', e.target.value ? new Date(e.target.value) : undefined)}
+                {...register('updated')}
                 className={cn(
                   'w-full rounded-md border border-input bg-background px-3 py-2',
                   'text-sm placeholder:text-muted-foreground',
@@ -181,8 +243,7 @@ export function FrontmatterEditor({ frontmatter, onChange }: FrontmatterEditorPr
             </label>
             <textarea
               id="fm-description"
-              value={frontmatter.description || ''}
-              onChange={(e) => updateField('description', e.target.value || undefined)}
+              {...register('description')}
               className={cn(
                 'w-full rounded-md border border-input bg-background px-3 py-2',
                 'text-sm placeholder:text-muted-foreground',
@@ -202,8 +263,7 @@ export function FrontmatterEditor({ frontmatter, onChange }: FrontmatterEditorPr
             <input
               id="fm-categories"
               type="text"
-              value={categoryInput}
-              onChange={(e) => setCategoryInput(e.target.value)}
+              {...register('categories')}
               onFocus={() => {
                 categoryFocusedRef.current = true;
               }}
@@ -226,8 +286,7 @@ export function FrontmatterEditor({ frontmatter, onChange }: FrontmatterEditorPr
             <input
               id="fm-tags"
               type="text"
-              value={tagInput}
-              onChange={(e) => setTagInput(e.target.value)}
+              {...register('tags')}
               onFocus={() => {
                 tagFocusedRef.current = true;
               }}
@@ -250,8 +309,7 @@ export function FrontmatterEditor({ frontmatter, onChange }: FrontmatterEditorPr
             <input
               id="fm-cover"
               type="text"
-              value={frontmatter.cover || ''}
-              onChange={(e) => updateField('cover', e.target.value || undefined)}
+              {...register('cover')}
               className={cn(
                 'w-full rounded-md border border-input bg-background px-3 py-2',
                 'text-sm placeholder:text-muted-foreground',
@@ -270,8 +328,7 @@ export function FrontmatterEditor({ frontmatter, onChange }: FrontmatterEditorPr
             <input
               id="fm-link"
               type="text"
-              value={frontmatter.link || ''}
-              onChange={(e) => updateField('link', e.target.value || undefined)}
+              {...register('link')}
               className={cn(
                 'w-full rounded-md border border-input bg-background px-3 py-2',
                 'text-sm placeholder:text-muted-foreground',
@@ -298,8 +355,7 @@ export function FrontmatterEditor({ frontmatter, onChange }: FrontmatterEditorPr
                 <input
                   id="fm-subtitle"
                   type="text"
-                  value={frontmatter.subtitle || ''}
-                  onChange={(e) => updateField('subtitle', e.target.value || undefined)}
+                  {...register('subtitle')}
                   className={cn(
                     'w-full rounded-md border border-input bg-background px-3 py-2',
                     'text-sm placeholder:text-muted-foreground',
@@ -313,56 +369,31 @@ export function FrontmatterEditor({ frontmatter, onChange }: FrontmatterEditorPr
               <div className="flex flex-wrap gap-4">
                 {/* Draft */}
                 <label className="flex cursor-pointer items-center gap-2">
-                  <input
-                    type="checkbox"
-                    checked={frontmatter.draft || false}
-                    onChange={(e) => updateField('draft', e.target.checked || undefined)}
-                    className="h-4 w-4 rounded border-input"
-                  />
+                  <input type="checkbox" {...register('draft')} className="h-4 w-4 rounded border-input" />
                   <span className="text-sm">Draft</span>
                 </label>
 
                 {/* Sticky */}
                 <label className="flex cursor-pointer items-center gap-2">
-                  <input
-                    type="checkbox"
-                    checked={frontmatter.sticky || false}
-                    onChange={(e) => updateField('sticky', e.target.checked || undefined)}
-                    className="h-4 w-4 rounded border-input"
-                  />
+                  <input type="checkbox" {...register('sticky')} className="h-4 w-4 rounded border-input" />
                   <span className="text-sm">Sticky</span>
                 </label>
 
                 {/* Catalog */}
                 <label className="flex cursor-pointer items-center gap-2">
-                  <input
-                    type="checkbox"
-                    checked={frontmatter.catalog !== false}
-                    onChange={(e) => updateField('catalog', e.target.checked ? undefined : false)}
-                    className="h-4 w-4 rounded border-input"
-                  />
+                  <input type="checkbox" {...register('catalog')} className="h-4 w-4 rounded border-input" />
                   <span className="text-sm">Show Catalog</span>
                 </label>
 
                 {/* TOC Numbering */}
                 <label className="flex cursor-pointer items-center gap-2">
-                  <input
-                    type="checkbox"
-                    checked={frontmatter.tocNumbering !== false}
-                    onChange={(e) => updateField('tocNumbering', e.target.checked ? undefined : false)}
-                    className="h-4 w-4 rounded border-input"
-                  />
+                  <input type="checkbox" {...register('tocNumbering')} className="h-4 w-4 rounded border-input" />
                   <span className="text-sm">TOC Numbering</span>
                 </label>
 
                 {/* Exclude from Summary */}
                 <label className="flex cursor-pointer items-center gap-2">
-                  <input
-                    type="checkbox"
-                    checked={frontmatter.excludeFromSummary || false}
-                    onChange={(e) => updateField('excludeFromSummary', e.target.checked || undefined)}
-                    className="h-4 w-4 rounded border-input"
-                  />
+                  <input type="checkbox" {...register('excludeFromSummary')} className="h-4 w-4 rounded border-input" />
                   <span className="text-sm">Exclude from AI Summary</span>
                 </label>
               </div>

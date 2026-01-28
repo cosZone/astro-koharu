@@ -3,9 +3,13 @@
  *
  * A dialog for reviewing and editing new category mappings before saving.
  * Shows auto-generated slugs from Chinese category names using pinyin.
+ * Uses react-hook-form with Zod validation.
  */
 
-import { useCallback, useEffect, useState } from 'react';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { categoryMappingSchema } from '@lib/cms';
+import { useEffect } from 'react';
+import { useForm } from 'react-hook-form';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -33,26 +37,29 @@ function sanitizeSlug(value: string): string {
 }
 
 export function CategoryMappingDialog({ isOpen, mappings, onConfirm, onCancel }: CategoryMappingDialogProps) {
-  const [editedMappings, setEditedMappings] = useState<Record<string, string>>(mappings);
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors, isValid },
+  } = useForm<Record<string, string>>({
+    resolver: zodResolver(categoryMappingSchema),
+    defaultValues: mappings,
+    mode: 'onChange',
+  });
 
-  // Reset edited mappings when dialog opens with new mappings
+  // Reset form when dialog opens with new mappings
   useEffect(() => {
-    setEditedMappings(mappings);
-  }, [mappings]);
+    reset(mappings);
+  }, [mappings, reset]);
 
-  const handleSlugChange = useCallback((name: string, value: string) => {
-    setEditedMappings((prev) => ({
-      ...prev,
-      [name]: sanitizeSlug(value),
-    }));
-  }, []);
+  const onSubmit = (data: Record<string, string>) => {
+    // Sanitize all slugs before confirming
+    const sanitized = Object.fromEntries(Object.entries(data).map(([name, slug]) => [name, sanitizeSlug(slug)]));
+    onConfirm(sanitized);
+  };
 
-  const handleConfirm = useCallback(() => {
-    onConfirm(editedMappings);
-  }, [editedMappings, onConfirm]);
-
-  // Check if all slugs are valid (non-empty)
-  const allSlugsValid = Object.values(editedMappings).every((slug) => slug.length > 0);
+  const categoryNames = Object.keys(mappings);
 
   return (
     <AlertDialog open={isOpen}>
@@ -64,27 +71,36 @@ export function CategoryMappingDialog({ isOpen, mappings, onConfirm, onCancel }:
           </AlertDialogDescription>
         </AlertDialogHeader>
 
-        <div className="space-y-3 py-4">
-          {Object.entries(editedMappings).map(([name, slug]) => (
-            <div key={name} className="flex items-center gap-3">
-              <span className="min-w-[80px] font-medium text-sm">{name}</span>
-              <span className="text-muted-foreground">→</span>
-              <input
-                type="text"
-                value={slug}
-                onChange={(e) => handleSlugChange(name, e.target.value)}
-                className="flex-1 rounded-md border border-input bg-background px-3 py-1.5 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                placeholder="url-slug"
-              />
-            </div>
-          ))}
-        </div>
+        <form id="category-mapping-form" onSubmit={handleSubmit(onSubmit)}>
+          <div className="space-y-3 py-4">
+            {categoryNames.map((name) => {
+              const error = errors[name];
+              return (
+                <div key={name} className="space-y-1">
+                  <div className="flex items-center gap-3">
+                    <span className="min-w-[80px] font-medium text-sm">{name}</span>
+                    <span className="text-muted-foreground">→</span>
+                    <input
+                      type="text"
+                      {...register(name, {
+                        setValueAs: sanitizeSlug,
+                      })}
+                      className="flex-1 rounded-md border border-input bg-background px-3 py-1.5 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                      placeholder="url-slug"
+                    />
+                  </div>
+                  {error && <p className="ml-[80px] pl-7 text-destructive text-xs">{error.message}</p>}
+                </div>
+              );
+            })}
+          </div>
+        </form>
 
         <p className="text-muted-foreground text-xs">These mappings will be added to config/site.yaml</p>
 
         <AlertDialogFooter>
           <AlertDialogCancel onClick={onCancel}>Cancel</AlertDialogCancel>
-          <AlertDialogAction onClick={handleConfirm} disabled={!allSlugsValid}>
+          <AlertDialogAction type="submit" form="category-mapping-form" disabled={!isValid}>
             Save with Mappings
           </AlertDialogAction>
         </AlertDialogFooter>
