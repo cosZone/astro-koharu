@@ -124,6 +124,115 @@ function conditionalSnowfall() {
   };
 }
 
+/**
+ * Vite plugin for conditional CMS bundling
+ * In production (or when CMS is disabled), replaces CMS imports with noop components
+ * This saves ~180KB gzipped from the bundle (BlockNote, react-hook-form, etc.)
+ */
+function conditionalCms() {
+  const VIRTUAL_COMPONENTS_ID = 'virtual:cms-components-noop';
+  const VIRTUAL_LIB_ID = 'virtual:cms-lib-noop';
+  const VIRTUAL_CSS_ID = 'virtual:cms-css-noop';
+  const RESOLVED_COMPONENTS_ID = `\0${VIRTUAL_COMPONENTS_ID}`;
+  const RESOLVED_LIB_ID = `\0${VIRTUAL_LIB_ID}`;
+  const RESOLVED_CSS_ID = `\0${VIRTUAL_CSS_ID}`;
+
+  let isEnabled = false;
+
+  return {
+    name: 'conditional-cms',
+    enforce: 'pre',
+    configResolved(config) {
+      // Use Vite's resolved mode instead of NODE_ENV (which may not be set yet)
+      const isDev = config.mode === 'development' || config.command === 'serve';
+      isEnabled = isDev && cmsConfig?.enabled;
+    },
+    resolveId(id) {
+      if (id === VIRTUAL_COMPONENTS_ID) return RESOLVED_COMPONENTS_ID;
+      if (id === VIRTUAL_LIB_ID) return RESOLVED_LIB_ID;
+      if (id === VIRTUAL_CSS_ID) return RESOLVED_CSS_ID;
+
+      // In production or when CMS disabled, redirect imports to noop modules
+      if (!isEnabled) {
+        // Match various path patterns: @components/cms, @/components/cms, ./components/cms, etc.
+        const isCmsComponent =
+          id === '@components/cms' ||
+          id.startsWith('@components/cms/') ||
+          id === '@/components/cms' ||
+          id.startsWith('@/components/cms/') ||
+          /[\\/]components[\\/]cms([\\/]|$)/.test(id);
+
+        const isCmsLib =
+          id === '@lib/cms' ||
+          id.startsWith('@lib/cms/') ||
+          id === '@/lib/cms' ||
+          id.startsWith('@/lib/cms/') ||
+          /[\\/]lib[\\/]cms([\\/]|$)/.test(id);
+
+        if (isCmsComponent) {
+          return RESOLVED_COMPONENTS_ID;
+        }
+        if (isCmsLib) {
+          return RESOLVED_LIB_ID;
+        }
+        // Exclude BlockNote entirely in production (both JS and CSS)
+        if (id.includes('@blocknote')) {
+          if (id.endsWith('.css')) {
+            return RESOLVED_CSS_ID;
+          }
+          // Return empty module for BlockNote JS imports
+          return RESOLVED_COMPONENTS_ID;
+        }
+      }
+    },
+    load(id) {
+      if (id === RESOLVED_COMPONENTS_ID) {
+        // Noop components matching @components/cms exports
+        return `
+          export function CategoryMappingDialog() { return null; }
+          export function CMSDashboardButton() { return null; }
+          export function CMSDashboardPage() { return null; }
+          export function EditButton() { return null; }
+          export function EditorSelector() { return null; }
+          export function FrontmatterEditor() { return null; }
+          export function PostEditor() { return null; }
+          export default EditButton;
+        `;
+      }
+      if (id === RESOLVED_CSS_ID) {
+        // Empty CSS for BlockNote styles
+        return '';
+      }
+      if (id === RESOLVED_LIB_ID) {
+        // Noop functions and empty schemas matching @lib/cms exports
+        return `
+          export const generateSlug = () => '';
+          export const createPost = async () => ({ success: false });
+          export const listPosts = async () => ({ posts: [], total: 0 });
+          export const readPost = async () => null;
+          export const toggleDraft = async () => ({ success: false });
+          export const writePost = async () => ({ success: false });
+          export const detectNewCategories = () => [];
+          export const extractCategoryNames = () => [];
+          export const generateCategorySlug = () => '';
+          export const buildEditorUrl = () => '';
+          export const getFullFilePath = () => '';
+          export const openInEditor = () => {};
+          export const jsonErrorResponse = () => new Response();
+          export const jsonResponse = () => new Response();
+          export const validateCmsAccess = () => ({ valid: false });
+          export const categoryMappingSchema = {};
+          export const categorySlugSchema = {};
+          export const createPostSchema = {};
+          export const frontmatterSchema = {};
+          export const hasValidMarkdownExtension = () => false;
+          export const isPathSafe = () => false;
+        `;
+      }
+    },
+  };
+}
+
 // https://astro.build/config
 export default defineConfig({
   site: yamlConfig.site.url,
@@ -204,7 +313,7 @@ export default defineConfig({
       // Enable sourcemap for Sonda bundle analysis
       sourcemap: isAnalyze,
     },
-    plugins: [yaml(), conditionalSnowfall(), svgr(), tailwindcss()],
+    plugins: [yaml(), conditionalSnowfall(), conditionalCms(), svgr(), tailwindcss()],
     ssr: {
       noExternal: ['react-tweet'],
     },
