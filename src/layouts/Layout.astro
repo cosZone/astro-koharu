@@ -22,7 +22,9 @@ import InfographicFullscreen from '@components/markdown/InfographicFullscreen.as
 import MermaidFullscreen from '@components/markdown/MermaidFullscreen.astro';
 import { Toaster } from '@components/ui/sonner';
 import { christmasConfig, seoConfig, siteConfig } from '@constants/site-config';
+import { getOgImageUrl } from '@lib/seo/og-image';
 import LoadingIndicator from 'astro-loading-indicator/component';
+import { SEO } from 'astro-seo';
 import { Tooltips } from 'astro-tooltips';
 
 import '@styles/index.css';
@@ -33,9 +35,8 @@ const { title = seoConfig.title, description = seoConfig.description, siderType,
 // Detect if current page is a post page for mobile header
 const isPostPage = Astro.url.pathname.startsWith('/post/');
 
-// OGP image: use post cover if available, otherwise use default from config
-const ogImagePath = post?.data.cover || siteConfig.defaultOgImage;
-const ogImage = ogImagePath ? new URL(ogImagePath, Astro.site).href : undefined;
+// OGP image: use post cover if available, otherwise use default from config, fallback to avatar
+const ogImage = getOgImageUrl(post?.data.cover, Astro.site);
 ---
 
 <!doctype html>
@@ -60,24 +61,33 @@ const ogImage = ogImagePath ? new URL(ogImagePath, Astro.site).href : undefined;
     <ClientRouter />
     <LoadingIndicator color="#e9536a" />
     <Tooltips />
-    <!-- metadata -->
-    <meta name="description" content={description} />
-    <meta name="author" content={siteConfig.author} />
-
-    <meta property="og:type" content="website" />
-    <meta property="og:site_name" content={siteConfig.name} />
-    <meta property="og:url" content={Astro.url} />
-    <meta property="og:title" content={title} />
-    <meta property="og:description" content={description} />
-    {ogImage && <meta property="og:image" content={ogImage} />}
-
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta property="twitter:url" content={Astro.url} />
-    <meta name="twitter:title" content={title} />
-    <meta name="twitter:description" content={description} />
-    {ogImage && <meta name="twitter:image" content={ogImage} />}
-    <meta charset="UTF-8" />
-
+    <!-- SEO 元数据由 astro-seo 管理 -->
+    <SEO
+      title={title}
+      description={description}
+      canonical={Astro.url.href}
+      openGraph={{
+        basic: {
+          title: title,
+          type: 'website',
+          image: ogImage || '',
+          url: Astro.url.href,
+        },
+        optional: {
+          siteName: siteConfig.name,
+          description: description,
+        },
+      }}
+      twitter={{
+        card: ogImage ? 'summary_large_image' : 'summary',
+        title: title,
+        description: description,
+        ...(ogImage && { image: ogImage }),
+      }}
+      extend={{
+        meta: [{ name: 'author', content: siteConfig.author || '' }],
+      }}
+    />
     <link rel="alternate" type="application/rss+xml" title={siteConfig.title} href={`${Astro.site}rss.xml`} />
 
     <script is:inline>
@@ -129,6 +139,10 @@ const ogImage = ogImagePath ? new URL(ogImagePath, Astro.site).href : undefined;
         document.documentElement.classList.toggle('christmas', enabled);
       })();
     </script>
+
+    <!-- 子页面可通过 slot="head" 注入额外的 head 内容（如 JSON-LD） -->
+    <slot name="head" />
+
     <script>
       // CodePen embed initialization for Astro page transitions
       // https://blog.codepen.io/documentation/embedded-pens/

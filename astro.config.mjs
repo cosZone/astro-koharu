@@ -4,6 +4,7 @@ import cloudflare from '@astrojs/cloudflare';
 import netlify from '@astrojs/netlify';
 import node from '@astrojs/node';
 import react from '@astrojs/react';
+import sitemap from '@astrojs/sitemap';
 import vercel from '@astrojs/vercel';
 import yaml from '@rollup/plugin-yaml';
 import tailwindcss from '@tailwindcss/vite';
@@ -12,9 +13,11 @@ import { defineConfig } from 'astro/config';
 import icon from 'astro-icon';
 import mermaid from 'astro-mermaid';
 import pagefind from 'astro-pagefind';
+import robotsTxt from 'astro-robots-txt';
 import rehypeAutolinkHeadings from 'rehype-autolink-headings';
 import rehypeSlug from 'rehype-slug';
-import { visualizer } from 'rollup-plugin-visualizer';
+import Sonda from 'sonda/astro';
+import { loadEnv } from 'vite';
 import svgr from 'vite-plugin-svgr';
 import YAML from 'yaml';
 import { rehypeImagePlaceholder } from './src/lib/markdown/rehype-image-placeholder.ts';
@@ -78,12 +81,19 @@ function selectAdapter() {
 
 const adapter = selectAdapter();
 
+// Bundle analysis mode: ANALYZE=true pnpm build
+// Use loadEnv to read .env file (astro.config.mjs runs before Vite loads .env)
+const { ANALYZE } = loadEnv(process.env.NODE_ENV || 'production', process.cwd(), '');
+const isAnalyze = ANALYZE === 'true';
 // Get Umami analytics config from YAML
 const umamiConfig = yamlConfig.analytics?.umami;
 const umamiEnabled = umamiConfig?.enabled ?? false;
 const umamiId = umamiConfig?.id;
 // Normalize endpoint URL to remove trailing slashes
 const umamiEndpoint = normalizeUrl(umamiConfig?.endpoint);
+
+// Get robots.txt config from YAML
+const robotsConfig = yamlConfig.seo?.robots;
 
 /**
  * Vite plugin for conditional Three.js bundling
@@ -160,6 +170,7 @@ export default defineConfig({
   },
   integrations: [
     react(),
+    sitemap(),
     icon({
       include: {
         gg: ['*'],
@@ -182,21 +193,18 @@ export default defineConfig({
     mermaid({
       autoTheme: true,
     }),
+    robotsTxt(robotsConfig || {}),
+    ...(isAnalyze ? [Sonda()] : []),
   ],
   devToolbar: {
     enabled: true,
   },
   vite: {
-    plugins: [
-      yaml(),
-      conditionalSnowfall(),
-      svgr(),
-      tailwindcss(),
-      visualizer({
-        emitFile: true,
-        filename: 'stats.html',
-      }),
-    ],
+    build: {
+      // Enable sourcemap for Sonda bundle analysis
+      sourcemap: isAnalyze,
+    },
+    plugins: [yaml(), conditionalSnowfall(), svgr(), tailwindcss()],
     ssr: {
       noExternal: ['react-tweet'],
     },

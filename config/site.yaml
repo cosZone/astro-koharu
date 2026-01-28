@@ -28,6 +28,7 @@ site:
     - 技术
     - 前端
     # 请根据你的网站内容添加关键词
+  # breadcrumbHome: 首页  # 面包屑导航中首页的显示名称（默认: '首页'）
 
 # =============================================================================
 # Category Map
@@ -487,6 +488,26 @@ analytics:
     enabled: true
     id: your-umami-id
     endpoint: https://stats.example.com
+
+# =============================================================================
+# SEO Configuration
+# =============================================================================
+# https://github.com/alextim/astro-lib/tree/main/packages/astro-robots-txt#readme
+# robots: robots.txt 配置 (由 astro-robots-txt 自动生成)
+#   policy: 爬虫策略数组（可选，默认允许所有）
+#     - userAgent: 爬虫名称，'*' 表示所有
+#       allow: 允许路径（可为字符串或数组）
+#       disallow: 禁止路径（可为字符串或数组）
+#   host: 是否添加 Host 指令（可选，适用于 Yandex）
+# -----------------------------------------------------------------------------
+seo:
+  robots:
+    # policy:                          # 爬虫策略（可选，取消注释并配置）
+    #   - userAgent: '*'
+    #     allow: '/'
+    #     disallow:
+    #       - '/api/'
+    # host: true                       # 可选：添加 Host 指令（Yandex）
 
 # =============================================================================
 # Christmas/Seasonal Features

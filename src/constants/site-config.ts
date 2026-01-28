@@ -1,29 +1,18 @@
 // Import YAML config directly - processed by @rollup/plugin-yaml
 
-import type { CMSConfig, CommentConfig, FeaturedSeriesItem } from '@lib/config/types';
+import type { CMSConfig, CommentConfig, FeaturedCategory, FeaturedSeriesItem, SiteBasicConfig } from '@lib/config/types';
 import rawCmsConfig from '../../config/cms.yaml';
 import yamlConfig from '../../config/site.yaml';
 import { isReservedSlug, RESERVED_ROUTES } from './router';
 
-type SiteConfig = {
-  title: string;
-  alternate?: string;
-  subtitle?: string;
-  name: string;
-  description?: string;
-  avatar?: string;
-  showLogo?: boolean;
-  author?: string;
+/**
+ * Runtime site configuration
+ * Extends SiteBasicConfig with runtime-specific fields
+ */
+type SiteConfig = Omit<SiteBasicConfig, 'url'> & {
+  /** Site URL (mapped from SiteBasicConfig.url) */
   site: string;
-  startYear?: number;
-  defaultOgImage?: string;
-  keywords?: string[];
-  featuredCategories?: {
-    link: string;
-    image: string;
-    label?: string;
-    description?: string;
-  }[];
+  featuredCategories?: FeaturedCategory[];
   /** Normalized array of featured series */
   featuredSeries: FeaturedSeriesItem[];
 };
@@ -192,6 +181,7 @@ export const siteConfig: SiteConfig = {
   startYear: yamlConfig.site.startYear,
   defaultOgImage: yamlConfig.site.defaultOgImage,
   keywords: yamlConfig.site.keywords,
+  breadcrumbHome: yamlConfig.site.breadcrumbHome,
   featuredCategories: yamlConfig.featuredCategories,
   featuredSeries: normalizeFeaturedSeries(yamlConfig.featuredSeries),
 };

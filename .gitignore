@@ -1,5 +1,6 @@
 # build output
 dist/
+.sonda/
 
 # generated types
 .astro/
@@ -20,6 +21,9 @@ pnpm-debug.log*
 
 # vercel
 .vercel
+
+# Cloudflare
+.wrangler/
 
 # macOS-specific files
 .DS_Store

@@ -10,6 +10,7 @@ import Layout from '@layouts/Layout.astro';
 import TwoColumnLayout from '@layouts/TwoColumnLayout.astro';
 import { buildCategoryPath, getCategoryArr, getPostDescription, getPostSummary, getSortedPosts } from '@lib/content';
 import { encodeSlug } from '@lib/route';
+import { getOgImageUrl } from '@lib/seo/og-image';
 import { Icon } from 'astro-icon/components';
 import { formatInTimeZone } from 'date-fns-tz';
 import { EditButton } from '@/components/cms';
@@ -34,6 +35,9 @@ const { title, categories = [], tags = [], date } = post?.data ?? {};
 // 使用统一的工具函数获取文章描述
 const finalDescription = getPostDescription(post);
 
+// OGP image for BlogPosting schema (uses same fallback chain as Layout)
+const ogImage = getOgImageUrl(post?.data.cover, Astro.site);
+
 const jsonLd = {
   '@context': 'https://schema.org',
   '@type': 'BlogPosting',
@@ -46,6 +50,9 @@ const jsonLd = {
     url: Astro.site,
   },
   datePublished: formatInTimeZone(date, 'UTC', 'yyyy-MM-dd'),
+  ...(post.data.updated && { dateModified: formatInTimeZone(post.data.updated, 'UTC', 'yyyy-MM-dd') }),
+  ...(ogImage && { image: ogImage }),
+  mainEntityOfPage: Astro.url.href,
 };
 
 const categoryArr = getCategoryArr(categories?.[0]);
@@ -63,6 +70,35 @@ if (categoryArr?.length) {
     });
   }
 }
+
+// BreadcrumbList structured data for SEO
+const homeName = siteConfig.breadcrumbHome || '首页';
+const breadcrumbListItems = [
+  {
+    '@type': 'ListItem',
+    position: 1,
+    name: homeName,
+    item: new URL('/', Astro.site).href,
+  },
+  ...breadcrumbCategories.map((category, index) => ({
+    '@type': 'ListItem',
+    position: index + 2,
+    name: category.name,
+    item: new URL(category.link, Astro.site).href,
+  })),
+  {
+    '@type': 'ListItem',
+    position: breadcrumbCategories.length + 2,
+    name: title,
+    // 当前页面（最后一项）省略 item，符合 Google 结构化数据最佳实践
+  },
+];
+
+const breadcrumbJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: breadcrumbListItems,
+};
 
 // 确定显示的摘要内容和来源类型
 const postSlug = post.data?.link ?? post.slug;
@@ -94,6 +130,7 @@ if (post.data.description) {
   post={post}
 >
   <script is:inline slot="head" type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
+  <script is:inline slot="head" type="application/ld+json" set:html={JSON.stringify(breadcrumbJsonLd)} />
   <TwoColumnLayout post={post}>
     <Cover slot="cover" data={post} />
     <HomeSider slot="sider" type={HomeSiderType.POST} post={post} />
@@ -104,8 +141,8 @@ if (post.data.description) {
           <div class="flex items-center gap-1">
             <!-- Home Icon and Link -->
             <Icon name="fa6-solid:house-chimney" class="h-4 w-4" />
-            <a href="/" aria-label="返回首页">
-              <span class="hover:text-blue transition-colors duration-300">首页</span>
+            <a href="/" aria-label={`返回${homeName}`}>
+              <span class="hover:text-blue transition-colors duration-300">{homeName}</span>
             </a>
           </div>
           <!-- Category Breadcrumbs -->

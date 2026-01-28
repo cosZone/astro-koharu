@@ -21,6 +21,8 @@ export interface SiteBasicConfig {
   startYear?: number;
   defaultOgImage?: string;
   keywords?: string[];
+  /** 面包屑导航中首页的显示名称 @default '首页' */
+  breadcrumbHome?: string;
 }
 
 // =============================================================================
@@ -396,6 +398,26 @@ export interface AnalyticsConfig {
 }
 
 // =============================================================================
+// SEO Configuration
+// =============================================================================
+
+export interface RobotsPolicyItem {
+  userAgent: string;
+  allow?: string | string[];
+  disallow?: string | string[];
+  crawlDelay?: number;
+}
+
+export interface RobotsConfig {
+  policy?: RobotsPolicyItem[];
+  host?: boolean;
+}
+
+export interface SeoConfig {
+  robots?: RobotsConfig;
+}
+
+// =============================================================================
 // Christmas/Seasonal Features
 // =============================================================================
 
@@ -449,6 +471,8 @@ export interface SiteYamlConfig {
   navigation?: RouterItem[];
   comment?: CommentConfig;
   analytics?: AnalyticsConfig;
+  /** SEO configuration for robots.txt and meta tags */
+  seo?: SeoConfig;
   categoryMap?: Record<string, string>; // TODO: i18n, now use eg: { '随笔': 'life' }
   christmas?: ChristmasConfig;
   /** CMS configuration for local editor integration */
