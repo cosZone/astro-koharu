@@ -107,10 +107,11 @@ export function PostEditor({ postId, isOpen, onClose }: PostEditorProps) {
         const updatedFrontmatter = { ...frontmatter };
 
         if (!updatedFrontmatter.date) {
-          // New post: set date
+          // New post: set both date and updated to current time
           updatedFrontmatter.date = now;
+          updatedFrontmatter.updated = now;
         } else {
-          // Editing: set updated
+          // Existing post: only update 'updated', preserve original 'date'
           updatedFrontmatter.updated = now;
         }
 
