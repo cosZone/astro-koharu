@@ -30,7 +30,7 @@ export async function GET(context: APIContext) {
     throw new Error('Missing site metadata');
   }
 
-  return rss({
+  const response = await rss({
     title: siteConfig.title,
     description: siteConfig.subtitle || 'No description',
     site,
@@ -65,5 +65,13 @@ export async function GET(context: APIContext) {
         };
       })
       .slice(0, 20),
+  });
+
+  // 显式设置 Content-Type 包含 charset，解决中文乱码问题
+  const headers = new Headers(response.headers);
+  headers.set('Content-Type', 'application/xml; charset=utf-8');
+  return new Response(response.body, {
+    status: response.status,
+    headers,
   });
 }
