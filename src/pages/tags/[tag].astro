@@ -5,7 +5,7 @@ import { CONTENT_PADDING } from '@constants/layout';
 import { siteConfig } from '@constants/site-config';
 import Layout from '@layouts/Layout.astro';
 import TwoColumnLayout from '@layouts/TwoColumnLayout.astro';
-import { getPostLastCategory, getSortedPosts, normalizeTag, tagToSlug } from '@lib/content';
+import { getPostLastCategory, getSortedPosts, normalizeTag } from '@lib/content';
 import { encodeSlug } from '@lib/route';
 import { formatInTimeZone } from 'date-fns-tz';
 
@@ -21,7 +21,7 @@ export async function getStaticPaths() {
   });
 
   return Array.from(tags).map((tag) => ({
-    params: { tag: tagToSlug(tag) },
+    params: { tag: normalizeTag(tag).replace(/\//g, '-') },
     props: {
       posts: posts.filter((post) => post.data.tags?.some((t) => normalizeTag(t) === tag)),
       tag,
