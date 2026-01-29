@@ -91,7 +91,7 @@ export function DashboardContent({
       {activeTab === 'overview' && (
         <div className="space-y-6">
           <DashboardStats total={data.stats.total} published={data.stats.published} draft={data.stats.draft} />
-          <div className="grid gap-6 lg:grid-cols-2">
+          <div className="grid grid-cols-2 gap-6 md:grid-cols-1">
             <CategoryStats stats={data.stats.categoryStats} />
             <RecentPosts posts={data.stats.recentPosts} onEdit={onEdit} />
           </div>
