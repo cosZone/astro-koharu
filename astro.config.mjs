@@ -49,25 +49,17 @@ const cmsConfig = loadCmsConfig();
  * 按需渲染适配器，选择最合适的适配器：https://docs.astro.build/en/guides/on-demand-rendering/
  *
  * Priority:
- * 1. Check if adapter is needed (only in dev with CMS enabled)
- * 2. Detect platform: Vercel > Cloudflare > Netlify
- * 3. Fallback: Node.js (standalone mode)
- * 4. No adapter: static build (production default)
+ * 1. Detect platform: Vercel > Cloudflare > Netlify
+ * 2. Fallback: Node.js (standalone mode)
  *
- * Note: Production builds are static by default to avoid Vercel's 250MB serverless function limit.
- * The CMS features (admin page, API routes) are only available in development mode.
+ * Note: Always return an adapter to enable Astro's hybrid rendering.
+ * Vercel only creates serverless functions for pages with prerender=false.
+ * All CMS routes use `prerender = import.meta.env.PROD`, so:
+ * - Production: prerender=true → static pages → no serverless functions → no 250MB issue
+ * - Development: prerender=false → SSR → CMS works normally
  */
 function selectAdapter() {
-  // Only use adapter in development when CMS is enabled
-  // Production builds are fully static to avoid serverless function size limits
-  const isDev = process.env.NODE_ENV !== 'production';
-
-  // In production, use static build (no adapter) to avoid Vercel's 250MB limit
-  if (!isDev) {
-    return undefined;
-  }
-
-  // Platform detection (only for development)
+  // Platform detection
   const isVercel = process.env.VERCEL === '1';
   const isCloudflare = process.env.CF_PAGES === '1' || !!process.env.CLOUDFLARE;
   const isNetlify = process.env.NETLIFY === 'true';
@@ -77,7 +69,7 @@ function selectAdapter() {
   if (isCloudflare) return cloudflare();
   if (isNetlify) return netlify();
 
-  // Fallback: Node.js standalone (for self-hosting or undetected platforms)
+  // Fallback: Node.js standalone (for self-hosting or local development)
   return node({ mode: 'standalone' });
 }
 
