@@ -27,24 +27,14 @@ if (import.meta.env.DEV && !cmsConfig.enabled) {
 <html lang="zh-CN">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    {import.meta.env.PROD ? (
+      <meta http-equiv="refresh" content="0;url=/404" />
+    ) : (
+      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    )}
     <meta name="robots" content="noindex, nofollow" />
-    <title>CMS Dashboard</title>
+    <title>{import.meta.env.PROD ? "Redirecting..." : "CMS Dashboard"}</title>
     <link rel="icon" type="image/svg+xml" href="/favicon.ico" />
-
-    <script is:inline>
-      // Theme initialization - prevent FOUC
-      (function() {
-        function getTheme() {
-          if (localStorage.theme === 'dark') return 'dark';
-          if (localStorage.theme === 'light') return 'light';
-          return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-        }
-        var root = document.documentElement;
-        var theme = getTheme();
-        root.classList.toggle('dark', theme === 'dark');
-      })();
-    </script>
   </head>
   <body class="bg-background text-foreground">
     {import.meta.env.PROD ? (
