@@ -41,6 +41,11 @@ html.theme-transition::view-transition-new(root) {
   object-position: left top;
 }
 
+/* During theme transition, merge header into root snapshot */
+html.theme-transition #site-header {
+  view-transition-name: none;
+}
+
 /* 尊重用户的减少动画偏好 */
 @media (prefers-reduced-motion: reduce) {
   html.theme-transition::view-transition-new(root),
