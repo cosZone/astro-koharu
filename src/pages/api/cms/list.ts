@@ -12,7 +12,9 @@ import { CONTENT_DIR, RECENT_POSTS_COUNT } from '@constants/cms';
 import type { DashboardStats, ListPostsResponse, PostListItem } from '@lib/cms/api';
 import { jsonErrorResponse, jsonResponse, validateCmsAccess } from '@lib/cms/guard';
 import type { APIRoute } from 'astro';
+import { parse } from 'date-fns';
 import matter from 'gray-matter';
+import yaml from 'js-yaml';
 
 export const prerender = false;
 
@@ -61,13 +63,33 @@ function extractCategoryNames(categories?: string | string[] | string[][]): stri
 }
 
 /**
+ * Parses a date string in "YYYY-MM-DD HH:mm:ss" format as local time
+ */
+function parseLocalDate(dateStr: string | Date | undefined): string {
+  if (!dateStr) return new Date().toISOString();
+  if (dateStr instanceof Date) return dateStr.toISOString();
+  // Parse "2026-01-29 10:00:00" format as local time
+  const parsed = parse(dateStr, 'yyyy-MM-dd HH:mm:ss', new Date());
+  return parsed.toISOString();
+}
+
+/**
  * Converts a post file to PostListItem
  */
 async function parsePostFile(filePath: string, contentDir: string): Promise<PostListItem | null> {
   try {
     const fullPath = path.join(contentDir, filePath);
     const content = await fs.readFile(fullPath, 'utf-8');
-    const { data } = matter(content);
+
+    // Use JSON_SCHEMA to prevent js-yaml from auto-converting dates to UTC
+    const { data } = matter(content, {
+      engines: {
+        yaml: {
+          parse: (str) => yaml.load(str, { schema: yaml.JSON_SCHEMA }) as object,
+          stringify: (obj) => yaml.dump(obj),
+        },
+      },
+    });
 
     const slug = filePath.replace(/\.(md|mdx)$/, '');
     const categories = extractCategoryNames(data.categories);
@@ -77,8 +99,8 @@ async function parsePostFile(filePath: string, contentDir: string): Promise<Post
       id: filePath,
       slug,
       title: data.title || slug,
-      date: data.date ? new Date(data.date).toISOString() : new Date().toISOString(),
-      updated: data.updated ? new Date(data.updated).toISOString() : undefined,
+      date: parseLocalDate(data.date),
+      updated: data.updated ? parseLocalDate(data.updated) : undefined,
       categories,
       tags,
       draft: data.draft === true,

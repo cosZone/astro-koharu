@@ -6,6 +6,7 @@
 
 import { parse } from 'date-fns';
 import type { BlogSchema } from '@/types/blog';
+import { encodeSlug } from '../route';
 
 // =============================================================================
 // Types
@@ -80,7 +81,7 @@ export interface ToggleDraftResponse {
  * @throws Error if the request fails
  */
 export async function readPost(postId: string): Promise<ReadPostResult> {
-  const response = await fetch(`/api/cms/read?postId=${encodeURIComponent(postId)}`);
+  const response = await fetch(`/api/cms/read?postId=${encodeSlug(postId)}`);
 
   if (!response.ok) {
     const errorData = await response.json().catch(() => ({}));

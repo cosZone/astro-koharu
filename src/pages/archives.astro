@@ -5,6 +5,7 @@ import Cover from '@components/ui/cover/Cover.astro';
 import { CONTENT_PADDING } from '@constants/layout';
 import { siteConfig } from '@constants/site-config';
 import TwoColumnLayout from '@layouts/TwoColumnLayout.astro';
+import { encodeSlug } from '@lib/route';
 import { formatInTimeZone } from 'date-fns-tz';
 import Layout from '../layouts/Layout.astro';
 
@@ -56,7 +57,7 @@ const years = Object.keys(postsByYear).sort((a, b) => Number(b) - Number(a));
                       {formatInTimeZone(post.data.date, 'UTC', 'yyyy-MM-dd')}
                     </span>
                     <a
-                      href={`/post/${encodeURIComponent(post.data?.link ?? post.slug)}`}
+                      href={`/post/${encodeSlug(post.data?.link ?? post.slug)}`}
                       class="dashed-border text-primary hover:text-blue truncate transition-colors"
                     >
                       {post.data.title}

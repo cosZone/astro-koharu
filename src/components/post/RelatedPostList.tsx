@@ -1,3 +1,4 @@
+import { encodeSlug } from '@lib/route';
 import { cn, shuffleArray } from '@/lib/utils';
 import type { PostRefWithCategory } from '@/types/blog';
 
@@ -29,7 +30,7 @@ export default function RelatedPostList({ posts, fallbackPool, fallbackCount, st
         {displayPosts.map((post, index) => (
           <a
             key={post.slug}
-            href={`/post/${encodeURIComponent(post.link ?? post.slug)}`}
+            href={`/post/${encodeSlug(post.link ?? post.slug)}`}
             className="group flex gap-3 rounded-md p-2 text-sm transition-colors duration-300 hover:bg-foreground/5 hover:text-primary"
           >
             <span className="shrink-0 font-mono text-foreground/30">{index + (hasRelatedPosts ? 1 : startIndex)}</span>
