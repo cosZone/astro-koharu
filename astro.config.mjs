@@ -49,22 +49,17 @@ const cmsConfig = loadCmsConfig();
  * 按需渲染适配器，选择最合适的适配器：https://docs.astro.build/en/guides/on-demand-rendering/
  *
  * Priority:
- * 1. Check if adapter is needed (dev with CMS or production build)
+ * 1. Check if adapter is needed (only in dev with CMS enabled)
  * 2. Detect platform: Vercel > Cloudflare > Netlify
  * 3. Fallback: Node.js (standalone mode)
- * 4. No adapter: static build
+ * 4. No adapter: static build (production default)
+ *
+ * Note: Production builds are static by default to avoid Vercel's 250MB serverless function limit.
+ * The CMS features (admin page, API routes) are only available in development mode.
  */
 function selectAdapter() {
-  const isDev = process.env.NODE_ENV !== 'production';
-
-  // Determine if adapter is needed
-  const needsAdapter = isDev ? cmsConfig?.enabled : true;
-
-  // Static build without adapter
-  if (!needsAdapter) {
-    return undefined;
-  }
-
+  // Only use adapter in development when CMS is enabled
+  // Production builds are fully static to avoid serverless function size limits
   // Platform detection
   const isVercel = process.env.VERCEL === '1';
   const isCloudflare = process.env.CF_PAGES === '1' || !!process.env.CLOUDFLARE;
