@@ -4,7 +4,7 @@
 
 import { getCollection } from 'astro:content';
 import { categoryMap } from '@constants/category';
-
+import { encodeSlug } from '../route';
 import type { Category, CategoryListResult } from './types';
 
 /**
@@ -89,7 +89,7 @@ export function getCategoryLinks(categories?: Category[], parentLink?: string): 
   if (!categories?.length) return [];
   const res: string[] = [];
   categories.forEach((category: Category) => {
-    const link = encodeURIComponent(categoryMap[category.name]);
+    const link = encodeSlug(categoryMap[category.name]);
     const fullLink = parentLink ? `${parentLink}/${link}` : link;
     res.push(fullLink);
     if (category?.children?.length) {
@@ -175,7 +175,7 @@ export function buildCategoryPath(categoryNames: string | string[]): string {
   const names = Array.isArray(categoryNames) ? categoryNames : [categoryNames];
   if (names.length === 0) return '';
 
-  const slugs = names.map((name) => encodeURIComponent(categoryMap[name]));
+  const slugs = names.map((name) => encodeSlug(categoryMap[name]));
   return `/categories/${slugs.join('/')}`;
 }
 

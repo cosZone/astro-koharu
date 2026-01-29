@@ -2,6 +2,7 @@
 import rss from '@astrojs/rss';
 import { siteConfig } from '@constants/site-config';
 import { getCategoryArr, getSortedPosts } from '@lib/content';
+import { encodeSlug } from '@lib/route';
 import { getSanitizeHtml } from '@lib/sanitize';
 import type { APIContext } from 'astro';
 import sanitizeHtml from 'sanitize-html';
@@ -50,7 +51,7 @@ export async function GET(context: APIContext) {
         ];
 
         const postSlug = post.data.link ?? post.slug;
-        const postLink = `/post/${encodeURIComponent(postSlug)}`;
+        const postLink = `/post/${encodeSlug(postSlug)}`;
 
         return {
           title: post.data.title,

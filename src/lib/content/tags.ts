@@ -3,6 +3,7 @@
  */
 
 import type { BlogPost } from 'types/blog';
+import { encodeSlug } from '../route';
 
 /**
  * Normalize a tag to lowercase for case-insensitive comparison
@@ -11,12 +12,12 @@ export const normalizeTag = (tag: string) => tag.toLowerCase();
 
 /**
  * Convert tag to URL-safe slug
- * Replaces `/` with `-` and encodes special characters
+ * Replaces `/` with `-` for filesystem compatibility
  */
-export const tagToSlug = (tag: string) => encodeURIComponent(normalizeTag(tag).replace(/\//g, '-'));
+export const tagToSlug = (tag: string) => encodeSlug(normalizeTag(tag).replace(/\//g, '-'));
 
 /**
- * Build tag URL path
+ * Build tag URL path, eg. C# -> /tags/c%23
  * @param tag Tag name
  * @returns URL path like "/tags/c%23"
  */
