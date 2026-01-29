@@ -60,7 +60,14 @@ const cmsConfig = loadCmsConfig();
 function selectAdapter() {
   // Only use adapter in development when CMS is enabled
   // Production builds are fully static to avoid serverless function size limits
-  // Platform detection
+  const isDev = process.env.NODE_ENV !== 'production';
+
+  // In production, use static build (no adapter) to avoid Vercel's 250MB limit
+  if (!isDev) {
+    return undefined;
+  }
+
+  // Platform detection (only for development)
   const isVercel = process.env.VERCEL === '1';
   const isCloudflare = process.env.CF_PAGES === '1' || !!process.env.CLOUDFLARE;
   const isNetlify = process.env.NETLIFY === 'true';
