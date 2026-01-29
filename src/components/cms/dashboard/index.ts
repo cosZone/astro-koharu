@@ -5,5 +5,4 @@
  */
 
 export { CMSDashboard } from './CMSDashboard';
-export { CMSDashboardButton } from './CMSDashboardButton';
 export { CMSDashboardPage } from './CMSDashboardPage';

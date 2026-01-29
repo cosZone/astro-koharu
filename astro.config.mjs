@@ -185,7 +185,6 @@ function conditionalCms() {
         // Noop components matching @components/cms exports
         return `
           export function CategoryMappingDialog() { return null; }
-          export function CMSDashboardButton() { return null; }
           export function CMSDashboardPage() { return null; }
           export function EditButton() { return null; }
           export function EditorSelector() { return null; }

@@ -13,6 +13,7 @@ import { BlockNoteView } from '@blocknote/shadcn';
 import { useIsDarkTheme } from '@hooks/useIsDarkTheme';
 import { Icon } from '@iconify/react';
 import { detectNewCategories, readPost, writePost } from '@lib/cms';
+import { encodeSlug } from '@lib/route';
 import { cn } from '@lib/utils';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { toast } from 'sonner';
@@ -217,6 +218,14 @@ export function PostEditor({ postId, isOpen, onClose }: PostEditorProps) {
     onClose();
   }, [onClose]);
 
+  // Handle preview - open post in new tab
+  const handlePreview = useCallback(() => {
+    const slug = postId.replace(/\.(md|mdx)$/, '');
+    const previewPath = frontmatter?.link ?? slug;
+    const previewUrl = `/post/${encodeSlug(previewPath)}`;
+    window.open(previewUrl, '_blank');
+  }, [postId, frontmatter?.link]);
+
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && handleClose()}>
       <DialogContent
@@ -232,6 +241,16 @@ export function PostEditor({ postId, isOpen, onClose }: PostEditorProps) {
           </DialogTitle>
 
           <div className="flex items-center gap-2">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handlePreview}
+              disabled={status === 'loading' || status === 'error'}
+              title={frontmatter?.draft ? 'Preview (Draft)' : 'Open preview in new tab'}
+            >
+              <Icon icon="ri:external-link-line" className="h-4 w-4" />
+              {frontmatter?.draft && <Icon icon="ri:draft-line" className="ml-1 h-3 w-3 text-warning" />}
+            </Button>
             <Button variant="outline" size="sm" onClick={handleClose} disabled={status === 'saving'}>
               Cancel
             </Button>

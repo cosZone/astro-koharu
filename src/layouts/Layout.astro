@@ -12,7 +12,6 @@ interface Props {
 import { ClientRouter } from 'astro:transitions';
 import AnnouncementProvider from '@components/announcement/AnnouncementProvider.astro';
 import ChristmasEffects from '@components/christmas/ChristmasEffects.astro';
-import { CMSDashboardButton } from '@components/cms';
 import FloatingGroup from '@components/layout/FloatingGroup';
 import Header from '@components/layout/Header.astro';
 import MobileDrawer from '@components/layout/MobileDrawer.astro';
@@ -301,8 +300,7 @@ const ogImage = getOgImageUrl(post?.data.cover, Astro.site);
       <main class="relative flex grow flex-col gap-4">
         {(<slot />)}
       </main>
-      <FloatingGroup client:only="react" />
-      {import.meta.env.DEV && cmsConfig.enabled && <CMSDashboardButton client:only="react" />}
+      <FloatingGroup client:only="react" showCmsButton={import.meta.env.DEV && cmsConfig.enabled} />
       <MobileDrawer type={siderType} post={post} />
       <SearchDialog client:idle />
       <SearchPortal />
