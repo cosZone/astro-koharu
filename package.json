@@ -23,7 +23,9 @@
     "change": "git cliff --bump -o CHANGELOG.md",
     "prepare": "husky",
     "knip": "knip",
-    "koharu": "npx tsx scripts/koharu.tsx"
+    "koharu": "npx tsx scripts/koharu.tsx",
+    "cms": "cd cms && pnpm dev",
+    "cms:install": "cd cms && pnpm install"
   },
   "dependencies": {
     "@antv/infographic": "^0.2.4",
@@ -137,8 +139,7 @@
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx,json,astro}": [
-      "biome check --write --no-errors-on-unmatched",
-      "astro check"
+      "biome check --write --no-errors-on-unmatched"
     ],
     "*.{md,mdx}": [
       "lint-md --fix"

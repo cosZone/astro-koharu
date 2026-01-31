@@ -530,3 +530,34 @@ christmas:
   #   maxIterations: 8 # 最大迭代次数
   #   mobileMaxLayers: 4 # 移动端最大层数
   #   mobileMaxIterations: 6 # 移动端最大迭代次数
+
+# =============================================================================
+# Development Tools (Dev Only)
+# 开发工具配置 - 仅在开发环境（pnpm dev）生效
+# =============================================================================
+# 配置后，开发环境下文章页会显示编辑按钮，可快速打开本地编辑器
+# 字段说明：
+#   localProjectPath: 本地项目的绝对路径（用于生成文件完整路径）
+#   contentRelativePath: 博客内容相对于项目根目录的路径（默认: 'src/content/blog'）
+#   editors: 编辑器列表
+#     - id: 编辑器唯一标识符
+#     - name: 编辑器显示名称
+#     - icon: Iconify 图标标识（可从 https://icon-sets.iconify.design/ 中搜寻）
+#     - urlTemplate: URL 模板，支持占位符 {path}（文件绝对路径）
+# -----------------------------------------------------------------------------
+dev:
+  localProjectPath: '/Users/yourname/path/to/astro-koharu' # 请修改为你的项目绝对路径
+  contentRelativePath: 'src/content/blog'
+  editors:
+    - id: vscode
+      name: VS Code
+      icon: devicon-plain:vscode
+      urlTemplate: 'vscode://file{path}'
+    - id: cursor
+      name: Cursor
+      icon: simple-icons:cursor
+      urlTemplate: 'cursor://file{path}'
+    - id: zed
+      name: Zed
+      icon: simple-icons:zedindustries
+      urlTemplate: 'zed://file{path}'
