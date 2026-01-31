@@ -19,6 +19,7 @@ export interface PostItemCardProps {
   showTags?: boolean;
   hideCover?: boolean; // 隐藏图片，让内容铺满
   isSimple?: boolean; // 是否简单模式
+  isUniformPosition?: boolean; // 是否统一图片位置（非交替模式）
 }
 
 const {
@@ -28,6 +29,7 @@ const {
   hideCover: hideCoverProp,
   showTags: showTagsProp,
   isSimple = false,
+  isUniformPosition = false,
 } = Astro.props as PostItemCardProps;
 
 const showTags = showTagsProp ?? !isSimple;
@@ -48,11 +50,26 @@ const postDescription = description ?? '';
 
 // 获取 LQIP 样式用于图片占位符
 const lqipProps = getLqipProps(finalCover);
+
+// Stagger padding amounts for uniform position mode (following diagonal edge)
+// Only applied when images are on left, where the diagonal faces the content
+const staggerAmounts = ['pl-0', 'pl-2', 'pl-4', 'pl-6'] as const;
+
+/**
+ * Get stagger padding class for a content row
+ * @param rowIndex - The row index (0-3)
+ * @returns Tailwind padding class or empty string
+ */
+function getStaggerPadding(rowIndex: number): string {
+  // Only apply stagger for left image position (diagonal faces content)
+  if (!isUniformPosition || hideCover || !leftClip) return '';
+  return staggerAmounts[rowIndex];
+}
 ---
 
 <div
   class={cn(
-    'hover:shadow-card-darker group text-card-foreground shadow-card relative flex gap-2 rounded-lg bg-white transition-shadow md:flex-col dark:bg-transparent',
+    'hover:shadow-card-darker group text-card-foreground shadow-card relative flex rounded-lg bg-white transition-shadow md:flex-col dark:bg-transparent',
     'post-item-card',
   )}
 >
@@ -80,13 +97,16 @@ const lqipProps = getLqipProps(finalCover);
   }
   <div
     class={cn(
-      'flex flex-col gap-2 px-4 pb-2 md:pb-4 pt-4 md:pt-1',
+      'flex flex-col gap-2 pb-2 md:pb-4 pt-4 md:pt-1',
+      'px-4 md:px-4',
+      // Reduce margin on the side adjacent to image diagonal when uniform left position
+      isUniformPosition && !hideCover && leftClip && '-ml-3',
       hideCover ? 'w-full' : 'w-[calc(50%+2rem)] md:w-full',
       !hideCover && (leftClip ? 'order-2' : 'order-1'),
       'md:order-0',
     )}
   >
-    <div class={cn('flex w-full justify-between', { 'order-2 justify-start gap-4 pb-3 md:pb-0': isSimple })}>
+    <div class={cn('flex w-full justify-between', { 'order-2 justify-start gap-4 pb-3 md:pb-0': isSimple }, getStaggerPadding(0), 'md:pl-0 md:pr-0')}>
       {
         categoryStr && (
           <a href={categoryLink} class="flex-center hover:text-blue text-muted-foreground text-xs transition duration-300">
@@ -118,7 +138,7 @@ const lqipProps = getLqipProps(finalCover);
         </button>
       </div>
     </div>
-    <div class="mt-1 flex flex-col space-y-1.5 p-0">
+    <div class={cn('mt-1 flex flex-col space-y-1.5 p-0', getStaggerPadding(1), 'md:pl-0 md:pr-0')}>
       <div class="flex items-center gap-2">
         <a href={href} aria-label="post-link" class="min-w-0 flex-1"
           ><h1 class="text-primary hover:text-blue line-clamp-1 truncate text-xl font-bold transition-colors duration-300">
@@ -136,9 +156,12 @@ const lqipProps = getLqipProps(finalCover);
       </div>
     </div>
     <p
-      class={cn('text-muted-foreground line-clamp-3 h-15 text-sm md:h-auto md:max-h-15', {
-        'line-clamp-2 h-10 md:max-h-10': isSimple,
-      })}
+      class={cn(
+        'text-muted-foreground line-clamp-3 h-15 text-sm md:h-auto md:max-h-15',
+        { 'line-clamp-2 h-10 md:max-h-10': isSimple },
+        getStaggerPadding(2),
+        'md:pl-0 md:pr-0',
+      )}
     >
       {postDescription}
     </p>
@@ -150,6 +173,8 @@ const lqipProps = getLqipProps(finalCover);
             hideCover ? 'justify-start' : { 'justify-end': !leftClip },
             leftClip ? 'mr-18' : 'ml-18',
             'md:mx-0 md:justify-start',
+            getStaggerPadding(3),
+            'md:pl-0 md:pr-0',
           )}
         >
           {tags?.length

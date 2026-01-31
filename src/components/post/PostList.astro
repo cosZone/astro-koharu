@@ -1,6 +1,6 @@
 ---
 import EmptySvg from '@components/svg/EmptySvg';
-import { defaultCoverList } from '@constants/site-config';
+import { contentConfig, defaultCoverList } from '@constants/site-config';
 import type { Page } from 'astro';
 import { shuffle } from 'es-toolkit';
 import type { BlogPost, PostCardData } from 'types/blog';
@@ -18,6 +18,25 @@ interface Props {
 
 const { posts, page, showPaginator = true, baseUrl, isHomePage = false, isSimple = false } = Astro.props;
 const covers = shuffle(defaultCoverList);
+
+const imagePosition = contentConfig.postCardImagePosition || 'alternating';
+const isUniformPosition = imagePosition !== 'alternating';
+
+/**
+ * Calculate leftClip based on postCardImagePosition config
+ * @param index - The index of the post in the list
+ * @returns true if image should be on the left, false for right
+ */
+function getLeftClip(index: number): boolean {
+  switch (imagePosition) {
+    case 'left':
+      return true;
+    case 'right':
+      return false;
+    default:
+      return index % 2 === 0;
+  }
+}
 ---
 
 {
@@ -37,10 +56,11 @@ const covers = shuffle(defaultCoverList);
             key={post.slug}
             data={post}
             showTags={!isSimple}
-            leftClip={index % 2 === 0}
+            leftClip={getLeftClip(index)}
             randomCover={covers[index % covers.length]}
             hideCover={isSimple}
             isSimple={isSimple}
+            isUniformPosition={isUniformPosition}
           />
         ))}
       </div>

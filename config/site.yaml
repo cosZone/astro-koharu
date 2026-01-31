@@ -288,6 +288,7 @@ announcements:
 #   enableOGPreview: 启用 Open Graph 预览卡片
 #   previewCacheTime: 预览信息缓存时间（秒）
 #   lazyLoadEmbeds: 延迟加载嵌入内容（提升性能）
+#   postCardImagePosition: 文章卡片封面图位置 (alternating/left/right)
 # -----------------------------------------------------------------------------
 content:
   addBlankTarget: true # 外部链接新窗口打开
@@ -301,6 +302,7 @@ content:
   enableOGPreview: true # OG 预览卡片
   previewCacheTime: 3600 # 预览缓存时间(秒)
   lazyLoadEmbeds: true # 延迟加载嵌入
+  postCardImagePosition: alternating # 文章卡片封面图位置在首页的显示控制 alternating 默认交替显示 left 封面图始终在左侧 right 封面图始终在右侧
 
 # =============================================================================
 # Navigation Routes
