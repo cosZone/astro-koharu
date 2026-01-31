@@ -56,7 +56,8 @@ export function updateReducer(state: UpdateState, action: UpdateAction): UpdateS
       if (action.type === 'BACKUP_CONFIRM') {
         return { ...state, status: 'backing-up' };
       }
-      if (action.type === 'BACKUP_SKIP') {
+      // Rebase 模式下不允许跳过备份（防御性检查）
+      if (action.type === 'BACKUP_SKIP' && !options.rebase) {
         return { ...state, status: 'preview' };
       }
       return state;

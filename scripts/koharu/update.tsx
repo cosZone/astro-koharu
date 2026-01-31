@@ -1,5 +1,5 @@
 import path from 'node:path';
-import { ConfirmInput, Spinner } from '@inkjs/ui';
+import { ConfirmInput, Select, Spinner } from '@inkjs/ui';
 import { Box, Text } from 'ink';
 import { useCallback, useEffect, useReducer, useState } from 'react';
 import { AUTO_EXIT_DELAY } from './constants';
@@ -107,6 +107,14 @@ export function UpdateApp({
   const handleBackupSkip = useCallback(() => dispatch({ type: 'BACKUP_SKIP' }), []);
   const handleUpdateConfirm = useCallback(() => dispatch({ type: 'UPDATE_CONFIRM' }), []);
   const handleUpdateCancel = useCallback(() => onComplete?.(), [onComplete]);
+  const handleBackupSelect = useCallback(
+    (value: string) => {
+      if (value === 'backup') handleBackupConfirm();
+      else if (value === 'skip') handleBackupSkip();
+      else handleUpdateCancel();
+    },
+    [handleBackupConfirm, handleBackupSkip, handleUpdateCancel],
+  );
 
   const handleAbortMerge = useCallback(() => {
     const success = abortMerge();
@@ -188,30 +196,43 @@ export function UpdateApp({
       {/* Backup confirmation */}
       {status === 'backup-confirm' && (
         <Box flexDirection="column">
-          {stateOptions.rebase && (
-            <Box marginBottom={1} flexDirection="column">
-              <Text color="yellow" bold>
-                ⚠ Rebase 模式强制要求备份
-              </Text>
-              {stateOptions.skipBackup && (
-                <Text color="yellow" dimColor>
-                  {'  '}（--skip-backup 已被忽略）
+          {stateOptions.rebase ? (
+            // Rebase 模式：强制备份，只能确认或取消整个流程
+            <>
+              <Box marginBottom={1} flexDirection="column">
+                <Text color="yellow" bold>
+                  ⚠ Rebase 模式强制要求备份
                 </Text>
-              )}
-            </Box>
-          )}
-          <Text>{stateOptions.rebase ? '即将执行备份（Rebase 模式必须备份）' : '更新前是否备份当前内容？'}</Text>
-          <Box marginTop={1}>
-            {stateOptions.rebase ? (
-              <ConfirmInput onConfirm={handleBackupConfirm} onCancel={handleUpdateCancel} />
-            ) : (
-              <ConfirmInput onConfirm={handleBackupConfirm} onCancel={handleBackupSkip} />
-            )}
-          </Box>
-          {!stateOptions.rebase && (
-            <Box marginTop={1}>
-              <Text dimColor>提示: 使用 --skip-backup 跳过此提示</Text>
-            </Box>
+                {stateOptions.skipBackup && (
+                  <Text color="yellow" dimColor>
+                    {'  '}（--skip-backup 已被忽略）
+                  </Text>
+                )}
+              </Box>
+              <Text>确认执行备份？</Text>
+              <Box marginTop={1}>
+                <ConfirmInput onConfirm={handleBackupConfirm} onCancel={handleUpdateCancel} />
+              </Box>
+            </>
+          ) : (
+            // 普通模式：三选项 - 备份/跳过/取消
+            <>
+              <Text>更新前是否备份当前内容？</Text>
+              <Text dimColor>备份将保存博客文章、配置等重要文件，更新失败时可恢复</Text>
+              <Box marginTop={1}>
+                <Select
+                  options={[
+                    { label: '是 - 执行备份后更新', value: 'backup' },
+                    { label: '否 - 跳过备份直接更新', value: 'skip' },
+                    { label: '取消 - 退出更新流程', value: 'cancel' },
+                  ]}
+                  onChange={handleBackupSelect}
+                />
+              </Box>
+              <Box marginTop={1}>
+                <Text dimColor>提示: 使用 --skip-backup 跳过此提示</Text>
+              </Box>
+            </>
           )}
         </Box>
       )}
