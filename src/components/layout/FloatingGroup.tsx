@@ -44,11 +44,7 @@ function FloatingButton({ onClick, ariaLabel, title, children, className }: Floa
   );
 }
 
-interface FloatingGroupProps {
-  showCmsButton?: boolean;
-}
-
-export default function FloatingGroup({ showCmsButton }: FloatingGroupProps) {
+export default function FloatingGroup() {
   const [isExpanded, setIsExpanded] = useState(true);
   const isDrawerOpen = useStore($isDrawerOpen);
   const isChristmasEnabled = useStore(christmasEnabled);
@@ -78,10 +74,6 @@ export default function FloatingGroup({ showCmsButton }: FloatingGroupProps) {
     setIsExpanded((prev) => !prev);
   }, []);
 
-  const openCmsDashboard = useCallback(() => {
-    window.open('/admin', '_self');
-  }, []);
-
   // Hide when drawer is open
   const isHidden = isDrawerOpen;
 
@@ -104,11 +96,6 @@ export default function FloatingGroup({ showCmsButton }: FloatingGroupProps) {
             exit={{ y: 50, opacity: 0 }}
             transition={{ duration: 0.15, ease: 'easeInOut' }}
           >
-            {showCmsButton && (
-              <FloatingButton onClick={openCmsDashboard} ariaLabel="CMS Dashboard" title="CMS Dashboard">
-                <Icon icon="ri:dashboard-3-line" className="h-5 w-5" />
-              </FloatingButton>
-            )}
             {christmasConfig.enabled && (
               <FloatingButton onClick={toggleChristmas} ariaLabel="切换圣诞特效" title="切换圣诞特效">
                 <Icon icon={isChristmasEnabled ? 'ri:snowy-fill' : 'ri:snowy-line'} className="h-5 w-5" />

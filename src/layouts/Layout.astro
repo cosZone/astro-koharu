@@ -21,7 +21,7 @@ import CodeBlockFullscreen from '@components/markdown/CodeBlockFullscreen';
 import InfographicFullscreen from '@components/markdown/InfographicFullscreen.astro';
 import MermaidFullscreen from '@components/markdown/MermaidFullscreen.astro';
 import { Toaster } from '@components/ui/sonner';
-import { christmasConfig, cmsConfig, seoConfig, siteConfig } from '@constants/site-config';
+import { christmasConfig, seoConfig, siteConfig } from '@constants/site-config';
 import { getOgImageUrl } from '@lib/seo/og-image';
 import LoadingIndicator from 'astro-loading-indicator/component';
 import { SEO } from 'astro-seo';
@@ -300,7 +300,7 @@ const ogImage = getOgImageUrl(post?.data.cover, Astro.site);
       <main class="relative flex grow flex-col gap-4">
         {(<slot />)}
       </main>
-      <FloatingGroup client:only="react" showCmsButton={import.meta.env.DEV && cmsConfig.enabled} />
+      <FloatingGroup client:only="react" />
       <MobileDrawer type={siderType} post={post} />
       <SearchDialog client:idle />
       <SearchPortal />

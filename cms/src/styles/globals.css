@@ -1,0 +1,177 @@
+@import "tailwindcss";
+@import "./preview.css";
+
+@theme {
+  /* Colors - softer dark theme with subtle blue tint */
+  --color-background: oklch(0.22 0.01 250);
+  --color-foreground: oklch(0.985 0 0);
+  --color-card: oklch(0.22 0.01 250);
+  --color-card-foreground: oklch(0.985 0 0);
+  --color-popover: oklch(0.26 0.01 250);
+  --color-popover-foreground: oklch(0.985 0 0);
+  --color-primary: oklch(0.865 0.182 281);
+  --color-primary-foreground: oklch(0.145 0 0);
+  --color-secondary: oklch(0.28 0.01 250);
+  --color-secondary-foreground: oklch(0.985 0 0);
+  --color-muted: oklch(0.28 0.01 250);
+  --color-muted-foreground: oklch(0.708 0 0);
+  --color-accent: oklch(0.28 0.01 250);
+  --color-accent-foreground: oklch(0.985 0 0);
+  --color-destructive: oklch(0.396 0.141 25.768);
+  --color-destructive-foreground: oklch(0.985 0 0);
+  --color-warning: oklch(0.769 0.188 70.08);
+  --color-warning-foreground: oklch(0.145 0 0);
+  --color-border: oklch(0.32 0.01 250);
+  --color-input: oklch(0.28 0.01 250);
+  --color-ring: oklch(0.865 0.182 281);
+
+  /* Radii */
+  --radius-lg: 0.625rem;
+  --radius-md: 0.5rem;
+  --radius-sm: 0.375rem;
+}
+
+/* Animations */
+@keyframes fade-in-0 {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes fade-out-0 {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes zoom-in-95 {
+  from {
+    transform: scale(0.95);
+  }
+  to {
+    transform: scale(1);
+  }
+}
+
+@keyframes zoom-out-95 {
+  from {
+    transform: scale(1);
+  }
+  to {
+    transform: scale(0.95);
+  }
+}
+
+@keyframes slide-in-from-top-2 {
+  from {
+    transform: translateY(-0.5rem);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+@keyframes slide-in-from-bottom-2 {
+  from {
+    transform: translateY(0.5rem);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+@keyframes slide-in-from-left-2 {
+  from {
+    transform: translateX(-0.5rem);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+@keyframes slide-in-from-right-2 {
+  from {
+    transform: translateX(0.5rem);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+.animate-in {
+  animation-duration: 150ms;
+  animation-timing-function: ease-out;
+  animation-fill-mode: both;
+}
+
+.animate-out {
+  animation-duration: 150ms;
+  animation-timing-function: ease-in;
+  animation-fill-mode: both;
+}
+
+.fade-in-0 {
+  animation-name: fade-in-0;
+}
+.fade-out-0 {
+  animation-name: fade-out-0;
+}
+.zoom-in-95 {
+  animation-name: zoom-in-95;
+}
+.zoom-out-95 {
+  animation-name: zoom-out-95;
+}
+.slide-in-from-top-2 {
+  animation-name: slide-in-from-top-2;
+}
+.slide-in-from-bottom-2 {
+  animation-name: slide-in-from-bottom-2;
+}
+.slide-in-from-left-2 {
+  animation-name: slide-in-from-left-2;
+}
+.slide-in-from-right-2 {
+  animation-name: slide-in-from-right-2;
+}
+
+/* Base styles */
+body {
+  background-color: var(--color-background);
+  color: var(--color-foreground);
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-muted);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-muted-foreground);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-foreground);
+}
+
+/* BlockNote menus - ensure solid background */
+.bg-popover,
+.bn-container .bn-suggestion-menu,
+.bn-menu-dropdown,
+.bn-drag-handle-menu {
+  background-color: var(--color-popover);
+}
