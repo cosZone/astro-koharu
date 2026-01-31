@@ -232,6 +232,26 @@ type ChristmasConfig = {
 // Map YAML comment config
 export const commentConfig: CommentConfig = yamlConfig.comment || {};
 
+// Content config types
+type ContentConfig = {
+  addBlankTarget?: boolean;
+  smoothScroll?: boolean;
+  addHeadingLevel?: boolean;
+  enhanceCodeBlock?: boolean;
+  enableCodeCopy?: boolean;
+  enableCodeFullscreen?: boolean;
+  enableLinkEmbed?: boolean;
+  enableTweetEmbed?: boolean;
+  enableOGPreview?: boolean;
+  previewCacheTime?: number;
+  lazyLoadEmbeds?: boolean;
+  /** Post card image position: 'alternating' | 'left' | 'right' */
+  postCardImagePosition?: 'alternating' | 'left' | 'right';
+};
+
+// Map YAML content config
+export const contentConfig: ContentConfig = yamlConfig.content || {};
+
 // Map YAML analytics config
 export const analyticsConfig: AnalyticsConfig = yamlConfig.analytics || {};
 
