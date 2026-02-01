@@ -9,10 +9,10 @@ import { siteConfig } from '@constants/site-config';
 import Layout from '@layouts/Layout.astro';
 import TwoColumnLayout from '@layouts/TwoColumnLayout.astro';
 import { buildCategoryPath, getCategoryArr, getPostDescription, getPostSummary, getSortedPosts } from '@lib/content';
+import { formatForSeo } from '@lib/date';
 import { encodeSlug } from '@lib/route';
 import { getOgImageUrl } from '@lib/seo/og-image';
 import { Icon } from 'astro-icon/components';
-import { formatInTimeZone } from 'date-fns-tz';
 import { Comment } from '@/components/comment';
 import EditButton from '@/components/EditButton';
 import { extractTextFromMarkdown } from '@/lib/sanitize';
@@ -49,8 +49,8 @@ const jsonLd = {
     name: siteConfig.author ?? siteConfig.name,
     url: Astro.site,
   },
-  datePublished: formatInTimeZone(date, 'UTC', 'yyyy-MM-dd'),
-  ...(post.data.updated && { dateModified: formatInTimeZone(post.data.updated, 'UTC', 'yyyy-MM-dd') }),
+  datePublished: formatForSeo(date),
+  ...(post.data.updated && { dateModified: formatForSeo(post.data.updated) }),
   ...(ogImage && { image: ogImage }),
   mainEntityOfPage: Astro.url.href,
 };

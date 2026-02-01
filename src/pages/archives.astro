@@ -5,8 +5,8 @@ import Cover from '@components/ui/cover/Cover.astro';
 import { CONTENT_PADDING } from '@constants/layout';
 import { siteConfig } from '@constants/site-config';
 import TwoColumnLayout from '@layouts/TwoColumnLayout.astro';
+import { displayDate } from '@lib/date';
 import { encodeSlug } from '@lib/route';
-import { formatInTimeZone } from 'date-fns-tz';
 import Layout from '../layouts/Layout.astro';
 
 const posts = await getCollection('blog', ({ data }) => {
@@ -54,7 +54,7 @@ const years = Object.keys(postsByYear).sort((a, b) => Number(b) - Number(a));
                 {postsByYear[Number(year)].map((post) => (
                   <p class="shoka-decoration-circle group text-primary hover:text-blue relative px-6 py-2 text-base/9 md:flex md:flex-col md:items-stretch md:text-sm/9">
                     <span class="text-muted-foreground mr-2 text-xs">
-                      {formatInTimeZone(post.data.date, 'UTC', 'yyyy-MM-dd')}
+                      {displayDate.date(post.data.date)}
                     </span>
                     <a
                       href={`/post/${encodeSlug(post.data?.link ?? post.slug)}`}

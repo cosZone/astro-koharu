@@ -1,8 +1,8 @@
 ---
 import { siteConfig } from '@constants/site-config';
+import { displayDate } from '@lib/date';
 import { getLqipStyle } from '@lib/lqip';
 import { Icon } from 'astro-icon/components';
-import { formatInTimeZone } from 'date-fns-tz';
 import readingTime from 'reading-time';
 import type { BlogPost } from 'types/blog';
 import { MAX_WIDTH } from '@/constants/layout';
@@ -57,12 +57,12 @@ const bannerLqipStyle = getLqipStyle('/img/site_header_1920.webp');
             <p class="mt-3 flex flex-wrap items-center justify-center gap-4 md:text-xs">
               <span class="flex items-center gap-1">
                 <Icon name="fa6-solid:calendar-days" />
-                发表于 {date && formatInTimeZone(date, 'UTC', 'yyyy-MM-dd HH:mm')}
+                发表于 {date && displayDate.datetime(date)}
               </span>
               {updated && (
                 <span class="flex items-center gap-1">
                   <Icon name="fa6-solid:calendar-days" />
-                  更新于 {formatInTimeZone(updated, 'UTC', 'yyyy-MM-dd HH:mm')}
+                  更新于 {displayDate.datetime(updated)}
                 </span>
               )}
               <span class="flex items-center gap-1">

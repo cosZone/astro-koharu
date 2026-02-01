@@ -7,6 +7,7 @@
 
 import { animation, zIndex } from '@constants/design-tokens';
 import { Icon } from '@iconify/react';
+import { displayDate } from '@lib/date';
 import { cn } from '@lib/utils';
 import { useStore } from '@nanostores/react';
 import {
@@ -17,16 +18,14 @@ import {
   markAsRead,
   readAnnouncementIds,
 } from '@store/announcement';
-import { format } from 'date-fns';
-import { zhCN } from 'date-fns/locale';
 import { AnimatePresence, motion } from 'motion/react';
 import type { Announcement } from '@/types/announcement';
 import { getAnnouncementColor, getAnnouncementIcon } from './AnnouncementToaster';
 
-function formatDate(dateStr?: string): string {
+function formatAnnouncementDate(dateStr?: string): string {
   if (!dateStr) return '';
   try {
-    return format(new Date(dateStr), 'MM/dd', { locale: zhCN });
+    return displayDate.monthDay(dateStr);
   } catch {
     return '';
   }
@@ -45,7 +44,7 @@ function TimelineItem({
 }) {
   const color = getAnnouncementColor(announcement);
   const icon = getAnnouncementIcon(announcement);
-  const dateStr = formatDate(announcement.publishDate ?? announcement.startDate);
+  const dateStr = formatAnnouncementDate(announcement.publishDate ?? announcement.startDate);
 
   const handleClick = () => {
     if (!isRead) {

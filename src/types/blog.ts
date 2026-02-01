@@ -2,6 +2,7 @@ import type { CollectionEntry } from 'astro:content';
 
 /**
  * Blog post schema - matches the schema defined in content/config.ts
+ * This is the OUTPUT type after Zod transforms are applied.
  */
 export interface BlogSchema {
   title: string;
@@ -19,6 +20,15 @@ export interface BlogSchema {
   tocNumbering?: boolean;
   /** Exclude this post from AI summary generation */
   excludeFromSummary?: boolean;
+}
+
+/**
+ * Blog post schema INPUT type - before Zod transforms.
+ * gray-matter parses YAML dates as Date objects, so date fields accept both.
+ */
+export interface BlogSchemaInput extends Omit<BlogSchema, 'date' | 'updated'> {
+  date: string | Date;
+  updated?: string | Date;
 }
 
 /**

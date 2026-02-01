@@ -23,6 +23,8 @@ export interface SiteBasicConfig {
   keywords?: string[];
   /** 面包屑导航中首页的显示名称 @default '首页' */
   breadcrumbHome?: string;
+  /** 时区配置 (IANA 格式) @default 'Asia/Shanghai' */
+  timezone?: string;
 }
 
 // =============================================================================

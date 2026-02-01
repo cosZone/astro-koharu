@@ -22,6 +22,7 @@ site:
   url: https://koharu.cosine.ren # 站点 URL 用于 RSS 和 SEO
   defaultOgImage: /img/avatar.webp # 默认 Open Graph 图片
   startYear: 2024 # 建站年份
+  timezone: Asia/Shanghai # 时区配置 (IANA 格式)，用于日期显示和处理
   keywords: # SEO 关键词
     - 博客
     - Astro
