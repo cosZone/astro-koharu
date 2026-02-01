@@ -28,6 +28,7 @@ const finalConfig = { ...defaultContentConfig, ...config };
   import type { ContentConfig } from '@constants/content-config';
   import { enhanceAllCodeBlocks } from '@lib/code-block-enhancer';
   import { enhanceImages } from '@lib/image-enhancer';
+  import { enhanceLinkPreviews } from '@lib/link-preview-enhancer';
   import { initInfographicEnhancer } from '@lib/infographic-enhancer';
   import { initMermaidEnhancer } from '@lib/mermaid-enhancer';
 
@@ -132,6 +133,9 @@ const finalConfig = { ...defaultContentConfig, ...config };
 
     // Enhance images with loading states
     enhanceImages(contentContainer);
+
+    // Enhance link preview images with error handling
+    enhanceLinkPreviews(contentContainer);
 
     // Mark as enhanced
     contentContainer.setAttribute('data-enhanced', 'true');
