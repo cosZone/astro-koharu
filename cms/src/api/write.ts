@@ -6,7 +6,7 @@
 
 import fs from 'node:fs/promises';
 import path from 'node:path';
-import { format, parse, parseISO } from 'date-fns';
+import { format, isValid, parse, parseISO } from 'date-fns';
 import matter from 'gray-matter';
 import type { Context } from 'hono';
 import yaml from 'js-yaml';
@@ -76,25 +76,38 @@ export async function writeHandler(c: Context) {
     const filePath = path.join(projectRoot, CONTENT_DIR, postId);
 
     // Convert date strings to Date objects
-    // Frontend sends ISO strings (e.g., "2026-01-03T12:00:00.000Z") via JSON.stringify
-    // We parse these to Date objects for proper local time formatting
+    // Frontend now sends local time strings in "yyyy-MM-dd HH:mm:ss" format
+    // This preserves user's intended time without UTC conversion issues
     const processedFrontmatter: Record<string, unknown> = { ...frontmatter };
-    const dateStr = processedFrontmatter.date;
-    if (typeof dateStr === 'string') {
-      // ISO format (with 'T' and 'Z') from JSON.stringify
-      if (dateStr.includes('T')) {
-        processedFrontmatter.date = parseISO(dateStr);
-      } else {
-        // Local time format (e.g., "2026-01-03 20:00:00")
-        processedFrontmatter.date = parse(dateStr, 'yyyy-MM-dd HH:mm:ss', new Date());
-      }
-    }
-    const updatedStr = processedFrontmatter.updated;
-    if (typeof updatedStr === 'string') {
-      if (updatedStr.includes('T')) {
-        processedFrontmatter.updated = parseISO(updatedStr);
-      } else {
-        processedFrontmatter.updated = parse(updatedStr, 'yyyy-MM-dd HH:mm:ss', new Date());
+
+    for (const key of ['date', 'updated'] as const) {
+      const dateStr = processedFrontmatter[key];
+      if (typeof dateStr === 'string' && dateStr.trim()) {
+        // Primary: local time format "yyyy-MM-dd HH:mm:ss"
+        const localDate = parse(dateStr, 'yyyy-MM-dd HH:mm:ss', new Date());
+        if (isValid(localDate)) {
+          processedFrontmatter[key] = localDate;
+          continue;
+        }
+
+        // Fallback: ISO format for backwards compatibility
+        if (dateStr.includes('T')) {
+          const isoDate = parseISO(dateStr);
+          if (isValid(isoDate)) {
+            processedFrontmatter[key] = isoDate;
+            continue;
+          }
+        }
+
+        // Neither format worked - this is an error
+        const fieldName = key === 'date' ? 'date' : 'updated';
+        console.error(`[write-api] Failed to parse ${fieldName}: "${dateStr}"`);
+        return c.json(
+          {
+            error: `Invalid ${fieldName} format: "${dateStr}". Expected "yyyy-MM-dd HH:mm:ss" or ISO format.`,
+          },
+          400,
+        );
       }
     }
 

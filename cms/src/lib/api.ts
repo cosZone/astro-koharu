@@ -4,7 +4,7 @@
  * Client-side functions for reading and writing blog posts via the CMS API.
  */
 
-import { isValid, parse, parseISO } from 'date-fns';
+import { format, isValid, parse, parseISO } from 'date-fns';
 import type {
   BlogSchema,
   CreatePostParams,
@@ -61,6 +61,37 @@ function safeParseDateString(dateStr: string): Date {
 }
 
 /**
+ * Serialize a Date object to local time string for API transmission
+ * Preserves the user's intended time without UTC conversion
+ *
+ * @param date - Date object to serialize
+ * @returns Local time string in "yyyy-MM-dd HH:mm:ss" format
+ */
+function serializeDateForApi(date: Date): string {
+  return format(date, 'yyyy-MM-dd HH:mm:ss');
+}
+
+/**
+ * Prepare frontmatter for API transmission
+ * Converts Date objects to local time strings to prevent JSON.stringify
+ * from converting them to UTC ISO format
+ *
+ * @param frontmatter - BlogSchema frontmatter object
+ * @returns Frontmatter with Date objects converted to strings
+ */
+function prepareFrontmatterForApi(frontmatter: BlogSchema): Record<string, unknown> {
+  const result: Record<string, unknown> = {};
+  for (const [key, value] of Object.entries(frontmatter)) {
+    if (value instanceof Date) {
+      result[key] = serializeDateForApi(value);
+    } else if (value !== undefined && value !== null) {
+      result[key] = value;
+    }
+  }
+  return result;
+}
+
+/**
  * Reads a blog post from the CMS API
  *
  * @param postId - The post ID (e.g., 'note/front-end/theme.md')
@@ -110,7 +141,7 @@ export async function writePost(
     },
     body: JSON.stringify({
       postId,
-      frontmatter,
+      frontmatter: prepareFrontmatterForApi(frontmatter),
       content,
       categoryMappings,
     }),

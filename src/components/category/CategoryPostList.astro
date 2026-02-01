@@ -1,9 +1,9 @@
 ---
 import { CONTENT_PADDING } from '@constants/layout';
 import { type Category, getPostsByCategory } from '@lib/content';
+import { displayDate } from '@lib/date';
 import { encodeSlug } from '@lib/route';
 import { cn } from '@lib/utils';
-import { formatInTimeZone } from 'date-fns-tz';
 import SubCategory from './SubCategory.astro';
 
 interface Props {
@@ -47,7 +47,7 @@ const posts = await getPostsByCategory(rootCategory?.name ?? '');
         <div class="category-second-level-container flex flex-col">
           {posts.map((post) => (
             <p class="shoka-decoration-circle group text-primary hover:text-blue relative px-6 py-2 text-base/9">
-              <span class="text-muted-foreground mr-2 text-xs">{formatInTimeZone(post.data.date, 'UTC', 'yy-MM-dd')}</span>
+              <span class="text-muted-foreground mr-2 text-xs">{displayDate.shortDate(post.data.date)}</span>
               <a href={`/post/${encodeSlug(post?.data?.link ?? post.slug)}`} class="dashed-border">
                 {post?.data?.title}
               </a>

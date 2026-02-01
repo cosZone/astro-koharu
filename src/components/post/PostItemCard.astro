@@ -5,11 +5,11 @@ import { Button } from '@components/ui/button';
 import { Routes } from '@constants/router';
 import { defaultCoverList } from '@constants/site-config';
 import { buildCategoryPath, buildTagPath, getCategoryArr } from '@lib/content';
+import { displayDate } from '@lib/date';
 import { getLqipProps } from '@lib/lqip';
 import { routeBuilder } from '@lib/route';
 import { cn } from '@lib/utils';
 import { Icon } from 'astro-icon/components';
-import { formatInTimeZone } from 'date-fns-tz';
 import type { PostCardData } from '@/types/blog';
 
 export interface PostItemCardProps {
@@ -120,7 +120,7 @@ function getStaggerPadding(rowIndex: number): string {
           date ? (
             <p class="flex-center gap-1">
               <Icon name="fa6-solid:calendar-days" />
-              {formatInTimeZone(date, 'UTC', 'yyyy-MM-dd')}
+              {displayDate.date(date)}
             </p>
           ) : null
         }
