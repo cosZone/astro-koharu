@@ -4,7 +4,7 @@ import { useIsMounted } from '@hooks/useIsMounted';
 import { useStore } from '@nanostores/react';
 import { motion, useMotionTemplate, useMotionValue, useSpring, useTransform } from 'motion/react';
 import { type MouseEvent, useRef } from 'react';
-import { cn } from '@/lib/utils';
+import { cn, normalizeHexColor } from '@/lib/utils';
 import { christmasEnabled } from '@/store/christmas';
 
 interface FriendCardProps {
@@ -72,7 +72,7 @@ export default function FriendCard({ friend, index }: FriendCardProps) {
     y.set(0);
   };
 
-  const cardColor = friend.color || DEFAULT_COLOR;
+  const cardColor = normalizeHexColor(friend.color || DEFAULT_COLOR);
   const avatarImage = friend.image || DEFAULT_AVATAR;
 
   return (

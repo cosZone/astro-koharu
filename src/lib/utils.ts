@@ -84,6 +84,31 @@ export function shuffleArray<T>(array: T[]): T[] {
 }
 
 /**
+ * Normalize shorthand hex color to full 6-digit format
+ * Supports #RGB, #RGBA, #RRGGBB, #RRGGBBAA formats
+ * @example normalizeHexColor('#6cf') => '#66ccff'
+ * @example normalizeHexColor('#6cf8') => '#66ccff88'
+ * @example normalizeHexColor('#ed788b') => '#ed788b'
+ */
+export function normalizeHexColor(color: string): string {
+  if (!color.startsWith('#')) return color;
+  const hex = color.slice(1);
+
+  // 3-digit (#RGB) or 4-digit (#RGBA) → expand each character
+  if (hex.length === 3 || hex.length === 4) {
+    return (
+      '#' +
+      hex
+        .split('')
+        .map((c) => c + c)
+        .join('')
+    );
+  }
+
+  return color;
+}
+
+/**
  * Normalize URL by removing trailing slashes from origin
  * Uses URL API for robust parsing
  * @example normalizeUrl('https://example.com/') => 'https://example.com'
