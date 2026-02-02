@@ -80,8 +80,8 @@ function getStaggerPadding(rowIndex: number): string {
         href={href}
         style={lqipProps.style}
         class={cn(
-          'md:clip-path-none relative h-46.5 max-h-46.5 w-[calc(50%-2rem)] overflow-hidden rounded-lg md:w-auto',
-          leftClip ? 'clip-path-post-img-left order-1' : 'clip-path-post-img-right order-2',
+          'md:clip-path-none relative h-46.5 max-h-46.5 w-[calc(50%-2rem)] overflow-hidden md:w-auto',
+          leftClip ? 'rounded-s-lg clip-path-post-img-left order-1' : 'rounded-e-lg clip-path-post-img-right order-2',
           'md:clip-path-none md:order-0',
           lqipProps.class,
         )}
