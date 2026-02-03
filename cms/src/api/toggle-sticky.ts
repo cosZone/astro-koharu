@@ -61,7 +61,15 @@ export async function toggleStickyHandler(c: Context) {
 
     // Read the file
     const fileContent = await fs.readFile(filePath, 'utf-8');
-    const { data: frontmatter, content } = matter(fileContent);
+    // Use JSON_SCHEMA to prevent js-yaml from auto-converting dates to Date objects
+    const { data: frontmatter, content } = matter(fileContent, {
+      engines: {
+        yaml: {
+          parse: (str) => yaml.load(str, { schema: yaml.JSON_SCHEMA }) as object,
+          stringify: (obj) => yaml.dump(obj),
+        },
+      },
+    });
 
     // Toggle sticky status
     const currentSticky = frontmatter.sticky === true;
@@ -69,6 +77,7 @@ export async function toggleStickyHandler(c: Context) {
     frontmatter.sticky = newSticky;
 
     // Write back using gray-matter with custom YAML engine
+    // Note: JSON_SCHEMA keeps dates as strings, so no serialization needed
     const newContent = matter.stringify(content, frontmatter, {
       engines: {
         yaml: {

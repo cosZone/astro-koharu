@@ -6,34 +6,16 @@
 
 import fs from 'node:fs/promises';
 import path from 'node:path';
-import { format, isValid, parse, parseISO } from 'date-fns';
+import { isValid, parse, parseISO } from 'date-fns';
 import matter from 'gray-matter';
 import type { Context } from 'hono';
 import yaml from 'js-yaml';
 import { z } from 'zod';
 import { addCategoryMappings } from '@/lib/config';
+import { serializeFrontmatter } from '@/lib/frontmatter';
 import { CONTENT_DIR } from '@/lib/paths';
 import { hasValidMarkdownExtension, isPathSafe } from '@/lib/validation';
 import type { BlogSchema } from '@/types';
-
-/**
- * Converts frontmatter dates to YAML-friendly strings
- * Uses YYYY-MM-DD HH:mm:ss format to match existing blog post format
- */
-function serializeFrontmatter(frontmatter: BlogSchema): Record<string, unknown> {
-  const result: Record<string, unknown> = {};
-
-  for (const [key, value] of Object.entries(frontmatter)) {
-    if (value instanceof Date) {
-      // Format date as YYYY-MM-DD HH:mm:ss to match existing format
-      result[key] = format(value, 'yyyy-MM-dd HH:mm:ss');
-    } else if (value !== undefined && value !== null) {
-      result[key] = value;
-    }
-  }
-
-  return result;
-}
 
 /** Zod schema for write post request validation */
 const writePostRequestSchema = z.object({

@@ -8,6 +8,7 @@ import fs from 'node:fs';
 import http from 'node:http';
 import path from 'node:path';
 import { Readable } from 'node:stream';
+import { fileURLToPath } from 'node:url';
 import { Hono } from 'hono';
 import { cors } from 'hono/cors';
 import { logger } from 'hono/logger';
@@ -33,7 +34,7 @@ type AppVariables = {
 };
 
 // Load project configuration
-const CMS_DIR = path.dirname(new URL(import.meta.url).pathname);
+const CMS_DIR = path.dirname(fileURLToPath(import.meta.url));
 const PROJECT_ROOT = path.resolve(CMS_DIR, '..');
 
 // Load site config for category map

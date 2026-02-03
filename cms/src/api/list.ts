@@ -7,7 +7,7 @@
 
 import fs from 'node:fs/promises';
 import path from 'node:path';
-import { parse } from 'date-fns';
+import { isValid, parse, parseISO } from 'date-fns';
 import matter from 'gray-matter';
 import type { Context } from 'hono';
 import yaml from 'js-yaml';
@@ -60,13 +60,40 @@ function extractCategoryNames(categories?: string | string[] | string[][]): stri
 
 /**
  * Parses a date string in "YYYY-MM-DD HH:mm:ss" format as local time
+ * Also supports ISO 8601 format for backward compatibility with existing files
+ *
+ * Order matters: local time format is tried first to avoid UTC misinterpretation
+ * (new Date("2026-01-29 10:00:00") would parse as UTC, not local time)
  */
 function parseLocalDate(dateStr: string | Date | undefined): string {
   if (!dateStr) return new Date().toISOString();
   if (dateStr instanceof Date) return dateStr.toISOString();
-  // Parse "2026-01-29 10:00:00" format as local time
-  const parsed = parse(dateStr, 'yyyy-MM-dd HH:mm:ss', new Date());
-  return parsed.toISOString();
+
+  // Primary: local time format "yyyy-MM-dd HH:mm:ss"
+  // Must be tried FIRST because new Date() would incorrectly parse this as UTC
+  const localDate = parse(dateStr, 'yyyy-MM-dd HH:mm:ss', new Date());
+  if (isValid(localDate)) {
+    return localDate.toISOString();
+  }
+
+  // Fallback: ISO 8601 format (contains "T")
+  if (dateStr.includes('T')) {
+    const isoDate = parseISO(dateStr);
+    if (isValid(isoDate)) {
+      return isoDate.toISOString();
+    }
+  }
+
+  // Last resort: try native Date parsing with warning
+  const fallbackDate = new Date(dateStr);
+  if (isValid(fallbackDate)) {
+    console.warn(`[CMS List API] Ambiguous date format: "${dateStr}", using native parsing`);
+    return fallbackDate.toISOString();
+  }
+
+  // Invalid date - return current time
+  console.error(`[CMS List API] Invalid date format: "${dateStr}"`);
+  return new Date().toISOString();
 }
 
 /**
