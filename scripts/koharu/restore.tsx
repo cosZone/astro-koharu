@@ -1,7 +1,8 @@
 import path from 'node:path';
-import { ConfirmInput, Select, Spinner } from '@inkjs/ui';
+import { ConfirmInput, Spinner } from '@inkjs/ui';
 import { Box, Text } from 'ink';
 import { useCallback, useEffect, useState } from 'react';
+import { CycleSelect as Select } from './components';
 import {
   AUTO_EXIT_DELAY,
   type BackupInfo,

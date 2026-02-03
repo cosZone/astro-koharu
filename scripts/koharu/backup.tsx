@@ -1,7 +1,8 @@
 import path from 'node:path';
-import { Select, Spinner } from '@inkjs/ui';
+import { Spinner } from '@inkjs/ui';
 import { Box, Text } from 'ink';
 import { useCallback, useEffect, useState } from 'react';
+import { CycleSelect as Select } from './components';
 import { AUTO_EXIT_DELAY, type BackupResult, formatSize, runBackup, usePressAnyKey, useRetimer } from './shared';
 
 type BackupStatus = 'selecting' | 'pending' | 'backing' | 'compressing' | 'done' | 'error';

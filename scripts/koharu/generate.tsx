@@ -1,6 +1,7 @@
-import { Select, Spinner, TextInput } from '@inkjs/ui';
+import { Spinner, TextInput } from '@inkjs/ui';
 import { Box, Text } from 'ink';
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { CycleSelect as Select } from './components';
 import { AUTO_EXIT_DELAY } from './constants';
 import { DEFAULT_LLM_MODEL, GENERATE_ITEMS, type GenerateType } from './constants/generate';
 import { usePressAnyKey, useRetimer } from './hooks';

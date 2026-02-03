@@ -1,10 +1,10 @@
 import fs from 'node:fs';
 import path from 'node:path';
-import { Select } from '@inkjs/ui';
 import { Box, render, Text, useApp } from 'ink';
 import { useState } from 'react';
 import { BackupApp } from './koharu/backup.js';
 import { CleanApp } from './koharu/clean.js';
+import { CycleSelect as Select } from './koharu/components';
 import { GenerateApp } from './koharu/generate.js';
 import { HelpApp } from './koharu/help.js';
 import { ListApp } from './koharu/list.js';

@@ -1,7 +1,7 @@
-import { Select, TextInput } from '@inkjs/ui';
+import { TextInput } from '@inkjs/ui';
 import { Box, Text } from 'ink';
 import { useCallback, useEffect, useState } from 'react';
-import { ConfirmScreen, CreatingScreen, DoneScreen, ErrorScreen, StepItem } from '../components';
+import { ConfirmScreen, CreatingScreen, DoneScreen, ErrorScreen, CycleSelect as Select, StepItem } from '../components';
 import { useStepFlow } from '../hooks';
 import { createPost, generateSlug, getCategoryTree, postExists } from '../utils/new-operations';
 import type { CategoryTreeItem, CreatorProps, PostData } from './types';

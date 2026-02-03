@@ -1,6 +1,6 @@
-import { Select } from '@inkjs/ui';
 import { Box, Text } from 'ink';
 import { useState } from 'react';
+import { CycleSelect as Select } from './components';
 import { CREATORS, type CreatorType } from './creators';
 
 type NewStatus = 'selecting' | 'creating' | 'done';
