@@ -120,7 +120,7 @@ import { Icon } from 'astro-icon/components';
 
 <script>
   import {
-    infographicFullscreenData,
+    $infographicFullscreenData,
     openInfographicFullscreen,
     closeInfographicFullscreen,
     type InfographicFullscreenData,
@@ -244,7 +244,7 @@ import { Icon } from 'astro-icon/components';
     };
 
     private subscribeToStore(): void {
-      this.unsubscribe = infographicFullscreenData.subscribe((data) => {
+      this.unsubscribe = $infographicFullscreenData.subscribe((data) => {
         if (data) {
           this.currentData = data;
           this.open(data);
@@ -261,7 +261,7 @@ import { Icon } from 'astro-icon/components';
     }
 
     private handleKeyDown = (e: KeyboardEvent): void => {
-      if (e.key === 'Escape' && infographicFullscreenData.get()) {
+      if (e.key === 'Escape' && $infographicFullscreenData.get()) {
         closeInfographicFullscreen();
       }
     };

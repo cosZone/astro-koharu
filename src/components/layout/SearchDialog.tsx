@@ -66,15 +66,13 @@ export default function SearchDialog() {
 
   // Close before page navigation
   useEffect(() => {
-    const handleBeforePreparation = () => {
-      if (isOpen) closeModal();
-    };
+    const handleBeforePreparation = () => closeModal();
 
     document.addEventListener('astro:before-preparation', handleBeforePreparation);
     return () => {
       document.removeEventListener('astro:before-preparation', handleBeforePreparation);
     };
-  }, [isOpen]);
+  }, []);
 
   const handleBackgroundClick = useCallback((e: React.MouseEvent) => {
     if (e.target === e.currentTarget) {

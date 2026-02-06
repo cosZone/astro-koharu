@@ -110,7 +110,6 @@ export default function AnnouncementToaster() {
   const unread = useStore(unreadAnnouncements);
   const isListOpen = useStore(announcementListOpen);
   const shownRef = useRef<Set<string>>(new Set());
-  const timersRef = useRef<ReturnType<typeof setTimeout>[]>([]);
 
   // Dismiss all toasts when the list popup opens
   useEffect(() => {
@@ -122,6 +121,8 @@ export default function AnnouncementToaster() {
   useEffect(() => {
     // Wait for store to be initialized before showing toasts
     if (!initialized) return;
+
+    const timers: ReturnType<typeof setTimeout>[] = [];
 
     // Show toasts for unread announcements that haven't been shown yet
     for (const announcement of unread) {
@@ -138,13 +139,10 @@ export default function AnnouncementToaster() {
         },
         500 + unread.indexOf(announcement) * 200,
       ); // Stagger the toasts
-      timersRef.current.push(timer);
+      timers.push(timer);
     }
 
-    return () => {
-      timersRef.current.forEach(clearTimeout);
-      timersRef.current = [];
-    };
+    return () => timers.forEach(clearTimeout);
   }, [initialized, unread]);
 
   // Dismiss all toasts when user clicks outside

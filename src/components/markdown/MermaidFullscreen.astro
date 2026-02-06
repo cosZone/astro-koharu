@@ -118,7 +118,7 @@ import { Icon } from 'astro-icon/components';
 </div>
 
 <script>
-  import { mermaidFullscreenData, openMermaidFullscreen, closeMermaidFullscreen, type MermaidFullscreenData } from '@store/modal';
+  import { $mermaidFullscreenData, openMermaidFullscreen, closeMermaidFullscreen, type MermaidFullscreenData } from '@store/modal';
   import { copyToClipboard } from '@lib/code-block-enhancer';
 
   interface MermaidFullscreenElements {
@@ -238,7 +238,7 @@ import { Icon } from 'astro-icon/components';
     };
 
     private subscribeToStore(): void {
-      this.unsubscribe = mermaidFullscreenData.subscribe((data) => {
+      this.unsubscribe = $mermaidFullscreenData.subscribe((data) => {
         if (data) {
           this.currentData = data;
           this.open(data);
@@ -255,7 +255,7 @@ import { Icon } from 'astro-icon/components';
     }
 
     private handleKeyDown = (e: KeyboardEvent): void => {
-      if (e.key === 'Escape' && mermaidFullscreenData.get()) {
+      if (e.key === 'Escape' && $mermaidFullscreenData.get()) {
         closeMermaidFullscreen();
       }
     };

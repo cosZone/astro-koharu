@@ -1,7 +1,7 @@
 import { useControlledState } from '@hooks/useControlledState';
 import { cn } from '@lib/utils';
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
-import React, { useCallback } from 'react';
+import React from 'react';
 
 export type OptionType<T extends string | number = string | number> = {
   label?: string;
@@ -37,8 +37,6 @@ export const Segmented = <T extends string | number = string | number>({
   });
   const shouldReduceMotion = useReducedMotion();
 
-  const isSelected = useCallback((v: T) => selectedValue === v, [selectedValue]);
-
   return (
     <div
       className={cn(
@@ -49,7 +47,7 @@ export const Segmented = <T extends string | number = string | number>({
       {options.map((option) => {
         if (!option) return null;
         const { label, value, icon } = option;
-        const selected = isSelected(value);
+        const selected = selectedValue === value;
         return (
           <motion.div
             className={cn(

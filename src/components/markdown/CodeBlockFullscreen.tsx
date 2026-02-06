@@ -120,15 +120,13 @@ export default function CodeBlockFullscreen() {
 
   // Close on page navigation
   useEffect(() => {
-    const handleBeforePreparation = () => {
-      if (isOpen) closeModal();
-    };
+    const handleBeforePreparation = () => closeModal();
 
     document.addEventListener('astro:before-preparation', handleBeforePreparation);
     return () => {
       document.removeEventListener('astro:before-preparation', handleBeforePreparation);
     };
-  }, [isOpen]);
+  }, []);
 
   const handleCopy = useCallback(async () => {
     if (!data) return;

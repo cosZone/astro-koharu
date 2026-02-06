@@ -1,8 +1,9 @@
+import { useIsMounted } from '@hooks/useIsMounted';
 import { cn } from '@lib/utils';
 import { useStore } from '@nanostores/react';
 import { christmasEnabled, disableChristmas, ornamentHidden, toggleChristmas } from '@store/christmas';
 import { AnimatePresence, motion, useMotionValue, useReducedMotion, useTransform } from 'motion/react';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 
 /** Minimum drag distance to trigger toggle action */
 const TOGGLE_TRIGGER_DISTANCE = 40;
@@ -163,17 +164,13 @@ export function ChristmasOrnamentToggle() {
   const shouldReduceMotion = useReducedMotion();
   const [isPulling, setIsPulling] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
-  const [hasMounted, setHasMounted] = useState(false);
+  const hasMounted = useIsMounted();
 
   // Read initial state from DOM to match FOUC prevention script
   // This prevents hydration mismatch flash
   const [initialState] = useState(getInitialState);
   const isEnabled = hasMounted ? storeValue : initialState.enabled;
   const shouldShowOrnament = hasMounted ? !isOrnamentHidden : !initialState.ornamentHidden;
-
-  useEffect(() => {
-    setHasMounted(true);
-  }, []);
 
   const y = useMotionValue(0);
   const stringHeight = useTransform(y, (v) => STRING_HEIGHT + Math.max(0, v));

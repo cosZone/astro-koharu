@@ -7,7 +7,7 @@
  * Features:
  * - Single active modal at a time (prevents stacking conflicts)
  * - Automatic body scroll lock
- * - Computed helpers for backward compatibility
+ * - Computed helpers for convenience
  * - Type-safe modal data
  */
 
@@ -53,7 +53,7 @@ export interface ModalState {
  */
 export const $activeModal = atom<ModalState>({ type: null });
 
-// Computed helpers for backward compatibility and convenience
+// Computed helpers for convenience
 export const $isDrawerOpen = computed($activeModal, (m) => m.type === 'drawer');
 export const $isSearchOpen = computed($activeModal, (m) => m.type === 'search');
 export const $codeFullscreenData = computed($activeModal, (m) =>
@@ -107,7 +107,7 @@ export function toggleModal(type: ModalType): void {
   }
 }
 
-// Convenience functions for specific modals (backward compatible API)
+// Convenience functions for specific modals
 export const openDrawer = () => openModal('drawer');
 export const closeDrawer = () => closeModal();
 export const toggleDrawer = () => toggleModal('drawer');
@@ -124,23 +124,3 @@ export const closeMermaidFullscreen = () => closeModal();
 
 export const openInfographicFullscreen = (data: InfographicFullscreenData) => openModal('infographicFullscreen', data);
 export const closeInfographicFullscreen = () => closeModal();
-
-/**
- * Backward compatible atoms for components using old naming patterns.
- * These are real atoms that stay in sync with the unified modal state.
- * This ensures compatibility with both React (useStore) and Astro (subscribe) usage.
- */
-export const drawerOpen = atom<boolean>(false);
-export const searchOpen = atom<boolean>(false);
-export const mermaidFullscreenData = atom<MermaidFullscreenData | null>(null);
-export const infographicFullscreenData = atom<InfographicFullscreenData | null>(null);
-export const codeFullscreenData = atom<CodeBlockData | null>(null);
-
-// Keep backward-compatible atoms in sync with unified modal state
-$activeModal.subscribe((state) => {
-  drawerOpen.set(state.type === 'drawer');
-  searchOpen.set(state.type === 'search');
-  mermaidFullscreenData.set(state.type === 'mermaidFullscreen' ? (state.data as MermaidFullscreenData) : null);
-  infographicFullscreenData.set(state.type === 'infographicFullscreen' ? (state.data as InfographicFullscreenData) : null);
-  codeFullscreenData.set(state.type === 'codeFullscreen' ? (state.data as CodeBlockData) : null);
-});

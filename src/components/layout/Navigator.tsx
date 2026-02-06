@@ -8,10 +8,11 @@
 import ThemeToggle from '@components/theme/ThemeToggle';
 import { RESERVED_ROUTES, routers } from '@constants/router';
 import { configuredSeriesSlugs, enabledSeriesSlugs } from '@constants/site-config';
+import { useIsTablet } from '@hooks/useMediaQuery';
 import { useScrollTrigger } from '@hooks/useScrollTrigger';
 import { Icon } from '@iconify/react';
 import { cn, filterNavItems } from '@lib/utils';
-import { memo, useEffect, useRef, useState } from 'react';
+import { memo, useEffect, useRef } from 'react';
 import DropdownNav from './DropdownNav';
 import { SearchTrigger } from './SearchDialog';
 
@@ -58,34 +59,16 @@ const Navigator = memo(function Navigator({ currentPath }: NavigatorProps) {
     throttleMs: 80,
   });
 
-  const [isPostPageMobile, setIsPostPageMobile] = useState(false);
+  const isTablet = useIsTablet();
+  const isPostPageMobile = isTablet && currentPath.startsWith('/post/');
+
   const scrollEndTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const isScrollingRef = useRef(false);
   const firstScrollRef = useRef(true);
 
-  // Check if on post page and mobile
-  useEffect(() => {
-    const checkPostPageMobile = () => {
-      const isMobile = window.innerWidth <= 992;
-      const isPostPage = window.location.pathname.startsWith('/post/');
-      setIsPostPageMobile(isMobile && isPostPage);
-    };
-
-    checkPostPageMobile();
-    window.addEventListener('resize', checkPostPageMobile);
-    return () => window.removeEventListener('resize', checkPostPageMobile);
-  }, []);
-
   // Apply with-background class based on scroll position
   useEffect(() => {
-    const siteHeader = document.getElementById('site-header');
-    if (siteHeader) {
-      if (isBeyond) {
-        siteHeader.classList.add('with-background');
-      } else {
-        siteHeader.classList.remove('with-background');
-      }
-    }
+    document.getElementById('site-header')?.classList.toggle('with-background', isBeyond);
   }, [isBeyond]);
 
   // Handle header visibility based on scroll
@@ -162,36 +145,3 @@ const Navigator = memo(function Navigator({ currentPath }: NavigatorProps) {
 });
 
 export default Navigator;
-
-/**
- * Hook for header scroll behavior
- * Can be used by the parent Header component
- */
-export function useHeaderScroll() {
-  const { isBeyond, direction } = useScrollTrigger({
-    triggerDistance: 0.45,
-    throttleMs: 80,
-  });
-
-  const [isHidden, setIsHidden] = useState(false);
-  const firstScrollRef = useRef(true);
-
-  useEffect(() => {
-    if (firstScrollRef.current) {
-      firstScrollRef.current = false;
-      return;
-    }
-
-    if (direction === 'down') {
-      setIsHidden(true);
-    } else if (direction === 'up') {
-      setIsHidden(false);
-    }
-  }, [direction]);
-
-  return {
-    isHidden,
-    hasBackground: isBeyond,
-    direction,
-  };
-}

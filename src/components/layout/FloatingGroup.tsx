@@ -15,7 +15,7 @@ import { useStore } from '@nanostores/react';
 import { christmasEnabled, disableChristmasCompletely, enableChristmas, initChristmasState } from '@store/christmas';
 import { $isDrawerOpen } from '@store/modal';
 import { AnimatePresence, motion } from 'motion/react';
-import { useCallback, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 
 interface FloatingButtonProps {
   onClick: () => void;
@@ -54,25 +54,19 @@ export default function FloatingGroup() {
     initChristmasState();
   }, []);
 
-  const scrollToTop = useCallback(() => {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  }, []);
+  const scrollToTop = () => window.scrollTo({ top: 0, behavior: 'smooth' });
 
-  const scrollToBottom = useCallback(() => {
-    window.scrollTo({ top: document.documentElement.scrollHeight, behavior: 'smooth' });
-  }, []);
+  const scrollToBottom = () => window.scrollTo({ top: document.documentElement.scrollHeight, behavior: 'smooth' });
 
-  const toggleChristmas = useCallback(() => {
+  const toggleChristmas = () => {
     if (christmasEnabled.get()) {
       disableChristmasCompletely();
     } else {
       enableChristmas();
     }
-  }, []);
+  };
 
-  const toggleExpand = useCallback(() => {
-    setIsExpanded((prev) => !prev);
-  }, []);
+  const toggleExpand = () => setIsExpanded((prev) => !prev);
 
   // Hide when drawer is open
   const isHidden = isDrawerOpen;

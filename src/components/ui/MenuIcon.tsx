@@ -14,7 +14,7 @@
 import { animation } from '@constants/design-tokens';
 import { cn } from '@lib/utils';
 import { useStore } from '@nanostores/react';
-import { drawerOpen, toggleDrawer } from '@store/modal';
+import { $isDrawerOpen, toggleDrawer } from '@store/modal';
 import type { Variants } from 'motion/react';
 import { motion } from 'motion/react';
 
@@ -65,7 +65,7 @@ interface MenuIconProps {
 }
 
 const MenuIcon = ({ className, id }: MenuIconProps) => {
-  const isOpen = useStore(drawerOpen);
+  const isOpen = useStore($isDrawerOpen);
 
   const handleToggle = () => {
     toggleDrawer();

@@ -32,7 +32,7 @@ const { type = HomeSiderType.HOME, post } = Astro.props;
 </div>
 
 <script>
-  import { drawerOpen, closeDrawer } from '@store/modal';
+  import { $isDrawerOpen, closeDrawer } from '@store/modal';
 
   interface DrawerElements {
     drawer: HTMLElement | null;
@@ -90,10 +90,10 @@ const { type = HomeSiderType.HOME, post } = Astro.props;
     }
 
     /**
-     * Subscribe to Nanostores drawerOpen state
+     * Subscribe to Nanostores $isDrawerOpen state
      */
     private subscribeToStore(): void {
-      this.unsubscribe = drawerOpen.subscribe((isOpen) => {
+      this.unsubscribe = $isDrawerOpen.subscribe((isOpen) => {
         if (isOpen) {
           this.open();
         } else {
@@ -103,7 +103,7 @@ const { type = HomeSiderType.HOME, post } = Astro.props;
     }
 
     private handleKeyDown = (e: KeyboardEvent): void => {
-      if (e.key === 'Escape' && drawerOpen.get()) {
+      if (e.key === 'Escape' && $isDrawerOpen.get()) {
         closeDrawer();
       }
     };
