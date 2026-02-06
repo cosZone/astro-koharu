@@ -347,106 +347,10 @@
   }
 }
 
-/* 代码块 */
+/* ========== Code/Mermaid/Infographic wrapper layout ========== */
+
 .code-block-wrapper {
   margin-bottom: 1.25rem;
-}
-
-/* 代码块工具栏（通过 JS 动态添加） */
-.code-block-toolbar {
-  height: 2.5rem;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding-left: 1rem;
-  padding-right: 0.5rem;
-
-  background: hsl(var(--muted) / 0.5);
-  backdrop-filter: blur(8px);
-  border-radius: 0.75rem 0.75rem 0 0;
-
-  border: 1px solid hsl(var(--border));
-  border-bottom: none;
-  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
-}
-
-/* Mac 窗口圆点 */
-.code-block-dots {
-  display: flex;
-  gap: 0.5rem;
-  align-items: center;
-}
-
-.code-block-dot {
-  width: 0.75rem;
-  height: 0.75rem;
-  border-radius: 50%;
-}
-
-.code-block-dot.red {
-  background: #ff5f56;
-}
-
-.code-block-dot.yellow {
-  background: #ffbd2e;
-}
-
-.code-block-dot.green {
-  background: #27c93f;
-}
-
-/* 语言标签 */
-.code-block-language {
-  font-size: 0.75rem;
-  font-weight: 500;
-  color: hsl(var(--muted-foreground));
-  font-family: ui-monospace, SFMono-Regular, monospace;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  margin-left: 0.25rem;
-}
-
-/* 按钮组 */
-.code-block-actions {
-  display: flex;
-  align-items: center;
-}
-
-.code-block-button {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 2rem;
-  height: 2rem;
-  border-radius: 0.375rem;
-
-  background: transparent;
-  color: hsl(var(--muted-foreground));
-
-  cursor: pointer;
-  transition:
-    background-color 0.2s ease,
-    border-color 0.2s ease,
-    color 0.2s ease,
-    transform 0.1s ease;
-}
-
-.code-block-button:hover {
-  background: hsl(var(--accent));
-  color: hsl(var(--accent-foreground));
-}
-
-.code-block-button:active {
-  transform: scale(0.95);
-}
-
-/* 复制成功状态 */
-.code-block-button.copied {
-  color: hsl(var(--primary));
-}
-
-.code-block-button.copied svg {
-  stroke: hsl(142.1 76.2% 36.3%); /* green-600 */
 }
 
 /* 如果第一个子节点就是标题 */
@@ -549,137 +453,7 @@
   max-height: 60vh;
 }
 
-/* ========== 图片全屏 Lightbox ========== */
-
-.markdown-image-lightbox {
-  position: fixed;
-  inset: 0;
-  z-index: 9999;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: hsl(0 0% 0% / 0.9);
-  backdrop-filter: blur(8px);
-  opacity: 0;
-  visibility: hidden;
-  transition:
-    opacity 0.3s ease,
-    visibility 0.3s ease;
-}
-
-.markdown-image-lightbox.active {
-  opacity: 1;
-  visibility: visible;
-}
-
-/* 关闭按钮 */
-.markdown-image-lightbox-close {
-  position: absolute;
-  top: 1rem;
-  right: 1rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 3rem;
-  height: 3rem;
-  padding: 0;
-  border: none;
-  border-radius: 50%;
-  background: hsl(var(--background) / 0.2);
-  color: white;
-  cursor: pointer;
-  transition:
-    background-color 0.2s ease,
-    transform 0.1s ease;
-}
-
-.markdown-image-lightbox-close:hover {
-  background: hsl(var(--background) / 0.4);
-}
-
-.markdown-image-lightbox-close:active {
-  transform: scale(0.95);
-}
-
-/* 图片容器 */
-.markdown-image-lightbox-content {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  max-width: 90vw;
-  max-height: 90vh;
-  padding: 1rem;
-  /* 禁止浏览器默认触摸行为，让我们自己处理手势 */
-  touch-action: none;
-  /* 禁止选中图片 */
-  user-select: none;
-  -webkit-user-select: none;
-}
-
-/* Lightbox 图片 */
-.markdown-image-lightbox-img {
-  max-width: 100%;
-  max-height: 85vh;
-  object-fit: contain;
-  border-radius: 0.5rem;
-  box-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.5);
-
-  /* 加载前隐藏，防止显示上一张图片 */
-  opacity: 0;
-  transition: opacity 0.2s ease-in-out;
-
-  /* 默认缩放光标 */
-  cursor: zoom-in;
-
-  /* 允许 transform 动画 */
-  transform-origin: center center;
-  will-change: transform;
-}
-
-.markdown-image-lightbox-img.loaded {
-  opacity: 1;
-}
-
-/* 缩放提示 */
-.markdown-image-lightbox::after {
-  content: "双击放大 · 滚轮/双指缩放";
-  position: absolute;
-  bottom: 1rem;
-  left: 50%;
-  transform: translateX(-50%);
-  padding: 0.5rem 1rem;
-  background: hsl(0 0% 0% / 0.5);
-  color: hsl(0 0% 100% / 0.7);
-  font-size: 0.75rem;
-  border-radius: 1rem;
-  pointer-events: none;
-  opacity: 0;
-  transition: opacity 0.3s ease;
-}
-
-/* 触屏设备显示不同提示 */
-@media (pointer: coarse) {
-  .markdown-image-lightbox::after {
-    content: "双击放大 · 双指缩放";
-  }
-}
-
-.markdown-image-lightbox.active::after {
-  opacity: 1;
-  animation: fade-out-hint 3s ease forwards;
-  animation-delay: 2s;
-}
-
-@keyframes fade-out-hint {
-  to {
-    opacity: 0;
-  }
-}
-
-/* Lightbox 打开时禁止背景滚动 */
-body.lightbox-open {
-  overflow: hidden;
-}
+/* Lightbox is now React-based (ImageLightbox.tsx), styles handled by Tailwind */
 
 /* 图片加载失败状态 - 隐藏损坏图片 */
 .prose .markdown-image.error {
@@ -737,112 +511,10 @@ body.lightbox-open {
   background: hsl(var(--primary) / 0.1);
 }
 
-/* 深色模式 - 工具栏 */
-.dark .code-block-toolbar {
-  background: hsl(var(--muted) / 0.3);
-}
+/* ========== Mermaid layout styles ========== */
 
-/* ========== Mermaid 图表工具栏样式 ========== */
-
-/* Mermaid wrapper */
 .mermaid-wrapper {
   margin-bottom: 1.25rem;
-}
-
-/* Mermaid toolbar */
-.mermaid-toolbar {
-  height: 2.5rem;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding-left: 1rem;
-  padding-right: 0.5rem;
-
-  background: hsl(var(--muted) / 0.5);
-  backdrop-filter: blur(8px);
-  border-radius: 0.75rem 0.75rem 0 0;
-
-  border: 1px solid hsl(var(--border));
-  border-bottom: none;
-  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
-}
-
-/* Mac window dots for mermaid */
-.mermaid-dots {
-  display: flex;
-  gap: 0.5rem;
-  align-items: center;
-}
-
-.mermaid-dot {
-  width: 0.75rem;
-  height: 0.75rem;
-  border-radius: 50%;
-}
-
-.mermaid-dot.red {
-  background: #ff5f56;
-}
-
-.mermaid-dot.yellow {
-  background: #ffbd2e;
-}
-
-.mermaid-dot.green {
-  background: #27c93f;
-}
-
-/* Mermaid language label */
-.mermaid-language {
-  font-size: 0.75rem;
-  font-weight: 500;
-  color: hsl(var(--muted-foreground));
-  font-family: ui-monospace, SFMono-Regular, monospace;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  margin-left: 0.25rem;
-}
-
-/* Mermaid actions */
-.mermaid-actions {
-  display: flex;
-  align-items: center;
-}
-
-.mermaid-button {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 2rem;
-  height: 2rem;
-  border-radius: 0.375rem;
-
-  background: transparent;
-  color: hsl(var(--muted-foreground));
-
-  cursor: pointer;
-  transition:
-    background-color 0.2s ease,
-    border-color 0.2s ease,
-    color 0.2s ease,
-    transform 0.1s ease;
-}
-
-.mermaid-button:hover {
-  background: hsl(var(--accent));
-  color: hsl(var(--accent-foreground));
-}
-
-.mermaid-button:active {
-  transform: scale(0.95);
-}
-
-.mermaid-button.copied {
-  color: hsl(var(--primary));
-}
-
-.mermaid-button.copied svg {
-  stroke: hsl(142.1 76.2% 36.3%);
 }
 
 /* Mermaid pre styling when in wrapper */
@@ -871,107 +543,10 @@ body.lightbox-open {
   max-height: 100%;
 }
 
-/* Dark mode - mermaid toolbar */
-.dark .mermaid-toolbar {
-  background: hsl(var(--muted) / 0.3);
-}
-
-/* ========================================
-   Infographic Styles
-   ======================================== */
+/* ========== Infographic layout styles ========== */
 
 .infographic-wrapper {
   margin-bottom: 1.25rem;
-}
-
-/* Infographic toolbar */
-.infographic-toolbar {
-  height: 2.5rem;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding-left: 1rem;
-  padding-right: 0.5rem;
-
-  background: hsl(var(--muted) / 0.5);
-  backdrop-filter: blur(8px);
-  border-radius: 0.75rem 0.75rem 0 0;
-
-  border: 1px solid hsl(var(--border));
-  border-bottom: none;
-  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
-}
-
-/* Mac window dots for infographic */
-.infographic-dots {
-  display: flex;
-  gap: 0.5rem;
-  align-items: center;
-}
-
-.infographic-dot {
-  width: 0.75rem;
-  height: 0.75rem;
-  border-radius: 50%;
-}
-
-.infographic-dot.red {
-  background: #ff5f56;
-}
-
-.infographic-dot.yellow {
-  background: #ffbd2e;
-}
-
-.infographic-dot.green {
-  background: #27c93f;
-}
-
-/* Infographic language label */
-.infographic-language {
-  font-size: 0.75rem;
-  font-weight: 500;
-  color: hsl(var(--muted-foreground));
-  margin-left: 0.75rem;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  font-family: var(--font-mono);
-}
-
-/* Infographic action buttons */
-.infographic-actions {
-  display: flex;
-  gap: 0.25rem;
-}
-
-.infographic-button {
-  width: 2rem;
-  height: 2rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 0.375rem;
-  color: hsl(var(--muted-foreground));
-  background: transparent;
-  border: none;
-  cursor: pointer;
-  transition:
-    background-color 0.2s,
-    color 0.2s,
-    transform 0.1s;
-}
-
-.infographic-button:hover {
-  background: hsl(var(--accent));
-  color: hsl(var(--accent-foreground));
-}
-
-.infographic-button:active {
-  transform: scale(0.95);
-}
-
-.infographic-button.copied {
-  color: hsl(var(--primary));
 }
 
 /* Infographic container */
@@ -979,7 +554,6 @@ body.lightbox-open {
   border-radius: 0 0 0.75rem 0.75rem;
   border: 1px solid hsl(var(--border));
   border-top: none;
-  padding: 1rem;
   margin: 0;
   overflow: auto;
   background-color: hsl(var(--card));
@@ -1008,32 +582,10 @@ body.lightbox-open {
   max-height: 100%;
 }
 
-/* Dark mode - infographic toolbar */
-.dark .infographic-toolbar {
-  background: hsl(var(--muted) / 0.3);
-}
-
 /* ========== View Source Toggle Styles ========== */
 
-/* Infographic source view styling */
-.infographic-wrapper[data-view-mode="source"] > pre {
-  /* biome-ignore lint/complexity/noImportantStyles: Safe - Override inline style */
-  display: block !important; /* Override inline style */
-  border-radius: 0 0 0.75rem 0.75rem;
-  border: 1px solid hsl(var(--border));
-  border-top: none;
-  background-color: hsl(var(--card));
-  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
-  margin: 0;
-}
-
 /* Mermaid source view styling */
-.mermaid-wrapper[data-view-mode="source"] > pre.mermaid {
-  padding: 0;
-  overflow: visible;
-}
-
-.mermaid-wrapper[data-view-mode="source"] .mermaid-source {
+.mermaid-source {
   padding: 1rem 1.5rem;
   overflow-x: auto;
   font-size: 0.875rem;
@@ -1041,11 +593,4 @@ body.lightbox-open {
   font-family: var(--font-mono);
   white-space: pre-wrap;
   word-break: break-word;
-}
-
-/* Disabled button state */
-.infographic-button[disabled],
-.mermaid-button[disabled] {
-  cursor: not-allowed;
-  opacity: 0.5;
 }

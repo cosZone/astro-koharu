@@ -1,12 +1,13 @@
 ---
 import { EmbedHydrator } from '@components/embed/EmbedHydrator';
+import ContentEnhancer from '@components/markdown/ContentEnhancer';
 import type { ContentConfig } from '@constants/content-config';
 import { defaultContentConfig } from '@constants/content-config';
 import type { AstroComponentFactory } from 'astro/runtime/server/index.js';
 import { christmasConfig } from '@/constants/site-config';
 
 interface Props {
-  Content: AstroComponentFactory;
+  Content?: AstroComponentFactory;
   config?: Partial<ContentConfig>;
 }
 
@@ -18,21 +19,26 @@ const finalConfig = { ...defaultContentConfig, ...config };
   class:list={['custom-content', { 'relative z-5': christmasConfig.enabled && christmasConfig.features.snowfall }]}
   data-config={JSON.stringify(finalConfig)}
 >
-  <Content />
+  {Content ? <Content /> : <slot />}
 </div>
+
+{/* React-based content enhancement (code blocks, mermaid, infographic toolbars) */}
+{finalConfig.enhanceCodeBlock && (
+  <ContentEnhancer
+    client:idle
+    enableCopy={finalConfig.enableCodeCopy}
+    enableFullscreen={finalConfig.enableCodeFullscreen}
+  />
+)}
 
 {/* Only load EmbedHydrator if tweet embeds are enabled (link previews are now server-rendered) */}
 {finalConfig.enableTweetEmbed && <EmbedHydrator client:load />}
 
 <script>
-  import type { ContentConfig } from '@constants/content-config';
-  import { enhanceAllCodeBlocks } from '@lib/code-block-enhancer';
   import { enhanceImages } from '@lib/image-enhancer';
   import { enhanceLinkPreviews } from '@lib/link-preview-enhancer';
-  import { initInfographicEnhancer } from '@lib/infographic-enhancer';
-  import { initMermaidEnhancer } from '@lib/mermaid-enhancer';
 
-  // Custom content enhancement script
+  // Content enhancement script - handles non-React enhancements
   function enhanceContent() {
     const contentContainer = document.querySelector('.custom-content');
     if (!contentContainer) return;
@@ -42,16 +48,9 @@ const finalConfig = { ...defaultContentConfig, ...config };
 
     // Get configuration from data attribute
     const configData = contentContainer.getAttribute('data-config');
-    const config: ContentConfig = configData
+    const config = configData
       ? JSON.parse(configData)
-      : {
-          addBlankTarget: true,
-          smoothScroll: true,
-          addHeadingLevel: true,
-          enhanceCodeBlock: true,
-          enableCodeCopy: true,
-          enableCodeFullscreen: true,
-        };
+      : { addBlankTarget: true, smoothScroll: true, addHeadingLevel: true };
 
     // Add target="_blank" to external links
     if (config.addBlankTarget) {
@@ -59,8 +58,6 @@ const finalConfig = { ...defaultContentConfig, ...config };
       links.forEach((link: Element) => {
         const anchor = link as HTMLAnchorElement;
         const href = anchor.getAttribute('href') || '';
-
-        // Check if it's an external link (starts with http/https or is absolute)
         if (href.startsWith('http') || href.startsWith('//')) {
           anchor.setAttribute('target', '_blank');
         }
@@ -72,21 +69,13 @@ const finalConfig = { ...defaultContentConfig, ...config };
       const anchorLinks = contentContainer.querySelectorAll('a.anchor-link[href^="#"]');
       anchorLinks.forEach((link: Element) => {
         const anchor = link as HTMLAnchorElement;
-
         anchor.addEventListener('click', (e) => {
           e.preventDefault();
-
           const targetId = anchor.getAttribute('href')?.substring(1);
           if (!targetId) return;
-
           const targetElement = document.getElementById(targetId);
           if (targetElement) {
-            targetElement.scrollIntoView({
-              behavior: 'smooth',
-              block: 'start',
-            });
-
-            // Update URL hash without jumping
+            targetElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
             history.pushState(null, '', `#${targetId}`);
           }
         });
@@ -97,38 +86,9 @@ const finalConfig = { ...defaultContentConfig, ...config };
     if (config.addHeadingLevel) {
       const headings = contentContainer.querySelectorAll('h1, h2, h3, h4, h5, h6');
       headings.forEach((heading: Element) => {
-        const level = heading.tagName[1]; // Extract number from H1, H2, etc.
+        const level = heading.tagName[1];
         heading.setAttribute('data-level', `H${level}`);
       });
-    }
-
-    // Enhance code blocks with Mac window style
-    if (config.enhanceCodeBlock) {
-      enhanceAllCodeBlocks(contentContainer, {
-        enableCopy: config.enableCodeCopy,
-        enableFullscreen: config.enableCodeFullscreen,
-        onFullscreen: (info) => {
-          // Dispatch custom event for React component to handle
-          window.dispatchEvent(
-            new CustomEvent('open-code-fullscreen', {
-              detail: {
-                code: info.code,
-                codeHTML: info.codeHTML,
-                language: info.language,
-                preClassName: info.preClassName,
-                preStyle: info.preStyle,
-                codeClassName: info.codeClassName,
-              },
-            }),
-          );
-        },
-      });
-
-      // Enhance mermaid diagrams with toolbar (runs after astro-mermaid renders)
-      initMermaidEnhancer();
-
-      // Enhance infographic diagrams (renders and adds toolbar)
-      initInfographicEnhancer();
     }
 
     // Enhance images with loading states
@@ -143,7 +103,6 @@ const finalConfig = { ...defaultContentConfig, ...config };
 
   // Run on page load
   document.addEventListener('astro:page-load', () => {
-    // Reset enhanced state on page change
     const contentContainer = document.querySelector('.custom-content');
     if (contentContainer) {
       contentContainer.removeAttribute('data-enhanced');

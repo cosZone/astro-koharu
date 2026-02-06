@@ -1,4 +1,5 @@
 ---
+import CustomContent from '@components/common/CustomContent.astro';
 import HomeSider from '@components/layout/HomeSider.astro';
 import Cover from '@components/ui/cover/Cover.astro';
 import { CONTENT_PADDING } from '@constants/layout';
@@ -22,8 +23,10 @@ const { frontmatter } = Astro.props;
     <Cover slot="cover" title="关于我" />
     <HomeSider slot="sider" />
     <div class={`shadow-box bg-gradient-start mx-0 flex w-full flex-col gap-8 ${CONTENT_PADDING.standard}`}>
-      <div class=`prose md:prose-sm dark:prose-invert`>
-        <slot />
+      <div class="prose md:prose-sm dark:prose-invert">
+        <CustomContent>
+          <slot />
+        </CustomContent>
       </div>
       <Comment />
     </div>

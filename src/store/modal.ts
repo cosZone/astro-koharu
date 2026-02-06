@@ -26,26 +26,29 @@ export interface CodeBlockData {
 }
 
 /**
- * Mermaid fullscreen data
+ * Unified diagram fullscreen data (mermaid + infographic)
  */
-export interface MermaidFullscreenData {
+export interface DiagramFullscreenData {
+  diagramType: 'mermaid' | 'infographic';
   svg: string;
   source: string;
 }
 
 /**
- * Infographic fullscreen data
+ * Image lightbox data
  */
-export interface InfographicFullscreenData {
-  svg: string;
-  source: string;
+export interface ImageLightboxData {
+  src: string;
+  alt: string;
+  images: { src: string; alt: string }[];
+  currentIndex: number;
 }
 
-export type ModalType = 'drawer' | 'search' | 'codeFullscreen' | 'mermaidFullscreen' | 'infographicFullscreen' | null;
+export type ModalType = 'drawer' | 'search' | 'codeFullscreen' | 'diagramFullscreen' | 'imageLightbox' | null;
 
 export interface ModalState {
   type: ModalType;
-  data?: CodeBlockData | MermaidFullscreenData | InfographicFullscreenData | null;
+  data?: CodeBlockData | DiagramFullscreenData | ImageLightboxData | null;
 }
 
 /**
@@ -59,11 +62,11 @@ export const $isSearchOpen = computed($activeModal, (m) => m.type === 'search');
 export const $codeFullscreenData = computed($activeModal, (m) =>
   m.type === 'codeFullscreen' ? (m.data as CodeBlockData) : null,
 );
-export const $mermaidFullscreenData = computed($activeModal, (m) =>
-  m.type === 'mermaidFullscreen' ? (m.data as MermaidFullscreenData) : null,
+export const $diagramFullscreenData = computed($activeModal, (m) =>
+  m.type === 'diagramFullscreen' ? (m.data as DiagramFullscreenData) : null,
 );
-export const $infographicFullscreenData = computed($activeModal, (m) =>
-  m.type === 'infographicFullscreen' ? (m.data as InfographicFullscreenData) : null,
+export const $imageLightboxData = computed($activeModal, (m) =>
+  m.type === 'imageLightbox' ? (m.data as ImageLightboxData) : null,
 );
 export const $isAnyModalOpen = computed($activeModal, (m) => m.type !== null);
 
@@ -74,10 +77,10 @@ export function openModal<T extends ModalType>(
   type: T,
   data?: T extends 'codeFullscreen'
     ? CodeBlockData
-    : T extends 'mermaidFullscreen'
-      ? MermaidFullscreenData
-      : T extends 'infographicFullscreen'
-        ? InfographicFullscreenData
+    : T extends 'diagramFullscreen'
+      ? DiagramFullscreenData
+      : T extends 'imageLightbox'
+        ? ImageLightboxData
         : never,
 ): void {
   $activeModal.set({ type, data });
@@ -119,8 +122,20 @@ export const toggleSearch = () => toggleModal('search');
 export const openCodeFullscreen = (data: CodeBlockData) => openModal('codeFullscreen', data);
 export const closeCodeFullscreen = () => closeModal();
 
-export const openMermaidFullscreen = (data: MermaidFullscreenData) => openModal('mermaidFullscreen', data);
-export const closeMermaidFullscreen = () => closeModal();
-
-export const openInfographicFullscreen = (data: InfographicFullscreenData) => openModal('infographicFullscreen', data);
-export const closeInfographicFullscreen = () => closeModal();
+/**
+ * Navigate between images in the lightbox without re-triggering scroll lock.
+ * Directly mutates the atom to avoid openModal/closeModal side effects.
+ */
+export function navigateImage(direction: 1 | -1): boolean {
+  const modal = $activeModal.get();
+  if (modal.type !== 'imageLightbox') return false;
+  const data = modal.data as ImageLightboxData;
+  const newIndex = data.currentIndex + direction;
+  if (newIndex < 0 || newIndex >= data.images.length) return false;
+  const target = data.images[newIndex];
+  $activeModal.set({
+    type: 'imageLightbox',
+    data: { ...data, src: target.src, alt: target.alt, currentIndex: newIndex },
+  });
+  return true;
+}

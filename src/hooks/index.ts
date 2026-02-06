@@ -9,6 +9,8 @@ export { type UseActiveHeadingOptions, useActiveHeading } from './useActiveHeadi
 
 // Controlled/uncontrolled state pattern
 export { type UseControlledStateOptions, useControlledState } from './useControlledState';
+// Clipboard with feedback
+export { useCopyToClipboard } from './useCopyToClipboard';
 export { type CurrentHeading, type UseCurrentHeadingOptions, useCurrentHeading } from './useCurrentHeading';
 export { type UseExpandedStateOptions, type UseExpandedStateReturn, useExpandedState } from './useExpandedState';
 // Floating UI wrapper
@@ -36,3 +38,5 @@ export {
 } from './useScrollTrigger';
 // Search keyboard navigation
 export { useSearchKeyboardNav } from './useSearchKeyboardNav';
+// Zoom and pan for fullscreen viewers
+export { type UseZoomPanReturn, useZoomPan } from './useZoomPan';
