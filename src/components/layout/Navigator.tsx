@@ -141,7 +141,7 @@ const Navigator = memo(function Navigator({ currentPath }: NavigatorProps) {
       <div className="flex tablet:hidden grow items-center">
         {filteredRouters.map((item) => {
           if (item.children?.length) {
-            return <DropdownNav key={item.path ?? item.name} item={item} />;
+            return <DropdownNav key={item.path ?? item.name} item={item} currentPath={currentPath} />;
           }
           if (!item.path || !item.name) return null;
           return (

@@ -81,6 +81,7 @@ function AnnouncementToast({ announcement, toastId }: { announcement: Announceme
 
   const handleMouseLeave = () => {
     setIsHovered(false);
+    retimer(null);
   };
 
   return (

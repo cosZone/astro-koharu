@@ -30,7 +30,7 @@
     background: linear-gradient(to top, var(--gradient-bg-end) 0, var(--gradient-bg-start) 30%) no-repeat bottom;
     scroll-behavior: smooth;
     letter-spacing: 0.02em;
-    color: var(--color-foreground);
+    color: hsl(var(--foreground));
   }
 
   h1,

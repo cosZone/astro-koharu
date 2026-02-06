@@ -8,11 +8,12 @@
 import { Dialog, DialogPortal } from '@components/ui/dialog';
 import { useIsMounted } from '@hooks/useIsMounted';
 import { useEscapeKey, useKeyboardShortcut } from '@hooks/useKeyboardShortcut';
+import { useSearchKeyboardNav } from '@hooks/useSearchKeyboardNav';
 import { cn } from '@lib/utils';
 import { useStore } from '@nanostores/react';
 import { $isSearchOpen, closeModal, openModal } from '@store/modal';
 import { AnimatePresence, motion } from 'motion/react';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo } from 'react';
 
 // Icons
 function SearchIcon({ className }: { className?: string }) {
@@ -35,9 +36,7 @@ function CloseIcon({ className }: { className?: string }) {
 
 export default function SearchDialog() {
   const isOpen = useStore($isSearchOpen);
-  const [selectedIndex, setSelectedIndex] = useState(-1);
-  const containerRef = useRef<HTMLDivElement>(null);
-  const resultsObserverRef = useRef<MutationObserver | null>(null);
+  const { containerRef } = useSearchKeyboardNav(isOpen);
 
   // Cmd/Ctrl + K to open
   useKeyboardShortcut({
@@ -50,129 +49,6 @@ export default function SearchDialog() {
   useEscapeKey(() => {
     if (isOpen) closeModal();
   }, isOpen);
-
-  // Get selectable items (results + load more button)
-  const getSelectableItems = useCallback((): HTMLElement[] => {
-    const results = Array.from(document.querySelectorAll('.pagefind-ui__result')) as HTMLElement[];
-    const loadMoreBtn = document.querySelector('.pagefind-ui__button') as HTMLElement | null;
-    if (loadMoreBtn && loadMoreBtn.offsetParent !== null) {
-      return [...results, loadMoreBtn];
-    }
-    return results;
-  }, []);
-
-  // Use ref to track selectedIndex without causing effect re-runs
-  const selectedIndexRef = useRef(selectedIndex);
-  selectedIndexRef.current = selectedIndex;
-
-  // Clear selection
-  const clearSelection = useCallback(() => {
-    const items = getSelectableItems();
-    const currentIndex = selectedIndexRef.current;
-    if (currentIndex >= 0 && currentIndex < items.length) {
-      items[currentIndex]?.removeAttribute('data-selected');
-    }
-    setSelectedIndex(-1);
-  }, [getSelectableItems]);
-
-  // Select a result
-  const selectResult = useCallback(
-    (index: number) => {
-      const items = getSelectableItems();
-      if (items.length === 0) {
-        setSelectedIndex(-1);
-        return;
-      }
-
-      const newIndex = Math.max(-1, Math.min(index, items.length - 1));
-      const currentIndex = selectedIndexRef.current;
-
-      // Remove old selection
-      if (currentIndex >= 0 && currentIndex < items.length) {
-        items[currentIndex]?.removeAttribute('data-selected');
-      }
-
-      setSelectedIndex(newIndex);
-
-      if (newIndex >= 0) {
-        items[newIndex].setAttribute('data-selected', 'true');
-        items[newIndex].scrollIntoView({ block: 'nearest', behavior: 'smooth' });
-      } else {
-        const searchInput = document.querySelector('.pagefind-ui__search-input') as HTMLInputElement;
-        searchInput?.focus();
-      }
-    },
-    [getSelectableItems],
-  );
-
-  // Navigate to selected result
-  const navigateToSelected = useCallback(() => {
-    const items = getSelectableItems();
-    const currentIndex = selectedIndexRef.current;
-    if (currentIndex < 0 || currentIndex >= items.length) return;
-
-    const selectedItem = items[currentIndex];
-
-    if (selectedItem.classList.contains('pagefind-ui__button')) {
-      selectedItem.click();
-      setSelectedIndex(-1);
-      return;
-    }
-
-    const link = selectedItem.querySelector('.pagefind-ui__result-link') as HTMLAnchorElement;
-    if (link?.href) {
-      closeModal();
-      window.location.href = link.href;
-    }
-  }, [getSelectableItems]);
-
-  // Handle keyboard navigation
-  useEffect(() => {
-    if (!isOpen) return;
-
-    const handleKeyDown = (e: KeyboardEvent) => {
-      const currentIndex = selectedIndexRef.current;
-      if (e.key === 'ArrowDown') {
-        e.preventDefault();
-        selectResult(currentIndex + 1);
-      } else if (e.key === 'ArrowUp') {
-        e.preventDefault();
-        selectResult(currentIndex - 1);
-      } else if (e.key === 'Enter' && currentIndex >= 0) {
-        e.preventDefault();
-        navigateToSelected();
-      }
-    };
-
-    document.addEventListener('keydown', handleKeyDown);
-    return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [isOpen, selectResult, navigateToSelected]);
-
-  // Setup mutation observer to clear selection when results change
-  useEffect(() => {
-    if (!isOpen) {
-      resultsObserverRef.current?.disconnect();
-      resultsObserverRef.current = null;
-      return;
-    }
-
-    const container = document.getElementById('search-dialog-container');
-    if (!container) return;
-
-    resultsObserverRef.current = new MutationObserver(() => {
-      clearSelection();
-    });
-
-    resultsObserverRef.current.observe(container, {
-      childList: true,
-      subtree: true,
-    });
-
-    return () => {
-      resultsObserverRef.current?.disconnect();
-      resultsObserverRef.current = null;
-    };
-  }, [isOpen, clearSelection]);
 
   // Dispatch events for search component portal
   useEffect(() => {
@@ -200,21 +76,14 @@ export default function SearchDialog() {
     };
   }, [isOpen]);
 
-  const handleClose = useCallback(() => {
-    closeModal();
+  const handleBackgroundClick = useCallback((e: React.MouseEvent) => {
+    if (e.target === e.currentTarget) {
+      closeModal();
+    }
   }, []);
 
-  const handleBackgroundClick = useCallback(
-    (e: React.MouseEvent) => {
-      if (e.target === e.currentTarget) {
-        handleClose();
-      }
-    },
-    [handleClose],
-  );
-
   return (
-    <Dialog open={isOpen} onOpenChange={(open) => !open && handleClose()}>
+    <Dialog open={isOpen} onOpenChange={(open) => !open && closeModal()}>
       <DialogPortal forceMount>
         <AnimatePresence>
           {isOpen && (
@@ -238,7 +107,7 @@ export default function SearchDialog() {
                 transition={{ duration: 0.2 }}
               >
                 <motion.div
-                  className="w-full max-w-3xl overflow-auto rounded-xl bg-gradient-start shadow-box"
+                  className="w-full max-w-3xl overflow-auto rounded-xl bg-gradient-start text-foreground shadow-box"
                   initial={{ opacity: 0, scale: 0.95, y: -10 }}
                   animate={{ opacity: 1, scale: 1, y: 0 }}
                   exit={{ opacity: 0, scale: 0.95, y: -10 }}
@@ -254,7 +123,7 @@ export default function SearchDialog() {
                         </h2>
                         <button
                           type="button"
-                          onClick={handleClose}
+                          onClick={closeModal}
                           className="flex size-8 items-center justify-center rounded-full bg-black/5 transition-colors duration-300 hover:bg-black/10 md:size-7 dark:bg-white/10 dark:hover:bg-white/20"
                           aria-label="关闭搜索"
                         >
@@ -311,20 +180,15 @@ export function SearchTrigger({ className }: { className?: string }) {
   // Only compute platform-specific shortcut after mount to avoid hydration mismatch
   const title = useMemo(() => {
     if (!isMounted) return undefined;
-    // @ts-expect-error - userAgentData is not yet in TypeScript's lib.dom.d.ts
     const platform = navigator.userAgentData?.platform || navigator.userAgent;
     const isMac = /mac/i.test(platform);
     return `搜索 (${isMac ? '⌘K' : 'Ctrl+K'})`;
   }, [isMounted]);
 
-  const handleClick = () => {
-    openModal('search');
-  };
-
   return (
     <button
       type="button"
-      onClick={handleClick}
+      onClick={() => openModal('search')}
       className={cn('cursor-pointer transition duration-300 hover:scale-125', className)}
       aria-label="搜索"
       title={title}

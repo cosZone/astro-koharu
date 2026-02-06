@@ -140,25 +140,18 @@ export default function CodeBlockFullscreen() {
     }
   }, [data]);
 
-  const handleClose = useCallback(() => {
-    closeModal();
+  const handleBackgroundClick = useCallback((e: React.MouseEvent) => {
+    if (e.target === e.currentTarget) {
+      closeModal();
+    }
   }, []);
-
-  const handleBackgroundClick = useCallback(
-    (e: React.MouseEvent) => {
-      if (e.target === e.currentTarget) {
-        handleClose();
-      }
-    },
-    [handleClose],
-  );
 
   if (!data) return null;
 
   const preStyles = parseInlineStyles(data.preStyle);
 
   return (
-    <Dialog open={isOpen} onOpenChange={(open) => !open && handleClose()}>
+    <Dialog open={isOpen} onOpenChange={(open) => !open && closeModal()}>
       <DialogPortal forceMount>
         <AnimatePresence>
           {isOpen && (
@@ -214,7 +207,7 @@ export default function CodeBlockFullscreen() {
                       </button>
                       <button
                         type="button"
-                        onClick={handleClose}
+                        onClick={closeModal}
                         className="rounded-md p-2 text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
                         aria-label="关闭"
                       >
