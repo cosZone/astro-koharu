@@ -6,7 +6,6 @@
  */
 
 import { CopyButton } from '@components/markdown/shared/CopyButton';
-import { CloseIcon } from '@components/markdown/shared/icons';
 import { MacToolbar } from '@components/markdown/shared/MacToolbar';
 import { FloatingFocusManager, FloatingPortal, useDismiss, useFloating, useInteractions, useRole } from '@floating-ui/react';
 import { cn } from '@lib/utils';
@@ -89,25 +88,15 @@ export default function CodeBlockFullscreen() {
               <div className="fixed inset-0 z-50 grid place-items-center px-4">
                 <motion.div
                   ref={refs.setFloating}
-                  className="relative flex h-[80vh] w-[90vw] max-w-6xl flex-col overflow-hidden rounded-xl bg-background shadow-2xl md:max-w-[90vw]"
+                  className="relative flex h-[80vh] w-[90vw] max-w-6xl flex-col overflow-hidden overscroll-none rounded-xl bg-background shadow-2xl md:max-w-[90vw]"
                   initial={{ opacity: 0, scale: 0.95 }}
                   animate={{ opacity: 1, scale: 1 }}
                   exit={{ opacity: 0, scale: 0.95 }}
                   transition={{ duration: 0.2 }}
                   {...getFloatingProps()}
                 >
-                  <MacToolbar language={data.language}>
-                    <div className="flex items-center gap-1">
-                      <CopyButton text={data.code} showLabel />
-                      <button
-                        type="button"
-                        onClick={closeModal}
-                        className="rounded-md p-2 text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
-                        aria-label="关闭"
-                      >
-                        <CloseIcon className="h-5 w-5" />
-                      </button>
-                    </div>
+                  <MacToolbar language={data.language} onClose={closeModal}>
+                    <CopyButton text={data.code} showLabel />
                   </MacToolbar>
                   <div className="scroll-feather-mask flex-1 overflow-auto">
                     <pre className={cn(data.preClassName, 'p-4')} style={preStyles}>

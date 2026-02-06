@@ -7,10 +7,10 @@
  */
 
 import { CopyButton } from '@components/markdown/shared/CopyButton';
-import { CloseIcon, ResetIcon } from '@components/markdown/shared/icons';
 import { MacToolbar } from '@components/markdown/shared/MacToolbar';
 import { FloatingFocusManager, FloatingPortal, useDismiss, useFloating, useInteractions, useRole } from '@floating-ui/react';
 import { useZoomPan } from '@hooks/useZoomPan';
+import { Icon } from '@iconify/react';
 import { cn } from '@lib/utils';
 import { useStore } from '@nanostores/react';
 import { $diagramFullscreenData, closeModal, type DiagramFullscreenData } from '@store/modal';
@@ -62,7 +62,7 @@ export default function DiagramFullscreen() {
               <div className="fixed inset-0 z-50 grid place-items-center px-4">
                 <motion.div
                   ref={refs.setFloating}
-                  className="relative flex h-[80vh] w-[90vw] max-w-6xl flex-col overflow-hidden rounded-xl bg-background shadow-2xl md:max-w-[90vw]"
+                  className="relative flex h-[80vh] w-[90vw] max-w-6xl flex-col overflow-hidden overscroll-none rounded-xl bg-background shadow-2xl md:max-w-[90vw]"
                   initial={{ opacity: 0, scale: 0.95 }}
                   animate={{ opacity: 1, scale: 1 }}
                   exit={{ opacity: 0, scale: 0.95 }}
@@ -72,7 +72,10 @@ export default function DiagramFullscreen() {
                   <DiagramToolbar data={data} zoomLevel={zoomLevel} onReset={reset} />
                   <div
                     ref={containerRef}
-                    className="flex flex-1 cursor-grab items-center justify-center overflow-hidden active:cursor-grabbing"
+                    className={cn(
+                      'flex flex-1 cursor-grab items-center justify-center overflow-hidden active:cursor-grabbing',
+                      data.diagramType === 'infographic' && 'infographic-container',
+                    )}
                   >
                     <div
                       className={cn(
@@ -100,8 +103,8 @@ export default function DiagramFullscreen() {
 
 function DiagramToolbar({ data, zoomLevel, onReset }: { data: DiagramFullscreenData; zoomLevel: string; onReset: () => void }) {
   return (
-    <MacToolbar language={data.diagramType} className="tablet:flex-col tablet:items-stretch tablet:px-2">
-      <div className="flex tablet:flex-wrap items-center gap-1">
+    <MacToolbar language={data.diagramType} className="tablet:items-stretch tablet:px-2" onClose={closeModal}>
+      <div className="flex items-center gap-1">
         <span className="mr-2 tablet:ml-auto text-muted-foreground text-sm">{zoomLevel}</span>
         <button
           type="button"
@@ -109,17 +112,10 @@ function DiagramToolbar({ data, zoomLevel, onReset }: { data: DiagramFullscreenD
           className="flex items-center gap-2 rounded-md px-3 py-1.5 text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
           title="重置缩放"
         >
-          <ResetIcon className="h-4 w-4" />
+          <Icon icon="ri:refresh-line" className="size-4" />
+          <span className="text-sm">重置</span>
         </button>
         <CopyButton text={data.source} showLabel />
-        <button
-          type="button"
-          onClick={closeModal}
-          className="rounded-md p-2 text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
-          aria-label="关闭"
-        >
-          <CloseIcon className="h-5 w-5" />
-        </button>
       </div>
     </MacToolbar>
   );

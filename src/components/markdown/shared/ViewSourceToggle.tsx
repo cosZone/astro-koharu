@@ -3,8 +3,8 @@
  * Shared by mermaid and infographic toolbars.
  */
 
+import { Icon } from '@iconify/react';
 import { cn } from '@lib/utils';
-import { CodeViewIcon, DiagramViewIcon } from './icons';
 
 interface ViewSourceToggleProps {
   isSourceView: boolean;
@@ -28,7 +28,11 @@ export function ViewSourceToggle({ isSourceView, onToggle, disabled, className }
       aria-label={isSourceView ? '查看渲染结果' : '查看源码'}
       title={isSourceView ? '查看渲染结果' : '查看源码'}
     >
-      {isSourceView ? <DiagramViewIcon /> : <CodeViewIcon />}
+      {isSourceView ? (
+        <Icon icon="ri:bar-chart-box-line" className="size-4" />
+      ) : (
+        <Icon icon="ri:code-s-slash-line" className="size-4" />
+      )}
     </button>
   );
 }

@@ -4,8 +4,8 @@
  */
 
 import { CopyButton } from '@components/markdown/shared/CopyButton';
-import { FullscreenIcon } from '@components/markdown/shared/icons';
 import { MacToolbar } from '@components/markdown/shared/MacToolbar';
+import { Icon } from '@iconify/react';
 import { extractCode, extractCodeClassName, extractCodeHTML, extractLanguage } from '@lib/content-enhancer-utils';
 import { openModal } from '@store/modal';
 import { useMemo } from 'react';
@@ -34,7 +34,7 @@ export function CodeBlockToolbar({ preElement, enableCopy = true, enableFullscre
   };
 
   return (
-    <MacToolbar language={info.language}>
+    <MacToolbar language={info.language} onFullscreen={enableFullscreen ? handleFullscreen : undefined}>
       {enableFullscreen && (
         <button
           type="button"
@@ -43,7 +43,7 @@ export function CodeBlockToolbar({ preElement, enableCopy = true, enableFullscre
           aria-label="全屏查看"
           title="全屏查看"
         >
-          <FullscreenIcon />
+          <Icon icon="ri:fullscreen-line" className="size-4" />
         </button>
       )}
       {enableCopy && <CopyButton text={info.code} />}

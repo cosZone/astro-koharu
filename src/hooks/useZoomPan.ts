@@ -5,6 +5,9 @@
  * Performance: Transform state lives in a ref and is flushed to React state
  * at most once per animation frame via rAF, avoiding excessive re-renders
  * during rapid input events (wheel, mousemove, touchmove).
+ *
+ * Uses a callback ref pattern so event listeners are registered reliably
+ * even when the container is rendered inside a portal (e.g. FloatingPortal).
  */
 
 import { useCallback, useEffect, useRef, useState } from 'react';
@@ -20,7 +23,7 @@ const MAX_SCALE = 5;
 const INITIAL_STATE: ZoomPanState = { scale: 1, translateX: 0, translateY: 0 };
 
 export interface UseZoomPanReturn {
-  containerRef: React.RefObject<HTMLDivElement | null>;
+  containerRef: (node: HTMLDivElement | null) => void;
   state: ZoomPanState;
   reset: () => void;
   zoomTo: (targetScale: number, centerX?: number, centerY?: number) => void;
@@ -28,8 +31,15 @@ export interface UseZoomPanReturn {
 }
 
 export function useZoomPan(enabled = true): UseZoomPanReturn {
-  const containerRef = useRef<HTMLDivElement>(null);
   const [state, setState] = useState<ZoomPanState>(INITIAL_STATE);
+
+  // Track the viewport DOM element via state so the effect re-runs when it mounts/unmounts.
+  // This solves timing issues with portals (FloatingPortal) where useRef.current is still
+  // null when the initial useEffect fires.
+  const [viewport, setViewport] = useState<HTMLDivElement | null>(null);
+  const containerRef = useCallback((node: HTMLDivElement | null) => {
+    setViewport(node);
+  }, []);
 
   // Live transform ref — updated synchronously by event handlers.
   // React state is flushed from this at most once per animation frame.
@@ -74,32 +84,25 @@ export function useZoomPan(enabled = true): UseZoomPanReturn {
 
   const zoomTo = useCallback(
     (targetScale: number, centerX?: number, centerY?: number) => {
-      const viewport = containerRef.current;
+      if (!viewport) return;
       const clamped = Math.min(Math.max(MIN_SCALE, targetScale), MAX_SCALE);
       const prev = transformRef.current;
-
-      if (!viewport) {
-        transformRef.current = { ...prev, scale: clamped };
-      } else {
-        const rect = viewport.getBoundingClientRect();
-        const cx = (centerX ?? rect.left + rect.width / 2) - rect.left - rect.width / 2;
-        const cy = (centerY ?? rect.top + rect.height / 2) - rect.top - rect.height / 2;
-        const factor = clamped / prev.scale;
-        transformRef.current = {
-          scale: clamped,
-          translateX: cx - (cx - prev.translateX) * factor,
-          translateY: cy - (cy - prev.translateY) * factor,
-        };
-      }
+      const rect = viewport.getBoundingClientRect();
+      const cx = (centerX ?? rect.left + rect.width / 2) - rect.left - rect.width / 2;
+      const cy = (centerY ?? rect.top + rect.height / 2) - rect.top - rect.height / 2;
+      const factor = clamped / prev.scale;
+      transformRef.current = {
+        scale: clamped,
+        translateX: cx - (cx - prev.translateX) * factor,
+        translateY: cy - (cy - prev.translateY) * factor,
+      };
       flushState();
     },
-    [flushState],
+    [flushState, viewport],
   );
 
   useEffect(() => {
-    if (!enabled) return;
-    const viewport = containerRef.current;
-    if (!viewport) return;
+    if (!enabled || !viewport) return;
 
     const getDistance = (t1: Touch, t2: Touch) => {
       const dx = t1.clientX - t2.clientX;
@@ -205,7 +208,7 @@ export function useZoomPan(enabled = true): UseZoomPanReturn {
       viewport.removeEventListener('touchmove', handleTouchMove);
       viewport.removeEventListener('touchend', handleTouchEnd);
     };
-  }, [flushState, enabled]);
+  }, [flushState, enabled, viewport]);
 
   return {
     containerRef,
