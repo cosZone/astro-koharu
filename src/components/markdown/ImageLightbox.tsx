@@ -152,12 +152,12 @@ export default function ImageLightbox() {
             {/* Content */}
             <FloatingFocusManager context={context}>
               <div ref={refs.setFloating} className="fixed inset-0 flex items-center justify-center" {...getFloatingProps()}>
-                {/* Right-side vertical toolbar */}
+                {/* Toolbar: vertical right on desktop, horizontal top on tablet */}
                 <motion.div
-                  className="absolute top-1/2 right-4 z-10 flex -translate-y-1/2 flex-col items-center gap-1 rounded-2xl bg-black/50 p-1.5 backdrop-blur-sm"
-                  initial={{ opacity: 0, x: 20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ duration: 0.25, delay: 0.1 }}
+                  className="absolute tablet:top-4 top-1/2 right-4 tablet:right-auto tablet:left-1/2 z-10 flex tablet:-translate-x-1/2 -translate-y-1/2 tablet:translate-y-0 tablet:flex-row flex-col items-center gap-1 rounded-2xl bg-black/50 p-1.5 backdrop-blur-sm"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ duration: 0.2, delay: 0.1 }}
                 >
                   <ToolbarButton icon="ri:zoom-in-line" label="放大" onClick={handleZoomIn} disabled={state.scale >= 4.9} />
                   <motion.button
@@ -170,9 +170,9 @@ export default function ImageLightbox() {
                     {zoomLevel}
                   </motion.button>
                   <ToolbarButton icon="ri:zoom-out-line" label="缩小" onClick={handleZoomOut} disabled={state.scale <= 0.55} />
-                  <div className="h-px w-5 bg-white/20" />
+                  <div className="h-px tablet:h-5 tablet:w-px w-5 bg-white/20" />
                   <ToolbarButton icon="ri:clockwise-line" label="旋转 90°" onClick={handleRotate} />
-                  <div className="h-px w-5 bg-white/20" />
+                  <div className="h-px tablet:h-5 tablet:w-px w-5 bg-white/20" />
                   <ToolbarButton icon="ri:close-line" label="关闭" onClick={() => closeModal()} />
                 </motion.div>
 
