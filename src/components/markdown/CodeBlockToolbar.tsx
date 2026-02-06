@@ -25,6 +25,9 @@ export function CodeBlockToolbar({ preElement, enableCopy = true, enableFullscre
       preClassName: preElement.className,
       preStyle: preElement.getAttribute('style') || '',
       codeClassName: extractCodeClassName(preElement),
+      title: preElement.dataset.title,
+      url: preElement.dataset.url,
+      linkText: preElement.dataset.linkText,
     }),
     [preElement],
   );
@@ -34,7 +37,13 @@ export function CodeBlockToolbar({ preElement, enableCopy = true, enableFullscre
   };
 
   return (
-    <MacToolbar language={info.language} onFullscreen={enableFullscreen ? handleFullscreen : undefined}>
+    <MacToolbar
+      language={info.language}
+      title={info.title}
+      url={info.url}
+      linkText={info.linkText}
+      onFullscreen={enableFullscreen ? handleFullscreen : undefined}
+    >
       {enableFullscreen && (
         <button
           type="button"

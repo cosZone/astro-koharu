@@ -30,7 +30,10 @@ export async function getStaticPaths() {
 }
 const { post, postId } = Astro.props;
 const { Content } = await post.render();
-const { title, categories = [], tags = [], date } = post?.data ?? {};
+const { title, categories = [], tags = [], date, math: postMath } = post?.data ?? {};
+// KaTeX CSS: load by default when global enableMath is on (rehype-katex processes all posts).
+// Posts can opt out with `math: false` in frontmatter.
+const hasMath = postMath !== false;
 
 // 使用统一的工具函数获取文章描述
 const finalDescription = getPostDescription(post);
@@ -131,6 +134,7 @@ if (post.data.description) {
 >
   <script is:inline slot="head" type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
   <script is:inline slot="head" type="application/ld+json" set:html={JSON.stringify(breadcrumbJsonLd)} />
+  {hasMath && <link slot="head" rel="stylesheet" href="/katex/katex.min.css" />}
   <TwoColumnLayout post={post}>
     <Cover slot="cover" data={post} />
     <HomeSider slot="sider" type={HomeSiderType.POST} post={post} />

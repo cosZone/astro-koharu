@@ -1,0 +1,69 @@
+/* =============================================================================
+ * Shoka Tabs — Tab groups (;;;id TabName)
+ * ============================================================================= */
+
+.tab-group {
+  margin: 1.5em 0;
+  border: 1px solid hsl(0 0% 85%);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.dark .tab-group {
+  border-color: hsl(0 0% 30%);
+}
+
+.tab-headers {
+  display: flex;
+  flex-wrap: wrap;
+  background: hsl(0 0% 96%);
+  border-bottom: 1px solid hsl(0 0% 85%);
+}
+
+.dark .tab-headers {
+  background: hsl(0 0% 15%);
+  border-bottom-color: hsl(0 0% 30%);
+}
+
+.tab-header {
+  padding: 0.6em 1.2em;
+  cursor: pointer;
+  font-size: 0.9em;
+  font-weight: 500;
+  color: hsl(0 0% 50%);
+  border-bottom: 2px solid transparent;
+  transition:
+    color 0.2s,
+    border-color 0.2s;
+  user-select: none;
+  background: none;
+  border-top: none;
+  border-left: none;
+  border-right: none;
+}
+
+.tab-header:hover {
+  color: hsl(var(--primary));
+}
+
+.tab-header[aria-selected="true"] {
+  color: hsl(var(--primary));
+  border-bottom-color: hsl(var(--primary));
+  font-weight: 600;
+}
+
+.tab-panel {
+  padding: 1em;
+  display: none;
+}
+
+.tab-panel.active {
+  display: block;
+}
+
+.tab-panel > :first-child {
+  margin-top: 0;
+}
+.tab-panel > :last-child {
+  margin-bottom: 0;
+}

@@ -11,13 +11,21 @@ import mermaid from 'astro-mermaid';
 import pagefind from 'astro-pagefind';
 import robotsTxt from 'astro-robots-txt';
 import rehypeAutolinkHeadings from 'rehype-autolink-headings';
+import rehypeKatex from 'rehype-katex';
 import rehypeSlug from 'rehype-slug';
+import remarkMath from 'remark-math';
 import Sonda from 'sonda/astro';
 import { loadEnv } from 'vite';
 import svgr from 'vite-plugin-svgr';
 import YAML from 'yaml';
 import { rehypeImagePlaceholder } from './src/lib/markdown/rehype-image-placeholder.ts';
+import { rehypeShokaAttrs } from './src/lib/markdown/rehype-shoka-attrs.ts';
 import { remarkLinkEmbed } from './src/lib/markdown/remark-link-embed.ts';
+import { remarkIns, remarkMark } from './src/lib/markdown/remark-shoka-effects.ts';
+import { remarkShokaPreprocess } from './src/lib/markdown/remark-shoka-preprocess.ts';
+import { remarkShokaRuby } from './src/lib/markdown/remark-shoka-ruby.ts';
+import { remarkShokaSpoiler } from './src/lib/markdown/remark-shoka-spoiler.ts';
+import { shokaMetaTransformer } from './src/lib/markdown/shiki-meta-transformer.ts';
 import { normalizeUrl } from './src/lib/utils.ts';
 
 // Load YAML config directly with Node.js (before Vite plugins are available)
@@ -73,6 +81,69 @@ function conditionalSnowfall() {
   };
 }
 
+// Build conditional plugin lists based on content config
+const contentConfig = yamlConfig.content || {};
+
+// Remark plugins — order matters
+// remarkShokaPreprocess MUST be first: it re-parses raw text to fix GFM/remark conflicts
+// (+++, ~sub~, {% links %} YAML etc.) before any AST-level plugin runs.
+const remarkPlugins = [];
+{
+  const needsPreprocess =
+    contentConfig.enableShokaContainers !== false ||
+    contentConfig.enableShokaHexoTags !== false ||
+    contentConfig.enableShokaEffects !== false;
+  if (needsPreprocess) {
+    remarkPlugins.push([
+      remarkShokaPreprocess,
+      {
+        enableContainers: contentConfig.enableShokaContainers !== false,
+        enableHexoTags: contentConfig.enableShokaHexoTags !== false,
+        enableSuperSub: contentConfig.enableShokaEffects !== false,
+        enableMath: contentConfig.enableMath !== false,
+      },
+    ]);
+  }
+}
+// remarkMath must run BEFORE ruby/spoiler/effects so that $...$ content
+// is already parsed into inlineMath/math nodes and won't be touched by text-scanning plugins.
+if (contentConfig.enableMath !== false) remarkPlugins.push(remarkMath);
+if (contentConfig.enableShokaSpoiler !== false) remarkPlugins.push(remarkShokaSpoiler);
+if (contentConfig.enableShokaRuby !== false) remarkPlugins.push(remarkShokaRuby);
+if (contentConfig.enableShokaEffects !== false) {
+  remarkPlugins.push(remarkIns, remarkMark);
+}
+// Link embed is always on (existing feature)
+remarkPlugins.push([
+  remarkLinkEmbed,
+  {
+    enableTweetEmbed: contentConfig.enableTweetEmbed ?? true,
+    enableOGPreview: contentConfig.enableOGPreview ?? true,
+  },
+]);
+
+// Rehype plugins — order matters
+const rehypePlugins = [
+  rehypeSlug,
+  [
+    rehypeAutolinkHeadings,
+    {
+      behavior: 'append',
+      properties: {
+        className: ['anchor-link'],
+        ariaLabel: 'Link to this section',
+      },
+    },
+  ],
+];
+if (contentConfig.enableShokaAttrs !== false) rehypePlugins.push(rehypeShokaAttrs);
+rehypePlugins.push(rehypeImagePlaceholder);
+if (contentConfig.enableMath !== false) rehypePlugins.push(rehypeKatex);
+
+// Shiki transformers
+const shikiTransformers = [];
+if (contentConfig.enableCodeMeta !== false) shikiTransformers.push(shokaMetaTransformer());
+
 // https://astro.build/config
 export default defineConfig({
   site: yamlConfig.site.url,
@@ -80,31 +151,8 @@ export default defineConfig({
   markdown: {
     // Enable GitHub Flavored Markdown
     gfm: true,
-    // Configure remark plugins for link embedding
-    remarkPlugins: [
-      [
-        remarkLinkEmbed,
-        {
-          enableTweetEmbed: yamlConfig.content?.enableTweetEmbed ?? true,
-          enableOGPreview: yamlConfig.content?.enableOGPreview ?? true,
-        },
-      ],
-    ],
-    // Configure rehype plugins for automatic heading IDs and anchor links
-    rehypePlugins: [
-      rehypeSlug,
-      [
-        rehypeAutolinkHeadings,
-        {
-          behavior: 'append',
-          properties: {
-            className: ['anchor-link'],
-            ariaLabel: 'Link to this section',
-          },
-        },
-      ],
-      rehypeImagePlaceholder,
-    ],
+    remarkPlugins,
+    rehypePlugins,
     syntaxHighlight: {
       type: 'shiki',
       excludeLangs: ['mermaid'],
@@ -114,6 +162,7 @@ export default defineConfig({
         light: 'github-light',
         dark: 'github-dark',
       },
+      transformers: shikiTransformers,
     },
   },
   integrations: [

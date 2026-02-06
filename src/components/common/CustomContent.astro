@@ -28,6 +28,7 @@ const finalConfig = { ...defaultContentConfig, ...config };
     client:idle
     enableCopy={finalConfig.enableCodeCopy}
     enableFullscreen={finalConfig.enableCodeFullscreen}
+    enableQuiz={finalConfig.enableQuiz ?? true}
   />
 )}
 
@@ -96,6 +97,35 @@ const finalConfig = { ...defaultContentConfig, ...config };
 
     // Enhance link preview images with error handling
     enhanceLinkPreviews(contentContainer);
+
+    // Tab group switching logic
+    const tabHeaders = contentContainer.querySelectorAll<HTMLElement>('.tab-header[role="tab"]');
+    tabHeaders.forEach((header) => {
+      header.addEventListener('click', () => {
+        const groupId = header.dataset.tabGroup;
+        const tabIndex = header.dataset.tabIndex;
+        if (!groupId || tabIndex === undefined) return;
+
+        const group = contentContainer.querySelector(`.tab-group[data-tab-group="${groupId}"]`);
+        if (!group) return;
+
+        // Update headers
+        group.querySelectorAll<HTMLElement>('.tab-header').forEach((h) => {
+          h.setAttribute('aria-selected', String(h.dataset.tabIndex === tabIndex));
+        });
+
+        // Update panels
+        group.querySelectorAll<HTMLElement>('.tab-panel').forEach((panel) => {
+          panel.classList.toggle('active', panel.dataset.tabIndex === tabIndex);
+        });
+      });
+    });
+
+    // Spoiler click-to-reveal
+    const spoilers = contentContainer.querySelectorAll<HTMLElement>('.spoiler');
+    spoilers.forEach((spoiler) => {
+      spoiler.addEventListener('click', () => spoiler.classList.toggle('revealed'));
+    });
 
     // Mark as enhanced
     contentContainer.setAttribute('data-enhanced', 'true');

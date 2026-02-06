@@ -1,0 +1,84 @@
+/* =============================================================================
+ * Shoka Quiz — Interactive quiz blocks
+ * ============================================================================= */
+
+.quiz {
+  margin: 1.5em 0;
+  padding: 1.2em;
+  border: 1px solid hsl(0 0% 85%);
+  border-radius: 8px;
+  background: hsl(0 0% 98%);
+}
+
+.dark .quiz {
+  border-color: hsl(0 0% 30%);
+  background: hsl(0 0% 12%);
+}
+
+.quiz .quiz-question {
+  font-weight: 600;
+  margin-bottom: 0.8em;
+}
+
+.quiz .options {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.quiz .options li {
+  padding: 0.5em 0.8em;
+  margin: 0.3em 0;
+  border: 1px solid hsl(0 0% 80%);
+  border-radius: 6px;
+  cursor: pointer;
+  transition:
+    background-color 0.2s,
+    border-color 0.2s;
+}
+
+.dark .quiz .options li {
+  border-color: hsl(0 0% 35%);
+}
+
+.quiz .options li:hover {
+  background: hsl(var(--primary) / 0.08);
+  border-color: hsl(var(--primary) / 0.3);
+}
+
+.quiz .options li.selected {
+  border-color: hsl(var(--primary));
+  background: hsl(var(--primary) / 0.1);
+}
+
+.quiz .options li.correct {
+  border-color: hsl(var(--shoka-success));
+  background: hsl(var(--shoka-success) / 0.1);
+}
+
+.quiz .options li.incorrect {
+  border-color: hsl(var(--shoka-danger));
+  background: hsl(var(--shoka-danger) / 0.1);
+}
+
+.quiz .quiz-answer {
+  margin-top: 0.8em;
+  padding: 0.6em 0.8em;
+  border-radius: 6px;
+  font-size: 0.9em;
+  display: none;
+}
+
+.quiz .quiz-answer.show {
+  display: block;
+}
+
+.quiz .quiz-answer.correct {
+  background: hsl(var(--shoka-success) / 0.1);
+  color: hsl(var(--shoka-success));
+}
+
+.quiz .quiz-answer.incorrect {
+  background: hsl(var(--shoka-danger) / 0.1);
+  color: hsl(var(--shoka-danger));
+}
