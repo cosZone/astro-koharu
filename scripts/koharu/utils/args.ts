@@ -19,6 +19,7 @@ export interface ParsedArgs {
   skipBackup: boolean;
   tag: string | null;
   rebase: boolean;
+  clean: boolean;
   // New command options
   newType: CreatorType | null;
 }
@@ -46,6 +47,7 @@ export function parseArgs(argv: string[] = process.argv.slice(2)): ParsedArgs {
     skipBackup: false,
     tag: null,
     rebase: false,
+    clean: false,
     newType: null,
   };
 
@@ -81,6 +83,8 @@ export function parseArgs(argv: string[] = process.argv.slice(2)): ParsedArgs {
       i++;
     } else if (arg === '--rebase') {
       args.rebase = true;
+    } else if (arg === '--clean') {
+      args.clean = true;
     } else if (!arg.startsWith('--') && !arg.startsWith('-')) {
       if (!args.command) {
         args.command = arg;

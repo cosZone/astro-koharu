@@ -1,10 +1,14 @@
+import path from 'node:path';
 import type { Dispatch } from 'react';
+import { BACKUP_DIR } from '../constants/paths';
 import { UPSTREAM_URL, type UpdateAction, type UpdateState, type UpdateStatus } from '../constants/update';
 import {
   checkGitStatus,
+  cleanRestore,
   ensureUpstreamRemote,
   fetchUpstream,
   getUpdateInfo,
+  hasUpstreamMergeHistory,
   hasUpstreamTrackingRef,
   installDeps,
   listRecentTags,
@@ -22,6 +26,12 @@ type EffectFn = (state: UpdateState, dispatch: Dispatch<UpdateAction>) => (() =>
 export const statusEffects: Partial<Record<UpdateStatus, EffectFn>> = {
   checking: (state, dispatch) => {
     try {
+      // --clean 和 --rebase 互斥
+      if (state.options.clean && state.options.rebase) {
+        dispatch({ type: 'ERROR', error: '--clean 和 --rebase 不能同时使用' });
+        return undefined;
+      }
+
       const gitStatus = checkGitStatus();
       const { checkOnly } = state.options;
 
@@ -84,7 +94,11 @@ export const statusEffects: Partial<Record<UpdateStatus, EffectFn>> = {
       }
 
       const info = getUpdateInfo(state.options.targetTag);
-      dispatch({ type: 'FETCHED', payload: info });
+
+      // 检测是否需要首次迁移提示（rebase/clean 模式不需要）
+      const needsMigration = !state.options.clean && !state.options.rebase && !hasUpstreamMergeHistory();
+
+      dispatch({ type: 'FETCHED', payload: info, needsMigration });
     } catch (err) {
       dispatch({ type: 'ERROR', error: err instanceof Error ? err.message : String(err) });
     }
@@ -92,13 +106,54 @@ export const statusEffects: Partial<Record<UpdateStatus, EffectFn>> = {
   },
 
   merging: (state, dispatch) => {
-    const result = mergeUpstream({
-      targetTag: state.options.targetTag,
-      isDowngrade: state.updateInfo?.isDowngrade,
-      rebase: state.options.rebase,
-    });
-    dispatch({ type: 'MERGED', payload: result });
-    return undefined;
+    let cancelled = false;
+
+    // 延迟到微任务让 Ink 先渲染一帧 Spinner（execSync 仍会阻塞后续帧）
+    Promise.resolve()
+      .then(() => {
+        if (cancelled) return;
+        const result = mergeUpstream({
+          targetTag: state.options.targetTag,
+          isDowngrade: state.updateInfo?.isDowngrade,
+          rebase: state.options.rebase,
+          clean: state.options.clean,
+        });
+        dispatch({ type: 'MERGED', payload: result });
+      })
+      .catch((err) => {
+        if (cancelled) return;
+        dispatch({ type: 'ERROR', error: err instanceof Error ? err.message : String(err) });
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  },
+
+  'clean-restoring': (state, dispatch) => {
+    let cancelled = false;
+
+    // 延迟到微任务让 Ink 先渲染一帧 Spinner（execSync 仍会阻塞后续帧）
+    Promise.resolve()
+      .then(() => {
+        if (cancelled) return;
+        if (!state.backupFile) {
+          dispatch({ type: 'ERROR', error: 'Clean 模式需要备份文件，但未找到备份' });
+          return;
+        }
+        // backupFile 存储的是 basename，需要构造完整路径
+        const fullPath = path.join(BACKUP_DIR, state.backupFile);
+        const restoredFiles = cleanRestore(fullPath, state.mergeResult?.preCleanSha);
+        dispatch({ type: 'CLEAN_RESTORED', restoredFiles });
+      })
+      .catch((err) => {
+        if (cancelled) return;
+        dispatch({ type: 'ERROR', error: `还原用户内容失败: ${err instanceof Error ? err.message : String(err)}` });
+      });
+
+    return () => {
+      cancelled = true;
+    };
   },
 
   installing: (_state, dispatch) => {

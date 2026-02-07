@@ -61,6 +61,10 @@ export interface MergeResult {
   error?: string;
   /** 是否为 rebase 冲突 */
   isRebaseConflict?: boolean;
+  /** 被自动解决的用户内容冲突文件 */
+  autoResolvedFiles?: string[];
+  /** Clean 模式合并前的 commit SHA（用于还原失败时回滚） */
+  preCleanSha?: string;
 }
 
 /** GitHub Release 信息 */
@@ -84,6 +88,7 @@ export type UpdateStatus =
   | 'fetching' // 获取更新
   | 'preview' // 显示更新预览
   | 'merging' // 合并中
+  | 'clean-restoring' // clean 模式还原用户内容
   | 'installing' // 安装依赖
   | 'done' // 完成
   | 'conflict' // 有冲突
@@ -99,8 +104,10 @@ export interface UpdateOptions {
   targetTag?: string;
   /** 使用 rebase 模式（重写历史） */
   rebase: boolean;
-  /** 预览操作（不实际执行），仅在 rebase 模式下有效 */
+  /** 预览操作（不实际执行） */
   dryRun: boolean;
+  /** 使用 clean 模式（替换所有主题文件，还原用户内容） */
+  clean: boolean;
 }
 
 /** 状态机 State */
@@ -114,16 +121,21 @@ export interface UpdateState {
   /** 非 main 分支警告信息 */
   branchWarning: string;
   options: UpdateOptions;
+  /** 首次从 squash merge 迁移到 regular merge 的标志 */
+  needsMigration: boolean;
+  /** Clean 模式还原的文件路径列表 */
+  restoredFiles: string[];
 }
 
 /** 状态机 Action */
 export type UpdateAction =
   | { type: 'GIT_CHECKED'; payload: GitStatusInfo }
-  | { type: 'FETCHED'; payload: UpdateInfo }
+  | { type: 'FETCHED'; payload: UpdateInfo; needsMigration?: boolean }
   | { type: 'BACKUP_CONFIRM' }
   | { type: 'BACKUP_SKIP' }
   | { type: 'BACKUP_DONE'; backupFile: string }
   | { type: 'UPDATE_CONFIRM' }
   | { type: 'MERGED'; payload: MergeResult }
+  | { type: 'CLEAN_RESTORED'; restoredFiles: string[] }
   | { type: 'INSTALLED' }
   | { type: 'ERROR'; error: string };

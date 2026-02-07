@@ -64,6 +64,17 @@ export function HelpApp({ showReturnHint = false, onComplete }: HelpAppProps) {
       </Box>
 
       <Box flexDirection="column" marginBottom={1}>
+        <Text bold>更新选项:</Text>
+        <Text> --check 仅检查更新（不执行）</Text>
+        <Text> --skip-backup 跳过备份步骤</Text>
+        <Text> --force 跳过确认提示</Text>
+        <Text> --tag {'<version>'} 指定目标版本（如 v2.0.0）</Text>
+        <Text> --rebase 使用 rebase 模式（重写历史，强制备份）</Text>
+        <Text> --clean 使用 clean 模式（零冲突，强制备份）</Text>
+        <Text> --dry-run 预览操作（不实际执行）</Text>
+      </Box>
+
+      <Box flexDirection="column" marginBottom={1}>
         <Text bold>新建选项:</Text>
         <Text> pnpm koharu new 交互式选择内容类型</Text>
         <Text> pnpm koharu new post 新建博客文章</Text>

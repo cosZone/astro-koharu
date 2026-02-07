@@ -235,7 +235,7 @@ pnpm koharu generate all          # 生成全部
 | `pnpm koharu`               | 交互式 CLI 菜单                    |
 | `pnpm koharu backup`        | 备份博客内容（--full 完整备份）    |
 | `pnpm koharu restore`       | 从备份恢复（--latest 还原最新）    |
-| `pnpm koharu update`        | 更新主题（--check 检查，--skip-backup 跳过备份）|
+| `pnpm koharu update`        | 更新主题（--check, --clean, --rebase 等）|
 | `pnpm koharu generate`      | 生成内容资产                       |
 | `pnpm koharu clean`         | 清理旧备份（--keep N 保留 N 个）   |
 | `pnpm koharu list`          | 查看所有备份                       |
@@ -257,20 +257,44 @@ pnpm koharu update --check
 
 # 跳过备份直接更新
 pnpm koharu update --skip-backup
+
+# clean 模式（零冲突，适合首次迁移或冲突较多时）
+pnpm koharu update --clean
+
+# rebase 模式（重写历史，适合熟悉 git 的用户）
+pnpm koharu update --rebase
+
+# 预览操作（不实际执行）
+pnpm koharu update --dry-run
+
+# 更新到指定版本
+pnpm koharu update --tag v2.1.0
 ```
 
-> **💡 更新说明：** 默认使用 **squash merge** 方式更新，将上游所有提交压缩为单个提交，保持你的提交历史干净线性。
+**三种更新模式：**
+
+| 模式 | 命令 | 适合场景 | 备份 |
+|------|------|---------|------|
+| **默认** | `pnpm koharu update` | 日常更新 | 可选 |
+| **Clean** | `pnpm koharu update --clean` | 首次迁移、冲突较多 | 强制 |
+| **Rebase** | `pnpm koharu update --rebase` | 熟悉 git 的用户 | 强制 |
+
+- **默认模式**：使用 `git merge` 合并上游更新。用户内容（博客文章、配置等）冲突会自动保留本地版本，仅主题文件冲突需手动解决。
+- **Clean 模式**：用上游最新版本替换所有主题文件，再从备份还原你的用户内容，实现零冲突。**注意：你对主题文件的自定义修改不会被保留。**
+- **Rebase 模式**：将你的本地提交重放到上游之上，重写提交历史。适合对 git 有一定了解的用户。
+
+> **💡 给熟悉 git 的用户：** CLI 更新命令是对 git 操作的封装便利工具。如果你对 git 比较熟悉，完全可以直接使用 `git fetch upstream && git rebase upstream/main`（或 `git merge`）手动操作，这样能更精确地控制合并过程。
 
 更新过程中会自动：
 1. 检查工作区状态
-2. 备份你的个人内容（可选）
+2. 备份你的个人内容（可选，clean/rebase 模式强制备份）
 3. 设置 upstream remote（如果没有）
 4. 获取最新代码
-5. 显示新提交列表
-6. 合并更新
+5. 显示新提交列表和更新日志
+6. 合并更新（根据所选模式）
 7. 安装依赖
 
-如果遇到合并冲突，CLI 会显示冲突文件列表并提供解决指引。
+如果遇到合并冲突，CLI 会显示冲突文件列表并提供解决指引。用户内容的冲突会被自动解决（保留本地版本）。
 
 ### 手动更新
 

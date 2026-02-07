@@ -1,4 +1,5 @@
 import { execSync, spawn } from 'node:child_process';
+import { BACKUP_ITEMS } from '../constants/backup';
 import { PROJECT_ROOT } from '../constants/paths';
 import {
   type CommitInfo,
@@ -11,6 +12,7 @@ import {
   UPSTREAM_URL,
   type UpdateInfo,
 } from '../constants/update';
+import { restoreBackup } from './restore-operations';
 import { getVersion } from './version';
 
 /**
@@ -261,29 +263,167 @@ export interface MergeOptions {
   isDowngrade?: boolean;
   /** 使用 rebase 模式：将本地提交重放到目标引用之上（重写历史） */
   rebase?: boolean;
+  /** 使用 clean 模式：替换所有主题文件，后续从备份还原用户内容 */
+  clean?: boolean;
 }
 
 /**
- * 执行合并、降级或 rebase 操作
+ * 获取目标版本信息用于 commit message
+ */
+function getVersionInfo(targetRef: string, normalizedTag: string | null): string {
+  if (normalizedTag) return normalizedTag;
+  const packageJsonContent = gitSafe(`show ${targetRef}:package.json`);
+  if (packageJsonContent) {
+    try {
+      const packageJson = JSON.parse(packageJsonContent);
+      if (packageJson.version) return `v${packageJson.version}`;
+    } catch {
+      // JSON parse failed
+    }
+  }
+  return 'latest';
+}
+
+/**
+ * 用户内容路径前缀列表（从 BACKUP_ITEMS 的 required 项获取）
+ */
+const USER_CONTENT_PREFIXES = BACKUP_ITEMS.filter((item) => item.required).map((item) => item.src);
+
+/**
+ * 判断文件是否属于用户内容
+ */
+function isUserContent(filePath: string): boolean {
+  return USER_CONTENT_PREFIXES.some((prefix) => filePath === prefix || filePath.startsWith(`${prefix}/`));
+}
+
+/**
+ * 将冲突文件分为用户内容和主题文件
+ */
+function classifyConflicts(files: string[]): { userFiles: string[]; themeFiles: string[] } {
+  const userFiles: string[] = [];
+  const themeFiles: string[] = [];
+  for (const file of files) {
+    if (isUserContent(file)) {
+      userFiles.push(file);
+    } else {
+      themeFiles.push(file);
+    }
+  }
+  return { userFiles, themeFiles };
+}
+
+/**
+ * 对用户内容文件自动使用 --ours 解决冲突
+ * 如果 checkout 成功但 add 失败，用 checkout -m 恢复冲突状态
+ * @returns 解决失败的文件列表
+ */
+function autoResolveUserContent(files: string[]): string[] {
+  const failed: string[] = [];
+  for (const file of files) {
+    const checkoutOk = gitSafe(`checkout --ours -- "${file}"`) !== null;
+    const addOk = checkoutOk && gitSafe(`add -- "${file}"`) !== null;
+    if (!addOk) {
+      // checkout 成功但 add 失败时，恢复冲突标记以便用户手动解决
+      if (checkoutOk) {
+        gitSafe(`checkout -m -- "${file}"`);
+      }
+      failed.push(file);
+    }
+  }
+  return failed;
+}
+
+/**
+ * Clean 模式：删除上游已移除的非用户内容文件
+ */
+function removeDeletedUpstreamFiles(targetRef: string): void {
+  const localFiles = gitSafe('ls-files') || '';
+  const upstreamFiles = gitSafe(`ls-tree -r --name-only ${targetRef}`) || '';
+
+  const localSet = new Set(
+    localFiles
+      .split('\n')
+      .map((f) => f.trim())
+      .filter(Boolean),
+  );
+  const upstreamSet = new Set(
+    upstreamFiles
+      .split('\n')
+      .map((f) => f.trim())
+      .filter(Boolean),
+  );
+
+  const filesToRemove: string[] = [];
+  for (const file of localSet) {
+    if (!upstreamSet.has(file) && !isUserContent(file)) {
+      filesToRemove.push(file);
+    }
+  }
+
+  if (filesToRemove.length > 0) {
+    // 分批执行 git rm，避免参数过长超过 ARG_MAX 限制
+    const BATCH_SIZE = 100;
+    for (let i = 0; i < filesToRemove.length; i += BATCH_SIZE) {
+      const chunk = filesToRemove.slice(i, i + BATCH_SIZE);
+      const batch = chunk.map((f) => `'${f.replaceAll("'", "'\\''")}'`).join(' ');
+      gitSafe(`rm --quiet -- ${batch}`);
+    }
+  }
+}
+
+/**
+ * Clean 模式：从备份还原用户内容并 amend 到 merge commit
+ * @param preCleanSha 合并前的 commit SHA，还原失败时回滚到此状态
+ */
+export function cleanRestore(backupPath: string, preCleanSha?: string): string[] {
+  try {
+    const restored = restoreBackup(backupPath);
+    git('add -A');
+    git('commit --amend --no-edit');
+    return restored;
+  } catch (error) {
+    // 还原失败，回滚到合并前的状态以保护用户数据
+    if (preCleanSha) {
+      gitSafe(`reset --hard ${preCleanSha}`);
+    }
+    throw error;
+  }
+}
+
+/**
+ * 检测是否已有 upstream merge commit（用于首次迁移提示）
+ *
+ * 检查最近 20 个 merge commit，看是否有某个 parent 可从 upstream/main 到达。
+ * 如果有 → 之前已有 regular merge → 无需迁移。
+ * 如果没有 → 可能一直用 squash merge → 需要迁移提示。
+ */
+export function hasUpstreamMergeHistory(): boolean {
+  if (!hasUpstreamTrackingRef()) return false;
+  const merges = gitSafe('log --merges --format=%P -20 HEAD');
+  if (!merges) return false;
+  for (const line of merges.trim().split('\n')) {
+    if (!line.trim()) continue;
+    const parents = line.trim().split(' ');
+    // 跳过第一个 parent（本分支），检查后续 parent 是否在 upstream 历史中
+    // 注意: merge-base --is-ancestor 用 exit code 表示结果（0=是祖先，1=不是）
+    // gitSafe 在 exit code 非零时返回 null，所以 !== null 等价于 "是祖先"
+    for (const parent of parents.slice(1)) {
+      if (gitSafe(`merge-base --is-ancestor ${parent} ${UPSTREAM_REMOTE}/${MAIN_BRANCH}`) !== null) {
+        return true;
+      }
+    }
+  }
+  return false;
+}
+
+/**
+ * 执行合并、降级、rebase 或 clean 操作
  *
  * @param options - 合并选项
  * @returns 合并结果，包含成功状态、冲突信息等
- *
- * @example
- * // 普通合并到 upstream/main
- * mergeUpstream();
- *
- * // 合并到指定 tag
- * mergeUpstream({ targetTag: 'v2.1.0' });
- *
- * // Rebase 到 upstream/main（重写历史）
- * mergeUpstream({ rebase: true });
- *
- * // Rebase 到指定 tag（将本地提交重放到 tag 之上）
- * mergeUpstream({ targetTag: 'v2.1.0', rebase: true });
  */
 export function mergeUpstream(options: MergeOptions = {}): MergeResult {
-  const { targetTag, isDowngrade, rebase } = options;
+  const { targetTag, isDowngrade, rebase, clean } = options;
   const normalizedTag = targetTag ? normalizeTag(targetTag) : null;
   const targetRef = normalizedTag || `${UPSTREAM_REMOTE}/${MAIN_BRANCH}`;
 
@@ -294,39 +434,31 @@ export function mergeUpstream(options: MergeOptions = {}): MergeResult {
     } else if (isDowngrade && normalizedTag) {
       // 降级使用 checkout + commit 保留提交历史
       git(`checkout ${normalizedTag} -- .`);
-      // 检查是否有变化需要提交
       const status = gitSafe('status --porcelain') || '';
       if (status.trim().length > 0) {
         git(`commit -m "Downgrade to ${normalizedTag}"`);
       }
+    } else if (clean) {
+      // Clean 模式：merge -s ours 记录 merge-base，然后用上游文件覆盖
+      // 保存合并前 SHA，用于还原失败时回滚
+      const preCleanSha = git('rev-parse HEAD');
+      const versionInfo = getVersionInfo(targetRef, normalizedTag);
+      git(`merge -s ours --no-ff --allow-unrelated-histories ${targetRef} -m "chore: clean update to ${versionInfo}"`);
+      git(`checkout ${targetRef} -- .`);
+      removeDeletedUpstreamFiles(targetRef);
+      // 暂存覆盖后的文件状态（用户内容将在 clean-restoring 阶段还原）
+      git('add -A');
+      git('commit --amend --no-edit');
+      return {
+        success: true,
+        hasConflict: false,
+        conflictFiles: [],
+        preCleanSha,
+      };
     } else {
-      // 默认使用 squash merge 保持提交历史干净线性
-      // --allow-unrelated-histories 确保首次更新时正常工作
-      git(`merge --squash --allow-unrelated-histories ${targetRef}`);
-
-      // 检查是否有变化需要提交
-      const status = gitSafe('status --porcelain') || '';
-      if (status.trim().length > 0) {
-        // 获取目标版本信息用于 commit message
-        let versionInfo = 'latest';
-        if (normalizedTag) {
-          versionInfo = normalizedTag;
-        } else {
-          // 尝试从 package.json 获取版本
-          const packageJsonContent = gitSafe(`show ${targetRef}:package.json`);
-          if (packageJsonContent) {
-            try {
-              const packageJson = JSON.parse(packageJsonContent);
-              if (packageJson.version) {
-                versionInfo = `v${packageJson.version}`;
-              }
-            } catch {
-              // JSON parse failed, use 'latest'
-            }
-          }
-        }
-        git(`commit -m "chore: update theme to ${versionInfo}\n\nSquashed merge from upstream"`);
-      }
+      // 默认使用 regular merge 保留 merge-base 信息
+      const versionInfo = getVersionInfo(targetRef, normalizedTag);
+      git(`merge --no-ff --allow-unrelated-histories ${targetRef} -m "chore: merge upstream theme ${versionInfo}"`);
     }
     return {
       success: true,
@@ -334,7 +466,7 @@ export function mergeUpstream(options: MergeOptions = {}): MergeResult {
       conflictFiles: [],
     };
   } catch (error) {
-    // 降级可能产生冲突（checkout 文件后的 commit 失败等情况）
+    // 降级可能产生冲突
     if (isDowngrade) {
       return {
         success: false,
@@ -347,11 +479,44 @@ export function mergeUpstream(options: MergeOptions = {}): MergeResult {
     const conflictFiles = getConflictFiles();
 
     if (conflictFiles.length > 0) {
+      // Regular merge 冲突时的智能处理：自动解决用户内容冲突
+      if (!rebase && !clean) {
+        const { userFiles, themeFiles } = classifyConflicts(conflictFiles);
+        if (userFiles.length > 0) {
+          const failedFiles = autoResolveUserContent(userFiles);
+          // 解决失败的用户文件视为主题文件冲突，需要用户手动处理
+          if (failedFiles.length > 0) {
+            themeFiles.push(...failedFiles);
+          }
+        }
+        const resolvedFiles = userFiles.filter((f) => !themeFiles.includes(f));
+        // 如果只有用户内容冲突且全部自动解决，自动完成合并
+        if (themeFiles.length === 0) {
+          try {
+            git('commit --no-edit');
+            return {
+              success: true,
+              hasConflict: false,
+              conflictFiles: [],
+              autoResolvedFiles: resolvedFiles,
+            };
+          } catch {
+            // commit 失败，仍然返回冲突
+          }
+        }
+        // 还有主题文件冲突，需要用户手动解决
+        return {
+          success: false,
+          hasConflict: true,
+          conflictFiles: themeFiles,
+          autoResolvedFiles: resolvedFiles.length > 0 ? resolvedFiles : undefined,
+        };
+      }
+
       return {
         success: false,
         hasConflict: true,
         conflictFiles,
-        // 如果是 rebase 模式，标记为 rebase 冲突
         isRebaseConflict: rebase,
       };
     }
