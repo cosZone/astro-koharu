@@ -510,6 +510,50 @@ categories:
 
 > **提示**：文章的 `categories` 字段需要与 `featuredSeries` 中某个系列的 `categoryName` 匹配才会被归入该系列。
 
+### 独立页面
+
+除了博客文章外，你可以在 `src/pages/` 目录下创建 `.md` 文件来添加独立页面（如"关于"、"歌单"等）。这些页面使用 `PageLayout.astro` 布局，支持完整的 Markdown 增强语法。
+
+**创建独立页面：**
+
+在 `src/pages/` 目录下新建 `.md` 文件：
+
+```markdown
+---
+layout: ../layouts/PageLayout.astro
+title: "歌单"
+description: "我喜欢的音乐"
+coverTitle: "我的歌单"
+comments: false
+---
+
+页面内容...
+```
+
+**Frontmatter 字段：**
+
+| 字段          | 必填 | 说明                                          |
+| ------------- | ---- | --------------------------------------------- |
+| `layout`      | ✅   | 固定为 `../layouts/PageLayout.astro`          |
+| `title`       | ✅   | 页面标题（用于浏览器标签页）                  |
+| `description` | ❌   | 页面描述（用于 SEO）                          |
+| `coverTitle`  | ❌   | 封面显示的标题（默认使用 `title`）            |
+| `comments`    | ❌   | 是否显示评论区（默认 `true`）                 |
+
+**添加导航入口：**
+
+在 `config/site.yaml` 的 `navigation` 中添加对应菜单项：
+
+```yaml
+navigation:
+  # ...
+  - name: 歌单
+    path: /music
+    icon: ri:music-2-fill
+```
+
+> **提示**：`src/pages/` 下所有 `.md` 文件会被 Koharu CLI 的备份功能自动覆盖，无需额外配置。
+
 ## 界面功能
 
 ### 主题切换

@@ -55,9 +55,25 @@ export function runBackup(isFullBackup: boolean, onProgress?: (results: BackupRe
     const destPath = path.join(tempDir, item.dest);
 
     if (fs.existsSync(srcPath)) {
-      fs.mkdirSync(path.dirname(destPath), { recursive: true });
-      fs.cpSync(srcPath, destPath, { recursive: true });
-      results.push({ item, success: true, skipped: false });
+      if (item.pattern && fs.statSync(srcPath).isDirectory()) {
+        const ext = item.pattern.startsWith('*.') ? item.pattern.slice(1) : null;
+        const entries = fs.readdirSync(srcPath, { withFileTypes: true });
+        const files = entries.filter((e) => e.isFile() && (!ext || e.name.endsWith(ext)));
+
+        if (files.length > 0) {
+          fs.mkdirSync(destPath, { recursive: true });
+          for (const file of files) {
+            fs.cpSync(path.join(srcPath, file.name), path.join(destPath, file.name));
+          }
+          results.push({ item, success: true, skipped: false });
+        } else {
+          results.push({ item, success: false, skipped: true });
+        }
+      } else {
+        fs.mkdirSync(path.dirname(destPath), { recursive: true });
+        fs.cpSync(srcPath, destPath, { recursive: true });
+        results.push({ item, success: true, skipped: false });
+      }
     } else {
       results.push({ item, success: false, skipped: true });
     }

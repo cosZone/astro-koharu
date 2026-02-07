@@ -12,15 +12,18 @@ export interface Props {
   frontmatter: {
     title: string;
     description?: string;
+    coverTitle?: string;
+    comments?: boolean;
   };
 }
 
 const { frontmatter } = Astro.props;
+const showComments = frontmatter.comments ?? true;
 ---
 
 <Layout title={`${frontmatter.title} | ${seoConfig.title}`}>
   <TwoColumnLayout>
-    <Cover slot="cover" title="关于我" />
+    <Cover slot="cover" title={frontmatter.coverTitle ?? frontmatter.title} />
     <HomeSider slot="sider" />
     <div class={`shadow-box bg-gradient-start mx-0 flex w-full flex-col gap-8 ${CONTENT_PADDING.standard}`}>
       <div class="prose md:prose-sm dark:prose-invert">
@@ -28,7 +31,7 @@ const { frontmatter } = Astro.props;
           <slot />
         </CustomContent>
       </div>
-      <Comment />
+      {showComments && <Comment />}
     </div>
   </TwoColumnLayout>
 </Layout>
