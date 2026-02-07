@@ -181,14 +181,23 @@ pnpm koharu update --skip-backup
 # 更新到指定版本
 pnpm koharu update --tag v2.1.0
 
-# 使用 rebase 模式（重写历史，强制备份）
+# clean 模式（零冲突，强制备份，适合首次迁移或冲突较多时）
+pnpm koharu update --clean
+
+# rebase 模式（重写历史，强制备份，适合熟悉 git 的用户）
 pnpm koharu update --rebase
 
-# 预览 rebase 操作（不实际执行）
-pnpm koharu update --rebase --dry-run
+# 预览操作（不实际执行）
+pnpm koharu update --dry-run
 ```
 
-> **💡 更新说明：** 默认使用 **squash merge** 方式更新，将上游所有提交压缩为单个提交，保持你的提交历史干净线性。
+> **💡 更新模式说明：**
+>
+> - **默认模式**：使用 `git merge --no-ff` 合并上游更新，保留 merge-base 信息。遇到用户内容（博客文章、配置等）冲突时自动保留本地版本，仅主题文件冲突需手动解决。
+> - **Clean 模式** (`--clean`)：用上游最新版本替换所有主题文件，然后从备份还原用户内容，实现零冲突更新。适合首次从旧版迁移或冲突较多时使用。**注意：用户对主题文件的自定义修改不会被保留。**
+> - **Rebase 模式** (`--rebase`)：将本地提交重放到上游之上，重写提交历史。适合熟悉 git 的用户。
+>
+> CLI 更新命令是对 git 操作的封装，熟悉 git 的用户也可以直接使用 `git merge`/`git rebase` 手动操作。
 
 ### 内容生成
 

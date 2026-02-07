@@ -33,9 +33,9 @@ export function updateReducer(state: UpdateState, action: UpdateAction): UpdateS
 
     case 'fetching': {
       if (action.type !== 'FETCHED') return state;
-      const { payload: updateInfo } = action;
+      const { payload: updateInfo, needsMigration } = action;
 
-      // 版本号相同时不需要更新（squash merge 后 commit 不同但版本相同）
+      // 版本号相同时不需要更新
       const versionsMatch = updateInfo.currentVersion === updateInfo.latestVersion && updateInfo.latestVersion !== 'unknown';
 
       // 升级：behindCount > 0
@@ -47,17 +47,18 @@ export function updateReducer(state: UpdateState, action: UpdateAction): UpdateS
         return { ...state, status: 'up-to-date', updateInfo };
       }
 
-      // Rebase 模式强制备份（忽略 skipBackup 和 force）
-      const nextStatus = options.rebase ? 'backup-confirm' : options.skipBackup || options.force ? 'preview' : 'backup-confirm';
-      return { ...state, status: nextStatus, updateInfo };
+      // Rebase 和 clean 模式强制备份（忽略 skipBackup 和 force）
+      const forceBackup = options.rebase || options.clean;
+      const nextStatus = forceBackup ? 'backup-confirm' : options.skipBackup || options.force ? 'preview' : 'backup-confirm';
+      return { ...state, status: nextStatus, updateInfo, needsMigration: needsMigration ?? false };
     }
 
     case 'backup-confirm': {
       if (action.type === 'BACKUP_CONFIRM') {
         return { ...state, status: 'backing-up' };
       }
-      // Rebase 模式下不允许跳过备份（防御性检查）
-      if (action.type === 'BACKUP_SKIP' && !options.rebase) {
+      // Rebase 和 clean 模式下不允许跳过备份（防御性检查）
+      if (action.type === 'BACKUP_SKIP' && !options.rebase && !options.clean) {
         return { ...state, status: 'preview' };
       }
       return state;
@@ -88,7 +89,18 @@ export function updateReducer(state: UpdateState, action: UpdateAction): UpdateS
       if (!result.success) {
         return { ...state, status: 'error', error: result.error || '合并失败' };
       }
+      // Clean 模式：合并成功后需要还原用户内容
+      if (options.clean) {
+        return { ...state, status: 'clean-restoring', mergeResult: result };
+      }
       return { ...state, status: 'installing', mergeResult: result };
+    }
+
+    case 'clean-restoring': {
+      if (action.type === 'CLEAN_RESTORED') {
+        return { ...state, status: 'installing', restoredFiles: action.restoredFiles };
+      }
+      return state;
     }
 
     case 'installing': {
@@ -122,5 +134,7 @@ export function createInitialState(options: UpdateOptions): UpdateState {
     error: '',
     branchWarning: '',
     options,
+    needsMigration: false,
+    restoredFiles: [],
   };
 }

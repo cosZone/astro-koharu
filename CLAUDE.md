@@ -68,7 +68,7 @@ pnpm knip             # Find unused files/dependencies
 pnpm koharu              # Interactive menu
 pnpm koharu backup       # Backup blog content and config (--full for complete backup)
 pnpm koharu restore      # Restore from backup (--latest, --dry-run, --force)
-pnpm koharu update       # Update theme from upstream (--check, --skip-backup, --force, --rebase)
+pnpm koharu update       # Update theme from upstream (--check, --skip-backup, --force, --rebase, --clean)
 pnpm koharu generate     # Generate content assets (interactive menu)
 pnpm koharu generate lqips        # Generate LQIP image placeholders
 pnpm koharu generate similarities # Generate semantic similarity vectors
