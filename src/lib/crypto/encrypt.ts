@@ -1,9 +1,12 @@
 /**
  * Build-time AES-256-GCM encryption using Web Crypto API.
  * Used by rehype-encrypted-block to encrypt content during build.
+ *
+ * NOTE: This module uses Node.js `Buffer` API and must NOT be imported in client-side code.
  */
 
-const PBKDF2_ITERATIONS = 100_000;
+import { PBKDF2_ITERATIONS } from './constants';
+
 const SALT_LENGTH = 16;
 const IV_LENGTH = 12;
 

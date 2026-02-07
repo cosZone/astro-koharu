@@ -512,8 +512,19 @@ $$
 :::
 
 ````markdown
+
 :::encrypted{password="test"}
-加密内容，密码是 test。支持完整的 Markdown 语法。
+这里是加密的内容，支持完整的 Markdown 语法：
+
+- **粗体**、*斜体*、~~删除线~~
+- `行内代码`
+- [链接](https://example.com)
+
+```js
+console.log('加密内容中的代码也有语法高亮！');
+```
+
+行内公式 $E = mc^2$ 也可以正常渲染。
 :::
 
 :::encrypted{password="another"}
@@ -533,4 +544,8 @@ console.log('加密内容中的代码也有语法高亮！');
 ```
 
 行内公式 $E = mc^2$ 也可以正常渲染。
+:::
+
+:::encrypted{password="another"}
+每个加密块可以设置独立的密码。
 :::
