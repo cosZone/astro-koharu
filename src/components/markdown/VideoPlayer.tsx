@@ -58,8 +58,7 @@ export function VideoPlayer({ element }: VideoPlayerProps) {
         mode={player.state.mode}
         volume={player.state.volume}
         muted={player.state.muted}
-        currentTime={player.state.currentTime}
-        duration={player.state.duration}
+        timeStore={player.timeStore}
         showTrackButtons={hasMultiple}
         videoRef={videoRef}
         onTogglePlay={player.togglePlay}
@@ -74,8 +73,7 @@ export function VideoPlayer({ element }: VideoPlayerProps) {
         <VideoPlaylist
           tracks={tracks}
           currentIndex={player.state.currentIndex}
-          currentTime={player.state.currentTime}
-          duration={player.state.duration}
+          timeStore={player.timeStore}
           onTrackSelect={handleTrackSelect}
           onSeek={player.seek}
         />

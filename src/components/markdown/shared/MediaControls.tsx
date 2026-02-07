@@ -3,10 +3,15 @@
  *
  * Renders playback mode, prev/play/next, volume, and progress bar.
  * Accepts optional extra buttons (e.g. fullscreen) and conditional track buttons.
+ *
+ * Progress bar width is updated imperatively via ref (zero re-renders from timeupdate).
  */
 
+import { usePlaybackProgress } from '@hooks/usePlaybackTime';
 import { Icon } from '@iconify/react';
+import type { PlaybackTimeStore } from '@lib/playback-time-store';
 import { cn } from '@lib/utils';
+import { memo, useRef } from 'react';
 import type { PlayMode } from '@/store/player';
 
 export interface MediaControlsProps {
@@ -15,8 +20,7 @@ export interface MediaControlsProps {
   mode: PlayMode;
   volume: number;
   muted: boolean;
-  currentTime: number;
-  duration: number;
+  timeStore: PlaybackTimeStore;
   onTogglePlay: () => void;
   onPrev: () => void;
   onNext: () => void;
@@ -49,14 +53,13 @@ function getVolumeIcon(volume: number, muted: boolean): string {
   return 'ri:volume-up-line';
 }
 
-export function MediaControls({
+export const MediaControls = memo(function MediaControls({
   playing,
   loading,
   mode,
   volume,
   muted,
-  currentTime,
-  duration,
+  timeStore,
   onTogglePlay,
   onPrev,
   onNext,
@@ -68,12 +71,14 @@ export function MediaControls({
   showTrackButtons = true,
   extraButtons,
 }: MediaControlsProps) {
-  const progress = duration > 0 ? (currentTime / duration) * 100 : 0;
+  const progressBarRef = useRef<HTMLDivElement>(null);
+  const sliderRef = useRef<HTMLDivElement>(null);
+  usePlaybackProgress(timeStore, progressBarRef, sliderRef);
 
   const handleProgressClick = (e: React.MouseEvent<HTMLDivElement>) => {
     const rect = e.currentTarget.getBoundingClientRect();
     const ratio = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
-    onSeek(ratio * duration);
+    onSeek(ratio * timeStore.getDuration());
   };
 
   const cycleMode = () => {
@@ -138,21 +143,24 @@ export function MediaControls({
       </div>
 
       <div
+        ref={sliderRef}
         className="audio-player-progress"
         role="slider"
         tabIndex={0}
         aria-valuemin={0}
-        aria-valuemax={duration || 0}
-        aria-valuenow={currentTime}
+        aria-valuemax={0}
+        aria-valuenow={0}
         aria-label="播放进度"
         onClick={handleProgressClick}
         onKeyDown={(e) => {
-          if (e.key === 'ArrowRight') onSeek(Math.min(duration, currentTime + 5));
-          else if (e.key === 'ArrowLeft') onSeek(Math.max(0, currentTime - 5));
+          const ct = timeStore.getCurrentTime();
+          const dur = timeStore.getDuration();
+          if (e.key === 'ArrowRight') onSeek(Math.min(dur, ct + 5));
+          else if (e.key === 'ArrowLeft') onSeek(Math.max(0, ct - 5));
         }}
       >
-        <div className="audio-player-progress-bar" style={{ width: `${progress}%` }} />
+        <div ref={progressBarRef} className="audio-player-progress-bar" style={{ width: '0%' }} />
       </div>
     </div>
   );
-}
+});

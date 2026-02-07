@@ -4,6 +4,7 @@
  */
 
 import { Icon } from '@iconify/react';
+import type { PlaybackTimeStore } from '@lib/playback-time-store';
 import type { RefObject } from 'react';
 import type { PlayMode } from '@/store/player';
 import { MediaControls } from '../shared/MediaControls';
@@ -14,8 +15,7 @@ interface VideoControlsProps {
   mode: PlayMode;
   volume: number;
   muted: boolean;
-  currentTime: number;
-  duration: number;
+  timeStore: PlaybackTimeStore;
   showTrackButtons: boolean;
   videoRef: RefObject<HTMLVideoElement | null>;
   onTogglePlay: () => void;

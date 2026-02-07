@@ -391,20 +391,20 @@
   z-index: -1;
   pointer-events: none;
   border-right: 2px solid hsl(var(--primary) / 0.3);
+  transition: width 0.25s linear;
 }
 
 /* =============================================================================
  * Mobile Responsive
  * ============================================================================= */
 
-@media (max-width: 600px) {
-  .audio-player-preview {
-    flex-direction: column;
-    padding: 1em 1.5em;
-    gap: 1.5em;
-    text-align: center;
-  }
+/* =============================================================================
+ * Mobile Responsive — shared controls (buttons, progress, volume, playlist)
+ * NOTE: .audio-player-preview responsive rules live in shoka-audio-player.css
+ * to avoid cascade conflicts (that file is imported later).
+ * ============================================================================= */
 
+@media (max-width: 600px) {
   .audio-player-info {
     padding-right: 0;
     align-items: center;
@@ -457,5 +457,14 @@
 
   .audio-player-volume-group:hover .audio-player-volume {
     width: 60px;
+  }
+
+  .audio-player-song-list {
+    max-height: 200px;
+  }
+
+  .audio-player-song-item {
+    padding: 0.4em 1em;
+    font-size: 0.85em;
   }
 }

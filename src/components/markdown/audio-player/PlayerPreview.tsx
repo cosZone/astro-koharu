@@ -2,15 +2,17 @@
  * PlayerPreview — vinyl disc with tonearm (left) + song info + centered lyrics (right).
  */
 
+import { usePlaybackLrcIndex } from '@hooks/usePlaybackTime';
 import type { MetingSong } from '@lib/meting';
+import type { PlaybackTimeStore } from '@lib/playback-time-store';
 import { cn } from '@lib/utils';
-import { useEffect, useMemo, useState } from 'react';
-import { type LrcLine, parseLrc } from './LrcParser';
+import { memo, useEffect, useMemo, useState } from 'react';
+import { parseLrc } from './LrcParser';
 
 interface PlayerPreviewProps {
   track: MetingSong | null;
   playing: boolean;
-  currentTime: number;
+  timeStore: PlaybackTimeStore;
 }
 
 /** Line height and container height must match CSS values */
@@ -18,22 +20,6 @@ const LRC_LINE_HEIGHT = 32;
 const LRC_CONTAINER_HEIGHT = 128;
 /** Offset to vertically center the current line within the container */
 const LRC_CENTER_OFFSET = (LRC_CONTAINER_HEIGHT - LRC_LINE_HEIGHT) / 2; // 48
-
-function findCurrentLrcIndex(lines: LrcLine[], time: number): number {
-  let lo = 0;
-  let hi = lines.length - 1;
-  let result = -1;
-  while (lo <= hi) {
-    const mid = (lo + hi) >>> 1;
-    if (lines[mid].time <= time) {
-      result = mid;
-      lo = mid + 1;
-    } else {
-      hi = mid - 1;
-    }
-  }
-  return result;
-}
 
 /** Resolve LRC: if it's a URL, fetch it; otherwise use as-is. */
 function useLrcText(lrcSource: string | undefined): string {
@@ -66,10 +52,10 @@ function useLrcText(lrcSource: string | undefined): string {
   return text;
 }
 
-export function PlayerPreview({ track, playing, currentTime }: PlayerPreviewProps) {
+export const PlayerPreview = memo(function PlayerPreview({ track, playing, timeStore }: PlayerPreviewProps) {
   const lrcText = useLrcText(track?.lrc);
   const lrcLines = useMemo(() => parseLrc(lrcText), [lrcText]);
-  const currentLrcIndex = findCurrentLrcIndex(lrcLines, currentTime);
+  const currentLrcIndex = usePlaybackLrcIndex(timeStore, lrcLines);
 
   return (
     <div className="audio-player-preview">
@@ -118,4 +104,4 @@ export function PlayerPreview({ track, playing, currentTime }: PlayerPreviewProp
       </div>
     </div>
   );
-}
+});

@@ -1,13 +1,17 @@
 /**
  * PlayerPlaylist — tab groups + song list with play icon, time display,
  * progress background on current track, and click-to-seek.
+ *
+ * Progress bar and time display are updated outside React's render cycle
+ * to avoid re-renders from high-frequency timeupdate events.
  */
 
+import { usePlaybackFormattedTime, usePlaybackProgress } from '@hooks/usePlaybackTime';
 import { Icon } from '@iconify/react';
 import type { MetingSong } from '@lib/meting';
+import type { PlaybackTimeStore } from '@lib/playback-time-store';
 import { cn } from '@lib/utils';
-import { motion } from 'motion/react';
-import { formatTime } from './utils';
+import { memo, useRef } from 'react';
 
 interface PlaylistGroup {
   title?: string;
@@ -19,20 +23,23 @@ interface PlayerPlaylistProps {
   tracks: MetingSong[];
   groups: PlaylistGroup[];
   currentIndex: number;
-  currentTime: number;
-  duration: number;
+  timeStore: PlaybackTimeStore;
   activeTab: number;
   onTabChange: (tab: number) => void;
   onTrackSelect: (index: number) => void;
   onSeek: (time: number) => void;
 }
 
-export function PlayerPlaylist({
+/** Isolated time display — re-renders at most 1/s via useSyncExternalStore. */
+function TrackTimeDisplay({ timeStore }: { timeStore: PlaybackTimeStore }) {
+  return <>{usePlaybackFormattedTime(timeStore)}</>;
+}
+
+export const PlayerPlaylist = memo(function PlayerPlaylist({
   tracks,
   groups,
   currentIndex,
-  currentTime,
-  duration,
+  timeStore,
   activeTab,
   onTabChange,
   onTrackSelect,
@@ -42,14 +49,15 @@ export function PlayerPlaylist({
   const activeGroup = groups[activeTab] || groups[0];
   const visibleTracks = activeGroup ? tracks.slice(activeGroup.startIndex, activeGroup.startIndex + activeGroup.count) : tracks;
 
-  const progress = duration > 0 ? (currentTime / duration) * 100 : 0;
+  const progressBgRef = useRef<HTMLDivElement>(null);
+  usePlaybackProgress(timeStore, progressBgRef);
 
   const handleClick = (e: React.MouseEvent<HTMLButtonElement>, globalIdx: number) => {
     if (globalIdx === currentIndex) {
       // Click on current track → seek by position percentage
       const rect = e.currentTarget.getBoundingClientRect();
       const ratio = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
-      onSeek(ratio * duration);
+      onSeek(ratio * timeStore.getDuration());
     } else {
       onTrackSelect(globalIdx);
     }
@@ -89,18 +97,11 @@ export function PlayerPlaylist({
               onClick={(e) => handleClick(e, globalIdx)}
             >
               {/* Progress background for current track */}
-              {isCurrent && (
-                <motion.div
-                  className="audio-player-song-progress-bg"
-                  initial={{ width: 0 }}
-                  animate={{ width: `${progress}%` }}
-                  transition={{ duration: 0.25, ease: 'linear' }}
-                />
-              )}
+              {isCurrent && <div ref={progressBgRef} className="audio-player-song-progress-bg" style={{ width: '0%' }} />}
               <span className="audio-player-song-index">{isCurrent ? <Icon icon="ri:play-fill" /> : localIdx + 1}</span>
               <span className="audio-player-song-title">{track.name}</span>
               <span className="audio-player-song-artist">
-                {isCurrent ? `${formatTime(currentTime)} / ${formatTime(duration)}` : track.artist}
+                {isCurrent ? <TrackTimeDisplay timeStore={timeStore} /> : track.artist}
               </span>
             </button>
           );
@@ -108,4 +109,4 @@ export function PlayerPlaylist({
       </div>
     </div>
   );
-}
+});
