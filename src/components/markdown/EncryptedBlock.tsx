@@ -1,6 +1,6 @@
 import { useRetimer } from '@hooks/useRetimer';
 import { Icon } from '@iconify/react';
-import { decryptContent } from '@lib/crypto';
+import { decryptContent } from '@lib/crypto/decrypt';
 import { cn } from '@lib/utils';
 import { useCallback, useRef, useState } from 'react';
 
