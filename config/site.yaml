@@ -356,6 +356,9 @@ navigation:
   - name: 关于
     path: /about
     icon: fa6-regular:circle-user
+  - name: 歌单
+    path: /music
+    icon: ri:music-2-fill
 
 # =============================================================================
 # Christmas/Seasonal Features
