@@ -1,57 +1,65 @@
 /* =============================================================================
  * Shoka Tabs — Tab groups (;;;id TabName)
+ * Underline-indicator style — uses CSS variables for automatic light/dark theming
  * ============================================================================= */
 
 .tab-group {
   margin: 1.5em 0;
-  border: 1px solid hsl(0 0% 85%);
+  border: 1px solid hsl(var(--border));
   border-radius: 8px;
   overflow: hidden;
 }
 
-.dark .tab-group {
-  border-color: hsl(0 0% 30%);
-}
-
+/* Header strip — sits on a visible bottom border */
 .tab-headers {
   display: flex;
   flex-wrap: wrap;
-  background: hsl(0 0% 96%);
-  border-bottom: 1px solid hsl(0 0% 85%);
+  background: hsl(var(--muted) / 0.5);
+  border-bottom: 1px solid hsl(var(--border));
 }
 
-.dark .tab-headers {
-  background: hsl(0 0% 15%);
-  border-bottom-color: hsl(0 0% 30%);
-}
-
+/* Individual tab button */
 .tab-header {
-  padding: 0.6em 1.2em;
+  position: relative;
+  padding: 10px 20px;
   cursor: pointer;
-  font-size: 0.9em;
+  font-size: 0.875em;
   font-weight: 500;
-  color: hsl(0 0% 50%);
-  border-bottom: 2px solid transparent;
+  color: hsl(var(--muted-foreground));
+  background: transparent;
+  border: none;
   transition:
     color 0.2s,
-    border-color 0.2s;
+    background-color 0.2s;
   user-select: none;
-  background: none;
-  border-top: none;
-  border-left: none;
-  border-right: none;
 }
 
+/* Hover — subtle lift */
 .tab-header:hover {
-  color: hsl(var(--primary));
+  color: hsl(var(--foreground));
+  background: hsl(var(--muted) / 0.6);
 }
 
+/* Active — primary indicator bar + elevated background */
 .tab-header[aria-selected="true"] {
   color: hsl(var(--primary));
-  border-bottom-color: hsl(var(--primary));
   font-weight: 600;
+  background: hsl(var(--background));
 }
 
+/* Active indicator — thick bottom bar */
+.tab-header[aria-selected="true"]::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 8px;
+  right: 8px;
+  height: 3px;
+  background: hsl(var(--primary));
+  border-radius: 3px 3px 0 0;
+}
+
+/* Panel */
 .tab-panel {
   padding: 1em;
   display: none;
@@ -64,6 +72,7 @@
 .tab-panel > :first-child {
   margin-top: 0;
 }
+
 .tab-panel > :last-child {
   margin-bottom: 0;
 }

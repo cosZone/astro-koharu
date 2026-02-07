@@ -12,11 +12,9 @@ math: true
 quiz: true
 ---
 
-# Shoka Markdown 语法全览
-
 本文展示了从 Hexo Shoka 主题迁移的所有特殊 Markdown 语法。
 
-## 1. 文字特效
+## 文字特效
 
 ### 下划线 (ins)
 
@@ -85,7 +83,7 @@ E = mc^2^ 是质能方程
 
 [Ctrl]{.kbd} + [C]{.kbd} 复制，[Ctrl]{.kbd} + [V]{.kbd} 粘贴
 
-## 2. 隐藏文字 (Spoiler)
+## 隐藏文字 (Spoiler)
 
 ```markdown
 这里有一段!!隐藏文字，鼠标点击显示!!
@@ -97,7 +95,7 @@ E = mc^2^ 是质能方程
 
 这里有一段!!模糊文字，鼠标悬停显示!!{.blur}
 
-## 3. 标签块 (Labels)
+## 标签块 (Labels)
 
 ```markdown
 [默认]{.label .default} [主要]{.label .primary} [信息]{.label .info} [成功]{.label .success} [警告]{.label .warning} [危险]{.label .danger}
@@ -105,7 +103,7 @@ E = mc^2^ 是质能方程
 
 [默认]{.label .default} [主要]{.label .primary} [信息]{.label .info} [成功]{.label .success} [警告]{.label .warning} [危险]{.label .danger}
 
-## 4. 提醒块 (Note Blocks)
+## 提醒块 (Note Blocks)
 
 ```markdown
 :::default
@@ -165,7 +163,7 @@ E = mc^2^ 是质能方程
 这是没有图标的信息块
 :::
 
-## 5. 折叠块 (Collapse)
+## 折叠块 (Collapse)
 
 ```markdown
 +++primary 点击展开详细内容
@@ -221,7 +219,7 @@ rm -rf /  # 请勿执行此命令
 ```
 +++
 
-## 6. 标签卡 (Tabs)
+## 标签卡 (Tabs)
 
 ````markdown
 ;;;tab1 JavaScript
@@ -265,7 +263,7 @@ fn main() {
 ```
 ;;;
 
-## 7. 注音
+## 注音
 
 ```markdown
 {取り返す^とりかえす}是日语中"取回"的意思。
@@ -277,7 +275,7 @@ fn main() {
 
 {漢字^かんじ}的注音示例。
 
-## 8. 代码块增强
+## 代码块增强
 
 `````markdown
 ```js title="hello.js" url="https://example.com" linkText="查看源码" mark:1,3
@@ -305,7 +303,7 @@ npm run dev
 npm run build
 ```
 
-## 9. 数学公式
+## 数学公式
 
 ```markdown
 行内公式：$E = mc^2$
@@ -333,7 +331,7 @@ $$
 \sum_{n=1}^{\infty} \frac{1}{n^2} = \frac{\pi^2}{6}
 $$
 
-## 10. 友链卡
+## 友链卡
 
 ```markdown
 {% links %}
@@ -367,7 +365,7 @@ $$
   color: '#BEDCFF'
 {% endlinks %}
 
-## 11. 多媒体
+## 多媒体
 
 ### 音频
 
@@ -423,7 +421,7 @@ $$
   url: https://cdn.kastatic.org/ka-youtube-converted/O_nY1TM2RZM.mp4/O_nY1TM2RZM.mp4#t=0
 {% endmedia %}
 
-## 12. 练习题
+## 练习题
 
 ```markdown
 - 下列哪个是 JavaScript 的基本数据类型？{.quiz}

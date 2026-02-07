@@ -6,6 +6,7 @@
  */
 import type { PhrasingContent, Root } from 'mdast';
 import { visit } from 'unist-util-visit';
+import { escapeHtml } from './shoka-renderers';
 
 const SPOILER_REGEX = /!!([^!\s](?:[^!]*[^!\s])?)!!/g;
 
@@ -44,14 +45,15 @@ export function remarkShokaSpoiler() {
           SPOILER_REGEX.lastIndex += attrMatch[0].length;
         }
 
+        const safeContent = escapeHtml(match[1]);
         if (extraClasses.includes('blur')) {
           // Blur variant: keep CSS-based spoiler
           const classes = `spoiler ${extraClasses.join(' ')}`;
-          parts.push({ type: 'html', value: `<span class="${classes}">${match[1]}</span>` });
+          parts.push({ type: 'html', value: `<span class="${classes}">${safeContent}</span>` });
         } else {
           // Default: use spoilerjs web component for particle animation
           const classAttr = extraClasses.length > 0 ? ` class="${extraClasses.join(' ')}"` : '';
-          parts.push({ type: 'html', value: `<spoiler-span${classAttr}>${match[1]}</spoiler-span>` });
+          parts.push({ type: 'html', value: `<spoiler-span${classAttr}>${safeContent}</spoiler-span>` });
         }
 
         lastIndex = SPOILER_REGEX.lastIndex;
