@@ -356,3 +356,95 @@
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.5);
   border-bottom-color: #666;
 }
+
+/* =============================================================================
+ * Mobile Responsive — preview layout + disc sizing
+ * Must live here (after base rules) to avoid cascade override from import order.
+ * ============================================================================= */
+
+@media (max-width: 600px) {
+  .audio-player-preview {
+    flex-direction: column;
+    padding: 1.25em 1.5em;
+    gap: 1em;
+    text-align: center;
+  }
+
+  .audio-player-disc-wrapper {
+    width: 140px;
+    height: 140px;
+  }
+
+  .audio-player-disc {
+    width: 120px;
+    height: 120px;
+  }
+
+  /* Glare overlay — match reduced disc size */
+  .audio-player-disc-wrapper::after {
+    inset: 10px;
+    width: 120px;
+    height: 120px;
+  }
+
+  /* Scale down tonearm to match smaller disc */
+  .audio-player-needle {
+    width: 90px;
+    height: 90px;
+    top: -12px;
+    left: -8px;
+    transform-origin: 16px 16px;
+  }
+
+  .audio-player-needle::before {
+    top: 2px;
+    left: 2px;
+    width: 28px;
+    height: 28px;
+  }
+
+  .audio-player-needle::after {
+    top: 9px;
+    left: 9px;
+    width: 14px;
+    height: 14px;
+  }
+
+  .audio-player-needle-arm {
+    top: 14px;
+    left: 12px;
+    width: 8px;
+    height: 40px;
+  }
+
+  .audio-player-needle-arm::before {
+    top: -4px;
+    width: 12px;
+    height: 8px;
+  }
+
+  .audio-player-needle-arm::after {
+    top: 35px;
+    width: 10px;
+    height: 6px;
+  }
+
+  .audio-player-needle-head {
+    top: 40px;
+    width: 6px;
+    height: 34px;
+  }
+
+  .audio-player-needle-head::before {
+    bottom: 12px;
+    width: 14px;
+    height: 10px;
+  }
+
+  .audio-player-needle-head::after {
+    bottom: 2px;
+    width: 9px;
+    height: 14px;
+    border-bottom-width: 2px;
+  }
+}

@@ -529,6 +529,16 @@ seo:
 # =============================================================================
 # Christmas/Seasonal Features
 # =============================================================================
+bgm:
+  enabled: true  # (有 audio 时自动启用，显式 false 可禁用)
+  audio:
+    - title: 最爱山山
+      list:
+        - https://music.163.com/playlist?id=8676645748
+    - title: Love Vocaloid
+      list:
+        - https://music.163.com/playlist?id=8882890045
+
 christmas:
   enabled: false # 总开关
   # features: # 各功能独立开关

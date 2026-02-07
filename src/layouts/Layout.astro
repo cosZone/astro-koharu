@@ -11,6 +11,7 @@ interface Props {
 
 import { ClientRouter } from 'astro:transitions';
 import AnnouncementProvider from '@components/announcement/AnnouncementProvider.astro';
+import GlobalBGMPlayer from '@components/bgm/GlobalBGMPlayer';
 import ChristmasEffects from '@components/christmas/ChristmasEffects.astro';
 import FloatingGroup from '@components/layout/FloatingGroup';
 import Header from '@components/layout/Header.astro';
@@ -21,7 +22,7 @@ import CodeBlockFullscreen from '@components/markdown/CodeBlockFullscreen';
 import DiagramFullscreen from '@components/markdown/DiagramFullscreen';
 import ImageLightbox from '@components/markdown/ImageLightbox';
 import { Toaster } from '@components/ui/sonner';
-import { christmasConfig, seoConfig, siteConfig } from '@constants/site-config';
+import { bgmConfig, christmasConfig, seoConfig, siteConfig } from '@constants/site-config';
 import { getOgImageUrl } from '@lib/seo/og-image';
 import LoadingIndicator from 'astro-loading-indicator/component';
 import { SEO } from 'astro-seo';
@@ -300,6 +301,11 @@ const ogImage = getOgImageUrl(post?.data.cover, Astro.site);
       <main class="relative flex grow flex-col gap-4">
         {(<slot />)}
       </main>
+      {bgmConfig.enabled && bgmConfig.audio.length > 0 && (
+        <div transition:persist="global-bgm">
+          <GlobalBGMPlayer client:only="react" audioGroups={bgmConfig.audio} />
+        </div>
+      )}
       <FloatingGroup client:only="react" />
       <MobileDrawer type={siderType} post={post} />
       <SearchDialog client:idle />

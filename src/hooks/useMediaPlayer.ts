@@ -8,6 +8,7 @@
 
 import { useStore } from '@nanostores/react';
 import { useCallback, useEffect, useId, useRef, useState } from 'react';
+import { createPlaybackTimeStore, type PlaybackTimeStore } from '../lib/playback-time-store';
 import {
   $activePlayerId,
   getStoredMode,
@@ -20,14 +21,14 @@ import {
 export interface MediaPlayerState {
   playing: boolean;
   currentIndex: number;
-  duration: number;
-  currentTime: number;
   loading: boolean;
   error: string | null;
   mode: PlayMode;
   volume: number;
   muted: boolean;
 }
+
+export type { PlaybackTimeStore };
 
 export interface UseMediaPlayerOptions<T> {
   tracks: T[];
@@ -50,12 +51,11 @@ export function useMediaPlayer<T>({ tracks, getUrl, getElement }: UseMediaPlayer
   const getElementRef = useRef(getElement);
   getElementRef.current = getElement;
   const loadAndPlayRef = useRef<(index: number) => void>(() => {});
+  const [timeStore] = useState(() => createPlaybackTimeStore());
 
   const [state, setState] = useState<MediaPlayerState>({
     playing: false,
     currentIndex: 0,
-    duration: 0,
-    currentTime: 0,
     loading: false,
     error: null,
     mode: getStoredMode(),
@@ -73,9 +73,10 @@ export function useMediaPlayer<T>({ tracks, getUrl, getElement }: UseMediaPlayer
       el.src = getUrlRef.current(currentTracks[index]);
       el.play().catch(() => {});
       $activePlayerId.set(playerId);
-      setState((s) => ({ ...s, currentIndex: index, currentTime: 0, duration: 0, loading: true, error: null }));
+      timeStore.reset();
+      setState((s) => ({ ...s, currentIndex: index, loading: true, error: null }));
     },
-    [playerId],
+    [playerId, timeStore],
   );
   loadAndPlayRef.current = loadAndPlay;
 
@@ -115,8 +116,8 @@ export function useMediaPlayer<T>({ tracks, getUrl, getElement }: UseMediaPlayer
     const el = boundElement;
     if (!el) return;
 
-    const onTimeUpdate = () => setState((s) => ({ ...s, currentTime: el.currentTime }));
-    const onDurationChange = () => setState((s) => ({ ...s, duration: el.duration || 0 }));
+    const onTimeUpdate = () => timeStore.setCurrentTime(el.currentTime);
+    const onDurationChange = () => timeStore.setDuration(el.duration || 0);
     const onPlaying = () => setState((s) => ({ ...s, playing: true, loading: false, error: null }));
     const onPause = () => setState((s) => ({ ...s, playing: false }));
     const onWaiting = () => setState((s) => ({ ...s, loading: true }));
@@ -156,7 +157,7 @@ export function useMediaPlayer<T>({ tracks, getUrl, getElement }: UseMediaPlayer
       el.removeEventListener('error', onError);
       el.removeEventListener('ended', onEnded);
     };
-  }, [boundElement]);
+  }, [boundElement, timeStore]);
 
   // Pause when another player starts
   useEffect(() => {
@@ -213,13 +214,16 @@ export function useMediaPlayer<T>({ tracks, getUrl, getElement }: UseMediaPlayer
     loadAndPlay(prev);
   }, [state.mode, state.currentIndex, loadAndPlay]);
 
-  const seek = useCallback((time: number) => {
-    const el = getElementRef.current();
-    if (el) {
-      el.currentTime = time;
-      setState((s) => ({ ...s, currentTime: time }));
-    }
-  }, []);
+  const seek = useCallback(
+    (time: number) => {
+      const el = getElementRef.current();
+      if (el) {
+        el.currentTime = time;
+        timeStore.setCurrentTime(time);
+      }
+    },
+    [timeStore],
+  );
 
   const setVolume = useCallback((vol: number) => {
     const clamped = Math.max(0, Math.min(1, vol));
@@ -244,6 +248,7 @@ export function useMediaPlayer<T>({ tracks, getUrl, getElement }: UseMediaPlayer
 
   return {
     state,
+    timeStore,
     play,
     pause,
     togglePlay,

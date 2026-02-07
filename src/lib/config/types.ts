@@ -489,6 +489,20 @@ export interface DevConfig {
 }
 
 // =============================================================================
+// BGM (Background Music) Configuration
+// =============================================================================
+
+export interface BgmAudioGroup {
+  title?: string;
+  list: string[];
+}
+
+export interface BgmConfig {
+  enabled?: boolean;
+  audio?: BgmAudioGroup[];
+}
+
+// =============================================================================
 // Root Configuration Type
 // =============================================================================
 
@@ -507,6 +521,8 @@ export interface SiteYamlConfig {
   /** SEO configuration for robots.txt and meta tags */
   seo?: SeoConfig;
   categoryMap?: Record<string, string>; // TODO: i18n, now use eg: { '随笔': 'life' }
+  /** Background music player configuration */
+  bgm?: BgmConfig;
   christmas?: ChristmasConfig;
   /** Development tools configuration (dev only) */
   dev?: DevConfig;

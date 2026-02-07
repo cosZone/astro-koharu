@@ -130,15 +130,14 @@ export function AudioPlayer({ element }: AudioPlayerProps) {
 
   return (
     <div className="audio-player not-prose">
-      <PlayerPreview track={currentTrack} playing={player.state.playing} currentTime={player.state.currentTime} />
+      <PlayerPreview track={currentTrack} playing={player.state.playing} timeStore={player.timeStore} />
       <MediaControls
         playing={player.state.playing}
         loading={player.state.loading}
         mode={player.state.mode}
         volume={player.state.volume}
         muted={player.state.muted}
-        currentTime={player.state.currentTime}
-        duration={player.state.duration}
+        timeStore={player.timeStore}
         onTogglePlay={player.togglePlay}
         onPrev={player.prevTrack}
         onNext={player.nextTrack}
@@ -151,8 +150,7 @@ export function AudioPlayer({ element }: AudioPlayerProps) {
         tracks={tracks}
         groups={groups}
         currentIndex={player.state.currentIndex}
-        currentTime={player.state.currentTime}
-        duration={player.state.duration}
+        timeStore={player.timeStore}
         activeTab={activeTab}
         onTabChange={setActiveTab}
         onTrackSelect={handleTrackSelect}

@@ -3,5 +3,3 @@ export interface VideoTrack {
   url: string;
   author?: string;
 }
-
-export { formatTime } from '../audio-player/utils';

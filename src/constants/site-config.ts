@@ -1,6 +1,13 @@
 // Import YAML config directly - processed by @rollup/plugin-yaml
 
-import type { CommentConfig, DevConfig, FeaturedCategory, FeaturedSeriesItem, SiteBasicConfig } from '@lib/config/types';
+import type {
+  BgmAudioGroup,
+  CommentConfig,
+  DevConfig,
+  FeaturedCategory,
+  FeaturedSeriesItem,
+  SiteBasicConfig,
+} from '@lib/config/types';
 import { DEFAULT_TIMEZONE, isValidTimezone } from '@lib/timezone';
 import yamlConfig from '../../config/site.yaml';
 import { isReservedSlug, RESERVED_ROUTES } from './router';
@@ -274,6 +281,12 @@ export const christmasConfig: ChristmasConfig = yamlConfig.christmas || {
     mobileMaxLayers: 4,
     mobileMaxIterations: 6,
   },
+};
+
+// Map YAML bgm config
+export const bgmConfig: { enabled: boolean; audio: BgmAudioGroup[] } = {
+  enabled: yamlConfig.bgm?.enabled ?? (yamlConfig.bgm?.audio?.length ?? 0) > 0,
+  audio: yamlConfig.bgm?.audio ?? [],
 };
 
 // Map YAML dev tools config with defaults (dev only)
