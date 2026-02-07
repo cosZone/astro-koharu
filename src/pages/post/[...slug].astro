@@ -24,7 +24,7 @@ export async function getStaticPaths() {
   return postCollections.map((post) => {
     const link = post.data?.link ?? post.slug;
     return {
-      params: { slug: encodeSlug(link) },
+      params: { slug: link },
       props: { post, postId: post.id },
     };
   });

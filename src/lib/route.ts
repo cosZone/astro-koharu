@@ -8,7 +8,7 @@ export type RouteParams<T extends Routes> = T extends Routes.Post ? BlogPost | P
  * @param slug 原始 slug
  * @returns 编码后的 slug
  */
-export const encodeSlug = (slug: string) => slug.split('/').map(encodeURIComponent).join('/');
+export const encodeSlug = (slug: string) => slug?.split('/').map(encodeURIComponent).join('/') ?? '';
 
 export function routeBuilder<T extends Routes>(route: T, param: RouteParams<typeof route>) {
   let href: string = route;
