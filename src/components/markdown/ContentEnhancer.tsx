@@ -10,6 +10,7 @@
 import { setupCollapseAnimations } from '@lib/collapse-animation';
 import {
   scanAudioPlayers,
+  scanEncryptedBlocks,
   scanFriendLinks,
   scanNoteBlocks,
   scanPreElements,
@@ -21,6 +22,7 @@ import { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { AudioPlayer } from './AudioPlayer';
 import { CodeBlockToolbar } from './CodeBlockToolbar';
+import { EncryptedBlock } from './EncryptedBlock';
 import { FriendLinksGrid } from './FriendLinksGrid';
 import { InfographicToolbar } from './InfographicToolbar';
 import { MermaidToolbar } from './MermaidToolbar';
@@ -32,12 +34,14 @@ interface ContentEnhancerProps {
   enableCopy?: boolean;
   enableFullscreen?: boolean;
   enableQuiz?: boolean;
+  enableEncryptedBlock?: boolean;
 }
 
 export default function ContentEnhancer({
   enableCopy = true,
   enableFullscreen = true,
   enableQuiz = true,
+  enableEncryptedBlock = false,
 }: ContentEnhancerProps) {
   const [entries, setEntries] = useState<ToolbarEntry[]>([]);
 
@@ -53,6 +57,7 @@ export default function ContentEnhancer({
         ...scanAudioPlayers(container),
         ...scanVideoPlayers(container),
         ...scanNoteBlocks(container),
+        ...(enableEncryptedBlock ? scanEncryptedBlocks(container) : []),
       ];
 
       setupCollapseAnimations(container);
@@ -79,7 +84,7 @@ export default function ContentEnhancer({
 
     document.addEventListener('astro:page-load', handlePageLoad);
     return () => document.removeEventListener('astro:page-load', handlePageLoad);
-  }, [enableQuiz]);
+  }, [enableQuiz, enableEncryptedBlock]);
 
   return (
     <>
@@ -112,6 +117,8 @@ export default function ContentEnhancer({
               <NoteBlockIcon key={entry.id} noteType={extractNoteType(entry.preElement)} />,
               entry.mountPoint,
             );
+          case 'encrypted':
+            return createPortal(<EncryptedBlock key={entry.id} element={entry.preElement} />, entry.mountPoint);
           default:
             return null;
         }

@@ -314,6 +314,7 @@ content:
   enableMath: true              # $数学公式$ KaTeX渲染
   enableCodeMeta: true          # 代码块增强 (title, mark, command)
   enableQuiz: true              # 练习题交互功能
+  enableEncryptedBlock: true    # :::encrypted{password="..."} 加密内容块
 
 # =============================================================================
 # Navigation Routes

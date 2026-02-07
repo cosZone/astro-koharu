@@ -16,6 +16,7 @@
  * syntax like $...$ as math nodes rather than plain text.
  */
 import type { Root } from 'mdast';
+import remarkDirective from 'remark-directive';
 import remarkGfm from 'remark-gfm';
 import remarkMath from 'remark-math';
 import remarkParse from 'remark-parse';
@@ -28,6 +29,7 @@ interface RemarkShokaPreprocessOptions {
   enableHexoTags?: boolean;
   enableSuperSub?: boolean;
   enableMath?: boolean;
+  enableEncryptedBlock?: boolean;
 }
 
 export function remarkShokaPreprocess(options?: RemarkShokaPreprocessOptions) {
@@ -35,6 +37,10 @@ export function remarkShokaPreprocess(options?: RemarkShokaPreprocessOptions) {
   const pipeline = unified().use(remarkParse).use(remarkGfm);
   if (options?.enableMath !== false) {
     pipeline.use(remarkMath);
+  }
+  if (options?.enableEncryptedBlock) {
+    // remarkDirective must be in re-parse pipeline so :::encrypted survives re-parsing
+    pipeline.use(remarkDirective);
   }
 
   return (tree: Root, file: VFile) => {

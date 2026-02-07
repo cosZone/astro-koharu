@@ -13,13 +13,16 @@ import robotsTxt from 'astro-robots-txt';
 import rehypeAutolinkHeadings from 'rehype-autolink-headings';
 import rehypeKatex from 'rehype-katex';
 import rehypeSlug from 'rehype-slug';
+import remarkDirective from 'remark-directive';
 import remarkMath from 'remark-math';
 import Sonda from 'sonda/astro';
 import { loadEnv } from 'vite';
 import svgr from 'vite-plugin-svgr';
 import YAML from 'yaml';
+import { rehypeEncryptedBlock } from './src/lib/markdown/rehype-encrypted-block.ts';
 import { rehypeImagePlaceholder } from './src/lib/markdown/rehype-image-placeholder.ts';
 import { rehypeShokaAttrs } from './src/lib/markdown/rehype-shoka-attrs.ts';
+import { remarkEncryptedDirective } from './src/lib/markdown/remark-encrypted-directive.ts';
 import { remarkLinkEmbed } from './src/lib/markdown/remark-link-embed.ts';
 import { remarkIns, remarkMark } from './src/lib/markdown/remark-shoka-effects.ts';
 import { remarkShokaPreprocess } from './src/lib/markdown/remark-shoka-preprocess.ts';
@@ -101,6 +104,7 @@ const remarkPlugins = [];
         enableHexoTags: contentConfig.enableShokaHexoTags !== false,
         enableSuperSub: contentConfig.enableShokaEffects !== false,
         enableMath: contentConfig.enableMath !== false,
+        enableEncryptedBlock: contentConfig.enableEncryptedBlock ?? false,
       },
     ]);
   }
@@ -112,6 +116,10 @@ if (contentConfig.enableShokaSpoiler !== false) remarkPlugins.push(remarkShokaSp
 if (contentConfig.enableShokaRuby !== false) remarkPlugins.push(remarkShokaRuby);
 if (contentConfig.enableShokaEffects !== false) {
   remarkPlugins.push(remarkIns, remarkMark);
+}
+// Encrypted block: remarkDirective parses :::encrypted syntax, remarkEncryptedDirective annotates the nodes
+if (contentConfig.enableEncryptedBlock) {
+  remarkPlugins.push(remarkDirective, remarkEncryptedDirective);
 }
 // Link embed is always on (existing feature)
 remarkPlugins.push([
@@ -139,6 +147,8 @@ const rehypePlugins = [
 if (contentConfig.enableShokaAttrs !== false) rehypePlugins.push(rehypeShokaAttrs);
 rehypePlugins.push(rehypeImagePlaceholder);
 if (contentConfig.enableMath !== false) rehypePlugins.push(rehypeKatex);
+// Encrypted block MUST be last rehype plugin — encrypts fully-rendered children
+if (contentConfig.enableEncryptedBlock) rehypePlugins.push(rehypeEncryptedBlock);
 
 // Shiki transformers
 const shikiTransformers = [];
