@@ -1,6 +1,6 @@
 import { useRetimer } from '@hooks/useRetimer';
 import { Icon } from '@iconify/react';
-import { decryptContent } from '@lib/crypto/decrypt';
+import { decryptContent } from '@lib/crypto';
 import { cn } from '@lib/utils';
 import { useCallback, useRef, useState } from 'react';
 
@@ -16,13 +16,12 @@ export function EncryptedBlock({ element }: EncryptedBlockProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const retimer = useRetimer();
 
-  const cipher = element.dataset.cipher ?? '';
-  const iv = element.dataset.iv ?? '';
-  const salt = element.dataset.salt ?? '';
-
   const handleDecrypt = useCallback(async () => {
     const password = inputRef.current?.value;
     if (!password) return;
+
+    const { cipher, iv, salt } = element.dataset;
+    if (!cipher || !iv || !salt) return;
 
     setState('decrypting');
     const result = await decryptContent(cipher, iv, salt, password);
@@ -34,7 +33,7 @@ export function EncryptedBlock({ element }: EncryptedBlockProps) {
       setState('error');
       retimer(setTimeout(() => setState('locked'), 600));
     }
-  }, [cipher, iv, salt, retimer]);
+  }, [element, retimer]);
 
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent) => {
@@ -42,6 +41,10 @@ export function EncryptedBlock({ element }: EncryptedBlockProps) {
     },
     [handleDecrypt],
   );
+
+  if (!element.dataset.cipher || !element.dataset.iv || !element.dataset.salt) {
+    return <div className="encrypted-block-error">Error: Missing encryption data</div>;
+  }
 
   if (state === 'unlocked') {
     return (

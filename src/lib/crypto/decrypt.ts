@@ -1,6 +1,14 @@
 /**
  * Browser-side AES-256-GCM decryption using Web Crypto API.
  * Used by EncryptedBlock component to decrypt content at runtime.
+ *
+ * Security limitations of client-side decryption:
+ * - Password strength is entirely user-dependent; no server-side enforcement.
+ * - Ciphertext and salt are embedded in public HTML, enabling offline brute-force.
+ * - Web Crypto API mitigates JS-level timing attacks, but browser environments
+ *   do not guarantee constant-time operations at the hardware level.
+ * - PBKDF2 iteration count (see constants.ts) raises the cost of brute-force
+ *   but cannot substitute for a strong password.
  */
 
 import { PBKDF2_ITERATIONS } from './constants';
