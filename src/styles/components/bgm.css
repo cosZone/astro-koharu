@@ -172,3 +172,24 @@
   padding: 0.3em 0.8em;
   font-size: 0.85em;
 }
+
+/* ── Mobile: hide scrollbar when panel overflows ── */
+.bgm-panel {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.bgm-panel::-webkit-scrollbar {
+  display: none;
+}
+
+/* ── Mobile: taller lyrics area for column layout ── */
+@media (max-width: 600px) {
+  .bgm-panel .audio-player-lrc {
+    height: 168px;
+  }
+
+  .bgm-panel .audio-player-song-list {
+    max-height: 120px;
+  }
+}

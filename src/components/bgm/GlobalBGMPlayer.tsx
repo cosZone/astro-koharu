@@ -13,6 +13,7 @@ import { PlayerPreview } from '@components/markdown/audio-player/PlayerPreview';
 import { MediaControls } from '@components/markdown/shared/MediaControls';
 import { FloatingFocusManager, FloatingPortal, useDismiss, useFloating, useInteractions, useRole } from '@floating-ui/react';
 import { useAudioPlayer } from '@hooks/useAudioPlayer';
+import { useMediaQuery } from '@hooks/useMediaQuery';
 import { Icon } from '@iconify/react';
 import type { BgmAudioGroup } from '@lib/config/types';
 import type { MetingSong } from '@lib/meting';
@@ -37,6 +38,7 @@ export default function GlobalBGMPlayer({ audioGroups }: GlobalBGMPlayerProps) {
   const panelOpen = useStore($bgmPanelOpen);
   const isDrawerOpen = useStore($isDrawerOpen);
   const isAnyModalOpen = useStore($isAnyModalOpen);
+  const isMobilePlayer = useMediaQuery('(max-width: 600px)');
 
   const [tracks, setTracks] = useState<MetingSong[]>([]);
   const [groups, setGroups] = useState<PlaylistGroup[]>([]);
@@ -149,7 +151,7 @@ export default function GlobalBGMPlayer({ audioGroups }: GlobalBGMPlayerProps) {
           playing={player.state.playing}
           timeStore={player.timeStore}
           lrcLineHeight={28}
-          lrcContainerHeight={140}
+          lrcContainerHeight={isMobilePlayer ? 168 : 140}
         />
         <MediaControls
           playing={player.state.playing}
@@ -194,7 +196,7 @@ export default function GlobalBGMPlayer({ audioGroups }: GlobalBGMPlayerProps) {
               exit={{ opacity: 0, y: 20, scale: 0.95 }}
               transition={{ duration: 0.2, ease: 'easeOut' }}
             >
-              <div className="bgm-panel max-h-[70vh] overflow-hidden rounded-2xl shadow-xl">
+              <div className="bgm-panel max-h-[85vh] overflow-y-auto rounded-2xl shadow-xl sm:max-h-[70vh] sm:overflow-hidden">
                 {/* Close button */}
                 <button
                   type="button"
