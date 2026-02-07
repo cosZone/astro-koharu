@@ -117,7 +117,9 @@ if (contentConfig.enableShokaRuby !== false) remarkPlugins.push(remarkShokaRuby)
 if (contentConfig.enableShokaEffects !== false) {
   remarkPlugins.push(remarkIns, remarkMark);
 }
-// Encrypted block: remarkDirective parses :::encrypted syntax, remarkEncryptedDirective annotates the nodes
+// Encrypted block: remarkDirective is registered in BOTH places —
+// here for the main Astro pipeline (when remarkShokaPreprocess skips re-parse),
+// and inside remarkShokaPreprocess's re-parse pipeline (when it does re-parse).
 if (contentConfig.enableEncryptedBlock) {
   remarkPlugins.push(remarkDirective, remarkEncryptedDirective);
 }

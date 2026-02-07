@@ -1,3 +1,4 @@
+import { useRetimer } from '@hooks/useRetimer';
 import { Icon } from '@iconify/react';
 import { decryptContent } from '@lib/crypto/decrypt';
 import { cn } from '@lib/utils';
@@ -13,6 +14,7 @@ export function EncryptedBlock({ element }: EncryptedBlockProps) {
   const [state, setState] = useState<DecryptState>('locked');
   const [html, setHtml] = useState('');
   const inputRef = useRef<HTMLInputElement>(null);
+  const retimer = useRetimer();
 
   const cipher = element.dataset.cipher ?? '';
   const iv = element.dataset.iv ?? '';
@@ -30,9 +32,9 @@ export function EncryptedBlock({ element }: EncryptedBlockProps) {
       setState('unlocked');
     } else {
       setState('error');
-      setTimeout(() => setState('locked'), 600);
+      retimer(setTimeout(() => setState('locked'), 600));
     }
-  }, [cipher, iv, salt]);
+  }, [cipher, iv, salt, retimer]);
 
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent) => {
@@ -62,13 +64,14 @@ export function EncryptedBlock({ element }: EncryptedBlockProps) {
           ref={inputRef}
           type="password"
           className="encrypted-block-input"
+          placeholder="输入密码"
           autoComplete="off"
           onKeyDown={handleKeyDown}
           disabled={state === 'decrypting'}
         />
         <button
           type="button"
-          className={cn('encrypted-block-btn', state === 'error' && 'animate-shake')}
+          className={cn('encrypted-block-btn', state === 'error' && 'encrypted-shake')}
           onClick={handleDecrypt}
           disabled={state === 'decrypting'}
           aria-label="Unlock"

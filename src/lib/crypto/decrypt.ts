@@ -3,7 +3,7 @@
  * Used by EncryptedBlock component to decrypt content at runtime.
  */
 
-const PBKDF2_ITERATIONS = 100_000;
+import { PBKDF2_ITERATIONS } from './constants';
 
 /** Convert Uint8Array to a fresh ArrayBuffer (fixes TS strict typing with crypto.subtle) */
 function toArrayBuffer(bytes: Uint8Array): ArrayBuffer {

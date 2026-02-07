@@ -54,6 +54,6 @@
   }
 }
 
-.animate-shake {
+.encrypted-shake {
   animation: shake 0.6s ease-in-out;
 }
