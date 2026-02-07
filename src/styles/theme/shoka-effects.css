@@ -1,0 +1,231 @@
+/* =============================================================================
+ * Shoka Text Effects
+ * ++ins++ text, ==mark== highlights, spoiler, labels, kbd, colors
+ * ============================================================================= */
+
+/* --- Inserted text (++text++) --- */
+ins {
+  --line-color: hsl(var(--primary));
+  text-decoration: none;
+  border-bottom: 0.125rem solid var(--line-color);
+}
+
+ins.wavy {
+  border-bottom: none;
+  text-decoration: underline wavy var(--line-color);
+  text-underline-offset: 4px;
+}
+
+ins.dot {
+  border-bottom: 0.2rem dotted var(--line-color);
+}
+
+ins.primary {
+  --line-color: hsl(var(--primary));
+}
+ins.success {
+  --line-color: hsl(var(--shoka-success));
+}
+ins.warning {
+  --line-color: hsl(var(--shoka-warning));
+}
+ins.danger {
+  --line-color: hsl(var(--shoka-danger));
+}
+ins.info {
+  --line-color: hsl(var(--shoka-info));
+}
+
+/* --- Deleted text (~~text~~) color variants --- */
+del.primary {
+  text-decoration-color: hsl(var(--primary));
+}
+del.success {
+  text-decoration-color: hsl(var(--shoka-success));
+}
+del.warning {
+  text-decoration-color: hsl(var(--shoka-warning));
+}
+del.danger {
+  text-decoration-color: hsl(var(--shoka-danger));
+}
+del.info {
+  text-decoration-color: hsl(var(--shoka-info));
+}
+
+/* --- Mark (==text==) --- */
+mark {
+  background: linear-gradient(120deg, hsl(50 100% 70% / 0.3) 0%, hsl(50 100% 70% / 0.6) 100%);
+  border-radius: 0.2em;
+  padding: 0.1em 0.2em;
+  color: inherit;
+}
+
+.dark mark {
+  background: linear-gradient(120deg, hsl(50 100% 50% / 0.2) 0%, hsl(50 100% 50% / 0.4) 100%);
+}
+
+/* --- Spoiler: hide content until spoilerjs web component registers --- */
+spoiler-span:not(:defined) {
+  background-color: hsl(0 0% 10%);
+  color: transparent;
+  border-radius: 3px;
+  padding: 0 0.3em;
+  user-select: none;
+}
+
+.dark spoiler-span:not(:defined) {
+  background-color: hsl(0 0% 80%);
+}
+
+/* --- Spoiler blur variant (!!text!!{.blur}) --- */
+.spoiler.blur {
+  background-color: transparent;
+  color: inherit;
+  filter: blur(5px);
+  transition: filter 0.3s;
+  cursor: pointer;
+  user-select: none;
+}
+
+.spoiler.blur:hover,
+.spoiler.blur:focus,
+.spoiler.blur.revealed {
+  filter: none;
+}
+
+/* --- Label blocks ([text]{.label .primary}) --- */
+.label {
+  display: inline-block;
+  padding: 0.15em 0.5em;
+  font-size: 0.85em;
+  font-weight: 600;
+  line-height: 1.4;
+  border-radius: 0.3em;
+  vertical-align: baseline;
+}
+
+.label.default {
+  background: hsl(var(--shoka-default) / 0.15);
+  color: hsl(var(--shoka-default));
+}
+.label.primary {
+  background: hsl(var(--primary) / 0.15);
+  color: hsl(var(--primary));
+}
+.label.info {
+  background: hsl(var(--shoka-info) / 0.15);
+  color: hsl(var(--shoka-info));
+}
+.label.success {
+  background: hsl(var(--shoka-success) / 0.15);
+  color: hsl(var(--shoka-success));
+}
+.label.warning {
+  background: hsl(var(--shoka-warning) / 0.15);
+  color: hsl(var(--shoka-warning));
+}
+.label.danger {
+  background: hsl(var(--shoka-danger) / 0.15);
+  color: hsl(var(--shoka-danger));
+}
+
+/* --- Color text (uses CSS variables for dark mode adaptation) --- */
+.red {
+  color: var(--color-red);
+}
+.pink {
+  color: var(--color-pink-text);
+}
+.orange {
+  color: var(--color-orange);
+}
+.yellow {
+  color: var(--color-yellow);
+}
+.green {
+  color: var(--color-green);
+}
+.aqua {
+  color: var(--color-aqua);
+}
+.blue {
+  color: var(--color-blue);
+}
+.purple {
+  color: var(--color-purple);
+}
+.grey {
+  color: var(--color-grey);
+}
+
+/* --- Rainbow text --- */
+.rainbow {
+  background: linear-gradient(
+    90deg,
+    var(--color-red),
+    var(--color-orange),
+    var(--color-yellow),
+    var(--color-green),
+    var(--color-blue),
+    var(--color-purple),
+    var(--color-pink-text)
+  );
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-size: 200% 100%;
+  animation: rainbow-shift 3s linear infinite;
+}
+
+@keyframes rainbow-shift {
+  0% {
+    background-position: 0% 50%;
+  }
+  100% {
+    background-position: 200% 50%;
+  }
+}
+
+/* --- Keyboard key style --- */
+.kbd,
+kbd {
+  display: inline-block;
+  padding: 0.15em 0.4em;
+  font-size: 0.85em;
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+  line-height: 1.2;
+  color: hsl(0 0% 30%);
+  background: hsl(0 0% 97%);
+  border: 1px solid hsl(0 0% 80%);
+  border-radius: 4px;
+  box-shadow:
+    0 1px 0 hsl(0 0% 70%),
+    inset 0 0 0 1px hsl(0 0% 100% / 0.5);
+  vertical-align: baseline;
+}
+
+.dark .kbd,
+.dark kbd {
+  color: hsl(0 0% 85%);
+  background: hsl(0 0% 20%);
+  border-color: hsl(0 0% 35%);
+  box-shadow:
+    0 1px 0 hsl(0 0% 10%),
+    inset 0 0 0 1px hsl(0 0% 100% / 0.05);
+}
+
+/* --- Sub/Sup styling --- */
+sub,
+sup {
+  font-size: 0.75em;
+  line-height: 0;
+  position: relative;
+  vertical-align: baseline;
+}
+sup {
+  top: -0.5em;
+}
+sub {
+  bottom: -0.25em;
+}

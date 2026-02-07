@@ -1,33 +1,44 @@
 /**
  * ContentEnhancer - Portal-based React orchestrator for markdown content toolbars.
  *
- * Replaces vanilla DOM enhancers (code-block-enhancer, mermaid-enhancer, infographic-enhancer)
- * with a single React component that scans the DOM and renders toolbars via createPortal.
+ * Replaces vanilla DOM enhancers with a single React component that scans the DOM
+ * and renders toolbars via createPortal. Scanning logic lives in content-scanner.ts.
  *
  * Strategy: One React root → many portals (avoids creating separate React roots per block).
- * Pattern: Follows EmbedHydrator.tsx approach.
  */
 
-import { extractLanguage, isInfographicBlock, wrapElement } from '@lib/content-enhancer-utils';
+import { setupCollapseAnimations } from '@lib/collapse-animation';
+import {
+  scanAudioPlayers,
+  scanFriendLinks,
+  scanNoteBlocks,
+  scanPreElements,
+  scanQuizElements,
+  scanVideoPlayers,
+  type ToolbarEntry,
+} from '@lib/content-scanner';
 import { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
+import { AudioPlayer } from './AudioPlayer';
 import { CodeBlockToolbar } from './CodeBlockToolbar';
+import { FriendLinksGrid } from './FriendLinksGrid';
 import { InfographicToolbar } from './InfographicToolbar';
 import { MermaidToolbar } from './MermaidToolbar';
-
-interface ToolbarEntry {
-  id: string;
-  type: 'code' | 'mermaid' | 'infographic';
-  mountPoint: HTMLElement;
-  preElement: HTMLElement;
-}
+import { extractNoteType, NoteBlockIcon } from './NoteBlockIcon';
+import { QuizBlock } from './QuizBlock';
+import { VideoPlayer } from './VideoPlayer';
 
 interface ContentEnhancerProps {
   enableCopy?: boolean;
   enableFullscreen?: boolean;
+  enableQuiz?: boolean;
 }
 
-export default function ContentEnhancer({ enableCopy = true, enableFullscreen = true }: ContentEnhancerProps) {
+export default function ContentEnhancer({
+  enableCopy = true,
+  enableFullscreen = true,
+  enableQuiz = true,
+}: ContentEnhancerProps) {
   const [entries, setEntries] = useState<ToolbarEntry[]>([]);
 
   useEffect(() => {
@@ -35,32 +46,16 @@ export default function ContentEnhancer({ enableCopy = true, enableFullscreen = 
       const container = document.querySelector('.custom-content');
       if (!container) return;
 
-      const preElements = container.querySelectorAll<HTMLElement>('pre');
-      const newEntries: ToolbarEntry[] = [];
+      const newEntries: ToolbarEntry[] = [
+        ...scanPreElements(container),
+        ...(enableQuiz ? scanQuizElements(container) : []),
+        ...scanFriendLinks(container),
+        ...scanAudioPlayers(container),
+        ...scanVideoPlayers(container),
+        ...scanNoteBlocks(container),
+      ];
 
-      preElements.forEach((pre, index) => {
-        // Skip already enhanced elements
-        if (pre.dataset.reactEnhanced === 'true') return;
-
-        const language = extractLanguage(pre);
-
-        if (language === 'mermaid') {
-          const wrapper = wrapElement(pre, 'mermaid-wrapper');
-          const mount = wrapper.querySelector('.mermaid-wrapper-toolbar-mount') as HTMLElement;
-          pre.dataset.reactEnhanced = 'true';
-          newEntries.push({ id: `mermaid-${index}`, type: 'mermaid', mountPoint: mount, preElement: pre });
-        } else if (isInfographicBlock(pre)) {
-          const wrapper = wrapElement(pre, 'infographic-wrapper');
-          const mount = wrapper.querySelector('.infographic-wrapper-toolbar-mount') as HTMLElement;
-          pre.dataset.reactEnhanced = 'true';
-          newEntries.push({ id: `infographic-${index}`, type: 'infographic', mountPoint: mount, preElement: pre });
-        } else {
-          const wrapper = wrapElement(pre, 'code-block-wrapper');
-          const mount = wrapper.querySelector('.code-block-wrapper-toolbar-mount') as HTMLElement;
-          pre.dataset.reactEnhanced = 'true';
-          newEntries.push({ id: `code-${index}`, type: 'code', mountPoint: mount, preElement: pre });
-        }
-      });
+      setupCollapseAnimations(container);
 
       if (newEntries.length > 0) {
         setEntries((prev) => [...prev, ...newEntries]);
@@ -76,7 +71,6 @@ export default function ContentEnhancer({ enableCopy = true, enableFullscreen = 
         skipFirst = false;
         return;
       }
-      // Defer scan to let DOM update, then replace entries atomically to avoid flicker
       requestAnimationFrame(() => {
         setEntries([]);
         scan();
@@ -85,7 +79,7 @@ export default function ContentEnhancer({ enableCopy = true, enableFullscreen = 
 
     document.addEventListener('astro:page-load', handlePageLoad);
     return () => document.removeEventListener('astro:page-load', handlePageLoad);
-  }, []);
+  }, [enableQuiz]);
 
   return (
     <>
@@ -105,6 +99,19 @@ export default function ContentEnhancer({ enableCopy = true, enableFullscreen = 
             return createPortal(<MermaidToolbar key={entry.id} preElement={entry.preElement} />, entry.mountPoint);
           case 'infographic':
             return createPortal(<InfographicToolbar key={entry.id} preElement={entry.preElement} />, entry.mountPoint);
+          case 'quiz':
+            return createPortal(<QuizBlock key={entry.id} element={entry.preElement} />, entry.mountPoint);
+          case 'friend-links':
+            return createPortal(<FriendLinksGrid key={entry.id} gridElement={entry.preElement} />, entry.mountPoint);
+          case 'audio':
+            return createPortal(<AudioPlayer key={entry.id} element={entry.preElement} />, entry.mountPoint);
+          case 'video':
+            return createPortal(<VideoPlayer key={entry.id} element={entry.preElement} />, entry.mountPoint);
+          case 'note':
+            return createPortal(
+              <NoteBlockIcon key={entry.id} noteType={extractNoteType(entry.preElement)} />,
+              entry.mountPoint,
+            );
           default:
             return null;
         }

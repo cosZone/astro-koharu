@@ -28,6 +28,7 @@ const finalConfig = { ...defaultContentConfig, ...config };
     client:idle
     enableCopy={finalConfig.enableCodeCopy}
     enableFullscreen={finalConfig.enableCodeFullscreen}
+    enableQuiz={finalConfig.enableQuiz ?? true}
   />
 )}
 
@@ -38,6 +39,8 @@ const finalConfig = { ...defaultContentConfig, ...config };
   import { enhanceImages } from '@lib/image-enhancer';
   import { enhanceLinkPreviews } from '@lib/link-preview-enhancer';
 
+  let spoilerJsLoaded = false;
+
   // Content enhancement script - handles non-React enhancements
   function enhanceContent() {
     const contentContainer = document.querySelector('.custom-content');
@@ -45,6 +48,14 @@ const finalConfig = { ...defaultContentConfig, ...config };
 
     // Avoid re-enhancing
     if (contentContainer.getAttribute('data-enhanced') === 'true') return;
+
+    // Dynamically load spoilerjs when <spoiler-span> elements are present
+    if (!spoilerJsLoaded && contentContainer.querySelector('spoiler-span')) {
+      spoilerJsLoaded = true;
+      import('spoilerjs/spoiler-span').catch(() => {
+        spoilerJsLoaded = false;
+      });
+    }
 
     // Get configuration from data attribute
     const configData = contentContainer.getAttribute('data-config');
@@ -96,6 +107,35 @@ const finalConfig = { ...defaultContentConfig, ...config };
 
     // Enhance link preview images with error handling
     enhanceLinkPreviews(contentContainer);
+
+    // Tab group switching logic
+    const tabHeaders = contentContainer.querySelectorAll<HTMLElement>('.tab-header[role="tab"]');
+    tabHeaders.forEach((header) => {
+      header.addEventListener('click', () => {
+        const groupId = header.dataset.tabGroup;
+        const tabIndex = header.dataset.tabIndex;
+        if (!groupId || tabIndex === undefined) return;
+
+        const group = contentContainer.querySelector(`.tab-group[data-tab-group="${groupId}"]`);
+        if (!group) return;
+
+        // Update headers
+        group.querySelectorAll<HTMLElement>('.tab-header').forEach((h) => {
+          h.setAttribute('aria-selected', String(h.dataset.tabIndex === tabIndex));
+        });
+
+        // Update panels
+        group.querySelectorAll<HTMLElement>('.tab-panel').forEach((panel) => {
+          panel.classList.toggle('active', panel.dataset.tabIndex === tabIndex);
+        });
+      });
+    });
+
+    // Blur spoiler click-to-reveal (default spoilers handled by spoilerjs)
+    const blurSpoilers = contentContainer.querySelectorAll<HTMLElement>('.spoiler.blur');
+    blurSpoilers.forEach((spoiler) => {
+      spoiler.addEventListener('click', () => spoiler.classList.toggle('revealed'));
+    });
 
     // Mark as enhanced
     contentContainer.setAttribute('data-enhanced', 'true');

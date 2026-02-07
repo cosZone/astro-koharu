@@ -1,0 +1,60 @@
+/* =============================================================================
+ * Shoka Quiz — No-JS fallback styles + React enhancement support
+ * ============================================================================= */
+
+/* --- No-JS fallback: basic readable quiz layout --- */
+
+li.quiz {
+  list-style: none;
+  margin: 1em 0;
+  padding: 0.8em 1em;
+  border: 1px solid hsl(0 0% 85%);
+  border-radius: 8px;
+}
+
+.dark li.quiz {
+  border-color: hsl(0 0% 30%);
+}
+
+/* Correct option indicator for no-JS */
+li.quiz > ul > li.correct {
+  font-weight: 600;
+}
+
+li.quiz > ul > li.correct::after {
+  content: " ✓";
+  color: hsl(142 71% 45%);
+}
+
+/* Gap answers visible as underlined text in no-JS */
+span.gap {
+  border-bottom: 2px solid currentColor;
+  padding: 0 0.25em;
+  font-weight: 600;
+}
+
+/* Mistake items in explanation */
+span.mistake {
+  color: hsl(0 72% 51%);
+  text-decoration: line-through;
+}
+
+/* --- React-enhanced: hide original content, show portal --- */
+
+/* Parent list: remove prose list styling */
+.quiz-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+li.quiz.quiz-enhanced {
+  border: none;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+
+li.quiz.quiz-enhanced::before {
+  display: none;
+}

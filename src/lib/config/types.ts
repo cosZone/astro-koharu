@@ -153,6 +153,16 @@ export interface ContentConfig {
   enableOGPreview: boolean;
   previewCacheTime: number;
   lazyLoadEmbeds: boolean;
+  // Shoka compatibility features
+  enableShokaContainers?: boolean;
+  enableShokaAttrs?: boolean;
+  enableShokaEffects?: boolean;
+  enableShokaSpoiler?: boolean;
+  enableShokaRuby?: boolean;
+  enableShokaHexoTags?: boolean;
+  enableMath?: boolean;
+  enableCodeMeta?: boolean;
+  enableQuiz?: boolean;
 }
 
 // =============================================================================

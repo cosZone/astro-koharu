@@ -1,0 +1,183 @@
+/* =============================================================================
+ * Shoka Containers — Note blocks (:::) + Collapse blocks (+++)
+ * ============================================================================= */
+
+/* --- Note blocks (:::style) --- */
+.note-block {
+  position: relative;
+  margin: 1.5em 0;
+  padding: 1em 1em 1em 2.5em;
+  border-left: 4px solid hsl(var(--shoka-default));
+  border-radius: 0 8px 8px 0;
+  background: hsl(var(--shoka-default) / 0.06);
+}
+
+.note-block::before {
+  position: absolute;
+  left: 0.6em;
+  top: 1em;
+  font-size: 1.1em;
+  line-height: 1;
+}
+
+/* Icon content for each style */
+.note-block.note-default::before {
+  content: "💬";
+}
+.note-block.note-primary::before {
+  content: "💡";
+}
+.note-block.note-info::before {
+  content: "ℹ️";
+}
+.note-block.note-success::before {
+  content: "✅";
+}
+.note-block.note-warning::before {
+  content: "⚠️";
+}
+.note-block.note-danger::before {
+  content: "🚫";
+}
+
+/* Style variants */
+.note-block.note-primary {
+  border-left-color: hsl(var(--primary));
+  background: hsl(var(--primary) / 0.06);
+}
+.note-block.note-info {
+  border-left-color: hsl(var(--shoka-info));
+  background: hsl(var(--shoka-info) / 0.06);
+}
+.note-block.note-success {
+  border-left-color: hsl(var(--shoka-success));
+  background: hsl(var(--shoka-success) / 0.06);
+}
+.note-block.note-warning {
+  border-left-color: hsl(var(--shoka-warning));
+  background: hsl(var(--shoka-warning) / 0.06);
+}
+.note-block.note-danger {
+  border-left-color: hsl(var(--shoka-danger));
+  background: hsl(var(--shoka-danger) / 0.06);
+}
+
+/* React enhanced — hide emoji fallback */
+.note-block[data-react-enhanced="true"]::before {
+  display: none;
+}
+
+/* React icon mount point (matches original ::before position) */
+.note-icon-mount {
+  position: absolute;
+  left: 0.35em;
+  top: 0.7em;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5em;
+}
+
+/* no-icon variant */
+.note-block.no-icon {
+  padding-left: 1em;
+}
+.note-block.no-icon::before {
+  display: none;
+}
+
+/* Title styling inside note blocks */
+.note-block > :first-child,
+.note-block > .note-icon-mount + * {
+  margin-top: 0;
+}
+.note-block > :last-child {
+  margin-bottom: 0;
+}
+
+/* --- Collapse blocks (+++style Title) --- */
+.collapse-block {
+  margin: 1.5em 0;
+  border: 1px solid hsl(var(--shoka-default) / 0.3);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.collapse-block > summary {
+  padding: 0.8em 1em;
+  font-weight: 600;
+  cursor: pointer;
+  user-select: none;
+  background: hsl(var(--shoka-default) / 0.06);
+  border-bottom: 1px solid transparent;
+  list-style: none;
+  display: flex;
+  align-items: center;
+  gap: 0.5em;
+}
+
+.collapse-block > summary::before {
+  content: "▶";
+  font-size: 0.7em;
+  transition: transform 0.2s;
+}
+
+.collapse-block[open] > summary::before {
+  transform: rotate(90deg);
+}
+
+.collapse-block[open] > summary {
+  border-bottom-color: hsl(var(--shoka-default) / 0.2);
+}
+
+.collapse-block > summary::-webkit-details-marker {
+  display: none;
+}
+
+.collapse-block > .collapse-content {
+  padding: 1em;
+}
+
+.collapse-block > .collapse-content > :first-child {
+  margin-top: 0;
+}
+.collapse-block > .collapse-content > :last-child {
+  margin-bottom: 0;
+}
+
+/* Style variants for collapse */
+.collapse-block.collapse-primary {
+  border-color: hsl(var(--primary) / 0.3);
+}
+.collapse-block.collapse-primary > summary {
+  background: hsl(var(--primary) / 0.06);
+}
+
+.collapse-block.collapse-info {
+  border-color: hsl(var(--shoka-info) / 0.3);
+}
+.collapse-block.collapse-info > summary {
+  background: hsl(var(--shoka-info) / 0.06);
+}
+
+.collapse-block.collapse-success {
+  border-color: hsl(var(--shoka-success) / 0.3);
+}
+.collapse-block.collapse-success > summary {
+  background: hsl(var(--shoka-success) / 0.06);
+}
+
+.collapse-block.collapse-warning {
+  border-color: hsl(var(--shoka-warning) / 0.3);
+}
+.collapse-block.collapse-warning > summary {
+  background: hsl(var(--shoka-warning) / 0.06);
+}
+
+.collapse-block.collapse-danger {
+  border-color: hsl(var(--shoka-danger) / 0.3);
+}
+.collapse-block.collapse-danger > summary {
+  background: hsl(var(--shoka-danger) / 0.06);
+}

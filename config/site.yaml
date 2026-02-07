@@ -304,6 +304,16 @@ content:
   previewCacheTime: 3600 # 预览缓存时间(秒)
   lazyLoadEmbeds: true # 延迟加载嵌入
   postCardImagePosition: alternating # 文章卡片封面图位置在首页的显示控制 alternating 默认交替显示 left 封面图始终在左侧 right 封面图始终在右侧
+  # Shoka 兼容功能（默认全部启用，设为 false 可关闭）
+  enableShokaContainers: true   # :::提醒块 ;;;标签卡 +++折叠块
+  enableShokaAttrs: true        # [text]{.class} 属性语法
+  enableShokaEffects: true      # ++下划线++ ==高亮== ~下标~ ^上标^
+  enableShokaSpoiler: true      # !!隐藏文字!!
+  enableShokaRuby: true         # {文字^注音} 注音标注
+  enableShokaHexoTags: true     # {% links %} {% media %} Hexo标签
+  enableMath: true              # $数学公式$ KaTeX渲染
+  enableCodeMeta: true          # 代码块增强 (title, mark, command)
+  enableQuiz: true              # 练习题交互功能
 
 # =============================================================================
 # Navigation Routes

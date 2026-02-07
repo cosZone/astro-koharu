@@ -1,0 +1,80 @@
+/* =============================================================================
+ * Shoka Media — {% media audio/video %} base + video player styles
+ * Audio player styles are in shoka-audio-player.css
+ * ============================================================================= */
+
+.media-group {
+  margin: 1.5em 0;
+}
+
+.media-group .media-title {
+  font-weight: 600;
+  margin-bottom: 0.5em;
+}
+
+/* =============================================================================
+ * Custom Video Player
+ *
+ * Controls and playlist reuse .audio-player-* classes from shoka-audio-player.css.
+ * Only the video screen area needs video-specific styles.
+ * ============================================================================= */
+
+/* Video screen area */
+.video-player-screen {
+  position: relative;
+  background: #000;
+  border-radius: 24px 24px 0 0;
+  overflow: hidden;
+}
+
+.video-player-screen video {
+  width: 100%;
+  display: block;
+  cursor: pointer;
+  border-radius: 24px 24px 0 0;
+  aspect-ratio: 16 / 9; /* Placeholder size before video loads */
+  object-fit: contain;
+  background: #000;
+}
+
+/* Shrink play button inside video player to avoid overflow */
+.video-player .audio-player-btn-play {
+  width: 40px;
+  height: 40px;
+}
+
+.video-player .audio-player-btn-play svg {
+  width: 20px;
+  height: 20px;
+}
+
+/* Add top padding to video controls so buttons don't clip */
+.video-player .audio-player-controls {
+  padding-top: 0.75em;
+}
+
+/* Source/author tag at bottom-right of video */
+.video-player-source {
+  position: absolute;
+  bottom: 8px;
+  right: 12px;
+  font-size: 0.75em;
+  color: rgba(255, 255, 255, 0.7);
+  background: rgba(0, 0, 0, 0.5);
+  padding: 2px 8px;
+  border-radius: 4px;
+  pointer-events: none;
+  backdrop-filter: blur(4px);
+}
+
+/* Mobile */
+@media (max-width: 600px) {
+  .video-player {
+    border-radius: 16px;
+  }
+
+  .video-player-screen,
+  .video-player-screen video {
+    border-radius: 16px 16px 0 0;
+  }
+}

@@ -20,6 +20,10 @@ export interface BlogSchema {
   tocNumbering?: boolean;
   /** Exclude this post from AI summary generation */
   excludeFromSummary?: boolean;
+  /** Enable KaTeX math rendering for this post */
+  math?: boolean;
+  /** Enable quiz interaction for this post */
+  quiz?: boolean;
 }
 
 /**
