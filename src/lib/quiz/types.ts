@@ -7,6 +7,9 @@ export interface QuizOption {
   isCorrect: boolean;
 }
 
+/** A segment of a fill-blank question: either an HTML fragment or a gap placeholder */
+export type QuestionPart = { type: 'html'; content: string } | { type: 'gap'; answer: string; index: number };
+
 export interface ParsedQuiz {
   type: QuizType;
   /** Question HTML (excluding child <ul> and <blockquote>) */
@@ -15,8 +18,8 @@ export interface ParsedQuiz {
   options: QuizOption[];
   /** True/false answer (only for trueFalse type) */
   correctAnswer?: boolean;
-  /** Fill-in-the-blank answers (from span.gap textContent) */
-  gaps: string[];
+  /** Structured question parts with inline gaps (only for fill type) */
+  questionParts: QuestionPart[];
   /** Common mistakes (from span.mistake in blockquote) */
   mistakes: string[];
   /** Explanation HTML from blockquote, or null */

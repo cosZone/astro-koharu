@@ -58,7 +58,8 @@ export function scanQuizElements(container: Element): ToolbarEntry[] {
     // a blockquote that belongs to a subsequent list.
     const parentList = quizLi.closest('ul, ol');
     if (parentList) {
-      const isLastQuiz = parentList.querySelector(':scope > li.quiz:last-of-type') === quizLi;
+      const quizItems = parentList.querySelectorAll(':scope > li.quiz');
+      const isLastQuiz = quizItems.length > 0 && quizItems[quizItems.length - 1] === quizLi;
       if (isLastQuiz) {
         const nextSibling = parentList.nextElementSibling;
         if (nextSibling?.tagName === 'BLOCKQUOTE') {

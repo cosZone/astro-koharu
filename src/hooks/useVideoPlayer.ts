@@ -8,9 +8,7 @@
 import { type RefObject, useCallback, useEffect } from 'react';
 import type { VideoTrack } from '../components/markdown/video-player/utils';
 import { getStoredVolume } from '../store/player';
-import { type MediaPlayerState, useMediaPlayer } from './useMediaPlayer';
-
-export type VideoPlayerState = MediaPlayerState;
+import { useMediaPlayer } from './useMediaPlayer';
 
 export function useVideoPlayer(tracks: VideoTrack[], videoRef: RefObject<HTMLVideoElement | null>) {
   // Set initial volume on the video element

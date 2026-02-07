@@ -8,9 +8,7 @@
 import type { MetingSong } from '@lib/meting';
 import { useCallback, useEffect, useRef } from 'react';
 import { getStoredVolume } from '../store/player';
-import { type MediaPlayerState, useMediaPlayer } from './useMediaPlayer';
-
-export type AudioPlayerState = MediaPlayerState;
+import { useMediaPlayer } from './useMediaPlayer';
 
 export function useAudioPlayer(tracks: MetingSong[]) {
   const audioRef = useRef<HTMLAudioElement | null>(null);

@@ -86,10 +86,14 @@ export function useMediaPlayer<T>({ tracks, getUrl, getElement }: UseMediaPlayer
       return;
     }
     // Element not yet available — poll until it is (e.g. video ref after first render)
+    let attempts = 0;
+    const MAX_ATTEMPTS = 100; // 5 seconds at 50ms intervals
     const id = setInterval(() => {
       const resolved = getElementRef.current();
       if (resolved) {
         setBoundElement(resolved);
+        clearInterval(id);
+      } else if (++attempts >= MAX_ATTEMPTS) {
         clearInterval(id);
       }
     }, 50);

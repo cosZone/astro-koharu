@@ -1,2 +1,2 @@
 export { parseQuizElement } from './parse-quiz';
-export type { ParsedQuiz, QuizOption, QuizType } from './types';
+export type { ParsedQuiz, QuestionPart, QuizOption, QuizType } from './types';

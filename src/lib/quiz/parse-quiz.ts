@@ -1,4 +1,4 @@
-import type { ParsedQuiz, QuizOption, QuizType } from './types';
+import type { ParsedQuiz, QuestionPart, QuizOption, QuizType } from './types';
 
 /** Detect quiz type from the element's classList and source content */
 export function detectQuizType(el: HTMLElement, source: HTMLElement): QuizType {
@@ -41,16 +41,47 @@ export function extractExplanation(el: HTMLElement): string | null {
   return blockquote ? blockquote.innerHTML : null;
 }
 
-/** Extract gap answers from span.gap elements (outside blockquote) */
-export function extractGaps(el: HTMLElement): string[] {
-  // Only look at direct content gaps, not those inside blockquote
-  const gaps: string[] = [];
-  for (const span of Array.from(el.querySelectorAll('span.gap'))) {
-    // Skip gaps inside blockquote (those are in explanation)
-    if (span.closest('blockquote')) continue;
-    gaps.push(span.textContent || '');
+/**
+ * Build structured question parts for fill-blank quizzes using DOM traversal.
+ *
+ * Clones the question content, replaces span.gap elements with sentinel markers,
+ * then splits the resulting HTML to produce an interleaved array of HTML fragments
+ * and gap placeholders. This avoids fragile regex matching against raw innerHTML.
+ */
+export function extractQuestionParts(el: HTMLElement): QuestionPart[] {
+  const clone = el.cloneNode(true) as HTMLElement;
+  // Remove <ul>, <ol>, <blockquote> from clone (same as extractQuestionHtml)
+  for (const child of Array.from(clone.children)) {
+    if (child.tagName === 'UL' || child.tagName === 'OL' || child.tagName === 'BLOCKQUOTE') {
+      child.remove();
+    }
   }
-  return gaps;
+
+  // Replace each span.gap with a unique sentinel text node
+  const SENTINEL = '\x00GAP\x00';
+  const gaps: string[] = [];
+  for (const span of Array.from(clone.querySelectorAll('span.gap'))) {
+    gaps.push(span.textContent || '');
+    const marker = document.createTextNode(`${SENTINEL}${gaps.length - 1}${SENTINEL}`);
+    span.replaceWith(marker);
+  }
+
+  // Split the serialized HTML by sentinel markers
+  const html = clone.innerHTML.trim();
+  const parts: QuestionPart[] = [];
+  const segments = html.split(SENTINEL);
+
+  for (const segment of segments) {
+    if (segment === '') continue;
+    const gapIndex = Number(segment);
+    if (Number.isInteger(gapIndex) && gapIndex >= 0 && gapIndex < gaps.length) {
+      parts.push({ type: 'gap', answer: gaps[gapIndex], index: gapIndex });
+    } else {
+      parts.push({ type: 'html', content: segment });
+    }
+  }
+
+  return parts;
 }
 
 /** Extract mistake items from blockquote span.mistake elements */
@@ -75,7 +106,7 @@ export function parseQuizElement(el: HTMLElement): ParsedQuiz {
     questionHtml: extractQuestionHtml(source),
     options: type === 'single' || type === 'multi' ? extractOptions(source) : [],
     correctAnswer: type === 'trueFalse' ? el.classList.contains('true') : undefined,
-    gaps: type === 'fill' ? extractGaps(source) : [],
+    questionParts: type === 'fill' ? extractQuestionParts(source) : [],
     mistakes: type === 'fill' ? extractMistakes(source) : [],
     explanationHtml: extractExplanation(source),
   };
