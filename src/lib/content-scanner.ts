@@ -10,7 +10,7 @@ import { extractLanguage, isInfographicBlock, wrapElement } from './content-enha
 
 export interface ToolbarEntry {
   id: string;
-  type: 'code' | 'mermaid' | 'infographic' | 'quiz' | 'friend-links' | 'audio' | 'video' | 'note';
+  type: 'code' | 'mermaid' | 'infographic' | 'quiz' | 'friend-links' | 'audio' | 'video' | 'note' | 'encrypted';
   mountPoint: HTMLElement;
   preElement: HTMLElement;
 }
@@ -155,6 +155,23 @@ export function scanNoteBlocks(container: Element): ToolbarEntry[] {
     noteBlock.insertBefore(mount, noteBlock.firstChild);
     noteBlock.dataset.reactEnhanced = 'true';
     entries.push({ id: `note-${nIndex}`, type: 'note', mountPoint: mount, preElement: noteBlock });
+  });
+
+  return entries;
+}
+
+/** Scan encrypted blocks */
+export function scanEncryptedBlocks(container: Element): ToolbarEntry[] {
+  const entries: ToolbarEntry[] = [];
+  const blocks = container.querySelectorAll<HTMLElement>('.encrypted-block[data-cipher]');
+
+  blocks.forEach((block, eIndex) => {
+    if (block.dataset.reactEnhanced === 'true') return;
+    const mount = document.createElement('div');
+    mount.className = 'encrypted-block-mount';
+    block.appendChild(mount);
+    block.dataset.reactEnhanced = 'true';
+    entries.push({ id: `encrypted-${eIndex}`, type: 'encrypted', mountPoint: mount, preElement: block });
   });
 
   return entries;

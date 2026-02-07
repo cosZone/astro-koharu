@@ -163,6 +163,7 @@ export interface ContentConfig {
   enableMath?: boolean;
   enableCodeMeta?: boolean;
   enableQuiz?: boolean;
+  enableEncryptedBlock?: boolean;
 }
 
 // =============================================================================

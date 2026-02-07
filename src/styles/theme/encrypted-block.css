@@ -1,0 +1,59 @@
+/* Encrypted block container */
+.encrypted-block {
+  @apply my-4 rounded-lg border border-dashed border-gray-300 bg-gray-50/50 dark:border-gray-600 dark:bg-gray-800/50;
+}
+
+/* Locked state layout */
+.encrypted-block-locked {
+  @apply flex flex-col items-center gap-3 px-6 py-8;
+}
+
+.encrypted-block-icon {
+  @apply text-3xl text-gray-400 transition-colors dark:text-gray-500;
+}
+
+.encrypted-block-icon-error {
+  @apply text-red-500 dark:text-red-400;
+}
+
+.encrypted-block-input-group {
+  @apply flex items-center gap-2;
+}
+
+.encrypted-block-input {
+  @apply h-9 w-48 rounded-md border border-gray-300 bg-white px-3 text-sm outline-none transition-colors focus:border-blue-400 focus:ring-1 focus:ring-blue-400 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200 dark:focus:border-blue-500 dark:focus:ring-blue-500;
+}
+
+.encrypted-block-btn {
+  @apply flex h-9 w-9 items-center justify-center rounded-md border border-gray-300 bg-white text-gray-600 transition-colors hover:bg-gray-100 disabled:opacity-50 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600;
+}
+
+/* Unlocked content area */
+.encrypted-block-content {
+  @apply p-4;
+}
+
+/* Shake animation for wrong password */
+@keyframes shake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  10%,
+  30%,
+  50%,
+  70%,
+  90% {
+    transform: translateX(-4px);
+  }
+  20%,
+  40%,
+  60%,
+  80% {
+    transform: translateX(4px);
+  }
+}
+
+.animate-shake {
+  animation: shake 0.6s ease-in-out;
+}

@@ -14,6 +14,7 @@
 @import "./theme/shoka-media.css";
 @import "./theme/shoka-player-shared.css";
 @import "./theme/shoka-audio-player.css";
+@import "./theme/encrypted-block.css";
 @import "./components/wave.css";
 @import "./components/category.css";
 @import "./components/post.css";

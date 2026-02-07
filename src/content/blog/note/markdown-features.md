@@ -243,8 +243,41 @@ pie title 博客内容分布
 - **数学公式** — KaTeX 行内 $E=mc^2$ 和块级 `$$...$$`
 - **代码块增强** — title、mark 行高亮、command 提示符
 - **练习题系统** — 单选、多选、判断、填空四种题型
+- **加密内容块** — `:::encrypted{password="..."}` AES-256-GCM 加密，防止爬虫收录
 
 所有功能均可在 `config/site.yaml` 中独立开关。完整语法演示和用法请参阅 [Shoka 主题 Markdown 语法演示](/post/note/shoka-features)。
+
+## 加密内容块
+
+使用 `:::encrypted{password="密码"}` 语法创建加密区块。内容在构建时使用 AES-256-GCM 真正加密，密码不会出现在最终 HTML 中，有效防止搜索引擎和爬虫收录敏感内容。
+
+加密块内的 Markdown 会获得与普通内容完全相同的渲染处理（Shiki 代码高亮、KaTeX 公式等），解密后直接展示。
+
+> 前端无法实现真正意义上的加密，因为密码需在客户端输入，密文和算法对用户可见，安全性完全取决于密码强度。本功能的目的是**防止搜索引擎和爬虫直接收录明文内容**，而非对抗有针对性的破解。
+
+````markdown
+:::encrypted{password="demo"}
+这段内容已加密，输入密码 `demo` 即可查看。
+
+支持 **完整 Markdown 语法**，包括代码块：
+
+```python
+print("Hello from encrypted block!")
+```
+
+:::
+````
+
+:::encrypted{password="demo"}
+这段内容已加密，输入密码 `demo` 即可查看。
+
+支持 **完整 Markdown 语法**，包括代码块：
+
+```python
+print("Hello from encrypted block!")
+```
+
+:::
 
 ## 总结
 
