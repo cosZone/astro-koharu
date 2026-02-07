@@ -20,20 +20,22 @@ export function usePlaybackProgress(
   progressBarRef: RefObject<HTMLElement | null>,
   sliderRef?: RefObject<HTMLElement | null>,
 ) {
+  // biome-ignore lint/correctness/useExhaustiveDependencies: ref.current is accessed imperatively, refs are stable identity objects
   useEffect(() => {
-    return timeStore.subscribe(() => {
-      const progress = timeStore.getProgress();
+    const sync = () => {
       const bar = progressBarRef.current;
       if (bar) {
-        bar.style.width = `${progress}%`;
+        bar.style.width = `${timeStore.getProgress()}%`;
       }
       const slider = sliderRef?.current;
       if (slider) {
         slider.setAttribute('aria-valuenow', String(Math.floor(timeStore.getCurrentTime())));
         slider.setAttribute('aria-valuemax', String(Math.floor(timeStore.getDuration())));
       }
-    });
-  }, [timeStore, progressBarRef, sliderRef]);
+    };
+    sync();
+    return timeStore.subscribe(sync);
+  }, [timeStore]);
 }
 
 /** Binary search for the current lyric line index. */

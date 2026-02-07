@@ -8,7 +8,7 @@
  * Playlist resolution is lazy — only triggered on first panel open.
  */
 
-import { PlayerPlaylist } from '@components/markdown/audio-player/PlayerPlaylist';
+import { PlayerPlaylist, type PlaylistGroup } from '@components/markdown/audio-player/PlayerPlaylist';
 import { PlayerPreview } from '@components/markdown/audio-player/PlayerPreview';
 import { MediaControls } from '@components/markdown/shared/MediaControls';
 import { FloatingFocusManager, FloatingPortal, useDismiss, useFloating, useInteractions, useRole } from '@floating-ui/react';
@@ -23,12 +23,6 @@ import { $isAnyModalOpen, $isDrawerOpen } from '@store/modal';
 import { AnimatePresence, motion } from 'motion/react';
 import { useEffect, useRef, useState } from 'react';
 import { $bgmPanelOpen, closeBgmPanel } from '@/store/bgm';
-
-interface PlaylistGroup {
-  title?: string;
-  startIndex: number;
-  count: number;
-}
 
 interface GlobalBGMPlayerProps {
   audioGroups: BgmAudioGroup[];
@@ -61,17 +55,16 @@ export default function GlobalBGMPlayer({ audioGroups }: GlobalBGMPlayerProps) {
 
     async function resolve() {
       try {
-        const allTracks: MetingSong[] = [];
-        const resolvedGroups: PlaylistGroup[] = [];
-
-        for (const group of audioGroups) {
-          const startIndex = allTracks.length;
-          const songs = await resolvePlaylist(group.list);
-          allTracks.push(...songs);
-          resolvedGroups.push({ title: group.title, startIndex, count: songs.length });
-        }
+        const results = await Promise.all(audioGroups.map((group) => resolvePlaylist(group.list)));
 
         if (!cancelled) {
+          const allTracks: MetingSong[] = [];
+          const resolvedGroups: PlaylistGroup[] = [];
+          for (let i = 0; i < results.length; i++) {
+            const startIndex = allTracks.length;
+            allTracks.push(...results[i]);
+            resolvedGroups.push({ title: audioGroups[i].title, startIndex, count: results[i].length });
+          }
           setTracks(allTracks);
           setGroups(resolvedGroups);
           setLoading(false);

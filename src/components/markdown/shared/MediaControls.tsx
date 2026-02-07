@@ -148,8 +148,8 @@ export const MediaControls = memo(function MediaControls({
         role="slider"
         tabIndex={0}
         aria-valuemin={0}
-        aria-valuemax={0}
-        aria-valuenow={0}
+        aria-valuemax={Math.floor(timeStore.getDuration())}
+        aria-valuenow={Math.floor(timeStore.getCurrentTime())}
         aria-label="播放进度"
         onClick={handleProgressClick}
         onKeyDown={(e) => {

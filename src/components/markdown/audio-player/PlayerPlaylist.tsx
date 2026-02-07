@@ -13,7 +13,7 @@ import type { PlaybackTimeStore } from '@lib/playback-time-store';
 import { cn } from '@lib/utils';
 import { memo, useRef } from 'react';
 
-interface PlaylistGroup {
+export interface PlaylistGroup {
   title?: string;
   startIndex: number;
   count: number;
