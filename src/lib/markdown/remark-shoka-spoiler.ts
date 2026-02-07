@@ -1,8 +1,8 @@
 /**
  * Remark plugin for Shoka spoiler syntax
  *
- * !!text!! → <span class="spoiler">text</span>
- * !!text!!{.blur} → <span class="spoiler blur">text</span>
+ * !!text!! → <spoiler-span>text</spoiler-span> (spoilerjs web component)
+ * !!text!!{.blur} → <span class="spoiler blur">text</span> (CSS blur effect)
  */
 import type { PhrasingContent, Root } from 'mdast';
 import { visit } from 'unist-util-visit';
@@ -36,19 +36,23 @@ export function remarkShokaSpoiler() {
         }
 
         // Check for trailing {attrs}
-        let classes = 'spoiler';
+        let extraClasses: string[] = [];
         const afterMatch = text.slice(match.index + match[0].length);
         const attrMatch = TRAILING_ATTRS.exec(afterMatch);
         if (attrMatch) {
-          const extra = extractClasses(attrMatch[1]);
-          if (extra.length > 0) classes += ` ${extra.join(' ')}`;
+          extraClasses = extractClasses(attrMatch[1]);
           SPOILER_REGEX.lastIndex += attrMatch[0].length;
         }
 
-        parts.push({
-          type: 'html',
-          value: `<span class="${classes}">${match[1]}</span>`,
-        });
+        if (extraClasses.includes('blur')) {
+          // Blur variant: keep CSS-based spoiler
+          const classes = `spoiler ${extraClasses.join(' ')}`;
+          parts.push({ type: 'html', value: `<span class="${classes}">${match[1]}</span>` });
+        } else {
+          // Default: use spoilerjs web component for particle animation
+          const classAttr = extraClasses.length > 0 ? ` class="${extraClasses.join(' ')}"` : '';
+          parts.push({ type: 'html', value: `<spoiler-span${classAttr}>${match[1]}</spoiler-span>` });
+        }
 
         lastIndex = SPOILER_REGEX.lastIndex;
       }

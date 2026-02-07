@@ -70,7 +70,7 @@
 /* React icon mount point (matches original ::before position) */
 .note-icon-mount {
   position: absolute;
-  left: 0.4em;
+  left: 0.35em;
   top: 0.7em;
   line-height: 1;
   display: flex;

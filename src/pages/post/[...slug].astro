@@ -3,6 +3,7 @@ import CustomContent from '@components/common/CustomContent.astro';
 import HomeSider from '@components/layout/HomeSider.astro';
 import SummaryPanel, { type SummarySource } from '@components/post/SummaryPanel';
 import Cover from '@components/ui/cover/Cover.astro';
+import { defaultContentConfig } from '@constants/content-config';
 import { HomeSiderType } from '@constants/enum';
 import { CONTENT_PADDING } from '@constants/layout';
 import { siteConfig } from '@constants/site-config';
@@ -31,9 +32,9 @@ export async function getStaticPaths() {
 const { post, postId } = Astro.props;
 const { Content } = await post.render();
 const { title, categories = [], tags = [], date, math: postMath } = post?.data ?? {};
-// KaTeX CSS: load by default when global enableMath is on (rehype-katex processes all posts).
-// Posts can opt out with `math: false` in frontmatter.
-const hasMath = postMath !== false;
+// KaTeX CSS: only load when global enableMath is on AND post hasn't opted out.
+// When enableMath is false globally, rehype-katex is not in the pipeline, so no math is rendered.
+const hasMath = defaultContentConfig.enableMath !== false && postMath !== false;
 
 // 使用统一的工具函数获取文章描述
 const finalDescription = getPostDescription(post);

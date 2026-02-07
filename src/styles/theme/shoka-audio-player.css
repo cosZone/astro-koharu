@@ -192,13 +192,13 @@
 /* -- Tonearm (needle) ----------------------------------------------------- */
 .audio-player-needle {
   position: absolute;
-  top: -12px;
-  left: -8px;
-  width: 100px;
-  height: 100px;
+  top: -16px;
+  left: -12px;
+  width: 120px;
+  height: 120px;
   z-index: 6;
   pointer-events: none;
-  transform-origin: 20px 20px;
+  transform-origin: 22px 22px;
   transform: rotate(-90deg);
   transition: transform 0.6s cubic-bezier(0.3, 1.5, 0.5, 1);
 }
@@ -207,90 +207,180 @@
   transform: rotate(0deg);
 }
 
-/* Pivot Base */
+/* Pivot base — dark concentric bearing mount */
 .audio-player-needle::before {
   content: "";
   position: absolute;
-  top: 8px;
-  left: 8px;
-  width: 24px;
-  height: 24px;
+  top: 4px;
+  left: 4px;
+  width: 36px;
+  height: 36px;
   border-radius: 50%;
-  background: radial-gradient(circle at 35% 35%, #ddd, #999);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-  border: 1px solid #888;
+  background:
+    radial-gradient(circle at 40% 38%, rgba(255, 255, 255, 0.15) 0%, transparent 50%),
+    radial-gradient(circle, #555 0%, #333 40%, #444 60%, #222 100%);
+  box-shadow:
+    0 2px 6px rgba(0, 0, 0, 0.4),
+    inset 0 1px 1px rgba(255, 255, 255, 0.1);
+  border: 1.5px solid #1a1a1a;
   z-index: 2;
 }
 
-/* Inner pivot dot */
+/* Inner pivot cap — polished metal highlight */
 .audio-player-needle::after {
   content: "";
   position: absolute;
-  top: 14px;
-  left: 14px;
-  width: 12px;
-  height: 12px;
+  top: 13px;
+  left: 13px;
+  width: 18px;
+  height: 18px;
   border-radius: 50%;
-  background: linear-gradient(#eee, #ccc);
-  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1);
+  background: radial-gradient(circle at 38% 35%, #eee 0%, #bbb 40%, #999 100%);
+  box-shadow:
+    inset 0 1px 2px rgba(255, 255, 255, 0.4),
+    0 1px 2px rgba(0, 0, 0, 0.3);
+  border: 1px solid #777;
   z-index: 3;
 }
 
-/* Arm Structure */
+/* Arm — primary tonearm tube (thicker, dark) */
 .audio-player-needle-arm {
   position: absolute;
-  top: 18px;
+  top: 20px;
   left: 17px;
-  width: 6px;
-  height: 50px;
-  background: linear-gradient(to right, #ccc, #eee, #ccc);
-  border-radius: 3px;
+  width: 10px;
+  height: 52px;
+  background: linear-gradient(to right, #3a3a3a, #555, #3a3a3a);
+  border-radius: 5px;
   transform-origin: top center;
-  transform: rotate(-20deg);
+  transform: rotate(-15deg);
   z-index: 1;
   overflow: visible;
+  box-shadow: 1px 2px 4px rgba(0, 0, 0, 0.2);
 }
 
-/* Bent Elbow + Head */
-.audio-player-needle-head {
-  position: absolute;
-  top: 48px;
-  left: 50%;
-  width: 6px;
-  height: 45px;
-  background: linear-gradient(to right, #ccc, #eee, #ccc);
-  border-radius: 3px;
-  transform-origin: top center;
-  transform: translateX(-50%) rotate(32deg);
-  box-shadow: -1px 2px 3px rgba(0, 0, 0, 0.15);
-  z-index: 1;
-}
-
-/* Cartridge */
-.audio-player-needle-head::after {
+/* Counterweight — cylindrical weight behind pivot */
+.audio-player-needle-arm::before {
   content: "";
   position: absolute;
-  bottom: -4px;
+  top: -6px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 16px;
+  height: 10px;
+  background: linear-gradient(to bottom, #666, #444, #555);
+  border-radius: 3px;
+  box-shadow:
+    0 1px 3px rgba(0, 0, 0, 0.3),
+    inset 0 1px 1px rgba(255, 255, 255, 0.1);
+}
+
+/* Mid-arm connector block */
+.audio-player-needle-arm::after {
+  content: "";
+  position: absolute;
+  top: 46px;
   left: 50%;
   transform: translateX(-50%);
   width: 14px;
-  height: 20px;
-  background: hsl(var(--primary));
-  border-radius: 3px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.25);
+  height: 8px;
+  background: linear-gradient(to bottom, #4a4a4a, #333);
+  border-radius: 2px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
 }
 
-/* Connection joint */
+/* Head tube — second segment of the S-curve */
+.audio-player-needle-head {
+  position: absolute;
+  top: 52px;
+  left: 50%;
+  width: 8px;
+  height: 44px;
+  background: linear-gradient(to right, #3a3a3a, #555, #3a3a3a);
+  border-radius: 4px;
+  transform-origin: top center;
+  transform: translateX(-50%) rotate(28deg);
+  box-shadow: -1px 2px 4px rgba(0, 0, 0, 0.2);
+  z-index: 1;
+}
+
+/* Headshell / cartridge mount plate */
 .audio-player-needle-head::before {
   content: "";
   position: absolute;
-  top: -3px;
+  bottom: 16px;
   left: 50%;
   transform: translateX(-50%);
-  width: 8px;
-  height: 8px;
-  background: #ccc;
-  border-radius: 50%;
+  width: 18px;
+  height: 14px;
+  background: linear-gradient(to bottom, #555, #3a3a3a);
+  border-radius: 2px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
+}
+
+/* Cartridge body + stylus tip */
+.audio-player-needle-head::after {
+  content: "";
+  position: absolute;
+  bottom: 2px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 12px;
+  height: 18px;
+  background: linear-gradient(to bottom, hsl(var(--primary)), hsl(var(--primary) / 0.85));
+  border-radius: 2px 2px 1px 1px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+  border-bottom: 3px solid #888;
+}
+
+/* -- Tonearm dark mode overrides ------------------------------------------ */
+.dark .audio-player-needle::before {
+  background:
+    radial-gradient(circle at 40% 38%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
+    radial-gradient(circle, #444 0%, #222 40%, #333 60%, #111 100%);
+  border-color: #0a0a0a;
+  box-shadow:
+    0 2px 8px rgba(0, 0, 0, 0.6),
+    inset 0 1px 1px rgba(255, 255, 255, 0.06);
+}
+
+.dark .audio-player-needle::after {
+  background: radial-gradient(circle at 38% 35%, #ccc 0%, #888 40%, #666 100%);
+  border-color: #555;
+  box-shadow:
+    inset 0 1px 2px rgba(255, 255, 255, 0.25),
+    0 1px 3px rgba(0, 0, 0, 0.5);
+}
+
+.dark .audio-player-needle-arm {
+  background: linear-gradient(to right, #2a2a2a, #404040, #2a2a2a);
+  box-shadow: 1px 2px 5px rgba(0, 0, 0, 0.4);
+}
+
+.dark .audio-player-needle-arm::before {
+  background: linear-gradient(to bottom, #555, #333, #444);
+  box-shadow:
+    0 1px 3px rgba(0, 0, 0, 0.5),
+    inset 0 1px 1px rgba(255, 255, 255, 0.06);
+}
+
+.dark .audio-player-needle-arm::after {
+  background: linear-gradient(to bottom, #383838, #222);
+}
+
+.dark .audio-player-needle-head {
+  background: linear-gradient(to right, #2a2a2a, #404040, #2a2a2a);
+  box-shadow: -1px 2px 5px rgba(0, 0, 0, 0.4);
+}
+
+.dark .audio-player-needle-head::before {
+  background: linear-gradient(to bottom, #444, #2a2a2a);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+}
+
+.dark .audio-player-needle-head::after {
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.5);
+  border-bottom-color: #666;
 }
 
 /* =============================================================================
@@ -577,7 +667,6 @@
 }
 
 .audio-player-song-list {
-  padding: 0.5em 0;
   max-height: 240px;
   overflow: auto;
 }

@@ -80,8 +80,45 @@ function processContainers(text: string, opts: ContainerOptions = {}, _depth = 0
     pendingTabId = null;
   }
 
+  // Track code fences to avoid processing container syntax inside them
+  let inCodeFence = false;
+  let codeFenceChar = '';
+  let codeFenceLen = 0;
+
   while (i < lines.length) {
     const line = lines[i];
+
+    // Detect code fence boundaries (``` or ~~~ with 3+ chars)
+    const fenceMatch = line.match(/^(`{3,}|~{3,})/);
+    if (fenceMatch) {
+      const matchChar = fenceMatch[1][0];
+      const matchLen = fenceMatch[1].length;
+      if (!inCodeFence) {
+        inCodeFence = true;
+        codeFenceChar = matchChar;
+        codeFenceLen = matchLen;
+        flushTabs();
+        output.push(line);
+        i++;
+        continue;
+      }
+      // Closing fence: same char, at least same length, only whitespace after
+      if (matchChar === codeFenceChar && matchLen >= codeFenceLen && /^(`{3,}|~{3,})\s*$/.test(line)) {
+        inCodeFence = false;
+        codeFenceChar = '';
+        codeFenceLen = 0;
+        output.push(line);
+        i++;
+        continue;
+      }
+    }
+
+    // Inside code fence → pass through unchanged
+    if (inCodeFence) {
+      output.push(line);
+      i++;
+      continue;
+    }
 
     // ::: note block
     const noteMatch = containers && line.match(/^:::(\w+)(?:\s+(no-icon))?\s*$/);
@@ -255,11 +292,11 @@ function processContainers(text: string, opts: ContainerOptions = {}, _depth = 0
 }
 
 /**
- * Process inline ~sub~ and ^sup^ syntax, skipping math regions ($..$ / $$..$$).
+ * Process inline ~sub~ and ^sup^ syntax, skipping protected regions.
  * Must be done before GFM parsing to avoid ~text~ being treated as strikethrough.
  */
 function processInlineSuperSub(text: string): string {
-  return processOutsideMath(text, (segment) => {
+  return processOutsideProtectedRegions(text, (segment) => {
     // Replace ~sub~ (single tilde, not ~~) with <sub> — escape content to prevent XSS
     segment = segment.replace(/(?<![~\\])~([^~\s]+)~(?!~)/g, (_, content) => `<sub>${escapeHtml(content)}</sub>`);
     // Replace ^sup^ with <sup> — escape content to prevent XSS
@@ -269,26 +306,24 @@ function processInlineSuperSub(text: string): string {
 }
 
 /**
- * Split text into math and non-math segments, applying `fn` only to non-math parts.
- * Handles both $$...$$ (block) and $...$ (inline) math delimiters.
+ * Split text into protected and unprotected segments, applying `fn` only to unprotected parts.
+ * Protected regions: code fences (```/~~~), inline code (`...`), math ($$...$$, $...$).
  */
-function processOutsideMath(text: string, fn: (segment: string) => string): string {
-  // Match $$...$$ or $..$ (non-greedy). $$ first so it takes priority.
-  const mathRegex = /(\$\$[\s\S]*?\$\$|\$[^$\n]+?\$)/g;
+function processOutsideProtectedRegions(text: string, fn: (segment: string) => string): string {
+  // Match (in priority order): code fences, inline code, block math, inline math
+  const protectedRegex =
+    /(^`{3,}.*\n[\s\S]*?^`{3,}\s*$|^~{3,}.*\n[\s\S]*?^~{3,}\s*$|`[^`\n]+`|\$\$[\s\S]*?\$\$|\$[^$\n]+?\$)/gm;
   let lastIndex = 0;
   const parts: string[] = [];
 
-  for (let match = mathRegex.exec(text); match !== null; match = mathRegex.exec(text)) {
-    // Non-math segment before this match
+  for (let match = protectedRegex.exec(text); match !== null; match = protectedRegex.exec(text)) {
     if (match.index > lastIndex) {
       parts.push(fn(text.slice(lastIndex, match.index)));
     }
-    // Math segment — keep as-is
     parts.push(match[0]);
     lastIndex = match.index + match[0].length;
   }
 
-  // Remaining non-math text
   if (lastIndex < text.length) {
     parts.push(fn(text.slice(lastIndex)));
   }

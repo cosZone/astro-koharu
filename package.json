@@ -98,6 +98,7 @@
     "remark-parse": "^11.0.0",
     "sanitize-html": "^2.17.0",
     "sonner": "^2.0.7",
+    "spoilerjs": "^0.2.0",
     "tailwind-merge": "^2.6.0",
     "tailwindcss": "^4.1.17",
     "tailwindcss-animate": "^1.0.7",

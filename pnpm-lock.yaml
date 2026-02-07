@@ -218,6 +218,9 @@ importers:
       sonner:
         specifier: ^2.0.7
         version: 2.0.7(react-dom@19.2.1(react@19.2.1))(react@19.2.1)
+      spoilerjs:
+        specifier: ^0.2.0
+        version: 0.2.0
       tailwind-merge:
         specifier: ^2.6.0
         version: 2.6.0
@@ -8432,6 +8435,10 @@ packages:
 
   spdx-license-ids@3.0.22:
     resolution: {integrity: sha512-4PRT4nh1EImPbt2jASOKHX7PB7I+e4IWNLvkKFDxNhJlfjbYlleYQh285Z/3mPTHSAK/AvdMmw5BNNuYH8ShgQ==}
+
+  spoilerjs@0.2.0:
+    resolution: {integrity: sha512-dxUrQOf1EUcdBl0EM7I+idy2NVoyQQMYWKMvosE7B8DxMai14IwsGiV4QTC9ss8GrijPAS+VjbBl4rIRVFBWIQ==}
+    engines: {node: '>=16.0.0', npm: '>=7.0.0'}
 
   sprintf-js@1.0.3:
     resolution: {integrity: sha512-D9cPgkvLlV3t3IzL0D0YLvGA9Ahk4PcvVwUbN0dSGr1aP0Nrt4AEnTUbuGvquEC0mA64Gqt1fzirlRs5ibXx8g==}
@@ -19318,6 +19325,8 @@ snapshots:
       spdx-license-ids: 3.0.22
 
   spdx-license-ids@3.0.22: {}
+
+  spoilerjs@0.2.0: {}
 
   sprintf-js@1.0.3: {}
 

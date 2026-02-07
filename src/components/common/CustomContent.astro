@@ -39,6 +39,8 @@ const finalConfig = { ...defaultContentConfig, ...config };
   import { enhanceImages } from '@lib/image-enhancer';
   import { enhanceLinkPreviews } from '@lib/link-preview-enhancer';
 
+  let spoilerJsLoaded = false;
+
   // Content enhancement script - handles non-React enhancements
   function enhanceContent() {
     const contentContainer = document.querySelector('.custom-content');
@@ -46,6 +48,14 @@ const finalConfig = { ...defaultContentConfig, ...config };
 
     // Avoid re-enhancing
     if (contentContainer.getAttribute('data-enhanced') === 'true') return;
+
+    // Dynamically load spoilerjs when <spoiler-span> elements are present
+    if (!spoilerJsLoaded && contentContainer.querySelector('spoiler-span')) {
+      spoilerJsLoaded = true;
+      import('spoilerjs/spoiler-span').catch(() => {
+        spoilerJsLoaded = false;
+      });
+    }
 
     // Get configuration from data attribute
     const configData = contentContainer.getAttribute('data-config');
@@ -121,9 +131,9 @@ const finalConfig = { ...defaultContentConfig, ...config };
       });
     });
 
-    // Spoiler click-to-reveal
-    const spoilers = contentContainer.querySelectorAll<HTMLElement>('.spoiler');
-    spoilers.forEach((spoiler) => {
+    // Blur spoiler click-to-reveal (default spoilers handled by spoilerjs)
+    const blurSpoilers = contentContainer.querySelectorAll<HTMLElement>('.spoiler.blur');
+    blurSpoilers.forEach((spoiler) => {
       spoiler.addEventListener('click', () => spoiler.classList.toggle('revealed'));
     });
 

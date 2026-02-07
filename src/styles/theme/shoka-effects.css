@@ -65,42 +65,27 @@ mark {
   background: linear-gradient(120deg, hsl(50 100% 50% / 0.2) 0%, hsl(50 100% 50% / 0.4) 100%);
 }
 
-/* --- Spoiler (!!text!!) --- */
-.spoiler {
+/* --- Spoiler: hide content until spoilerjs web component registers --- */
+spoiler-span:not(:defined) {
   background-color: hsl(0 0% 10%);
   color: transparent;
   border-radius: 3px;
   padding: 0 0.3em;
-  cursor: pointer;
-  transition:
-    color 0.3s,
-    background-color 0.3s;
   user-select: none;
 }
 
-.spoiler:hover,
-.spoiler:focus,
-.spoiler.revealed {
-  color: inherit;
-  background-color: hsl(0 0% 10% / 0.1);
-}
-
-.dark .spoiler {
+.dark spoiler-span:not(:defined) {
   background-color: hsl(0 0% 80%);
 }
 
-.dark .spoiler:hover,
-.dark .spoiler:focus,
-.dark .spoiler.revealed {
-  color: inherit;
-  background-color: hsl(0 0% 80% / 0.1);
-}
-
+/* --- Spoiler blur variant (!!text!!{.blur}) --- */
 .spoiler.blur {
   background-color: transparent;
   color: inherit;
   filter: blur(5px);
   transition: filter 0.3s;
+  cursor: pointer;
+  user-select: none;
 }
 
 .spoiler.blur:hover,
