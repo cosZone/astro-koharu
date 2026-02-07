@@ -99,9 +99,10 @@ function formDataToFrontmatter(data: FrontmatterFormData): BlogSchema {
     title: data.title,
     draft: data.draft,
     sticky: data.sticky,
-    catalog: data.catalog,
     tocNumbering: data.tocNumbering,
     excludeFromSummary: data.excludeFromSummary,
+    math: data.math,
+    quiz: data.quiz,
   };
 
   // Parse dates
@@ -257,9 +258,10 @@ export const FrontmatterEditor = forwardRef<FrontmatterEditorRef, FrontmatterEdi
       subtitle: frontmatter.subtitle || '',
       draft: frontmatter.draft ?? true,
       sticky: frontmatter.sticky ?? false,
-      catalog: frontmatter.catalog ?? true,
       tocNumbering: frontmatter.tocNumbering ?? true,
       excludeFromSummary: frontmatter.excludeFromSummary ?? false,
+      math: frontmatter.math ?? false,
+      quiz: frontmatter.quiz ?? false,
     },
   });
 
@@ -377,8 +379,6 @@ export const FrontmatterEditor = forwardRef<FrontmatterEditorRef, FrontmatterEdi
 
             <FormCheckbox label="Sticky" id="sticky" description="Pin to top of post list" {...register('sticky')} />
 
-            <FormCheckbox label="Show Catalog" id="catalog" description="Display table of contents" {...register('catalog')} />
-
             <FormCheckbox
               label="TOC Numbering"
               id="tocNumbering"
@@ -392,6 +392,10 @@ export const FrontmatterEditor = forwardRef<FrontmatterEditorRef, FrontmatterEdi
               description="Skip AI summary generation"
               {...register('excludeFromSummary')}
             />
+
+            <FormCheckbox label="Math (KaTeX)" id="math" description="Enable math formula rendering" {...register('math')} />
+
+            <FormCheckbox label="Quiz Mode" id="quiz" description="Enable quiz interaction" {...register('quiz')} />
           </div>
         </div>
       )}

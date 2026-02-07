@@ -45,9 +45,10 @@ export interface BlogSchema {
   subtitle?: string;
   draft?: boolean;
   sticky?: boolean;
-  catalog?: boolean;
   tocNumbering?: boolean;
   excludeFromSummary?: boolean;
+  math?: boolean;
+  quiz?: boolean;
 }
 
 /**

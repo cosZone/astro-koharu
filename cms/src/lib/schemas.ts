@@ -32,11 +32,12 @@ export const frontmatterSchema = z.object({
   cover: z.string().optional(),
   link: z.string().optional(),
   subtitle: z.string().optional(),
-  draft: z.boolean(),
-  sticky: z.boolean(),
-  catalog: z.boolean(),
-  tocNumbering: z.boolean(),
-  excludeFromSummary: z.boolean(),
+  draft: z.boolean().optional(),
+  sticky: z.boolean().optional(),
+  tocNumbering: z.boolean().optional(),
+  excludeFromSummary: z.boolean().optional(),
+  math: z.boolean().optional(),
+  quiz: z.boolean().optional(),
 });
 
 /**
