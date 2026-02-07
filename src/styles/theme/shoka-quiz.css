@@ -1,84 +1,60 @@
 /* =============================================================================
- * Shoka Quiz — Interactive quiz blocks
+ * Shoka Quiz — No-JS fallback styles + React enhancement support
  * ============================================================================= */
 
-.quiz {
-  margin: 1.5em 0;
-  padding: 1.2em;
+/* --- No-JS fallback: basic readable quiz layout --- */
+
+li.quiz {
+  list-style: none;
+  margin: 1em 0;
+  padding: 0.8em 1em;
   border: 1px solid hsl(0 0% 85%);
   border-radius: 8px;
-  background: hsl(0 0% 98%);
 }
 
-.dark .quiz {
+.dark li.quiz {
   border-color: hsl(0 0% 30%);
-  background: hsl(0 0% 12%);
 }
 
-.quiz .quiz-question {
+/* Correct option indicator for no-JS */
+li.quiz > ul > li.correct {
   font-weight: 600;
-  margin-bottom: 0.8em;
 }
 
-.quiz .options {
+li.quiz > ul > li.correct::after {
+  content: " ✓";
+  color: hsl(142 71% 45%);
+}
+
+/* Gap answers visible as underlined text in no-JS */
+span.gap {
+  border-bottom: 2px solid currentColor;
+  padding: 0 0.25em;
+  font-weight: 600;
+}
+
+/* Mistake items in explanation */
+span.mistake {
+  color: hsl(0 72% 51%);
+  text-decoration: line-through;
+}
+
+/* --- React-enhanced: hide original content, show portal --- */
+
+/* Parent list: remove prose list styling */
+.quiz-list {
   list-style: none;
   padding: 0;
   margin: 0;
 }
 
-.quiz .options li {
-  padding: 0.5em 0.8em;
-  margin: 0.3em 0;
-  border: 1px solid hsl(0 0% 80%);
-  border-radius: 6px;
-  cursor: pointer;
-  transition:
-    background-color 0.2s,
-    border-color 0.2s;
+li.quiz.quiz-enhanced {
+  border: none;
+  padding: 0;
+  margin: 0;
+  list-style: none;
 }
 
-.dark .quiz .options li {
-  border-color: hsl(0 0% 35%);
-}
-
-.quiz .options li:hover {
-  background: hsl(var(--primary) / 0.08);
-  border-color: hsl(var(--primary) / 0.3);
-}
-
-.quiz .options li.selected {
-  border-color: hsl(var(--primary));
-  background: hsl(var(--primary) / 0.1);
-}
-
-.quiz .options li.correct {
-  border-color: hsl(var(--shoka-success));
-  background: hsl(var(--shoka-success) / 0.1);
-}
-
-.quiz .options li.incorrect {
-  border-color: hsl(var(--shoka-danger));
-  background: hsl(var(--shoka-danger) / 0.1);
-}
-
-.quiz .quiz-answer {
-  margin-top: 0.8em;
-  padding: 0.6em 0.8em;
-  border-radius: 6px;
-  font-size: 0.9em;
+li.quiz.quiz-enhanced::before {
   display: none;
-}
-
-.quiz .quiz-answer.show {
-  display: block;
-}
-
-.quiz .quiz-answer.correct {
-  background: hsl(var(--shoka-success) / 0.1);
-  color: hsl(var(--shoka-success));
-}
-
-.quiz .quiz-answer.incorrect {
-  background: hsl(var(--shoka-danger) / 0.1);
-  color: hsl(var(--shoka-danger));
 }

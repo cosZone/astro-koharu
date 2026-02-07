@@ -9,9 +9,9 @@ import { useAudioPlayer } from '@hooks/useAudioPlayer';
 import type { MetingSong } from '@lib/meting';
 import { resolvePlaylist } from '@lib/meting';
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { PlayerControls } from './audio-player/PlayerControls';
 import { PlayerPlaylist } from './audio-player/PlayerPlaylist';
 import { PlayerPreview } from './audio-player/PlayerPreview';
+import { MediaControls } from './shared/MediaControls';
 
 interface AudioGroup {
   title?: string;
@@ -126,7 +126,7 @@ export function AudioPlayer({ element }: AudioPlayerProps) {
   return (
     <div className="audio-player not-prose">
       <PlayerPreview track={currentTrack} playing={player.state.playing} currentTime={player.state.currentTime} />
-      <PlayerControls
+      <MediaControls
         playing={player.state.playing}
         loading={player.state.loading}
         mode={player.state.mode}

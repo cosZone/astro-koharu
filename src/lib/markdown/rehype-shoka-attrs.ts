@@ -77,34 +77,31 @@ export function rehypeShokaAttrs() {
     });
 
     // Pass 2: Handle list item trailing {.class}
+    // Scans all children of <li> for trailing {.class} patterns — handles:
+    //   - Direct text child (simple li)
+    //   - Text inside <p> child (loose list / nested list case)
+    //   - Non-last text children (li with sub-list where text precedes <ul>)
     visit(tree, 'element', (node: Element) => {
       if (node.tagName !== 'li') return;
 
-      // Check last text-bearing child for trailing {.class}
-      const lastChild = node.children[node.children.length - 1];
-      if (!lastChild) return;
+      for (const child of node.children) {
+        let textNode: Text | undefined;
 
-      // Handle direct text child
-      if (lastChild.type === 'text') {
-        const match = lastChild.value.match(/\{([^}]+)\}\s*$/);
+        if (child.type === 'text') {
+          textNode = child;
+        } else if (child.type === 'element' && child.children.length > 0) {
+          const last = child.children[child.children.length - 1];
+          if (last?.type === 'text') textNode = last as Text;
+        }
+
+        if (!textNode) continue;
+
+        const match = textNode.value.match(/\{([^}]+)\}\s*$/);
         if (match) {
           const attrs = parseAttrs(match[1]);
-          lastChild.value = lastChild.value.slice(0, match.index).trimEnd();
+          textNode.value = textNode.value.slice(0, match.index).trimEnd();
           applyAttrs(node, attrs);
-        }
-        return;
-      }
-
-      // Handle text inside last element child (e.g., <p> inside <li>)
-      if (lastChild.type === 'element' && lastChild.children.length > 0) {
-        const innerLast = lastChild.children[lastChild.children.length - 1];
-        if (innerLast?.type === 'text') {
-          const match = innerLast.value.match(/\{([^}]+)\}\s*$/);
-          if (match) {
-            const attrs = parseAttrs(match[1]);
-            innerLast.value = innerLast.value.slice(0, match.index).trimEnd();
-            applyAttrs(node, attrs);
-          }
+          return;
         }
       }
     });

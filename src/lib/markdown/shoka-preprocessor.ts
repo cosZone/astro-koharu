@@ -55,12 +55,12 @@ function processContainers(text: string, opts: ContainerOptions = {}, _depth = 0
     const groupId = pendingTabId;
 
     output.push('');
-    output.push(`<div class="tab-group" data-tab-group="${groupId}">`);
+    output.push(`<div class="tab-group" data-tab-group="${escapeHtml(groupId)}">`);
     output.push(`<div class="tab-headers" role="tablist">`);
     for (let t = 0; t < pendingTabs.length; t++) {
       const isActive = t === 0;
       output.push(
-        `<button class="tab-header" role="tab" aria-selected="${isActive}" data-tab-index="${t}" data-tab-group="${groupId}">${pendingTabs[t].name}</button>`,
+        `<button class="tab-header" role="tab" aria-selected="${isActive}" data-tab-index="${t}" data-tab-group="${escapeHtml(groupId)}">${escapeHtml(pendingTabs[t].name)}</button>`,
       );
     }
     output.push('</div>');
@@ -136,7 +136,7 @@ function processContainers(text: string, opts: ContainerOptions = {}, _depth = 0
             i++;
             break;
           }
-        } else if (/^:::(\w+)/.test(lines[i])) {
+        } else if (/^:::(\w+)(?:\s+(no-icon))?\s*$/.test(lines[i])) {
           depth++;
         }
         innerLines.push(lines[i]);
@@ -169,7 +169,7 @@ function processContainers(text: string, opts: ContainerOptions = {}, _depth = 0
             i++;
             break;
           }
-        } else if (/^\+\+\+\w+\s+/.test(lines[i])) {
+        } else if (/^\+\+\+\w+\s+.+$/.test(lines[i])) {
           depth++;
         }
         innerLines.push(lines[i]);
@@ -177,7 +177,7 @@ function processContainers(text: string, opts: ContainerOptions = {}, _depth = 0
       }
       output.push('');
       output.push(`<details class="collapse-block collapse-${style}">`);
-      output.push(`<summary>${title}</summary>`);
+      output.push(`<summary>${escapeHtml(title)}</summary>`);
       output.push(`<div class="collapse-content">`);
       output.push('');
       output.push(processContainers(innerLines.join('\n'), opts, _depth + 1));
@@ -203,7 +203,7 @@ function processContainers(text: string, opts: ContainerOptions = {}, _depth = 0
             i++;
             break;
           }
-        } else if (/^;;;\S+\s+/.test(lines[i])) {
+        } else if (/^;;;\S+\s+.+$/.test(lines[i])) {
           depth++;
         }
         innerLines.push(lines[i]);

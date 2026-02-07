@@ -12,6 +12,7 @@
 @import "./theme/shoka-quiz.css";
 @import "./theme/shoka-links.css";
 @import "./theme/shoka-media.css";
+@import "./theme/shoka-player-shared.css";
 @import "./theme/shoka-audio-player.css";
 @import "./components/wave.css";
 @import "./components/category.css";

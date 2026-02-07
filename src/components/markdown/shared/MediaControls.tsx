@@ -1,12 +1,15 @@
 /**
- * PlayerControls — playback mode, prev/play/next, volume, thin progress line.
+ * Shared media controls for audio and video players.
+ *
+ * Renders playback mode, prev/play/next, volume, and progress bar.
+ * Accepts optional extra buttons (e.g. fullscreen) and conditional track buttons.
  */
 
 import { Icon } from '@iconify/react';
 import { cn } from '@lib/utils';
 import type { PlayMode } from '@/store/player';
 
-interface PlayerControlsProps {
+export interface MediaControlsProps {
   playing: boolean;
   loading: boolean;
   mode: PlayMode;
@@ -21,6 +24,9 @@ interface PlayerControlsProps {
   onSetMode: (mode: PlayMode) => void;
   onSetVolume: (volume: number) => void;
   onToggleMute: () => void;
+  showModeButton?: boolean;
+  showTrackButtons?: boolean;
+  extraButtons?: React.ReactNode;
 }
 
 const MODE_ICONS: Record<PlayMode, string> = {
@@ -43,7 +49,7 @@ function getVolumeIcon(volume: number, muted: boolean): string {
   return 'ri:volume-up-line';
 }
 
-export function PlayerControls({
+export function MediaControls({
   playing,
   loading,
   mode,
@@ -58,7 +64,10 @@ export function PlayerControls({
   onSetMode,
   onSetVolume,
   onToggleMute,
-}: PlayerControlsProps) {
+  showModeButton = true,
+  showTrackButtons = true,
+  extraButtons,
+}: MediaControlsProps) {
   const progress = duration > 0 ? (currentTime / duration) * 100 : 0;
 
   const handleProgressClick = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -78,14 +87,17 @@ export function PlayerControls({
 
   return (
     <div className="audio-player-controls">
-      {/* Buttons row */}
       <div className="audio-player-buttons">
-        <button type="button" className="audio-player-btn" onClick={cycleMode} title={MODE_LABELS[mode]}>
-          <Icon icon={MODE_ICONS[mode]} />
-        </button>
-        <button type="button" className="audio-player-btn" onClick={onPrev} title="上一曲">
-          <Icon icon="ri:skip-back-line" />
-        </button>
+        {showModeButton && (
+          <button type="button" className="audio-player-btn" onClick={cycleMode} title={MODE_LABELS[mode]}>
+            <Icon icon={MODE_ICONS[mode]} />
+          </button>
+        )}
+        {showTrackButtons && (
+          <button type="button" className="audio-player-btn" onClick={onPrev} title="上一曲">
+            <Icon icon="ri:skip-back-line" />
+          </button>
+        )}
         <button
           type="button"
           className={cn('audio-player-btn audio-player-btn-play', loading && 'loading')}
@@ -100,11 +112,14 @@ export function PlayerControls({
             <Icon icon="ri:play-large-fill" />
           )}
         </button>
-        <button type="button" className="audio-player-btn" onClick={onNext} title="下一曲">
-          <Icon icon="ri:skip-forward-line" />
-        </button>
+        {showTrackButtons && (
+          <button type="button" className="audio-player-btn" onClick={onNext} title="下一曲">
+            <Icon icon="ri:skip-forward-line" />
+          </button>
+        )}
 
-        {/* Volume — icon + slider (slider hidden by default, shown on hover) */}
+        {extraButtons}
+
         <div className="audio-player-volume-group">
           <button type="button" className="audio-player-btn" onClick={onToggleMute} title="静音">
             <Icon icon={getVolumeIcon(volume, muted)} />
@@ -122,7 +137,6 @@ export function PlayerControls({
         </div>
       </div>
 
-      {/* Thin progress line */}
       <div
         className="audio-player-progress"
         role="slider"

@@ -14,7 +14,6 @@ export function setupCollapseAnimations(container: Element): void {
     if (!summary || !content) continue;
 
     let anim: Animation | null = null;
-    let isOpen = details.open;
 
     summary.addEventListener('click', (e) => {
       e.preventDefault();
@@ -22,7 +21,6 @@ export function setupCollapseAnimations(container: Element): void {
       // Respect reduced motion preference — toggle instantly
       if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
         details.open = !details.open;
-        isOpen = details.open;
         return;
       }
 
@@ -33,10 +31,10 @@ export function setupCollapseAnimations(container: Element): void {
         anim = null;
       }
 
-      isOpen = !isOpen;
+      const willOpen = !details.open;
       const cs = getComputedStyle(content);
 
-      if (isOpen) {
+      if (willOpen) {
         // Expand: set open first so content is laid out and measurable
         details.open = true;
         const h = content.offsetHeight;

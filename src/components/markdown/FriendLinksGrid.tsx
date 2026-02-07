@@ -8,7 +8,8 @@ interface Props {
 export function FriendLinksGrid({ gridElement }: Props) {
   let raw: Record<string, string | undefined>[];
   try {
-    raw = JSON.parse(gridElement.dataset.links || '[]');
+    const parsed = JSON.parse(gridElement.dataset.links || '[]');
+    raw = Array.isArray(parsed) ? parsed : [];
   } catch {
     raw = [];
   }

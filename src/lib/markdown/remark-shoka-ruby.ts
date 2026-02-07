@@ -7,6 +7,7 @@
  */
 import type { PhrasingContent, Root } from 'mdast';
 import { visit } from 'unist-util-visit';
+import { escapeHtml } from './shoka-renderers';
 
 // Match {text^annotation}, but NOT {.class} (which starts with .)
 const RUBY_REGEX = /\{([^{}^.][^{}^]*)\^([^{}]+)\}/g;
@@ -33,20 +34,20 @@ export function remarkShokaRuby() {
           // Emphasis dots
           parts.push({
             type: 'html',
-            value: `<span style="text-emphasis:filled circle;-webkit-text-emphasis:filled circle">${baseText}</span>`,
+            value: `<span style="text-emphasis:filled circle;-webkit-text-emphasis:filled circle">${escapeHtml(baseText)}</span>`,
           });
         } else if (annotation.startsWith('=')) {
           // Whole-word annotation (remove leading =)
           const rubyText = annotation.slice(1);
           parts.push({
             type: 'html',
-            value: `<ruby>${baseText}<rp>(</rp><rt>${rubyText}</rt><rp>)</rp></ruby>`,
+            value: `<ruby>${escapeHtml(baseText)}<rp>(</rp><rt>${escapeHtml(rubyText)}</rt><rp>)</rp></ruby>`,
           });
         } else {
           // Standard ruby annotation
           parts.push({
             type: 'html',
-            value: `<ruby>${baseText}<rp>(</rp><rt>${annotation}</rt><rp>)</rp></ruby>`,
+            value: `<ruby>${escapeHtml(baseText)}<rp>(</rp><rt>${escapeHtml(annotation)}</rt><rp>)</rp></ruby>`,
           });
         }
 

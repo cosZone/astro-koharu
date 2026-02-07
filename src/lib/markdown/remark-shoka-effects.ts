@@ -12,6 +12,10 @@
  */
 import type { PhrasingContent, Root } from 'mdast';
 import { visit } from 'unist-util-visit';
+import { escapeHtml } from './shoka-renderers';
+
+/** Validates a CSS identifier (class name, id) */
+const CSS_IDENT = /^[a-zA-Z_-][a-zA-Z0-9_-]*$/;
 
 /** Matches a trailing {.class #id key=value} attribute block */
 const TRAILING_ATTRS = /^\{([^}]+)\}/;
@@ -24,12 +28,14 @@ function buildAttrString(raw: string): string {
 
   for (const token of raw.split(/\s+/)) {
     if (token.startsWith('.')) {
-      classes.push(token.slice(1));
+      const cls = token.slice(1);
+      if (CSS_IDENT.test(cls)) classes.push(cls);
     } else if (token.startsWith('#')) {
-      id = token.slice(1);
+      const idVal = token.slice(1);
+      if (CSS_IDENT.test(idVal)) id = idVal;
     } else if (token.includes('=')) {
       const [key, ...rest] = token.split('=');
-      attrs.push(`${key}="${rest.join('=')}"`);
+      if (CSS_IDENT.test(key)) attrs.push(`${key}="${escapeHtml(rest.join('='))}"`);
     }
   }
 
@@ -70,7 +76,7 @@ function createInlinePlugin(pattern: RegExp, tagName: string) {
 
         parts.push({
           type: 'html',
-          value: `<${tagName}${attrStr}>${match[1]}</${tagName}>`,
+          value: `<${tagName}${attrStr}>${escapeHtml(match[1])}</${tagName}>`,
         });
 
         lastIndex = pattern.lastIndex;

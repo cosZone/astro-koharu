@@ -94,6 +94,12 @@ export function shokaMetaTransformer(): ShikiTransformer {
   return {
     name: 'shoka-meta',
     pre(node) {
+      // Reset cache to prevent cross-block leakage
+      cachedRaw = undefined;
+      cachedMeta = null;
+      cachedMarkLines = null;
+      cachedCommands = null;
+
       const meta = getMeta(this.options.meta?.__raw);
       if (!meta) return;
 

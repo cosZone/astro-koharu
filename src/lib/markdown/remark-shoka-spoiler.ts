@@ -13,12 +13,16 @@ const SPOILER_REGEX = /!!([^!\s](?:[^!]*[^!\s])?)!!/g;
 /** Matches a trailing {.class #id key=value} attribute block */
 const TRAILING_ATTRS = /^\{([^}]+)\}/;
 
+/** Validates a CSS identifier (class name) */
+const CSS_IDENT = /^[a-zA-Z_-][a-zA-Z0-9_-]*$/;
+
 /** Extract extra classes from attr tokens (.class only, others ignored for spoiler) */
 function extractClasses(raw: string): string[] {
   return raw
     .split(/\s+/)
     .filter((t) => t.startsWith('.'))
-    .map((t) => t.slice(1));
+    .map((t) => t.slice(1))
+    .filter((cls) => CSS_IDENT.test(cls));
 }
 
 export function remarkShokaSpoiler() {

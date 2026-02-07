@@ -423,6 +423,10 @@ $$
 
 ## 练习题
 
+支持四种题型：**单选题**、**多选题**、**判断题**、**填空题**。
+
+### 单选题
+
 ```markdown
 - 下列哪个是 JavaScript 的基本数据类型？{.quiz}
   - Object{.options}
@@ -440,3 +444,59 @@ $$
   - Function{.options}
 
 > 解析：Symbol 是 ES6 引入的基本数据类型，而 Object、Array、Function 都是引用类型。
+
+### 多选题
+
+```markdown
+- 以下哪些是 CSS 布局方式？{.quiz .multi}
+  - Flexbox{.correct}
+  - jQuery{.options}
+  - Grid{.correct}
+  - Float{.correct}
+
+> 解析：Flexbox、Grid 和 Float 都是 CSS 布局方式。jQuery 是一个 JavaScript 库，不属于 CSS 布局。
+```
+
+- 以下哪些是 CSS 布局方式？{.quiz .multi}
+  - Flexbox{.correct}
+  - jQuery{.options}
+  - Grid{.correct}
+  - Float{.correct}
+
+> 解析：Flexbox、Grid 和 Float 都是 CSS 布局方式。jQuery 是一个 JavaScript 库，不属于 CSS 布局。
+
+### 判断题
+
+```markdown
+- `const` 声明的变量不能重新赋值，但可以修改其属性。{.quiz .true}
+
+> 解析：`const` 只保证变量绑定不可变，如果变量指向一个对象，其属性仍然可以修改。
+
+- HTML 是一种编程语言。{.quiz}
+
+> 解析：HTML（超文本标记语言）是一种标记语言，不是编程语言。它没有逻辑控制能力。
+```
+
+- `const` 声明的变量不能重新赋值，但可以修改其属性。{.quiz .true}
+
+> 解析：`const` 只保证变量绑定不可变，如果变量指向一个对象，其属性仍然可以修改。
+
+- HTML 是一种编程语言。{.quiz}
+
+> 解析：HTML（超文本标记语言）是一种标记语言，不是编程语言。它没有逻辑控制能力。
+
+### 填空题
+
+```markdown
+- 在 JavaScript 中，`typeof null` 的结果是 [object]{.gap}。{.quiz .fill}
+
+> 解析：这是一个历史遗留 bug。`null` 的类型标签与 object 相同，因此 `typeof null` 返回 `"object"`。常见错误答案是 [null]{.mistake}。
+```
+
+- 在 JavaScript 中，`typeof null` 的结果是 [object]{.gap}。{.quiz .fill}
+
+> 解析：这是一个历史遗留 bug。`null` 的类型标签与 object 相同，因此 `typeof null` 返回 `"object"`。常见错误答案是 [null]{.mistake}。
+
+- CSS 中，[Flexbox]{.gap} 适合一维布局，[Grid]{.gap} 适合二维布局，而 [Float]{.gap} 是传统的布局方式。{.quiz .fill}
+
+> 解析：Flexbox 是一维布局模型（行或列），Grid 是二维布局模型（行和列同时控制），Float 是 CSS2 时代的传统布局方式。
