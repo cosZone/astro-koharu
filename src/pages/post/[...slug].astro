@@ -3,6 +3,7 @@ import CustomContent from '@components/common/CustomContent.astro';
 import HomeSider from '@components/layout/HomeSider.astro';
 import SummaryPanel, { type SummarySource } from '@components/post/SummaryPanel';
 import Cover from '@components/ui/cover/Cover.astro';
+import { defaultContentConfig } from '@constants/content-config';
 import { HomeSiderType } from '@constants/enum';
 import { CONTENT_PADDING } from '@constants/layout';
 import { siteConfig } from '@constants/site-config';
@@ -30,7 +31,10 @@ export async function getStaticPaths() {
 }
 const { post, postId } = Astro.props;
 const { Content } = await post.render();
-const { title, categories = [], tags = [], date } = post?.data ?? {};
+const { title, categories = [], tags = [], date, math: postMath } = post?.data ?? {};
+// KaTeX CSS: only load when global enableMath is on AND post hasn't opted out.
+// When enableMath is false globally, rehype-katex is not in the pipeline, so no math is rendered.
+const hasMath = defaultContentConfig.enableMath !== false && postMath !== false;
 
 // 使用统一的工具函数获取文章描述
 const finalDescription = getPostDescription(post);
@@ -131,6 +135,7 @@ if (post.data.description) {
 >
   <script is:inline slot="head" type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
   <script is:inline slot="head" type="application/ld+json" set:html={JSON.stringify(breadcrumbJsonLd)} />
+  {hasMath && <link slot="head" rel="stylesheet" href="/katex/katex.min.css" />}
   <TwoColumnLayout post={post}>
     <Cover slot="cover" data={post} />
     <HomeSider slot="sider" type={HomeSiderType.POST} post={post} />

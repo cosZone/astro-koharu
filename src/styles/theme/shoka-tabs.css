@@ -1,0 +1,78 @@
+/* =============================================================================
+ * Shoka Tabs — Tab groups (;;;id TabName)
+ * Underline-indicator style — uses CSS variables for automatic light/dark theming
+ * ============================================================================= */
+
+.tab-group {
+  margin: 1.5em 0;
+  border: 1px solid hsl(var(--border));
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+/* Header strip — sits on a visible bottom border */
+.tab-headers {
+  display: flex;
+  flex-wrap: wrap;
+  background: hsl(var(--muted) / 0.5);
+  border-bottom: 1px solid hsl(var(--border));
+}
+
+/* Individual tab button */
+.tab-header {
+  position: relative;
+  padding: 10px 20px;
+  cursor: pointer;
+  font-size: 0.875em;
+  font-weight: 500;
+  color: hsl(var(--muted-foreground));
+  background: transparent;
+  border: none;
+  transition:
+    color 0.2s,
+    background-color 0.2s;
+  user-select: none;
+}
+
+/* Hover — subtle lift */
+.tab-header:hover {
+  color: hsl(var(--foreground));
+  background: hsl(var(--muted) / 0.6);
+}
+
+/* Active — primary indicator bar + elevated background */
+.tab-header[aria-selected="true"] {
+  color: hsl(var(--primary));
+  font-weight: 600;
+  background: hsl(var(--background));
+}
+
+/* Active indicator — thick bottom bar */
+.tab-header[aria-selected="true"]::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 8px;
+  right: 8px;
+  height: 3px;
+  background: hsl(var(--primary));
+  border-radius: 3px 3px 0 0;
+}
+
+/* Panel */
+.tab-panel {
+  padding: 1em;
+  display: none;
+}
+
+.tab-panel.active {
+  display: block;
+}
+
+.tab-panel > :first-child {
+  margin-top: 0;
+}
+
+.tab-panel > :last-child {
+  margin-bottom: 0;
+}

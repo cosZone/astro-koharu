@@ -46,6 +46,9 @@ const blogCollection = defineCollection({
     tocNumbering: z.boolean().optional().default(true),
     // 排除 AI 摘要生成
     excludeFromSummary: z.boolean().optional(),
+    // Shoka features per-post toggle
+    math: z.boolean().optional(),
+    quiz: z.boolean().optional(),
   }) satisfies z.ZodType<BlogSchema, z.ZodTypeDef, BlogSchemaInput>,
 });
 

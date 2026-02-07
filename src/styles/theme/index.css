@@ -19,6 +19,24 @@
   --grey-4: 0 0% 80%;
   --color-pink: #ed6ea0;
   --color-pink-a3: rgba(237, 110, 160, 0.3);
+
+  /* Shoka container/effect colors (primary uses --primary from shadcn theme) */
+  --shoka-default: 0 0% 40%;
+  --shoka-info: 210 100% 50%;
+  --shoka-success: 142 76% 36%;
+  --shoka-warning: 45 100% 40%;
+  --shoka-danger: 0 84% 60%;
+
+  /* Named text colors — adapted for light/dark mode readability */
+  --color-red: #e74c3c;
+  --color-pink-text: #e91e63;
+  --color-orange: #f39c12;
+  --color-yellow: #d4a017;
+  --color-green: #27ae60;
+  --color-aqua: #1abc9c;
+  --color-blue: #2e86c1;
+  --color-purple: #8e44ad;
+  --color-grey: #7f8c8d;
 }
 
 .dark {
@@ -43,4 +61,22 @@
   --grey-4: 0 0% 40%;
   --color-pink: #f18bb3;
   --color-pink-a3: rgba(237, 110, 160, 0.3);
+
+  /* Shoka container/effect colors (dark mode) */
+  --shoka-default: 0 0% 60%;
+  --shoka-info: 210 100% 65%;
+  --shoka-success: 142 76% 50%;
+  --shoka-warning: 45 100% 55%;
+  --shoka-danger: 0 84% 70%;
+
+  /* Named text colors — brighter for dark backgrounds */
+  --color-red: #f87171;
+  --color-pink-text: #f472b6;
+  --color-orange: #fbbf24;
+  --color-yellow: #facc15;
+  --color-green: #4ade80;
+  --color-aqua: #2dd4bf;
+  --color-blue: #60a5fa;
+  --color-purple: #c084fc;
+  --color-grey: #9ca3af;
 }

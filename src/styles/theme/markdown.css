@@ -594,3 +594,45 @@
   white-space: pre-wrap;
   word-break: break-word;
 }
+
+/* ========== Code block meta enhancements ========== */
+
+/* Title bar for code blocks with data-title */
+.code-block-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.35em 1em;
+  font-size: 0.8em;
+  font-weight: 500;
+  color: hsl(var(--muted-foreground));
+  border-bottom: 1px solid hsl(var(--border));
+  background: hsl(var(--muted) / 0.3);
+}
+
+.code-block-title a {
+  color: hsl(var(--shoka-info));
+  text-decoration: none;
+  font-size: 0.85em;
+}
+.code-block-title a:hover {
+  text-decoration: underline;
+}
+
+/* Line highlighting (mark) */
+.prose pre code .line-highlight {
+  background: hsl(var(--shoka-warning) / 0.12);
+  margin: 0 -1.5rem;
+  padding: 0 1.5rem;
+  display: inline-block;
+  width: calc(100% + 3rem);
+  border-left: 3px solid hsl(var(--shoka-warning));
+  padding-left: calc(1.5rem - 3px);
+}
+
+/* Command prompt */
+.prose pre code .has-prompt::before {
+  content: attr(data-prompt) " ";
+  color: hsl(var(--muted-foreground));
+  user-select: none;
+}
