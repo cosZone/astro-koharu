@@ -3,7 +3,7 @@ title: Markdown 增强功能演示
 link: markdown-features
 catalog: true
 date: 2024-01-02 00:00:00
-description: 展示 astro-koharu 支持的所有 Markdown 增强功能，包括代码高亮、Mermaid 图表、GFM 表格等。
+description: 展示 astro-koharu 支持的所有 Markdown 增强功能，包括代码高亮、Mermaid 图表、GFM 表格、Shoka 兼容语法等。
 tags:
   - Markdown
   - 教程
@@ -229,6 +229,22 @@ pie title 博客内容分布
 图片会自动应用 LQIP（低质量图片占位符）效果：
 
 ![示例图片](/img/cover/3.webp)
+
+## Shoka 兼容 Markdown 语法
+
+除了上述标准 Markdown 增强外，astro-koharu 还支持从 Hexo Shoka 主题迁移的丰富扩展语法，包括：
+
+- **文字特效** — 下划线 ++ins++、高亮 ==mark==、上下标 ~sub~ / ^sup^、颜色文字
+- **隐藏文字** — Spoiler 粒子动画 !!隐藏文字!! 和 !!模糊效果!!{.blur}
+- **注音标注** — Ruby {漢字^かんじ}
+- **容器块** — 提醒块 `:::info`、折叠块 `+++primary 标题`、标签卡 `;;;tab`
+- **友链卡片** — `{% links %}` YAML 数据渲染为交互卡片
+- **音视频播放器** — `{% media audio/video %}` 支持网易云/QQ 音乐歌单
+- **数学公式** — KaTeX 行内 $E=mc^2$ 和块级 `$$...$$`
+- **代码块增强** — title、mark 行高亮、command 提示符
+- **练习题系统** — 单选、多选、判断、填空四种题型
+
+所有功能均可在 `config/site.yaml` 中独立开关。完整语法演示和用法请参阅 [Shoka 主题 Markdown 语法演示](/post/note/shoka-features)。
 
 ## 总结
 
