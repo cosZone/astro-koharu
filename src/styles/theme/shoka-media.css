@@ -19,33 +19,6 @@
  * Only the video screen area needs video-specific styles.
  * ============================================================================= */
 
-.video-player {
-  --player-bg: hsl(var(--card));
-  --player-fg: hsl(var(--card-foreground));
-  --player-border: hsl(var(--border) / 0.6);
-  --player-highlight: hsl(var(--primary));
-  --player-muted: hsl(var(--muted));
-  --player-muted-fg: hsl(var(--muted-foreground));
-
-  margin: 2em 0;
-  border-radius: 24px;
-  overflow: hidden;
-  border: 1px solid var(--player-border);
-  background: var(--player-bg);
-  color: var(--player-fg);
-  box-shadow:
-    0 4px 20px -2px hsl(0 0% 0% / 0.08),
-    0 10px 40px -10px hsl(0 0% 0% / 0.12);
-  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-}
-
-.video-player:hover {
-  box-shadow:
-    0 6px 24px -2px hsl(0 0% 0% / 0.1),
-    0 12px 48px -10px hsl(var(--primary) / 0.15);
-  border-color: hsl(var(--primary) / 0.3);
-}
-
 /* Video screen area */
 .video-player-screen {
   position: relative;

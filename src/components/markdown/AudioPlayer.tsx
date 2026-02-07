@@ -45,8 +45,10 @@ export function AudioPlayer({ element }: AudioPlayerProps) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState(0);
+  const [retryCount, setRetryCount] = useState(0);
 
   // Resolve all URLs via Meting API
+  // biome-ignore lint/correctness/useExhaustiveDependencies: retryCount is an intentional trigger to re-run the effect
   useEffect(() => {
     let cancelled = false;
 
@@ -86,7 +88,7 @@ export function AudioPlayer({ element }: AudioPlayerProps) {
     return () => {
       cancelled = true;
     };
-  }, [audioGroups, apiUrl]);
+  }, [audioGroups, apiUrl, retryCount]);
 
   const player = useAudioPlayer(tracks);
   const currentTrack = tracks[player.state.currentIndex] ?? null;
@@ -111,6 +113,9 @@ export function AudioPlayer({ element }: AudioPlayerProps) {
     return (
       <div className="audio-player audio-player-error">
         <span>加载失败: {error}</span>
+        <button type="button" className="audio-player-btn" onClick={() => setRetryCount((c) => c + 1)}>
+          重试
+        </button>
       </div>
     );
   }

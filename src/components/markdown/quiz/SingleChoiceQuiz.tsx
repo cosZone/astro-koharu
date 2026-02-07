@@ -27,7 +27,7 @@ export function SingleChoiceQuiz({ quiz }: { quiz: ParsedQuiz }) {
         {/* biome-ignore lint/security/noDangerouslySetInnerHtml: Content from build-time Markdown */}
         <span dangerouslySetInnerHTML={{ __html: quiz.questionHtml }} />
       </div>
-      <div className="space-y-2">
+      <fieldset className="space-y-2 border-none p-0" aria-label="单选题选项">
         {quiz.options.map((option, index) => (
           <QuizOption
             // biome-ignore lint/suspicious/noArrayIndexKey: Options are static
@@ -41,21 +41,22 @@ export function SingleChoiceQuiz({ quiz }: { quiz: ParsedQuiz }) {
             onClick={() => handleSelect(index)}
           />
         ))}
-      </div>
-      {revealed && (
-        <div
-          className={cn(
-            'rounded-lg px-3 py-2 font-medium text-sm',
-            isCorrect
-              ? 'bg-green-50 text-green-700 dark:bg-green-950/30 dark:text-green-300'
-              : 'bg-red-50 text-red-700 dark:bg-red-950/30 dark:text-red-300',
-          )}
-        >
-          {isCorrect
+      </fieldset>
+      <output
+        aria-live="polite"
+        className={cn(
+          'block rounded-lg px-3 py-2 font-medium text-sm',
+          !revealed && 'hidden',
+          isCorrect
+            ? 'bg-green-50 text-green-700 dark:bg-green-950/30 dark:text-green-300'
+            : 'bg-red-50 text-red-700 dark:bg-red-950/30 dark:text-red-300',
+        )}
+      >
+        {revealed &&
+          (isCorrect
             ? '回答正确！'
-            : `回答错误。正确答案是 ${String.fromCharCode(65 + quiz.options.findIndex((o) => o.isCorrect))}。`}
-        </div>
-      )}
+            : `回答错误。正确答案是 ${String.fromCharCode(65 + quiz.options.findIndex((o) => o.isCorrect))}。`)}
+      </output>
       <QuizExplanation html={quiz.explanationHtml} visible={revealed} />
     </div>
   );

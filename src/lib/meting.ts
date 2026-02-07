@@ -75,7 +75,7 @@ function setCache(key: string, data: MetingSong[]): void {
     const entry: CacheEntry = { data, timestamp: Date.now() };
     localStorage.setItem(key, JSON.stringify(entry));
   } catch {
-    // localStorage full or unavailable — skip
+    // localStorage full or unavailable — non-critical, skip silently
   }
 }
 

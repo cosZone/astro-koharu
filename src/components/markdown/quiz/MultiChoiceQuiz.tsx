@@ -37,7 +37,7 @@ export function MultiChoiceQuiz({ quiz }: { quiz: ParsedQuiz }) {
         {/* biome-ignore lint/security/noDangerouslySetInnerHtml: Content from build-time Markdown */}
         <span dangerouslySetInnerHTML={{ __html: quiz.questionHtml }} />
       </div>
-      <div className="space-y-2">
+      <fieldset className="space-y-2 border-none p-0" aria-label="多选题选项">
         {quiz.options.map((option, index) => (
           <QuizOption
             // biome-ignore lint/suspicious/noArrayIndexKey: Options are static
@@ -51,7 +51,7 @@ export function MultiChoiceQuiz({ quiz }: { quiz: ParsedQuiz }) {
             onClick={() => toggleOption(index)}
           />
         ))}
-      </div>
+      </fieldset>
       {!revealed && (
         <button
           type="button"
@@ -67,20 +67,21 @@ export function MultiChoiceQuiz({ quiz }: { quiz: ParsedQuiz }) {
           提交答案（已选 {selected.size} 项）
         </button>
       )}
-      {revealed && (
-        <div
-          className={cn(
-            'rounded-lg px-3 py-2 font-medium text-sm',
-            isAllCorrect
-              ? 'bg-green-50 text-green-700 dark:bg-green-950/30 dark:text-green-300'
-              : 'bg-red-50 text-red-700 dark:bg-red-950/30 dark:text-red-300',
-          )}
-        >
-          {isAllCorrect
+      <output
+        aria-live="polite"
+        className={cn(
+          'block rounded-lg px-3 py-2 font-medium text-sm',
+          !revealed && 'hidden',
+          isAllCorrect
+            ? 'bg-green-50 text-green-700 dark:bg-green-950/30 dark:text-green-300'
+            : 'bg-red-50 text-red-700 dark:bg-red-950/30 dark:text-red-300',
+        )}
+      >
+        {revealed &&
+          (isAllCorrect
             ? '回答正确！'
-            : `回答错误。正确答案是 ${[...correctIndices].map((i) => String.fromCharCode(65 + i)).join('、')}。`}
-        </div>
-      )}
+            : `回答错误。正确答案是 ${[...correctIndices].map((i) => String.fromCharCode(65 + i)).join('、')}。`)}
+      </output>
       <QuizExplanation html={quiz.explanationHtml} visible={revealed} />
     </div>
   );
