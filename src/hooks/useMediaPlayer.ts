@@ -62,6 +62,8 @@ export function useMediaPlayer<T>({ tracks, getUrl, getElement }: UseMediaPlayer
     volume: getStoredVolume(),
     muted: false,
   });
+  const stateRef = useRef(state);
+  stateRef.current = state;
 
   const loadAndPlay = useCallback(
     (index: number) => {
@@ -86,9 +88,14 @@ export function useMediaPlayer<T>({ tracks, getUrl, getElement }: UseMediaPlayer
       return;
     }
     // Element not yet available — poll until it is (e.g. video ref after first render)
+    let unmounted = false;
     let attempts = 0;
     const MAX_ATTEMPTS = 100; // 5 seconds at 50ms intervals
     const id = setInterval(() => {
+      if (unmounted) {
+        clearInterval(id);
+        return;
+      }
       const resolved = getElementRef.current();
       if (resolved) {
         setBoundElement(resolved);
@@ -97,7 +104,10 @@ export function useMediaPlayer<T>({ tracks, getUrl, getElement }: UseMediaPlayer
         clearInterval(id);
       }
     }, 50);
-    return () => clearInterval(id);
+    return () => {
+      unmounted = true;
+      clearInterval(id);
+    };
   }, []);
 
   // Bind media events — re-runs when boundElement changes from null → element
@@ -113,19 +123,20 @@ export function useMediaPlayer<T>({ tracks, getUrl, getElement }: UseMediaPlayer
     const onError = () => setState((s) => ({ ...s, playing: false, loading: false, error: 'Failed to load media' }));
     const onEnded = () => {
       const currentTracks = tracksRef.current;
-      setState((prev) => {
-        if (currentTracks.length === 0) return { ...prev, playing: false };
-        let nextIndex: number;
-        if (prev.mode === 'loop') {
-          nextIndex = prev.currentIndex;
-        } else if (prev.mode === 'random') {
-          nextIndex = currentTracks.length > 1 ? Math.floor(Math.random() * currentTracks.length) : 0;
-        } else {
-          nextIndex = prev.currentIndex + 1 >= currentTracks.length ? 0 : prev.currentIndex + 1;
-        }
-        queueMicrotask(() => loadAndPlayRef.current(nextIndex));
-        return prev;
-      });
+      const prev = stateRef.current;
+      if (currentTracks.length === 0) {
+        setState((s) => ({ ...s, playing: false }));
+        return;
+      }
+      let nextIndex: number;
+      if (prev.mode === 'loop') {
+        nextIndex = prev.currentIndex;
+      } else if (prev.mode === 'random') {
+        nextIndex = currentTracks.length > 1 ? Math.floor(Math.random() * currentTracks.length) : 0;
+      } else {
+        nextIndex = prev.currentIndex + 1 >= currentTracks.length ? 0 : prev.currentIndex + 1;
+      }
+      loadAndPlayRef.current(nextIndex);
     };
 
     el.addEventListener('timeupdate', onTimeUpdate);

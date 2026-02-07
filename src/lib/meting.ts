@@ -79,6 +79,12 @@ function setCache(key: string, data: MetingSong[]): void {
   }
 }
 
+function isMetingSong(obj: unknown): obj is MetingSong {
+  if (typeof obj !== 'object' || obj === null) return false;
+  const o = obj as Record<string, unknown>;
+  return typeof o.name === 'string' && typeof o.artist === 'string' && typeof o.url === 'string';
+}
+
 /** Fetch songs from Meting API for a single parsed URL. */
 export async function fetchMeting(server: string, type: string, id: string, apiUrl?: string): Promise<MetingSong[]> {
   const cacheKey = getCacheKey(server, type, id);
@@ -90,7 +96,9 @@ export async function fetchMeting(server: string, type: string, id: string, apiU
   const response = await fetch(`${api}?${params}`);
   if (!response.ok) throw new Error(`Meting API error: ${response.status}`);
 
-  const songs: MetingSong[] = await response.json();
+  const data: unknown = await response.json();
+  if (!Array.isArray(data)) return [];
+  const songs = data.filter(isMetingSong) as MetingSong[];
   if (songs.length > 0) setCache(cacheKey, songs);
   return songs;
 }

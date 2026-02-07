@@ -1,5 +1,25 @@
 import type { ParsedQuiz, QuestionPart, QuizOption, QuizType } from './types';
 
+/**
+ * Lightweight client-side HTML sanitizer for quiz content.
+ * Strips event handler attributes (onclick, onerror, etc.) and javascript: URLs
+ * from already-rendered Markdown HTML. Uses the browser DOM API to avoid bundling
+ * the heavy sanitize-html library (~50KB) on the client.
+ */
+function sanitizeHtml(html: string): string {
+  const doc = new DOMParser().parseFromString(`<div>${html}</div>`, 'text/html');
+  for (const el of doc.querySelectorAll('*')) {
+    for (const attr of Array.from(el.attributes)) {
+      if (attr.name.startsWith('on') || (attr.name === 'href' && attr.value.trimStart().startsWith('javascript:'))) {
+        el.removeAttribute(attr.name);
+      }
+    }
+  }
+  // Remove <script> and <style> elements
+  for (const el of doc.querySelectorAll('script, style')) el.remove();
+  return doc.body.firstElementChild?.innerHTML ?? '';
+}
+
 /** Detect quiz type from the element's classList and source content */
 export function detectQuizType(el: HTMLElement, source: HTMLElement): QuizType {
   if (el.classList.contains('fill')) return 'fill';
@@ -21,7 +41,7 @@ export function extractQuestionHtml(el: HTMLElement): string {
       child.remove();
     }
   }
-  return clone.innerHTML.trim();
+  return sanitizeHtml(clone.innerHTML.trim());
 }
 
 /** Extract options from child <ul> list items */
@@ -30,7 +50,7 @@ export function extractOptions(el: HTMLElement): QuizOption[] {
   if (!ul) return [];
 
   return Array.from(ul.querySelectorAll(':scope > li')).map((li) => ({
-    html: li.innerHTML,
+    html: sanitizeHtml(li.innerHTML),
     isCorrect: li.classList.contains('correct'),
   }));
 }
@@ -38,7 +58,7 @@ export function extractOptions(el: HTMLElement): QuizOption[] {
 /** Extract explanation HTML from child <blockquote> */
 export function extractExplanation(el: HTMLElement): string | null {
   const blockquote = el.querySelector(':scope > blockquote');
-  return blockquote ? blockquote.innerHTML : null;
+  return blockquote ? sanitizeHtml(blockquote.innerHTML) : null;
 }
 
 /**

@@ -19,7 +19,11 @@ function parseAttrs(attrStr: string): Record<string, string> {
   for (let match = tokenRegex.exec(attrStr); match !== null; match = tokenRegex.exec(attrStr)) {
     if (match[1]) classes.push(match[1]);
     else if (match[2]) props.id = match[2];
-    else if (match[3]) props[match[3]] = match[4] ?? match[5] ?? '';
+    else if (match[3]) {
+      // Block event handler attributes (onclick, onerror, etc.) for security
+      if (match[3].toLowerCase().startsWith('on')) continue;
+      props[match[3]] = match[4] ?? match[5] ?? '';
+    }
   }
 
   if (classes.length > 0) props.class = classes.join(' ');
