@@ -5,6 +5,7 @@ import { siteConfig } from '@constants/site-config';
 import { getSiteStats } from '@lib/stats';
 import { cn } from '@lib/utils';
 import { Icon } from 'astro-icon/components';
+import { getLocaleFromUrl, t } from '@/i18n';
 import SakuraSVG from '../svg/SakuraSvg';
 
 interface Props {
@@ -13,6 +14,7 @@ interface Props {
 
 const { className } = Astro.props;
 
+const locale = getLocaleFromUrl(Astro.url.pathname);
 const stats = await getSiteStats();
 const currentYear = new Date().getFullYear();
 const startYear = siteConfig?.startYear ?? currentYear;
@@ -25,25 +27,25 @@ const startYear = siteConfig?.startYear ?? currentYear;
 
     <!-- Site Stats -->
     <div class="text-muted-foreground flex flex-wrap items-center justify-center gap-6 text-sm md:gap-4">
-      <button class="flex items-center gap-2 opacity-75 transition-opacity duration-300 hover:opacity-100" title="站点总字数">
+      <button class="flex items-center gap-2 opacity-75 transition-opacity duration-300 hover:opacity-100" title={t(locale, 'footer.totalWordsTitle')}>
         <Icon name="ri:file-text-line" class="h-4 w-4" />
         <span class="font-medium">{stats.formattedWords}</span>
-        <span class="text-xs">字</span>
+        <span class="text-xs">{t(locale, 'footer.wordUnit')}</span>
       </button>
 
       <div class="bg-muted-foreground/30 h-4 w-px"></div>
 
-      <button class="flex items-center gap-2 opacity-75 transition-opacity duration-300 hover:opacity-100" title="站点阅读时长">
+      <button class="flex items-center gap-2 opacity-75 transition-opacity duration-300 hover:opacity-100" title={t(locale, 'footer.readingTimeTitle')}>
         <Icon name="ri:time-line" class="h-4 w-4" />
         <span class="font-medium">{stats.formattedTime}</span>
       </button>
 
       <div class="bg-muted-foreground/30 h-4 w-px"></div>
 
-      <button class="flex items-center gap-2 opacity-75 transition-opacity duration-300 hover:opacity-100" title="文章总数">
+      <button class="flex items-center gap-2 opacity-75 transition-opacity duration-300 hover:opacity-100" title={t(locale, 'footer.postCountTitle')}>
         <Icon name="ri:article-line" class="h-4 w-4" />
         <span class="font-medium">{stats.postCount}</span>
-        <span class="text-xs">篇</span>
+        <span class="text-xs">{t(locale, 'footer.postUnit')}</span>
       </button>
     </div>
 

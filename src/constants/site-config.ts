@@ -6,6 +6,7 @@ import type {
   DevConfig,
   FeaturedCategory,
   FeaturedSeriesItem,
+  I18nConfig,
   SiteBasicConfig,
 } from '@lib/config/types';
 import { DEFAULT_TIMEZONE, isValidTimezone } from '@lib/timezone';
@@ -294,6 +295,15 @@ export const devConfig: DevConfig = {
   localProjectPath: yamlConfig.dev?.localProjectPath ?? '',
   contentRelativePath: yamlConfig.dev?.contentRelativePath ?? 'src/content/blog',
   editors: yamlConfig.dev?.editors ?? [],
+};
+
+// =============================================================================
+// i18n Configuration
+// =============================================================================
+
+export const i18nConfig: I18nConfig = yamlConfig.i18n ?? {
+  defaultLocale: 'zh',
+  locales: [{ code: 'zh', label: '中文' }],
 };
 
 // =============================================================================

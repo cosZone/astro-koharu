@@ -27,21 +27,26 @@ import { getOgImageUrl } from '@lib/seo/og-image';
 import LoadingIndicator from 'astro-loading-indicator/component';
 import { SEO } from 'astro-seo';
 import { Tooltips } from 'astro-tooltips';
+import { getHtmlLang, getLocaleFromUrl, stripLocaleFromPath } from '@/i18n';
 
 import '@styles/index.css';
 
 const { title = seoConfig.title, description = seoConfig.description, siderType, post } = Astro.props;
 // TODO: siderType should be custom in router file, not in layout
 
-// Detect if current page is a post page for mobile header
-const isPostPage = Astro.url.pathname.startsWith('/post/');
+// i18n: derive locale from URL and compute BCP 47 lang tag
+const locale = getLocaleFromUrl(Astro.url.pathname);
+const htmlLang = getHtmlLang(locale);
+
+// Detect if current page is a post page for mobile header (locale-prefix safe)
+const isPostPage = stripLocaleFromPath(Astro.url.pathname).startsWith('/post/');
 
 // OGP image: use post cover if available, otherwise use default from config, fallback to avatar
 const ogImage = getOgImageUrl(post?.data.cover, Astro.site);
 ---
 
 <!doctype html>
-<html transition:name="root" lang="zh-CN" class="vertical-scrollbar">
+<html transition:name="root" lang={htmlLang} class="vertical-scrollbar">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />

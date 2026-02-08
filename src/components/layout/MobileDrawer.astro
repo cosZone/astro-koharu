@@ -2,6 +2,7 @@
 import { HomeSiderType } from '@constants/enum';
 import { Icon } from 'astro-icon/components';
 import type { BlogPost } from 'types/blog';
+import { getLocaleFromUrl, t } from '@/i18n';
 import HomeSider from './HomeSider.astro';
 
 interface Props {
@@ -10,6 +11,7 @@ interface Props {
 }
 
 const { type = HomeSiderType.HOME, post } = Astro.props;
+const locale = getLocaleFromUrl(Astro.url.pathname);
 ---
 
 <!-- 遮罩层 -->
@@ -20,11 +22,11 @@ const { type = HomeSiderType.HOME, post } = Astro.props;
   id="mobile-drawer"
   class="bg-gradient-start tablet:flex fixed inset-y-0 left-0 z-50 hidden h-screen w-[70vw] min-w-64 -translate-x-full transform px-4 pt-6 shadow-lg backdrop-blur-sm transition-transform duration-300 md:px-0"
   role="dialog"
-  aria-label="导航菜单"
+  aria-label={t(locale, 'drawer.navMenu')}
   aria-modal="true"
 >
   <div class="flex h-full w-full flex-col overflow-auto">
-    <button id="close-drawer" aria-label="关闭菜单" class="invisible">
+    <button id="close-drawer" aria-label={t(locale, 'drawer.close')} class="invisible">
       <Icon name="ri:close-line" class="h-6 w-6" />
     </button>
     <HomeSider className="tablet:flex tablet:mt-0 mt-4 hidden w-full min-w-full p-0" isDrawer type={type} post={post} />

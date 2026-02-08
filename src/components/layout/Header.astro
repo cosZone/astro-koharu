@@ -7,6 +7,7 @@ import { MobilePostHeader } from '@components/layout/MobilePostHeader';
 import { MenuIcon } from '@components/ui/MenuIcon';
 import { MAX_WIDTH } from '@constants/layout';
 import { christmasConfig, siteConfig } from 'constants/site-config';
+import { getLocaleFromUrl } from '@/i18n';
 import Navigator from './Navigator';
 
 interface Props {
@@ -16,6 +17,7 @@ interface Props {
 
 const { isPostPage = false, tocNumbering = true } = Astro.props;
 const { alternate, title, showLogo } = siteConfig;
+const locale = getLocaleFromUrl(Astro.url.pathname);
 ---
 
 <div
@@ -46,7 +48,7 @@ const { alternate, title, showLogo } = siteConfig;
         logoSrc={logoSrc}
       />
     </div>
-    <Navigator client:load currentPath={Astro.url.pathname} />
+    <Navigator client:load currentPath={Astro.url.pathname} locale={locale} />
   </div>
   {christmasConfig.enabled && christmasConfig.features.christmasCoverDecoration && <ChristmasLights />}
   {christmasConfig.enabled && <ChristmasOrnamentToggle client:only="react" />}
