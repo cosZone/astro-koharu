@@ -8,6 +8,7 @@ import { getAllTags, getCategoryList, getPostCount, getSortedPosts } from '@lib/
 import { getLqipStyle } from '@lib/lqip';
 import { cn, filterNavItems } from '@lib/utils';
 import { Icon } from 'astro-icon/components';
+import { getLocaleFromUrl, resolveNavName, t } from '@/i18n';
 import type { BlogSchema } from '@/types/blog';
 import Social from './Social.astro';
 
@@ -18,6 +19,7 @@ interface Props {
   frontmatter?: BlogSchema;
 }
 
+const locale = getLocaleFromUrl(Astro.url.pathname);
 const postCount = await getPostCount();
 const { countMap } = await getCategoryList();
 const posts = await getSortedPosts();
@@ -54,25 +56,26 @@ const filteredRouters = filterNavItems(routers, configuredSeriesSlugs, enabledSe
   >
     <a href="/" class="hover:text-blue flex cursor-pointer flex-col gap-2 p-1 transition">
       <span class="text-lg/5 font-bold">{postCount}</span>
-      文章
+      {t(locale, 'homeInfo.articles')}
     </a>
     <div class="bg-muted-foreground mx-3 w-px"></div>
-    <a href="/categories" aria-label="分类" class="hover:text-blue">
+    <a href="/categories" aria-label={t(locale, 'homeInfo.categories')} class="hover:text-blue">
       <p class="flex cursor-pointer flex-col gap-2 p-1 transition">
         <span class="text-lg/5 font-bold">{Object.keys(countMap).length}</span>
-        分类
+        {t(locale, 'homeInfo.categories')}
       </p>
     </a>
     <div class="bg-muted-foreground mx-3 w-px"></div>
     <a href="/tags" class="hover:text-blue flex cursor-pointer flex-col gap-2 p-1 transition">
       <span class="text-lg/5 font-bold">{allTags?.length ?? 0}</span>
-      标签
+      {t(locale, 'homeInfo.tags')}
     </a>
   </div>
   <div class="mt-6 flex w-full flex-col items-center gap-2.5">
     {
-      filteredRouters.map(({ name, path, icon, children }, index) => {
-        if (children?.length) {
+      filteredRouters.map((item, index) => {
+        const displayName = resolveNavName(item.nameKey, item.name, locale);
+        if (item.children?.length) {
           const collapseId = `${uniqueId}-collapse-${index}`;
           return (
             <div
@@ -83,11 +86,11 @@ const filteredRouters = filterNavItems(routers, configuredSeriesSlugs, enabledSe
                 class="flex-center hover:bg-foreground/5 h-12 w-full cursor-pointer rounded-xl transition-colors"
                 data-collapse-trigger={collapseId}
                 aria-expanded="false"
-                aria-label={`${name}菜单`}
+                aria-label={`${displayName} menu`}
                 type="button"
               >
-                {icon && <Icon name={icon} class="mr-1.5" />}
-                {name}
+                {item.icon && <Icon name={item.icon} class="mr-1.5" />}
+                {displayName}
                 <Icon
                   name="ri:arrow-down-s-line"
                   class="ml-2 size-5 transition-transform duration-300"
@@ -96,20 +99,23 @@ const filteredRouters = filterNavItems(routers, configuredSeriesSlugs, enabledSe
               </button>
               <div class="collapse-hidden" data-collapse-content={collapseId}>
                 <div class="flex flex-col items-center">
-                  {children.map(({ name, path, icon }) => (
-                    <ButtonLink
-                      url={path}
-                      label={name}
-                      variant="gradient-shoka"
-                      className={cn('shoka-button-shadow h-12 w-40 rounded-xl text-base tracking-wider', {
-                        'text-muted-foreground/80 hover:bg-muted-foreground/10 bg-none shadow-none hover:shadow-none':
-                          path !== Astro.url.pathname,
-                      })}
-                    >
-                      {icon && <Icon name={icon} class="mr-1.5" />}
-                      {name}
-                    </ButtonLink>
-                  ))}
+                  {item.children.map((child) => {
+                    const childName = resolveNavName(child.nameKey, child.name, locale);
+                    return (
+                      <ButtonLink
+                        url={child.path}
+                        label={childName}
+                        variant="gradient-shoka"
+                        className={cn('shoka-button-shadow h-12 w-40 rounded-xl text-base tracking-wider', {
+                          'text-muted-foreground/80 hover:bg-muted-foreground/10 bg-none shadow-none hover:shadow-none':
+                            child.path !== Astro.url.pathname,
+                        })}
+                      >
+                        {child.icon && <Icon name={child.icon} class="mr-1.5" />}
+                        {childName}
+                      </ButtonLink>
+                    );
+                  })}
                 </div>
               </div>
             </div>
@@ -117,19 +123,19 @@ const filteredRouters = filterNavItems(routers, configuredSeriesSlugs, enabledSe
         }
         return (
           <ButtonLink
-            url={path}
-            label={name}
+            url={item.path}
+            label={displayName}
             variant="gradient-shoka"
             className={cn(
               'shoka-button-shadow h-12 w-40 rounded-xl text-base tracking-wider opacity-75 transition-all duration-300 hover:opacity-100',
               {
                 'text-muted-foreground/80 hover:bg-muted-foreground/10 bg-none shadow-none hover:shadow-none':
-                  path !== Astro.url.pathname,
+                  item.path !== Astro.url.pathname,
               },
             )}
           >
-            {icon && <Icon name={icon} class="mr-1.5" />}
-            {name}
+            {item.icon && <Icon name={item.icon} class="mr-1.5" />}
+            {displayName}
           </ButtonLink>
         );
       })

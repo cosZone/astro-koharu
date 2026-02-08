@@ -55,6 +55,15 @@ const umamiEndpoint = normalizeUrl(umamiConfig?.endpoint);
 // Get robots.txt config from YAML
 const robotsConfig = yamlConfig.seo?.robots;
 
+// i18n configuration from YAML
+const i18nYaml = yamlConfig.i18n;
+const i18nDefaultLocale = i18nYaml?.defaultLocale ?? 'zh';
+const i18nLocales = (i18nYaml?.locales ?? [{ code: 'zh' }]).map((l) => l.code);
+// Fallback map will be enabled in Phase 3 when [lang]/ mirror routes are created:
+// const i18nFallback = Object.fromEntries(
+//   i18nLocales.filter((code) => code !== i18nDefaultLocale).map((code) => [code, i18nDefaultLocale]),
+// );
+
 /**
  * Vite plugin for conditional Three.js bundling
  * When christmas snowfall is disabled, replaces SnowfallCanvas with a noop component
@@ -220,6 +229,17 @@ export default defineConfig({
     optimizeDeps: {
       include: ['@antv/infographic'],
     },
+  },
+  i18n: {
+    defaultLocale: i18nDefaultLocale,
+    locales: i18nLocales,
+    routing: {
+      prefixDefaultLocale: false,
+      redirectToDefaultLocale: true,
+    },
+    // fallback will be enabled in Phase 3 when [lang]/ mirror routes are created:
+    // fallback: i18nFallback,
+    // routing.fallbackType: 'rewrite',
   },
   trailingSlash: 'ignore',
 });

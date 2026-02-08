@@ -172,6 +172,8 @@ export interface ContentConfig {
 
 export interface RouterItem {
   name?: string;
+  /** Translation key for locale-aware name (e.g., 'nav.home'). Falls back to `name` if absent. */
+  nameKey?: string;
   path?: string;
   icon?: string;
   children?: RouterItem[];
@@ -503,6 +505,24 @@ export interface BgmConfig {
 }
 
 // =============================================================================
+// i18n Configuration
+// =============================================================================
+
+export interface LocaleConfig {
+  /** Locale code (BCP 47 short format, e.g., 'zh', 'en', 'ja') */
+  code: string;
+  /** Display label for the locale (e.g., '中文', 'English') */
+  label?: string;
+}
+
+export interface I18nConfig {
+  /** Default locale code */
+  defaultLocale: string;
+  /** List of supported locales */
+  locales: LocaleConfig[];
+}
+
+// =============================================================================
 // Root Configuration Type
 // =============================================================================
 
@@ -526,4 +546,6 @@ export interface SiteYamlConfig {
   christmas?: ChristmasConfig;
   /** Development tools configuration (dev only) */
   dev?: DevConfig;
+  /** Internationalization configuration */
+  i18n?: I18nConfig;
 }
