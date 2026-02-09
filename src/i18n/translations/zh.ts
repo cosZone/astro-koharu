@@ -36,6 +36,10 @@ export const uiStrings = {
   // ── Post ────────────────────────────────────────────────────
   'post.readMore': '阅读全文',
   'post.totalPosts': '共 {count} 篇文章',
+  'post.stickyPosts': '置顶文章',
+  'post.postList': '文章列表',
+  'post.featuredCategories': '精选分类',
+  'post.yearPosts': '{count} 篇文章',
   'post.readingTime': '{time} 分钟阅读',
   'post.wordCount': '{count} 字',
   'post.publishedAt': '发布于 {date}',
@@ -53,8 +57,13 @@ export const uiStrings = {
   // ── Categories & Tags ───────────────────────────────────────
   'category.allCategories': '所有分类',
   'category.postsInCategory': '{name} 分类下的文章',
+  'category.totalCategories': '共 {count} 个分类',
+  'category.categoryLabel': '分类',
   'tag.allTags': '所有标签',
   'tag.postsWithTag': '标签「{name}」下的文章',
+  'tag.totalTags': '共 {count} 个标签',
+  'tag.all': '全部',
+  'tag.postCount': '{count} 篇文章',
 
   // ── Archives ────────────────────────────────────────────────
   'archives.title': '归档',
@@ -213,6 +222,8 @@ export const uiStrings = {
   'notFound.title': '页面未找到',
   'notFound.description': '你访问的页面不存在',
   'notFound.backHome': '返回首页',
+  'notFound.browseArchives': '浏览归档',
+  'notFound.message': '喵？页面被吃掉了~',
 
   // ── Featured Series ─────────────────────────────────────────
   'series.latestPost': '最新文章',

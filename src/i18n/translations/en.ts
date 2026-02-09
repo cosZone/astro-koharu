@@ -37,6 +37,10 @@ export const uiStrings: UIStrings = {
   // ── Post ────────────────────────────────────────────────────
   'post.readMore': 'Read more',
   'post.totalPosts': '{count} posts',
+  'post.stickyPosts': 'Pinned Posts',
+  'post.postList': 'Posts',
+  'post.featuredCategories': 'Featured Categories',
+  'post.yearPosts': '{count} posts',
   'post.readingTime': '{time} min read',
   'post.wordCount': '{count} words',
   'post.publishedAt': 'Published {date}',
@@ -54,8 +58,13 @@ export const uiStrings: UIStrings = {
   // ── Categories & Tags ───────────────────────────────────────
   'category.allCategories': 'All Categories',
   'category.postsInCategory': 'Posts in {name}',
+  'category.totalCategories': '{count} categories',
+  'category.categoryLabel': 'Category',
   'tag.allTags': 'All Tags',
   'tag.postsWithTag': 'Posts tagged "{name}"',
+  'tag.totalTags': '{count} tags',
+  'tag.all': 'All',
+  'tag.postCount': '{count} posts',
 
   // ── Archives ────────────────────────────────────────────────
   'archives.title': 'Archives',
@@ -215,6 +224,8 @@ export const uiStrings: UIStrings = {
   'notFound.title': 'Page Not Found',
   'notFound.description': 'The page you are looking for does not exist',
   'notFound.backHome': 'Back to Home',
+  'notFound.browseArchives': 'Browse Archives',
+  'notFound.message': 'Meow? The page was eaten~',
 
   // ── Featured Series ─────────────────────────────────────────
   'series.latestPost': 'Latest',

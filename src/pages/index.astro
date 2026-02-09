@@ -12,9 +12,12 @@ import type { Page } from 'astro';
 import type { BlogPost } from 'types/blog';
 import CategoryCards from '@/components/post/CategoryCards.astro';
 import Divider from '@/components/ui/divider';
+import { getLocaleFromUrl, localizedPath, t } from '@/i18n';
+
+const locale = getLocaleFromUrl(Astro.url.pathname);
 
 // 使用优化的单次查询获取所有首页数据
-const { highlightedPosts, stickyPosts: normalStickyPosts, regularPosts } = await getHomePagePosts();
+const { highlightedPosts, stickyPosts: normalStickyPosts, regularPosts } = await getHomePagePosts(locale);
 
 // 将高亮系列文章放在置顶列表开头（转换为卡片数据）
 const stickyPosts = toPostCardDataList([...highlightedPosts, ...normalStickyPosts]);
@@ -25,6 +28,9 @@ const regularPostsSlice = regularPosts.slice(0, pageSize);
 const posts = toPostCardDataList(regularPostsSlice);
 const totalRegularPosts = regularPosts.length;
 
+const homeUrl = localizedPath('/', locale);
+const postsBaseUrl = localizedPath('/posts', locale);
+
 const page: Page<BlogPost> = {
   data: regularPostsSlice,
   start: 0,
@@ -34,11 +40,11 @@ const page: Page<BlogPost> = {
   currentPage: 1,
   lastPage: Math.ceil(totalRegularPosts / pageSize),
   url: {
-    current: '/',
+    current: homeUrl,
     prev: undefined,
-    next: totalRegularPosts > pageSize ? '/posts/2' : undefined,
-    first: '/',
-    last: `/posts/${Math.ceil(totalRegularPosts / pageSize)}`,
+    next: totalRegularPosts > pageSize ? `${postsBaseUrl}/2` : undefined,
+    first: homeUrl,
+    last: `${postsBaseUrl}/${Math.ceil(totalRegularPosts / pageSize)}`,
   },
 };
 ---
@@ -52,13 +58,13 @@ const page: Page<BlogPost> = {
     >
       {stickyPosts.length > 0 && (
         <>
-          <Divider>置顶文章</Divider>
+          <Divider>{t(locale, 'post.stickyPosts')}</Divider>
           <PostList posts={stickyPosts} showPaginator={false} />
         </>
       )}
-      <Divider>文章列表</Divider>
-      <PostList posts={posts} page={page} showPaginator={true} baseUrl="/posts" isHomePage={true} />
-      <Divider className="mt-6">精选分类</Divider>
+      <Divider>{t(locale, 'post.postList')}</Divider>
+      <PostList posts={posts} page={page} showPaginator={true} baseUrl={postsBaseUrl} isHomePage={true} />
+      <Divider className="mt-6">{t(locale, 'post.featuredCategories')}</Divider>
       <CategoryCards />
     </div>
   </TwoColumnLayout>

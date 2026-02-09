@@ -4,9 +4,11 @@ import Cover from '@components/ui/cover/Cover.astro';
 import Layout from '@layouts/Layout.astro';
 import TwoColumnLayout from '@layouts/TwoColumnLayout.astro';
 import { Icon } from 'astro-icon/components';
+import { getLocaleFromUrl, localizedPath, t } from '@/i18n';
 
-const title = '404 - 页面未找到';
-const description = '抱歉，您访问的页面不存在';
+const locale = getLocaleFromUrl(Astro.url.pathname);
+const title = `404 - ${t(locale, 'notFound.title')}`;
+const description = t(locale, 'notFound.description');
 
 // Debug flag: Set to true to pause animation at the "Cat" shape for inspection
 const DEBUG_CAT_STATE = false;
@@ -91,17 +93,17 @@ const DEBUG_CAT_STATE = false;
         </svg>
 
         <div class="message-container">
-          <p class="fade-text">喵？页面被吃掉了~</p>
+          <p class="fade-text">{t(locale, 'notFound.message')}</p>
         </div>
 
         <div class="actions">
-           <a href="/" class="action-btn home-btn">
+           <a href={localizedPath('/', locale)} class="action-btn home-btn">
             <Icon name="fa6-solid:house-chimney" />
-            <span>返回首页</span>
+            <span>{t(locale, 'notFound.backHome')}</span>
           </a>
-          <a href="/archives" class="action-btn archive-btn">
+          <a href={localizedPath('/archives', locale)} class="action-btn archive-btn">
             <Icon name="ri:archive-2-fill" />
-            <span>浏览归档</span>
+            <span>{t(locale, 'notFound.browseArchives')}</span>
           </a>
         </div>
       </div>

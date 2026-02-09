@@ -3,6 +3,7 @@
  */
 
 import type { BlogPost } from 'types/blog';
+import { getPostSlug } from './locale';
 
 interface SimilarPost {
   slug: string;
@@ -59,7 +60,7 @@ export function getRelatedPostSlugs(currentSlug: string, count: number = 5): Sim
  */
 export function getRelatedPosts(currentPost: BlogPost, allPosts: BlogPost[], count: number = 5): BlogPost[] {
   try {
-    const currentSlug = currentPost.data.link ?? currentPost.slug;
+    const currentSlug = getPostSlug(currentPost);
     const relatedSlugs = getRelatedPostSlugs(currentSlug, count);
 
     if (!relatedSlugs.length) {
@@ -69,7 +70,7 @@ export function getRelatedPosts(currentPost: BlogPost, allPosts: BlogPost[], cou
     // Create a map from slug to full post object
     const slugToPost = new Map<string, BlogPost>();
     for (const post of allPosts) {
-      const slug = post.data.link ?? post.slug;
+      const slug = getPostSlug(post);
       slugToPost.set(slug, post);
     }
 

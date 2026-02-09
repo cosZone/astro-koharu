@@ -4,17 +4,20 @@
 
 import { getCollection } from 'astro:content';
 import { categoryMap } from '@constants/category';
+import type { BlogPost } from 'types/blog';
 import { encodeSlug } from '../route';
+import { filterPostsByLocale } from './locale';
 import type { Category, CategoryListResult } from './types';
 
 /**
  * Get hierarchical category list with counts (excluding drafts in production)
  */
-export async function getCategoryList(): Promise<CategoryListResult> {
-  const allBlogPosts = await getCollection('blog', ({ data }) => {
+export async function getCategoryList(locale?: string): Promise<CategoryListResult> {
+  const rawPosts = await getCollection('blog', ({ data }) => {
     // 在生产环境中，过滤掉草稿
     return import.meta.env.PROD ? data.draft !== true : true;
   });
+  const allBlogPosts = filterPostsByLocale(rawPosts as BlogPost[], locale);
   const countMap: { [key: string]: number } = {}; // TODO: 需要优化，应该以分类路径为键名而不是 name 如数据结构既是根分类也是笔记-后端-数据结构。
   const resCategories: Category[] = [];
 

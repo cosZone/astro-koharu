@@ -10,14 +10,15 @@ import { getNonFeaturedPosts } from '@lib/content';
 import { toPostCardDataList } from '@lib/content/transforms';
 import type { PaginateFunction } from 'astro';
 import Divider from '@/components/ui/divider';
+import { defaultLocale, getLocaleFromUrl, t } from '@/i18n';
 
 export async function getStaticPaths({ paginate }: { paginate: PaginateFunction }) {
-  // 获取所有非系列文章用于分页
-  const postCollections = await getNonFeaturedPosts();
+  const postCollections = await getNonFeaturedPosts(defaultLocale);
   return paginate(postCollections, { pageSize: PAGINATION.pageSize });
 }
 
 const { page } = Astro.props;
+const locale = getLocaleFromUrl(Astro.url.pathname);
 const postCardData = toPostCardDataList(page.data);
 ---
 
@@ -28,7 +29,7 @@ const postCardData = toPostCardDataList(page.data);
     <div
       class={`shadow-box bg-gradient-start tablet:shadow-none flex flex-col gap-4 overflow-hidden ${CONTENT_PADDING.standard}`}
     >
-      <Divider>文章列表</Divider>
+      <Divider>{t(locale, 'post.postList')}</Divider>
       <PostList posts={postCardData} page={page} />
     </div>
   </TwoColumnLayout>

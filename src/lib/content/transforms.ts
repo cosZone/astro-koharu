@@ -7,6 +7,7 @@
 
 import readingTime from 'reading-time';
 import type { BlogPost } from '@/types/blog';
+import { getSlugLocaleInfo } from './locale';
 import { getPostDescriptionWithSummary, getPostLastCategory } from './posts';
 
 /**
@@ -37,7 +38,7 @@ export type PostFieldMap = {
  */
 const fieldExtractors: { [K in keyof PostFieldMap]: (post: BlogPost) => PostFieldMap[K] } = {
   // 直接字段
-  slug: (p) => p.slug,
+  slug: (p) => getSlugLocaleInfo(p.slug).localeFreeSlug,
   link: (p) => p.data?.link,
   title: (p) => p.data.title,
   date: (p) => p.data.date,

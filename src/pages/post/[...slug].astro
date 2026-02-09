@@ -9,27 +9,33 @@ import { CONTENT_PADDING } from '@constants/layout';
 import { siteConfig } from '@constants/site-config';
 import Layout from '@layouts/Layout.astro';
 import TwoColumnLayout from '@layouts/TwoColumnLayout.astro';
-import { buildCategoryPath, getCategoryArr, getPostDescription, getPostSummary, getSortedPosts } from '@lib/content';
+import {
+  buildCategoryPath,
+  getCategoryArr,
+  getPostDescription,
+  getPostSlug,
+  getPostSummary,
+  getSortedPosts,
+} from '@lib/content';
 import { formatForSeo } from '@lib/date';
 import { encodeSlug } from '@lib/route';
 import { getOgImageUrl } from '@lib/seo/og-image';
 import { Icon } from 'astro-icon/components';
 import { Comment } from '@/components/comment';
 import EditButton from '@/components/EditButton';
+import { defaultLocale, getLocaleFromUrl, localizedPath, t } from '@/i18n';
 import { extractTextFromMarkdown } from '@/lib/sanitize';
 
 export async function getStaticPaths() {
-  const postCollections = await getSortedPosts();
+  const postCollections = await getSortedPosts(defaultLocale);
 
-  return postCollections.map((post) => {
-    const link = post.data?.link ?? post.slug;
-    return {
-      params: { slug: link },
-      props: { post, postId: post.id },
-    };
-  });
+  return postCollections.map((post) => ({
+    params: { slug: getPostSlug(post) },
+    props: { post, postId: post.id },
+  }));
 }
 const { post, postId } = Astro.props;
+const locale = getLocaleFromUrl(Astro.url.pathname);
 const { Content } = await post.render();
 const { title, categories = [], tags = [], date, math: postMath } = post?.data ?? {};
 // KaTeX CSS: only load when global enableMath is on AND post hasn't opted out.
@@ -67,7 +73,7 @@ const breadcrumbCategories = [];
 if (categoryArr?.length) {
   for (let i = 0; i < categoryArr.length; i++) {
     const partialCategories = categoryArr.slice(0, i + 1);
-    const link = buildCategoryPath(partialCategories);
+    const link = localizedPath(buildCategoryPath(partialCategories), locale);
     breadcrumbCategories.push({
       name: categoryArr[i],
       link: link,
@@ -76,7 +82,7 @@ if (categoryArr?.length) {
 }
 
 // BreadcrumbList structured data for SEO
-const homeName = siteConfig.breadcrumbHome || '首页';
+const homeName = t(locale, 'breadcrumb.home');
 const breadcrumbListItems = [
   {
     '@type': 'ListItem',
@@ -105,7 +111,7 @@ const breadcrumbJsonLd = {
 };
 
 // 确定显示的摘要内容和来源类型
-const postSlug = post.data?.link ?? post.slug;
+const postSlug = getPostSlug(post);
 let summaryText: string | null = null;
 let summarySource: SummarySource | null = null;
 
@@ -146,7 +152,7 @@ if (post.data.description) {
           <div class="flex items-center gap-1">
             <!-- Home Icon and Link -->
             <Icon name="fa6-solid:house-chimney" class="h-4 w-4" />
-            <a href="/" aria-label={`返回${homeName}`}>
+            <a href={localizedPath('/', locale)} aria-label={homeName}>
               <span class="hover:text-blue transition-colors duration-300">{homeName}</span>
             </a>
           </div>

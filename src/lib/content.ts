@@ -18,7 +18,12 @@ export {
   getCategoryNameByLink,
   getParentCategory,
 } from './content/categories';
+export type { SlugLocaleInfo } from './content/locale';
 
+// =============================================================================
+// Locale Utilities
+// =============================================================================
+export { filterPostsByLocale, getPostLocale, getPostSlug, getSlugLocaleInfo } from './content/locale';
 // =============================================================================
 // Post Utilities
 // =============================================================================

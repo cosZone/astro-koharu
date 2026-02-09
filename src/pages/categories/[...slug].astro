@@ -6,10 +6,10 @@ import { seoConfig } from '@constants/site-config';
 import Layout from '@layouts/Layout.astro';
 import TwoColumnLayout from '@layouts/TwoColumnLayout.astro';
 import { getCategoryByLink, getCategoryLinks, getCategoryList } from '@lib/content';
+import { defaultLocale, getLocaleFromUrl, t } from '@/i18n';
 
-// 获取分类页面
 export async function getStaticPaths() {
-  const { categories } = await getCategoryList();
+  const { categories } = await getCategoryList(defaultLocale);
   const links = getCategoryLinks(categories, '');
   return links.map((link) => {
     const category = getCategoryByLink(categories, link);
@@ -21,15 +21,16 @@ export async function getStaticPaths() {
 }
 
 const { category } = Astro.props;
-const { categories: allCategories, countMap } = await getCategoryList();
+const locale = getLocaleFromUrl(Astro.url.pathname);
+const { categories: allCategories, countMap } = await getCategoryList(locale);
 
 // 如果是子分类，只展示当前分类的内容
 const displayCategories = category ? [category] : allCategories;
 ---
 
-<Layout title={`分类 - ${category?.name} | ${seoConfig.title}`}>
+<Layout title={`${t(locale, 'category.postsInCategory', { name: category?.name ?? '' })} | ${seoConfig.title}`}>
   <TwoColumnLayout>
-    <Cover slot="cover" title={`分类于"${category?.name}"的文章`} />
+    <Cover slot="cover" title={t(locale, 'category.postsInCategory', { name: category?.name ?? '' })} />
     <HomeSider slot="sider" />
     <CategoryPostList rootCategory={category} categories={displayCategories} countMap={countMap} />
   </TwoColumnLayout>

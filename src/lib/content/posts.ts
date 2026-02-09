@@ -10,6 +10,7 @@ import type { FeaturedSeriesItem } from '@lib/config/types';
 import type { BlogPost } from 'types/blog';
 import { extractTextFromMarkdown } from '../sanitize';
 import { buildCategoryPath } from './categories';
+import { filterPostsByLocale, getPostSlug } from './locale';
 
 /** AI 摘要数据类型 */
 type SummariesData = Record<string, { title: string; summary: string }>;
@@ -58,15 +59,15 @@ export function getPostSummary(slug: string): string | null {
  * @returns 文章描述文本
  */
 export function getPostDescriptionWithSummary(post: BlogPost, maxLength: number = 150): string {
-  const slug = post.data?.link ?? post.slug;
-  return post.data.description || getPostSummary(slug) || extractTextFromMarkdown(post.body, maxLength);
+  return post.data.description || getPostSummary(getPostSlug(post)) || extractTextFromMarkdown(post.body, maxLength);
 }
 
 /**
  * Get all posts sorted by date (newest first)
  * In production, draft posts are filtered out
+ * @param locale Optional locale filter — undefined returns all, 'zh' returns default only, 'en' returns en + fallback
  */
-export async function getSortedPosts(): Promise<CollectionEntry<'blog'>[]> {
+export async function getSortedPosts(locale?: string): Promise<CollectionEntry<'blog'>[]> {
   const posts = await getCollection('blog', ({ data }) => {
     // 在生产环境中，过滤掉草稿
     return import.meta.env.PROD ? data.draft !== true : true;
@@ -77,18 +78,18 @@ export async function getSortedPosts(): Promise<CollectionEntry<'blog'>[]> {
     return new Date(b.data.date).getTime() - new Date(a.data.date).getTime();
   });
 
-  return sortedPosts;
+  return filterPostsByLocale(sortedPosts, locale);
 }
 
 /**
  * Get posts separated by sticky status
  * @returns Object containing sticky and non-sticky posts, both sorted by date (newest first)
  */
-export async function getPostsBySticky(): Promise<{
+export async function getPostsBySticky(locale?: string): Promise<{
   stickyPosts: CollectionEntry<'blog'>[];
   nonStickyPosts: CollectionEntry<'blog'>[];
 }> {
-  const posts = await getSortedPosts();
+  const posts = await getSortedPosts(locale);
 
   const stickyPosts: CollectionEntry<'blog'>[] = [];
   const nonStickyPosts: CollectionEntry<'blog'>[] = [];
@@ -107,12 +108,9 @@ export async function getPostsBySticky(): Promise<{
 /**
  * Get post count (excluding drafts in production)
  */
-export async function getPostCount() {
-  const posts = await getCollection('blog', ({ data }) => {
-    // 在生产环境中，过滤掉草稿
-    return import.meta.env.PROD ? data.draft !== true : true;
-  });
-  return posts?.length ?? 0;
+export async function getPostCount(locale?: string) {
+  const posts = await getSortedPosts(locale);
+  return posts.length;
 }
 
 /**
@@ -120,8 +118,8 @@ export async function getPostCount() {
  * @param categoryName 分类名
  * @returns 文章列表
  */
-export async function getPostsByCategory(categoryName: string): Promise<BlogPost[]> {
-  const posts = await getSortedPosts();
+export async function getPostsByCategory(categoryName: string, locale?: string): Promise<BlogPost[]> {
+  const posts = await getSortedPosts(locale);
   return posts.filter((post) => {
     const { categories } = post.data;
     if (!categories?.length) return false;
@@ -181,8 +179,8 @@ function shuffleArray<T>(array: T[]): T[] {
  * @param count 文章数量
  * @returns 随机文章列表
  */
-export async function getRandomPosts(count: number = 10): Promise<BlogPost[]> {
-  const posts = await getSortedPosts();
+export async function getRandomPosts(count: number = 10, locale?: string): Promise<BlogPost[]> {
+  const posts = await getSortedPosts(locale);
   const shuffled = shuffleArray(posts);
   return shuffled.slice(0, Math.min(count, posts.length));
 }
@@ -214,7 +212,8 @@ export async function getAdjacentSeriesPosts(currentPost: BlogPost): Promise<{
     return { prevPost: null, nextPost: null };
   }
 
-  const currentIndex = seriesPosts.findIndex((post) => post.slug === currentPost.slug);
+  const currentSlug = getPostSlug(currentPost);
+  const currentIndex = seriesPosts.findIndex((post) => getPostSlug(post) === currentSlug);
 
   if (currentIndex === -1) {
     return { prevPost: null, nextPost: null };
@@ -275,11 +274,11 @@ export function getSeriesBySlug(slug: string): FeaturedSeriesItem | undefined {
  * @param slug 系列 slug
  * @returns 文章列表（按日期排序，最新的在前）
  */
-export async function getPostsBySeriesSlug(slug: string): Promise<BlogPost[]> {
+export async function getPostsBySeriesSlug(slug: string, locale?: string): Promise<BlogPost[]> {
   const series = getSeriesBySlug(slug);
   if (!series) return [];
 
-  return await getPostsByCategory(series.categoryName);
+  return await getPostsByCategory(series.categoryName, locale);
 }
 
 /**
@@ -294,13 +293,13 @@ export function getFeaturedCategoryNames(): string[] {
  * 获取所有非 Featured Series 的文章（已排序）
  * @returns 非系列文章列表（按日期排序，最新的在前）
  */
-export async function getNonFeaturedPosts(): Promise<BlogPost[]> {
+export async function getNonFeaturedPosts(locale?: string): Promise<BlogPost[]> {
   const categoryNames = getFeaturedCategoryNames();
   if (categoryNames.length === 0) {
-    return await getSortedPosts();
+    return await getSortedPosts(locale);
   }
 
-  const allPosts = await getSortedPosts();
+  const allPosts = await getSortedPosts(locale);
   return allPosts.filter((post) => !categoryNames.some((catName) => isPostInCategory(post, catName)));
 }
 
@@ -308,11 +307,11 @@ export async function getNonFeaturedPosts(): Promise<BlogPost[]> {
  * 获取非 Featured Series 文章，按置顶状态分组
  * @returns 置顶文章和非置顶的普通文章（互斥，不重叠）
  */
-export async function getNonFeaturedPostsBySticky(): Promise<{
+export async function getNonFeaturedPostsBySticky(locale?: string): Promise<{
   stickyPosts: BlogPost[];
   regularPosts: BlogPost[];
 }> {
-  const nonFeaturedPosts = await getNonFeaturedPosts();
+  const nonFeaturedPosts = await getNonFeaturedPosts(locale);
 
   const stickyPosts: BlogPost[] = [];
   const regularPosts: BlogPost[] = [];
@@ -332,12 +331,12 @@ export async function getNonFeaturedPostsBySticky(): Promise<{
  * 获取所有 highlightOnHome=true 系列的最新文章
  * @returns 最新文章列表（每个系列一篇）
  */
-export async function getHomeHighlightedPosts(): Promise<BlogPost[]> {
+export async function getHomeHighlightedPosts(locale?: string): Promise<BlogPost[]> {
   const highlightedSeries = getEnabledSeries().filter((series) => series.highlightOnHome !== false);
 
   const posts: BlogPost[] = [];
   for (const series of highlightedSeries) {
-    const seriesPosts = await getPostsByCategory(series.categoryName);
+    const seriesPosts = await getPostsByCategory(series.categoryName, locale);
     if (seriesPosts[0]) {
       posts.push(seriesPosts[0]);
     }
@@ -350,12 +349,12 @@ export async function getHomeHighlightedPosts(): Promise<BlogPost[]> {
  * 优化的首页数据获取 - 单次遍历获取所有需要的数据
  * @returns 包含高亮文章、置顶文章和普通文章的对象
  */
-export async function getHomePagePosts(): Promise<{
+export async function getHomePagePosts(locale?: string): Promise<{
   highlightedPosts: BlogPost[];
   stickyPosts: BlogPost[];
   regularPosts: BlogPost[];
 }> {
-  const allPosts = await getSortedPosts();
+  const allPosts = await getSortedPosts(locale);
   const highlightedSeries = getEnabledSeries().filter((series) => series.highlightOnHome !== false);
   const categoryNames = getFeaturedCategoryNames();
 

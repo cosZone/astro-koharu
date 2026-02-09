@@ -8,14 +8,16 @@ import { siteConfig } from '@constants/site-config';
 import Layout from '@layouts/Layout.astro';
 import TwoColumnLayout from '@layouts/TwoColumnLayout.astro';
 import { Comment } from '@/components/comment';
+import { getLocaleFromUrl, t } from '@/i18n';
 
-const title = `友情链接 | ${siteConfig.title}`;
-const description = '我的小伙伴们，欢迎加友链～';
+const locale = getLocaleFromUrl(Astro.url.pathname);
+const title = `${t(locale, 'friends.title')} | ${siteConfig.title}`;
+const description = t(locale, 'friends.title');
 ---
 
 <Layout title={title} description={description}>
   <TwoColumnLayout>
-    <Cover slot="cover" title="友情链接" />
+    <Cover slot="cover" title={t(locale, 'friends.title')} />
     <HomeSider slot="sider" />
     <div
       class={`bg-gradient-start shadow-box tablet:shadow-none flex flex-col gap-10 overflow-hidden ${CONTENT_PADDING.standard}`}
