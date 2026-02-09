@@ -60,6 +60,7 @@ const categoryPosts: CategoryWithPosts[] = await Promise.all(
       const categoryLink = localizedPath(Routes.Categories + '/' + (category?.link ?? ''), locale);
       const childrenLen = categoryInfo?.children?.length ?? 0;
       const posts = category?.posts?.slice(0, 6 - (childrenLen ?? 0));
+      const displayName = translateCategoryName(category?.label ?? categoryInfo?.name ?? '', locale);
       return (
         <FlippedCard>
           <div slot="front" class="flex-center relative h-full rounded-md px-2 py-4">
@@ -72,7 +73,7 @@ const categoryPosts: CategoryWithPosts[] = await Promise.all(
               class="absolute inset-0 -z-10 h-full w-full rounded-md object-cover"
             />
             <div class="bg-shoka-card-mask absolute inset-0 -z-10 h-full w-full rounded-md opacity-25" />
-            <h2 class="text-2xl text-white">{category?.label ? translateCategoryName(category.label, locale) : categoryInfo ? translateCategoryName(categoryInfo.name, locale) : ''}</h2>
+            <h2 class="text-2xl text-white">{displayName}</h2>
             {parentCategory?.name ? (
               <Badge variant="shoka-tag" className="absolute right-3 top-2.5 text-xs text-white opacity-80 shadow-sm">
                 {translateCategoryName(parentCategory.name, locale)}
@@ -88,14 +89,14 @@ const categoryPosts: CategoryWithPosts[] = await Promise.all(
               )}
             >
               <a class="hover:animate-shake block text-base text-white" href={categoryLink}>
-                {category?.label ? translateCategoryName(category.label, locale) : categoryInfo ? translateCategoryName(categoryInfo.name, locale) : ''}
+                {displayName}
               </a>
             </div>
             <div class="grid max-h-24 grid-cols-2 gap-x-5 gap-y-3 overflow-auto">
               {categoryInfo?.children?.length
                 ? categoryInfo.children.map((child) => (
                     <a
-                      href={categoryLink + '/' + categoryMap[child?.name]}
+                      href={`${categoryLink}/${categoryMap[child?.name]}`}
                       class="text-primary hover:text-blue truncate text-left transition-colors duration-300"
                     >
                       {translateCategoryName(child.name, locale)}
@@ -124,7 +125,7 @@ const categoryPosts: CategoryWithPosts[] = await Promise.all(
               <Fragment>
                 <Icon name="gg:loadbar-doc" class="mr-0.5 text-base" />
                 {categoryInfo?.children?.length ? t(locale, 'category.subCategoryCount', { count: categoryInfo.children.length }) + ', ' : ''}
-                {t(locale, 'category.postCount', { count: category.posts?.length })}
+                {t(locale, 'category.postCount', { count: category.posts?.length ?? 0 })}
               </Fragment>
             </p>
             <a href={categoryLink} aria-label="more info" class="absolute right-0 bottom-0">

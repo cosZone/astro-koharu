@@ -5,8 +5,8 @@
 import { getCollection } from 'astro:content';
 import { categoryMap } from '@constants/category';
 import type { BlogPost } from 'types/blog';
-import type { Locale, TranslationKey } from '@/i18n/types';
-import { t } from '@/i18n/utils';
+import type { Locale } from '@/i18n/types';
+import { tryTranslate } from '@/i18n/utils';
 import { encodeSlug } from '../route';
 import { filterPostsByLocale } from './locale';
 import type { Category, CategoryListResult } from './types';
@@ -202,9 +202,7 @@ export function getCategoryArr(categories?: string[] | string) {
 export function translateCategoryName(name: string, locale: Locale): string {
   const slug = categoryMap[name];
   if (!slug) return name;
-  const key = `categoryName.${slug}` as TranslationKey;
-  const translated = t(locale, key);
-  return translated === key ? name : translated;
+  return tryTranslate(locale, `categoryName.${slug}`) ?? name;
 }
 
 /**
@@ -213,7 +211,5 @@ export function translateCategoryName(name: string, locale: Locale): string {
  */
 export function translateSeriesField(slug: string, field: string, fallback: string | undefined, locale: Locale): string {
   if (!fallback) return '';
-  const key = `series.${slug}.${field}` as TranslationKey;
-  const translated = t(locale, key);
-  return translated === key ? fallback : translated;
+  return tryTranslate(locale, `series.${slug}.${field}`) ?? fallback;
 }

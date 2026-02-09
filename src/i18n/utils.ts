@@ -50,6 +50,26 @@ export function t(locale: Locale, key: TranslationKey, params?: TranslationParam
 }
 
 /**
+ * Try to translate a dynamic key that may or may not exist in the dictionary.
+ * Unlike `t()`, accepts an arbitrary string key and returns `undefined` if not found.
+ * This avoids `as TranslationKey` casts for dynamically constructed keys.
+ */
+export function tryTranslate(locale: Locale, key: string, params?: TranslationParams): string | undefined {
+  const dict = translations[locale];
+  let value = dict?.[key as TranslationKey] ?? defaultStrings[key as TranslationKey];
+
+  if (!value) return undefined;
+
+  if (params) {
+    for (const [param, val] of Object.entries(params)) {
+      value = value.replaceAll(`{${param}}`, String(val));
+    }
+  }
+
+  return value;
+}
+
+/**
  * Create a bound translator for a specific locale.
  * Useful in components where the locale is known and fixed.
  *

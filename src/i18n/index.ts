@@ -19,4 +19,5 @@ export {
   resolveNavName,
   stripLocaleFromPath,
   t,
+  tryTranslate,
 } from './utils';
