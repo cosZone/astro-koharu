@@ -177,6 +177,7 @@ export const uiStrings: UIStrings = {
   'pagination.prev': 'Previous',
   'pagination.next': 'Next',
   'pagination.page': 'Page {page}',
+  'pagination.currentPage': 'Page {page}, current page',
   'pagination.of': 'of {total}',
 
   // ── Breadcrumb ──────────────────────────────────────────────

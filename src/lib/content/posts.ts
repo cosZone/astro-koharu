@@ -188,25 +188,30 @@ export async function getRandomPosts(count: number = 10, locale?: string): Promi
 /**
  * 获取文章所属系列的所有文章（基于最深层分类）
  * @param post 当前文章
+ * @param locale 可选 locale 过滤
  * @returns 系列文章列表（按日期排序，最新的在前）
  */
-export async function getSeriesPosts(post: BlogPost): Promise<BlogPost[]> {
+export async function getSeriesPosts(post: BlogPost, locale?: string): Promise<BlogPost[]> {
   const lastCategory = getPostLastCategory(post);
   if (!lastCategory.name) return [];
 
-  return await getPostsByCategory(lastCategory.name);
+  return await getPostsByCategory(lastCategory.name, locale);
 }
 
 /**
  * 获取文章的上一篇和下一篇（在同一系列中）
  * @param currentPost 当前文章
+ * @param locale 可选 locale 过滤
  * @returns 上一篇和下一篇文章
  */
-export async function getAdjacentSeriesPosts(currentPost: BlogPost): Promise<{
+export async function getAdjacentSeriesPosts(
+  currentPost: BlogPost,
+  locale?: string,
+): Promise<{
   prevPost: BlogPost | null;
   nextPost: BlogPost | null;
 }> {
-  const seriesPosts = await getSeriesPosts(currentPost);
+  const seriesPosts = await getSeriesPosts(currentPost, locale);
 
   if (seriesPosts.length === 0) {
     return { prevPost: null, nextPost: null };

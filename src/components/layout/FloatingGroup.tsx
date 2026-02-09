@@ -25,9 +25,10 @@ interface FloatingButtonProps {
   title: string;
   children: React.ReactNode;
   className?: string;
+  'data-bgm-toggle'?: boolean;
 }
 
-function FloatingButton({ onClick, ariaLabel, title, children, className }: FloatingButtonProps) {
+function FloatingButton({ onClick, ariaLabel, title, children, className, ...rest }: FloatingButtonProps) {
   const isMounted = useIsMounted();
 
   return (
@@ -40,6 +41,7 @@ function FloatingButton({ onClick, ariaLabel, title, children, className }: Floa
       )}
       aria-label={ariaLabel}
       title={isMounted ? title : undefined}
+      {...rest}
     >
       {children}
     </button>
@@ -100,11 +102,9 @@ export default function FloatingGroup() {
               </FloatingButton>
             )}
             {bgmConfig.enabled && bgmConfig.audio.length > 0 && (
-              <span data-bgm-toggle>
-                <FloatingButton onClick={toggleBgmPanel} ariaLabel={t('floating.bgm')} title={t('floating.bgm')}>
-                  <Icon icon={isBgmPanelOpen ? 'ri:music-2-fill' : 'ri:music-2-line'} className="h-5 w-5" />
-                </FloatingButton>
-              </span>
+              <FloatingButton onClick={toggleBgmPanel} ariaLabel={t('floating.bgm')} title={t('floating.bgm')} data-bgm-toggle>
+                <Icon icon={isBgmPanelOpen ? 'ri:music-2-fill' : 'ri:music-2-line'} className="h-5 w-5" />
+              </FloatingButton>
             )}
             <FloatingButton onClick={scrollToTop} ariaLabel={t('floating.backToTop')} title={t('floating.backToTop')}>
               <Icon icon="ri:arrow-up-s-line" className="h-5 w-5" />

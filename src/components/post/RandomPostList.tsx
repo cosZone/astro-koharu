@@ -2,7 +2,7 @@ import { useTranslation } from '@hooks/useTranslation';
 import { encodeSlug } from '@lib/route';
 import { shuffleArray } from '@lib/utils';
 import { useMemo } from 'react';
-import { localizedPath } from '@/i18n';
+import { defaultLocale, localizedPath } from '@/i18n';
 import type { PostRefWithCategory } from '@/types/blog';
 
 interface Props {
@@ -27,7 +27,7 @@ export default function RandomPostList({ postsPool, count, locale }: Props) {
         {posts.map((post, index) => (
           <a
             key={post.slug}
-            href={localizedPath(`/post/${encodeSlug(post.link ?? post.slug)}`, locale ?? 'zh')}
+            href={localizedPath(`/post/${encodeSlug(post.link ?? post.slug)}`, locale ?? defaultLocale)}
             className="group flex gap-3 rounded-md p-2 text-sm transition-colors duration-300 hover:bg-foreground/5 hover:text-primary"
           >
             <span className="shrink-0 font-mono text-foreground/30">{index + 1}</span>

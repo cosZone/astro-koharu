@@ -24,11 +24,11 @@ const locale = getLocaleFromUrl(Astro.url.pathname);
 const defaultSegmentType = type === HomeSiderType.POST ? HomeSiderSegmentType.DIRECTORY : HomeSiderSegmentType.INFO;
 
 // 获取系列文章（转换为轻量级引用）
-const seriesPosts = post && type === HomeSiderType.POST ? toPostRefs(await getSeriesPosts(post)) : [];
+const seriesPosts = post && type === HomeSiderType.POST ? toPostRefs(await getSeriesPosts(post, locale)) : [];
 
 // 获取上一篇和下一篇（转换为轻量级引用）
 const adjacentPosts =
-  post && type === HomeSiderType.POST ? await getAdjacentSeriesPosts(post) : { prevPost: null, nextPost: null };
+  post && type === HomeSiderType.POST ? await getAdjacentSeriesPosts(post, locale) : { prevPost: null, nextPost: null };
 const prevPost = adjacentPosts.prevPost ? toPostRef(adjacentPosts.prevPost) : null;
 const nextPost = adjacentPosts.nextPost ? toPostRef(adjacentPosts.nextPost) : null;
 ---

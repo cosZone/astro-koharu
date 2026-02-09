@@ -175,6 +175,7 @@ export const uiStrings = {
   'pagination.prev': '上一页',
   'pagination.next': '下一页',
   'pagination.page': '第 {page} 页',
+  'pagination.currentPage': '第 {page} 页，当前页',
   'pagination.of': '共 {total} 页',
 
   // ── Breadcrumb ──────────────────────────────────────────────

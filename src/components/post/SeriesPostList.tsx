@@ -6,7 +6,7 @@ import { Routes } from '@constants/router';
 import { useTranslation } from '@hooks/useTranslation';
 import { routeBuilder } from '@lib/route';
 import { cn } from '@lib/utils';
-import { localizedPath } from '@/i18n';
+import { defaultLocale, localizedPath } from '@/i18n';
 import type { PostRef } from '@/types/blog';
 
 interface SeriesPostListProps {
@@ -25,7 +25,7 @@ export function SeriesPostList({ posts, currentPostSlug, className, locale }: Se
   return (
     <div className={cn('flex flex-col gap-1', className)}>
       {posts.map((post) => {
-        const href = localizedPath(routeBuilder(Routes.Post, post), locale ?? 'zh');
+        const href = localizedPath(routeBuilder(Routes.Post, post), locale ?? defaultLocale);
         const isActive = post.slug === currentPostSlug;
 
         return (

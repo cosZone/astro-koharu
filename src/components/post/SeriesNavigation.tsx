@@ -7,7 +7,7 @@ import { useTranslation } from '@hooks/useTranslation';
 import { routeBuilder } from '@lib/route';
 import { cn } from '@lib/utils';
 import { RiArrowDownSLine, RiArrowLeftSLine, RiArrowRightSLine, RiArrowUpSLine } from 'react-icons/ri';
-import { localizedPath } from '@/i18n';
+import { defaultLocale, localizedPath } from '@/i18n';
 import type { PostRef } from '@/types/blog';
 
 interface SeriesNavigationProps {
@@ -35,7 +35,7 @@ export function SeriesNavigation({ prevPost, nextPost, className, locale }: Seri
         {prevPost ? (
           isMounted && (
             <a
-              href={localizedPath(routeBuilder(Routes.Post, prevPost), locale ?? 'zh')}
+              href={localizedPath(routeBuilder(Routes.Post, prevPost), locale ?? defaultLocale)}
               className={cn(
                 'group flex items-center gap-1.5 rounded-md px-2 py-1.5 transition-colors',
                 'text-muted-foreground hover:bg-accent hover:text-primary',
@@ -55,7 +55,7 @@ export function SeriesNavigation({ prevPost, nextPost, className, locale }: Seri
         {nextPost ? (
           isMounted && (
             <a
-              href={localizedPath(routeBuilder(Routes.Post, nextPost), locale ?? 'zh')}
+              href={localizedPath(routeBuilder(Routes.Post, nextPost), locale ?? defaultLocale)}
               className={cn(
                 'group flex items-center gap-1.5 rounded-md px-2 py-1.5 transition-colors',
                 'text-muted-foreground hover:bg-accent hover:text-primary',

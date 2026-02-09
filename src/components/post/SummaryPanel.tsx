@@ -12,6 +12,7 @@ import { useTranslation } from '@hooks/useTranslation';
 import { cn } from '@lib/utils';
 import { memo, type ReactNode, type RefObject, useCallback, useEffect, useRef, useState } from 'react';
 import { RiBook2Fill } from 'react-icons/ri';
+import type { TranslationKey } from '@/i18n/types';
 import { MingcuteAiFillSvg } from '../svg/MingcuteAiFillSvg.tsx';
 
 export type SummarySource = 'description' | 'ai' | 'auto';
@@ -78,7 +79,7 @@ const SOURCE_ICONS: Record<SummarySource, ReactNode> = {
   ),
 };
 
-const SOURCE_LABEL_KEYS: Record<SummarySource, string> = {
+const SOURCE_LABEL_KEYS: Record<SummarySource, TranslationKey> = {
   description: 'summary.description',
   ai: 'summary.ai',
   auto: 'summary.auto',
@@ -94,7 +95,7 @@ function SummaryPanel({ summary, source = 'ai', typingSpeed = 25, className }: S
 
   const { t } = useTranslation();
   const icon = SOURCE_ICONS[source];
-  const label = t(SOURCE_LABEL_KEYS[source] as 'summary.description' | 'summary.ai' | 'summary.auto');
+  const label = t(SOURCE_LABEL_KEYS[source]);
 
   // 检测用户是否偏好减少动画 (响应式，用户切换系统偏好后会自动更新)
   const prefersReducedMotion = usePrefersReducedMotion();

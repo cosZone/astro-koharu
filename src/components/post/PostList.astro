@@ -4,6 +4,7 @@ import { contentConfig, defaultCoverList } from '@constants/site-config';
 import type { Page } from 'astro';
 import { shuffle } from 'es-toolkit';
 import type { BlogPost, PostCardData } from 'types/blog';
+import { getLocaleFromUrl, t } from '@/i18n';
 import Paginator from './Paginator.astro';
 import PostItemCard from './PostItemCard.astro';
 
@@ -17,6 +18,7 @@ interface Props {
 }
 
 const { posts, page, showPaginator = true, baseUrl, isHomePage = false, isSimple = false } = Astro.props;
+const locale = getLocaleFromUrl(Astro.url.pathname);
 const covers = shuffle(defaultCoverList);
 
 const imagePosition = contentConfig.postCardImagePosition || 'alternating';
@@ -43,7 +45,7 @@ function getLeftClip(index: number): boolean {
   !posts?.length && (
     <div class="text-foreground/30 flex flex-col items-center gap-2">
       <EmptySvg className="fill-foreground/20" />
-      <span>还没有发表文章哦～</span>
+      <span>{t(locale, 'post.noPostsFound')}</span>
     </div>
   )
 }

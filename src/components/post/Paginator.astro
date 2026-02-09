@@ -3,7 +3,7 @@ import { Button } from '@components/ui/button';
 import type { Page } from 'astro';
 import { FaChevronLeft, FaChevronRight } from 'react-icons/fa';
 import type { BlogPost } from 'types/blog';
-import { getLocaleFromUrl, localizedPath } from '@/i18n';
+import { getLocaleFromUrl, localizedPath, t } from '@/i18n';
 
 interface Props {
   page: Page<BlogPost>;
@@ -28,13 +28,13 @@ const getPageUrl = (pageNum: number) => {
 <div class="flex-center gap-1 font-bold">
   {
     page.url.prev ? (
-      <a href={page.url.prev} aria-label="上一页">
+      <a href={page.url.prev} aria-label={t(locale, 'pagination.prev')}>
         <Button variant="ghost">
           <FaChevronLeft />
         </Button>
       </a>
     ) : (
-      <Button variant="ghost" disabled aria-label="上一页">
+      <Button variant="ghost" disabled aria-label={t(locale, 'pagination.prev')}>
         <FaChevronLeft />
       </Button>
     )
@@ -42,7 +42,7 @@ const getPageUrl = (pageNum: number) => {
 
   {
     page.currentPage !== 1 && page.currentPage - 1 !== 1 && (
-      <a href={getPageUrl(1)} aria-label="第 1 页">
+      <a href={getPageUrl(1)} aria-label={t(locale, 'pagination.page', { page: 1 })}>
         <Button variant="ghost">1</Button>
       </a>
     )
@@ -50,7 +50,7 @@ const getPageUrl = (pageNum: number) => {
   {page.currentPage > 2 && <span class="mx-1">...</span>}
   {
     page.currentPage !== 1 && (
-      <a href={getPageUrl(page.currentPage - 1)} aria-label={`第 ${page.currentPage - 1} 页`}>
+      <a href={getPageUrl(page.currentPage - 1)} aria-label={t(locale, 'pagination.page', { page: page.currentPage - 1 })}>
         <Button variant="ghost">{page.currentPage - 1}</Button>
       </a>
     )
@@ -60,7 +60,7 @@ const getPageUrl = (pageNum: number) => {
     variant="ghost"
     disabled
     aria-current="page"
-    aria-label={`第 ${page.currentPage} 页，当前页`}
+    aria-label={t(locale, 'pagination.currentPage', { page: page.currentPage })}
     className="text-primary disabled:opacity-100"
   >
     {page.currentPage}
@@ -68,7 +68,7 @@ const getPageUrl = (pageNum: number) => {
 
   {
     page.currentPage !== page.lastPage && (
-      <a href={getPageUrl(page.currentPage + 1)} aria-label={`第 ${page.currentPage + 1} 页`}>
+      <a href={getPageUrl(page.currentPage + 1)} aria-label={t(locale, 'pagination.page', { page: page.currentPage + 1 })}>
         <Button variant="ghost">{page.currentPage + 1}</Button>
       </a>
     )
@@ -76,7 +76,7 @@ const getPageUrl = (pageNum: number) => {
   {page.currentPage < page.lastPage - 2 && <span class="mx-1">...</span>}
   {
     page.currentPage !== page.lastPage && page.currentPage + 1 !== page.lastPage && (
-      <a href={getPageUrl(page.lastPage)} aria-label={`第 ${page.lastPage} 页`}>
+      <a href={getPageUrl(page.lastPage)} aria-label={t(locale, 'pagination.page', { page: page.lastPage })}>
         <Button variant="ghost">{page.lastPage}</Button>
       </a>
     )
@@ -85,11 +85,11 @@ const getPageUrl = (pageNum: number) => {
     page.url.next ? (
       <a href={page.url.next}>
         <Button variant="ghost">
-          <FaChevronRight aria-label="下一页" />
+          <FaChevronRight aria-label={t(locale, 'pagination.next')} />
         </Button>
       </a>
     ) : (
-      <Button variant="ghost" disabled aria-label="下一页">
+      <Button variant="ghost" disabled aria-label={t(locale, 'pagination.next')}>
         <FaChevronRight />
       </Button>
     )

@@ -10,6 +10,16 @@ import { translations } from './translations';
 import { uiStrings as defaultStrings } from './translations/zh';
 import type { Locale, TranslationKey, TranslationParams } from './types';
 
+/** Replace `{param}` placeholders in a string with provided values. */
+function interpolate(value: string, params?: TranslationParams): string {
+  if (!params) return value;
+  let result = value;
+  for (const [param, val] of Object.entries(params)) {
+    result = result.replaceAll(`{${param}}`, String(val));
+  }
+  return result;
+}
+
 /**
  * Translate a key to the given locale with optional parameter interpolation.
  *
@@ -30,7 +40,7 @@ import type { Locale, TranslationKey, TranslationParams } from './types';
  */
 export function t(locale: Locale, key: TranslationKey, params?: TranslationParams): string {
   const dict = translations[locale];
-  let value = dict?.[key] ?? defaultStrings[key];
+  const value = dict?.[key] ?? defaultStrings[key];
 
   if (!value) {
     // Development warning for missing keys
@@ -40,13 +50,7 @@ export function t(locale: Locale, key: TranslationKey, params?: TranslationParam
     return key;
   }
 
-  if (params) {
-    for (const [param, val] of Object.entries(params)) {
-      value = value.replaceAll(`{${param}}`, String(val));
-    }
-  }
-
-  return value;
+  return interpolate(value, params);
 }
 
 /**
@@ -56,17 +60,11 @@ export function t(locale: Locale, key: TranslationKey, params?: TranslationParam
  */
 export function tryTranslate(locale: Locale, key: string, params?: TranslationParams): string | undefined {
   const dict = translations[locale];
-  let value = dict?.[key as TranslationKey] ?? defaultStrings[key as TranslationKey];
+  const value = dict?.[key as TranslationKey] ?? defaultStrings[key as TranslationKey];
 
   if (!value) return undefined;
 
-  if (params) {
-    for (const [param, val] of Object.entries(params)) {
-      value = value.replaceAll(`{${param}}`, String(val));
-    }
-  }
-
-  return value;
+  return interpolate(value, params);
 }
 
 /**

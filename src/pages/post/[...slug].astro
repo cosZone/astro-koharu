@@ -89,7 +89,7 @@ const breadcrumbListItems = [
     '@type': 'ListItem',
     position: 1,
     name: homeName,
-    item: new URL('/', Astro.site).href,
+    item: new URL(localizedPath('/', locale), Astro.site).href,
   },
   ...breadcrumbCategories.map((category, index) => ({
     '@type': 'ListItem',
