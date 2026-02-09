@@ -1,3 +1,4 @@
+import { useTranslation } from '@hooks/useTranslation';
 import { Icon } from '@iconify/react';
 import { useId, useState } from 'react';
 import { TagItem } from './TagItem';
@@ -16,6 +17,7 @@ interface CollapsibleTagsProps {
 export function CollapsibleTags({ tags, locale }: CollapsibleTagsProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   const contentId = useId();
+  const { t } = useTranslation();
 
   if (tags.length === 0) return null;
 
@@ -28,7 +30,7 @@ export function CollapsibleTags({ tags, locale }: CollapsibleTagsProps) {
         onClick={() => setIsExpanded(!isExpanded)}
         className="mx-4 mt-4 flex cursor-pointer items-center gap-1 text-muted-foreground text-sm transition-colors hover:text-blue md:mx-0"
       >
-        <span>{isExpanded ? '收起' : '展开全部'}</span>
+        <span>{isExpanded ? t('common.collapse') : t('tag.expandAll')}</span>
         <span className="rounded-full bg-white/10 px-1.5 text-xs">{tags.length}</span>
         <Icon icon="ri:arrow-down-s-line" className={`h-4 w-4 transition-transform ${isExpanded ? 'rotate-180' : ''}`} />
       </button>

@@ -1,3 +1,4 @@
+import { useTranslation } from '@hooks/useTranslation';
 import type { ParsedQuiz } from '@lib/quiz';
 import { cn } from '@lib/utils';
 import { useCallback, useState } from 'react';
@@ -5,6 +6,7 @@ import { QuizBadge } from './QuizBadge';
 import { QuizExplanation } from './QuizExplanation';
 
 export function TrueFalseQuiz({ quiz }: { quiz: ParsedQuiz }) {
+  const { t } = useTranslation();
   const [answer, setAnswer] = useState<boolean | null>(null);
   const [revealed, setRevealed] = useState(false);
 
@@ -26,12 +28,12 @@ export function TrueFalseQuiz({ quiz }: { quiz: ParsedQuiz }) {
         {/* biome-ignore lint/security/noDangerouslySetInnerHtml: Content from build-time Markdown */}
         <span dangerouslySetInnerHTML={{ __html: quiz.questionHtml }} />
       </div>
-      <fieldset className="flex gap-3 border-none p-0" aria-label="判断题选项">
+      <fieldset className="flex gap-3 border-none p-0" aria-label={t('quiz.quizOptions', { type: t('quiz.trueFalse') })}>
         <button
           type="button"
           onClick={() => handleAnswer(true)}
           disabled={revealed}
-          aria-label="正确"
+          aria-label={t('quiz.optionTrue')}
           aria-pressed={answer === true}
           className={cn(
             'flex flex-1 items-center justify-center gap-2 rounded-lg border-2 px-4 py-3 font-medium transition-all',
@@ -46,13 +48,13 @@ export function TrueFalseQuiz({ quiz }: { quiz: ParsedQuiz }) {
           )}
         >
           <span className="text-lg">✓</span>
-          <span>正确</span>
+          <span>{t('quiz.optionTrue')}</span>
         </button>
         <button
           type="button"
           onClick={() => handleAnswer(false)}
           disabled={revealed}
-          aria-label="错误"
+          aria-label={t('quiz.optionFalse')}
           aria-pressed={answer === false}
           className={cn(
             'flex flex-1 items-center justify-center gap-2 rounded-lg border-2 px-4 py-3 font-medium transition-all',
@@ -67,7 +69,7 @@ export function TrueFalseQuiz({ quiz }: { quiz: ParsedQuiz }) {
           )}
         >
           <span className="text-lg">✗</span>
-          <span>错误</span>
+          <span>{t('quiz.optionFalse')}</span>
         </button>
       </fieldset>
       <output
@@ -80,7 +82,10 @@ export function TrueFalseQuiz({ quiz }: { quiz: ParsedQuiz }) {
             : 'bg-red-50 text-red-700 dark:bg-red-950/30 dark:text-red-300',
         )}
       >
-        {revealed && (isCorrect ? '回答正确！' : `回答错误。该命题是${quiz.correctAnswer ? '正确' : '错误'}的。`)}
+        {revealed &&
+          (isCorrect
+            ? t('quiz.trueFalseCorrect')
+            : t('quiz.trueFalseIncorrect', { answer: quiz.correctAnswer ? t('quiz.optionTrue') : t('quiz.optionFalse') }))}
       </output>
       <QuizExplanation html={quiz.explanationHtml} visible={revealed} />
     </div>

@@ -8,6 +8,7 @@
 
 import { ErrorBoundary, InlineErrorFallback } from '@components/common';
 import { usePrefersReducedMotion } from '@hooks/index';
+import { useTranslation } from '@hooks/useTranslation';
 import { cn } from '@lib/utils';
 import { memo, type ReactNode, type RefObject, useCallback, useEffect, useRef, useState } from 'react';
 import { RiBook2Fill } from 'react-icons/ri';
@@ -61,29 +62,26 @@ export interface SummaryPanelProps {
   className?: string;
 }
 
-const SOURCE_CONFIG: Record<SummarySource, { label: string; icon: ReactNode }> = {
-  description: {
-    label: '人工摘要',
-    icon: <RiBook2Fill className="size-4 text-primary" />,
-  },
-  ai: {
-    label: 'AI 摘要',
-    icon: <MingcuteAiFillSvg className="size-4 text-primary" />,
-  },
-  auto: {
-    label: '摘要',
-    icon: (
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        viewBox="0 0 24 24"
-        fill="currentColor"
-        className="size-4 text-primary"
-        aria-hidden="true"
-      >
-        <path d="M20 22H4C3.44772 22 3 21.5523 3 21V3C3 2.44772 3.44772 2 4 2H20C20.5523 2 21 2.44772 21 3V21C21 21.5523 20.5523 22 20 22ZM19 20V4H5V20H19ZM7 6H11V10H7V6ZM7 12H17V14H7V12ZM7 16H17V18H7V16ZM13 7H17V9H13V7Z" />
-      </svg>
-    ),
-  },
+const SOURCE_ICONS: Record<SummarySource, ReactNode> = {
+  description: <RiBook2Fill className="size-4 text-primary" />,
+  ai: <MingcuteAiFillSvg className="size-4 text-primary" />,
+  auto: (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 24 24"
+      fill="currentColor"
+      className="size-4 text-primary"
+      aria-hidden="true"
+    >
+      <path d="M20 22H4C3.44772 22 3 21.5523 3 21V3C3 2.44772 3.44772 2 4 2H20C20.5523 2 21 2.44772 21 3V21C21 21.5523 20.5523 22 20 22ZM19 20V4H5V20H19ZM7 6H11V10H7V6ZM7 12H17V14H7V12ZM7 16H17V18H7V16ZM13 7H17V9H13V7Z" />
+    </svg>
+  ),
+};
+
+const SOURCE_LABEL_KEYS: Record<SummarySource, string> = {
+  description: 'summary.description',
+  ai: 'summary.ai',
+  auto: 'summary.auto',
 };
 
 function SummaryPanel({ summary, source = 'ai', typingSpeed = 25, className }: SummaryPanelProps) {
@@ -94,7 +92,9 @@ function SummaryPanel({ summary, source = 'ai', typingSpeed = 25, className }: S
   const startTimeRef = useRef<number>(0);
   const textRef = useRef<HTMLSpanElement | null>(null);
 
-  const config = SOURCE_CONFIG[source];
+  const { t } = useTranslation();
+  const icon = SOURCE_ICONS[source];
+  const label = t(SOURCE_LABEL_KEYS[source] as 'summary.description' | 'summary.ai' | 'summary.auto');
 
   // 检测用户是否偏好减少动画 (响应式，用户切换系统偏好后会自动更新)
   const prefersReducedMotion = usePrefersReducedMotion();
@@ -177,9 +177,9 @@ function SummaryPanel({ summary, source = 'ai', typingSpeed = 25, className }: S
         >
           <div className="flex items-center gap-1.5 font-medium text-muted-foreground text-sm">
             <span className={cn('transition-transform duration-300', isExpanded && source === 'ai' && 'rotate-10')}>
-              {config.icon}
+              {icon}
             </span>
-            {config.label}
+            {label}
           </div>
           <svg
             xmlns="http://www.w3.org/2000/svg"

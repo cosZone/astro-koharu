@@ -1,3 +1,4 @@
+import { useTranslation } from '@hooks/useTranslation';
 import { cn } from '@lib/utils';
 import { AnimatePresence, motion } from 'motion/react';
 
@@ -9,6 +10,7 @@ interface QuizGapProps {
 }
 
 export function QuizGap({ answer, revealed, onClick, isMistake }: QuizGapProps) {
+  const { t } = useTranslation();
   return (
     <AnimatePresence mode="wait">
       {revealed ? (
@@ -32,7 +34,7 @@ export function QuizGap({ answer, revealed, onClick, isMistake }: QuizGapProps) 
           exit={{ opacity: 0, scale: 0.8 }}
           onClick={onClick}
           className="inline-block cursor-pointer border-primary/50 border-b-2 border-dashed px-4 py-0.5 text-transparent transition-colors hover:border-primary hover:bg-primary/5"
-          aria-label="点击查看答案"
+          aria-label={t('quiz.clickToReveal')}
         >
           {answer}
         </motion.button>

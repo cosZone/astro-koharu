@@ -1,3 +1,4 @@
+import { useTranslation } from '@hooks/useTranslation';
 import type { ParsedQuiz } from '@lib/quiz';
 import { useCallback, useState } from 'react';
 import { QuizBadge } from './QuizBadge';
@@ -5,6 +6,7 @@ import { QuizExplanation } from './QuizExplanation';
 import { QuizGap } from './QuizGap';
 
 export function FillBlankQuiz({ quiz }: { quiz: ParsedQuiz }) {
+  const { t } = useTranslation();
   const [revealedGaps, setRevealedGaps] = useState<Set<number>>(new Set());
 
   const revealGap = useCallback((index: number) => {
@@ -37,7 +39,7 @@ export function FillBlankQuiz({ quiz }: { quiz: ParsedQuiz }) {
       </div>
       {quiz.mistakes.length > 0 && allRevealed && (
         <div className="flex flex-wrap gap-2 text-sm">
-          <span className="text-muted-foreground">易错项：</span>
+          <span className="text-muted-foreground">{t('quiz.commonMistakes')}</span>
           {quiz.mistakes.map((mistake) => (
             <QuizGap key={mistake} answer={mistake} revealed isMistake onClick={() => {}} />
           ))}

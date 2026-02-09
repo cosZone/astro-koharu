@@ -189,13 +189,24 @@ export const uiStrings = {
   'floating.toggleToolbar': '展开/收起工具栏',
 
   // ── Announcement ────────────────────────────────────────────
+  'announcement.title': '公告',
+  'announcement.new': '新',
+  'announcement.count': '{count} 条公告',
+  'announcement.unreadCount': '{count} 条未读',
+  'announcement.markAllRead': '全部已读',
   'announcement.dismiss': '关闭公告',
   'announcement.learnMore': '了解更多',
+  'announcement.empty': '暂无公告',
+  'announcement.emptyHint': '有新公告时会在这里显示',
 
   // ── Quiz ────────────────────────────────────────────────────
   'quiz.check': '检查答案',
   'quiz.correct': '回答正确！',
   'quiz.incorrect': '回答错误，请重试',
+  'quiz.incorrectAnswer': '回答错误。正确答案是 {answer}。',
+  'quiz.submitAnswer': '提交答案（已选 {count} 项）',
+  'quiz.commonMistakes': '易错项：',
+  'quiz.parseFailed': '题目解析失败',
   'quiz.showAnswer': '查看答案',
   'quiz.hideAnswer': '隐藏答案',
   'quiz.reset': '重置',
@@ -210,6 +221,7 @@ export const uiStrings = {
   'quiz.optionTrue': '正确',
   'quiz.optionFalse': '错误',
   'quiz.clickToReveal': '点击查看答案',
+  'quiz.quizOptions': '{type}选项',
   'quiz.trueFalseCorrect': '回答正确！',
   'quiz.trueFalseIncorrect': '回答错误。该命题是{answer}的。',
 
@@ -229,6 +241,7 @@ export const uiStrings = {
   'series.latestPost': '最新文章',
   'series.viewAll': '查看全部',
   'series.postCount': '{count} 篇',
+  'series.noPosts': '暂无系列文章',
 
   // ── Home Info ───────────────────────────────────────────────
   'homeInfo.articles': '文章',
@@ -250,6 +263,7 @@ export const uiStrings = {
 
   // ── Tag Component ───────────────────────────────────────────
   'tag.expandAll': '展开全部',
+  'tag.viewTagPosts': '查看标签「{tag}」的 {count} 篇文章',
 
   // ── Audio Player ────────────────────────────────────────────
   'audio.loading': '加载播放列表…',
@@ -257,6 +271,17 @@ export const uiStrings = {
   'audio.retry': '重试',
   'audio.empty': '暂无曲目',
   'audio.listTab': '列表 {index}',
+  'audio.closePanel': '关闭面板',
+
+  // ── Table of Contents ───────────────────────────────────────
+  'toc.title': '文章目录',
+  'toc.empty': '暂无目录',
+
+  // ── Embed ─────────────────────────────────────────────────
+  'embed.loadingTweet': '正在加载 Tweet',
+
+  // ── Search Shortcut ───────────────────────────────────────
+  'search.searchShortcut': '搜索 ({shortcut})',
 
   // ── Sider Segmented ─────────────────────────────────────────
   'sider.overview': '站点概览',

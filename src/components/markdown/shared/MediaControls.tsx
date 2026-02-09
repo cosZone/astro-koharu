@@ -8,6 +8,7 @@
  */
 
 import { usePlaybackProgress } from '@hooks/usePlaybackTime';
+import { useTranslation } from '@hooks/useTranslation';
 import { Icon } from '@iconify/react';
 import type { PlaybackTimeStore } from '@lib/playback-time-store';
 import { cn } from '@lib/utils';
@@ -39,10 +40,10 @@ const MODE_ICONS: Record<PlayMode, string> = {
   loop: 'ri:repeat-one-line',
 };
 
-const MODE_LABELS: Record<PlayMode, string> = {
-  order: '顺序播放',
-  random: '随机播放',
-  loop: '单曲循环',
+const MODE_LABEL_KEYS: Record<PlayMode, 'media.playModeOrder' | 'media.playModeRandom' | 'media.playModeLoop'> = {
+  order: 'media.playModeOrder',
+  random: 'media.playModeRandom',
+  loop: 'media.playModeLoop',
 };
 
 const MODE_CYCLE: PlayMode[] = ['order', 'random', 'loop'];
@@ -71,6 +72,7 @@ export const MediaControls = memo(function MediaControls({
   showTrackButtons = true,
   extraButtons,
 }: MediaControlsProps) {
+  const { t } = useTranslation();
   const progressBarRef = useRef<HTMLDivElement>(null);
   const sliderRef = useRef<HTMLDivElement>(null);
   usePlaybackProgress(timeStore, progressBarRef, sliderRef);
@@ -94,12 +96,12 @@ export const MediaControls = memo(function MediaControls({
     <div className="audio-player-controls">
       <div className="audio-player-buttons">
         {showModeButton && (
-          <button type="button" className="audio-player-btn" onClick={cycleMode} title={MODE_LABELS[mode]}>
+          <button type="button" className="audio-player-btn" onClick={cycleMode} title={t(MODE_LABEL_KEYS[mode])}>
             <Icon icon={MODE_ICONS[mode]} />
           </button>
         )}
         {showTrackButtons && (
-          <button type="button" className="audio-player-btn" onClick={onPrev} title="上一曲">
+          <button type="button" className="audio-player-btn" onClick={onPrev} title={t('media.prevTrack')}>
             <Icon icon="ri:skip-back-line" />
           </button>
         )}
@@ -107,7 +109,7 @@ export const MediaControls = memo(function MediaControls({
           type="button"
           className={cn('audio-player-btn audio-player-btn-play', loading && 'loading')}
           onClick={onTogglePlay}
-          title={playing ? '暂停' : '播放'}
+          title={playing ? t('media.pause') : t('media.play')}
         >
           {loading ? (
             <Icon icon="ri:loader-4-line" className="animate-spin" />
@@ -118,7 +120,7 @@ export const MediaControls = memo(function MediaControls({
           )}
         </button>
         {showTrackButtons && (
-          <button type="button" className="audio-player-btn" onClick={onNext} title="下一曲">
+          <button type="button" className="audio-player-btn" onClick={onNext} title={t('media.nextTrack')}>
             <Icon icon="ri:skip-forward-line" />
           </button>
         )}
@@ -126,7 +128,7 @@ export const MediaControls = memo(function MediaControls({
         {extraButtons}
 
         <div className="audio-player-volume-group">
-          <button type="button" className="audio-player-btn" onClick={onToggleMute} title="静音">
+          <button type="button" className="audio-player-btn" onClick={onToggleMute} title={t('media.mute')}>
             <Icon icon={getVolumeIcon(volume, muted)} />
           </button>
           <input
@@ -137,7 +139,7 @@ export const MediaControls = memo(function MediaControls({
             step={0.05}
             value={muted ? 0 : volume}
             onChange={handleVolumeChange}
-            title={`音量 ${Math.round(volume * 100)}%`}
+            title={t('media.volume', { percent: String(Math.round(volume * 100)) })}
           />
         </div>
       </div>
@@ -150,7 +152,7 @@ export const MediaControls = memo(function MediaControls({
         aria-valuemin={0}
         aria-valuemax={Math.floor(timeStore.getDuration())}
         aria-valuenow={Math.floor(timeStore.getCurrentTime())}
-        aria-label="播放进度"
+        aria-label={t('media.progress')}
         onClick={handleProgressClick}
         onKeyDown={(e) => {
           const ct = timeStore.getCurrentTime();

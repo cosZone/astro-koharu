@@ -3,6 +3,7 @@
  * When handlers are provided, dots become interactive buttons with hover icons.
  */
 
+import { useTranslation } from '@hooks/useTranslation';
 import { Icon } from '@iconify/react';
 import { cn } from '@lib/utils';
 
@@ -12,20 +13,21 @@ interface TrafficLightsProps {
 }
 
 export function TrafficLights({ onClose, onFullscreen }: TrafficLightsProps) {
+  const { t } = useTranslation();
   const interactive = !!(onClose || onFullscreen);
   return (
     <div className={cn('flex gap-2', interactive && 'group')}>
       <TrafficDot
         color="bg-[#ff5f56]"
         onClick={onClose}
-        aria-label="关闭"
+        aria-label={t('common.close')}
         icon={onClose ? <Icon icon="mingcute:close-fill" className="text-black" /> : null}
       />
       <TrafficDot color="bg-[#ffbd2e]" icon={null} />
       <TrafficDot
         color="bg-[#27c93f]"
         onClick={onFullscreen}
-        aria-label="全屏"
+        aria-label={t('code.fullscreen')}
         icon={onFullscreen ? <Icon icon="mingcute:fullscreen-2-fill" className="text-black" /> : null}
       />
     </div>

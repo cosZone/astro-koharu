@@ -1,3 +1,4 @@
+import { useTranslation } from '@hooks/useTranslation';
 import { parseQuizElement } from '@lib/quiz';
 import { useMemo } from 'react';
 import { FillBlankQuiz } from './quiz/FillBlankQuiz';
@@ -10,6 +11,7 @@ interface QuizBlockProps {
 }
 
 export function QuizBlock({ element }: QuizBlockProps) {
+  const { t } = useTranslation();
   const quiz = useMemo(() => {
     try {
       return parseQuizElement(element);
@@ -21,7 +23,7 @@ export function QuizBlock({ element }: QuizBlockProps) {
   if (!quiz) {
     return (
       <div className="not-prose my-4 rounded-xl border border-destructive/50 bg-card p-4 text-muted-foreground text-sm">
-        题目解析失败
+        {t('quiz.parseFailed')}
       </div>
     );
   }

@@ -9,6 +9,7 @@
 
 import { bgmConfig, christmasConfig } from '@constants/site-config';
 import { useIsMounted } from '@hooks/useIsMounted';
+import { useTranslation } from '@hooks/useTranslation';
 import { Icon } from '@iconify/react';
 import { cn } from '@lib/utils';
 import { useStore } from '@nanostores/react';
@@ -46,6 +47,7 @@ function FloatingButton({ onClick, ariaLabel, title, children, className }: Floa
 }
 
 export default function FloatingGroup() {
+  const { t } = useTranslation();
   const [isExpanded, setIsExpanded] = useState(true);
   const isDrawerOpen = useStore($isDrawerOpen);
   const isChristmasEnabled = useStore(christmasEnabled);
@@ -93,26 +95,37 @@ export default function FloatingGroup() {
             transition={{ duration: 0.15, ease: 'easeInOut' }}
           >
             {christmasConfig.enabled && (
-              <FloatingButton onClick={toggleChristmas} ariaLabel="切换圣诞特效" title="切换圣诞特效">
+              <FloatingButton onClick={toggleChristmas} ariaLabel={t('floating.christmas')} title={t('floating.christmas')}>
                 <Icon icon={isChristmasEnabled ? 'ri:snowy-fill' : 'ri:snowy-line'} className="h-5 w-5" />
               </FloatingButton>
             )}
             {bgmConfig.enabled && bgmConfig.audio.length > 0 && (
-              <FloatingButton onClick={toggleBgmPanel} ariaLabel="背景音乐" title="背景音乐">
-                <Icon icon={isBgmPanelOpen ? 'ri:music-2-fill' : 'ri:music-2-line'} className="h-5 w-5" />
-              </FloatingButton>
+              <span data-bgm-toggle>
+                <FloatingButton onClick={toggleBgmPanel} ariaLabel={t('floating.bgm')} title={t('floating.bgm')}>
+                  <Icon icon={isBgmPanelOpen ? 'ri:music-2-fill' : 'ri:music-2-line'} className="h-5 w-5" />
+                </FloatingButton>
+              </span>
             )}
-            <FloatingButton onClick={scrollToTop} ariaLabel="回到顶部" title="回到顶部">
+            <FloatingButton onClick={scrollToTop} ariaLabel={t('floating.backToTop')} title={t('floating.backToTop')}>
               <Icon icon="ri:arrow-up-s-line" className="h-5 w-5" />
             </FloatingButton>
-            <FloatingButton onClick={scrollToBottom} ariaLabel="滚到底部" title="滚到底部">
+            <FloatingButton
+              onClick={scrollToBottom}
+              ariaLabel={t('floating.scrollToBottom')}
+              title={t('floating.scrollToBottom')}
+            >
               <Icon icon="ri:arrow-down-s-line" className="h-5 w-5" />
             </FloatingButton>
           </motion.div>
         )}
       </AnimatePresence>
 
-      <FloatingButton onClick={toggleExpand} ariaLabel="展开/收起工具栏" title="展开/收起工具栏" className="size-9 flex-center">
+      <FloatingButton
+        onClick={toggleExpand}
+        ariaLabel={t('floating.toggleToolbar')}
+        title={t('floating.toggleToolbar')}
+        className="size-9 flex-center"
+      >
         <Icon icon={isExpanded ? 'ri:close-large-fill' : 'ri:magic-fill'} className="size-4" />
       </FloatingButton>
     </motion.div>

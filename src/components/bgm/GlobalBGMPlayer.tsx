@@ -14,6 +14,7 @@ import { MediaControls } from '@components/markdown/shared/MediaControls';
 import { FloatingFocusManager, FloatingPortal, useDismiss, useFloating, useInteractions, useRole } from '@floating-ui/react';
 import { useAudioPlayer } from '@hooks/useAudioPlayer';
 import { useMediaQuery } from '@hooks/useMediaQuery';
+import { useTranslation } from '@hooks/useTranslation';
 import { Icon } from '@iconify/react';
 import type { BgmAudioGroup } from '@lib/config/types';
 import type { MetingSong } from '@lib/meting';
@@ -29,6 +30,7 @@ interface GlobalBGMPlayerProps {
 }
 
 export default function GlobalBGMPlayer({ audioGroups }: GlobalBGMPlayerProps) {
+  const { t } = useTranslation();
   const panelOpen = useStore($bgmPanelOpen);
   const isDrawerOpen = useStore($isDrawerOpen);
   const isAnyModalOpen = useStore($isAnyModalOpen);
@@ -102,7 +104,7 @@ export default function GlobalBGMPlayer({ audioGroups }: GlobalBGMPlayerProps) {
     // Exclude the BGM toggle button in FloatingGroup to prevent toggle/dismiss race
     outsidePress: (event) => {
       const target = event.target as HTMLElement;
-      return !target.closest('[aria-label="背景音乐"]');
+      return !target.closest('[data-bgm-toggle]');
     },
   });
   const role = useRole(context, { role: 'dialog' });
@@ -113,7 +115,7 @@ export default function GlobalBGMPlayer({ audioGroups }: GlobalBGMPlayerProps) {
       return (
         <output className="audio-player audio-player-loading bgm-panel-player">
           <div className="audio-player-spinner" />
-          <span>加载播放列表…</span>
+          <span>{t('audio.loading')}</span>
         </output>
       );
     }
@@ -121,9 +123,9 @@ export default function GlobalBGMPlayer({ audioGroups }: GlobalBGMPlayerProps) {
     if (error) {
       return (
         <div className="audio-player audio-player-error bgm-panel-player" role="alert">
-          <span>加载失败: {error}</span>
+          <span>{t('audio.loadError', { error })}</span>
           <button type="button" className="audio-player-btn" onClick={() => setRetryKey((k) => k + 1)}>
-            重试
+            {t('audio.retry')}
           </button>
         </div>
       );
@@ -132,7 +134,7 @@ export default function GlobalBGMPlayer({ audioGroups }: GlobalBGMPlayerProps) {
     if (tracks.length === 0) {
       return (
         <div className="audio-player audio-player-empty bgm-panel-player">
-          <span>暂无曲目</span>
+          <span>{t('audio.empty')}</span>
         </div>
       );
     }
@@ -195,7 +197,7 @@ export default function GlobalBGMPlayer({ audioGroups }: GlobalBGMPlayerProps) {
                   type="button"
                   className="absolute top-2 right-2 z-10 rounded-full bg-background/80 p-1.5 text-muted-foreground backdrop-blur-sm transition-colors hover:bg-background hover:text-foreground"
                   onClick={closeBgmPanel}
-                  aria-label="关闭面板"
+                  aria-label={t('audio.closePanel')}
                 >
                   <Icon icon="ri:close-line" className="h-4 w-4" />
                 </button>

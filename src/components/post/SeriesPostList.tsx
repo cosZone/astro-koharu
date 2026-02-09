@@ -3,6 +3,7 @@
  */
 
 import { Routes } from '@constants/router';
+import { useTranslation } from '@hooks/useTranslation';
 import { routeBuilder } from '@lib/route';
 import { cn } from '@lib/utils';
 import { localizedPath } from '@/i18n';
@@ -16,8 +17,9 @@ interface SeriesPostListProps {
 }
 
 export function SeriesPostList({ posts, currentPostSlug, className, locale }: SeriesPostListProps) {
+  const { t } = useTranslation();
   if (!posts?.length) {
-    return <div className="py-8 text-center text-muted-foreground text-sm">暂无系列文章</div>;
+    return <div className="py-8 text-center text-muted-foreground text-sm">{t('series.noPosts')}</div>;
   }
 
   return (

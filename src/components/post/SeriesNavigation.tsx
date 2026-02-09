@@ -3,6 +3,7 @@
  */
 import { Routes } from '@constants/router';
 import { useIsMounted } from '@hooks/useIsMounted';
+import { useTranslation } from '@hooks/useTranslation';
 import { routeBuilder } from '@lib/route';
 import { cn } from '@lib/utils';
 import { RiArrowDownSLine, RiArrowLeftSLine, RiArrowRightSLine, RiArrowUpSLine } from 'react-icons/ri';
@@ -18,6 +19,7 @@ interface SeriesNavigationProps {
 
 export function SeriesNavigation({ prevPost, nextPost, className, locale }: SeriesNavigationProps) {
   const isMounted = useIsMounted();
+  const { t } = useTranslation();
 
   if (!prevPost && !nextPost) {
     return null;
@@ -80,11 +82,11 @@ export function SeriesNavigation({ prevPost, nextPost, className, locale }: Seri
               'flex items-center justify-center gap-1.5 rounded-md px-3 py-1.5 transition-colors',
               'text-muted-foreground text-xs hover:bg-accent hover:text-primary',
             )}
-            title="回到顶部"
-            aria-label="回到顶部"
+            title={t('floating.backToTop')}
+            aria-label={t('floating.backToTop')}
           >
             <RiArrowUpSLine className="h-4 w-4" />
-            回到顶部
+            {t('floating.backToTop')}
           </button>
           <button
             type="button"
@@ -93,11 +95,11 @@ export function SeriesNavigation({ prevPost, nextPost, className, locale }: Seri
               'flex items-center justify-center gap-1.5 rounded-md px-3 py-1.5 transition-colors',
               'text-muted-foreground text-xs hover:bg-accent hover:text-primary',
             )}
-            title="滚到底部"
-            aria-label="滚到底部"
+            title={t('floating.scrollToBottom')}
+            aria-label={t('floating.scrollToBottom')}
           >
             <RiArrowDownSLine className="h-4 w-4" />
-            滚到底部
+            {t('floating.scrollToBottom')}
           </button>
         </div>
       )}

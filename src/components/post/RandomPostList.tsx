@@ -1,3 +1,4 @@
+import { useTranslation } from '@hooks/useTranslation';
 import { encodeSlug } from '@lib/route';
 import { shuffleArray } from '@lib/utils';
 import { useMemo } from 'react';
@@ -11,6 +12,7 @@ interface Props {
 }
 
 export default function RandomPostList({ postsPool, count, locale }: Props) {
+  const { t } = useTranslation();
   // Shuffle on client-side for fresh randomization on each page load
   const posts = useMemo(() => {
     if (postsPool.length <= count) {
@@ -20,7 +22,7 @@ export default function RandomPostList({ postsPool, count, locale }: Props) {
   }, [postsPool, count]);
   return (
     <div className="flex flex-col gap-4">
-      <h2 className="font-semibold text-2xl text-foreground/80">随机文章</h2>
+      <h2 className="font-semibold text-2xl text-foreground/80">{t('post.randomPosts')}</h2>
       <div className="flex flex-col gap-2">
         {posts.map((post, index) => (
           <a

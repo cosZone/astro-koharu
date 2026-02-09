@@ -7,6 +7,7 @@
  */
 
 import { usePlaybackFormattedTime, usePlaybackProgress } from '@hooks/usePlaybackTime';
+import { useTranslation } from '@hooks/useTranslation';
 import { Icon } from '@iconify/react';
 import type { MetingSong } from '@lib/meting';
 import type { PlaybackTimeStore } from '@lib/playback-time-store';
@@ -45,6 +46,7 @@ export const PlayerPlaylist = memo(function PlayerPlaylist({
   onTrackSelect,
   onSeek,
 }: PlayerPlaylistProps) {
+  const { t } = useTranslation();
   const showTabs = groups.length > 1 || (groups.length === 1 && groups[0].title);
   const activeGroup = groups[activeTab] || groups[0];
   const visibleTracks = activeGroup ? tracks.slice(activeGroup.startIndex, activeGroup.startIndex + activeGroup.count) : tracks;
@@ -77,7 +79,7 @@ export const PlayerPlaylist = memo(function PlayerPlaylist({
               className={cn('audio-player-tab', i === activeTab && 'active')}
               onClick={() => onTabChange(i)}
             >
-              {g.title || `列表 ${i + 1}`}
+              {g.title || t('audio.listTab', { index: String(i + 1) })}
             </button>
           ))}
         </div>

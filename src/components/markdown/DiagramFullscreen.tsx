@@ -9,6 +9,7 @@
 import { CopyButton } from '@components/markdown/shared/CopyButton';
 import { MacToolbar } from '@components/markdown/shared/MacToolbar';
 import { FloatingFocusManager, FloatingPortal, useDismiss, useFloating, useInteractions, useRole } from '@floating-ui/react';
+import { useTranslation } from '@hooks/useTranslation';
 import { useZoomPan } from '@hooks/useZoomPan';
 import { Icon } from '@iconify/react';
 import { cn } from '@lib/utils';
@@ -102,6 +103,7 @@ export default function DiagramFullscreen() {
 }
 
 function DiagramToolbar({ data, zoomLevel, onReset }: { data: DiagramFullscreenData; zoomLevel: string; onReset: () => void }) {
+  const { t } = useTranslation();
   return (
     <MacToolbar language={data.diagramType} className="tablet:items-stretch tablet:px-2" onClose={closeModal}>
       <div className="flex items-center gap-1">
@@ -110,10 +112,10 @@ function DiagramToolbar({ data, zoomLevel, onReset }: { data: DiagramFullscreenD
           type="button"
           onClick={onReset}
           className="flex items-center gap-2 rounded-md px-3 py-1.5 text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
-          title="重置缩放"
+          title={t('diagram.resetZoom')}
         >
           <Icon icon="ri:refresh-line" className="size-4" />
-          <span className="text-sm">重置</span>
+          <span className="text-sm">{t('image.resetZoom')}</span>
         </button>
         <CopyButton text={data.source} showLabel />
       </div>

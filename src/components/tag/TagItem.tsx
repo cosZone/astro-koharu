@@ -1,3 +1,4 @@
+import { useTranslation } from '@hooks/useTranslation';
 import { buildTagPath } from '@lib/content/tags';
 import { localizedPath } from '@/i18n';
 
@@ -16,10 +17,11 @@ interface TagItemProps {
 }
 
 export function TagItem({ tag, count, colorIndex, locale }: TagItemProps) {
+  const { t } = useTranslation();
   return (
     <a
       href={localizedPath(buildTagPath(tag), locale ?? 'zh')}
-      aria-label={`查看标签「${tag}」的 ${count} 篇文章`}
+      aria-label={t('tag.viewTagPosts', { tag, count })}
       className={`relative flex items-center rounded-lg bg-linear-to-r px-3 py-1.5 text-sm transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg ${TAG_COLORS[colorIndex]}`}
     >
       <span className="font-medium">{tag}</span>

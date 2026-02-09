@@ -1,3 +1,4 @@
+import { useTranslation } from '@hooks/useTranslation';
 import { encodeSlug } from '@lib/route';
 import { cn, shuffleArray } from '@lib/utils';
 import { useMemo } from 'react';
@@ -17,6 +18,7 @@ interface Props {
  * Ensures no duplicate posts between left (random) and right (related/fallback) sides
  */
 export default function PostFooterLists({ allPosts, relatedPosts, leftCount, rightCount, locale }: Props) {
+  const { t } = useTranslation();
   const { leftPosts, rightPosts, hasRelatedPosts } = useMemo(() => {
     const hasRelated = relatedPosts.length > 0;
 
@@ -35,13 +37,13 @@ export default function PostFooterLists({ allPosts, relatedPosts, leftCount, rig
     };
   }, [allPosts, relatedPosts, leftCount, rightCount]);
 
-  const rightTitle = hasRelatedPosts ? '相关文章' : '';
+  const rightTitle = hasRelatedPosts ? t('post.relatedPosts') : '';
 
   return (
     <>
       {/* Left side: Random posts */}
       <div className="flex flex-col gap-4">
-        <h2 className="font-semibold text-2xl text-foreground/80">随机文章</h2>
+        <h2 className="font-semibold text-2xl text-foreground/80">{t('post.randomPosts')}</h2>
         <div className="flex flex-col gap-2">
           {leftPosts.map((post, index) => (
             <a

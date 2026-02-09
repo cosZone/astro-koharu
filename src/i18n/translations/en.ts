@@ -191,13 +191,24 @@ export const uiStrings: UIStrings = {
   'floating.toggleToolbar': 'Toggle toolbar',
 
   // ── Announcement ────────────────────────────────────────────
+  'announcement.title': 'Announcements',
+  'announcement.new': 'New',
+  'announcement.count': '{count} announcements',
+  'announcement.unreadCount': '{count} unread',
+  'announcement.markAllRead': 'Mark all read',
   'announcement.dismiss': 'Dismiss',
   'announcement.learnMore': 'Learn more',
+  'announcement.empty': 'No announcements',
+  'announcement.emptyHint': 'New announcements will appear here',
 
   // ── Quiz ────────────────────────────────────────────────────
   'quiz.check': 'Check',
   'quiz.correct': 'Correct!',
   'quiz.incorrect': 'Incorrect, try again',
+  'quiz.incorrectAnswer': 'Incorrect. The correct answer is {answer}.',
+  'quiz.submitAnswer': 'Submit ({count} selected)',
+  'quiz.commonMistakes': 'Common mistakes:',
+  'quiz.parseFailed': 'Failed to parse quiz',
   'quiz.showAnswer': 'Show answer',
   'quiz.hideAnswer': 'Hide answer',
   'quiz.reset': 'Reset',
@@ -212,6 +223,7 @@ export const uiStrings: UIStrings = {
   'quiz.optionTrue': 'True',
   'quiz.optionFalse': 'False',
   'quiz.clickToReveal': 'Click to reveal answer',
+  'quiz.quizOptions': '{type} options',
   'quiz.trueFalseCorrect': 'Correct!',
   'quiz.trueFalseIncorrect': 'Incorrect. The statement is {answer}.',
 
@@ -231,6 +243,7 @@ export const uiStrings: UIStrings = {
   'series.latestPost': 'Latest',
   'series.viewAll': 'View all',
   'series.postCount': '{count} posts',
+  'series.noPosts': 'No posts in this series',
 
   // ── Home Info ───────────────────────────────────────────────
   'homeInfo.articles': 'Articles',
@@ -252,6 +265,7 @@ export const uiStrings: UIStrings = {
 
   // ── Tag Component ───────────────────────────────────────────
   'tag.expandAll': 'Show all',
+  'tag.viewTagPosts': 'View {count} posts tagged "{tag}"',
 
   // ── Audio Player ────────────────────────────────────────────
   'audio.loading': 'Loading playlist...',
@@ -259,6 +273,17 @@ export const uiStrings: UIStrings = {
   'audio.retry': 'Retry',
   'audio.empty': 'No tracks',
   'audio.listTab': 'List {index}',
+  'audio.closePanel': 'Close panel',
+
+  // ── Table of Contents ───────────────────────────────────────
+  'toc.title': 'Table of Contents',
+  'toc.empty': 'No headings',
+
+  // ── Embed ─────────────────────────────────────────────────
+  'embed.loadingTweet': 'Loading Tweet',
+
+  // ── Search Shortcut ───────────────────────────────────────
+  'search.searchShortcut': 'Search ({shortcut})',
 
   // ── Sider Segmented ─────────────────────────────────────────
   'sider.overview': 'Overview',

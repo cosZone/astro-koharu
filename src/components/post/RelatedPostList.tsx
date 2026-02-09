@@ -1,3 +1,4 @@
+import { useTranslation } from '@hooks/useTranslation';
 import { encodeSlug } from '@lib/route';
 import { localizedPath } from '@/i18n';
 import { cn, shuffleArray } from '@/lib/utils';
@@ -12,6 +13,7 @@ interface Props {
 }
 
 export default function RelatedPostList({ posts, fallbackPool, fallbackCount, startIndex = 6, locale }: Props) {
+  const { t } = useTranslation();
   const hasRelatedPosts = posts.length > 0;
 
   // Shuffle fallback posts on client-side for fresh randomization
@@ -19,7 +21,7 @@ export default function RelatedPostList({ posts, fallbackPool, fallbackCount, st
     fallbackPool.length <= fallbackCount ? shuffleArray(fallbackPool) : shuffleArray(fallbackPool).slice(0, fallbackCount);
 
   const displayPosts = hasRelatedPosts ? posts : fallbackPosts;
-  const title = hasRelatedPosts ? '相关文章' : '';
+  const title = hasRelatedPosts ? t('post.relatedPosts') : '';
 
   if (displayPosts.length === 0) {
     return null;

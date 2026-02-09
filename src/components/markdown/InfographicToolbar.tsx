@@ -7,6 +7,7 @@ import { CopyButton } from '@components/markdown/shared/CopyButton';
 import { MacToolbar } from '@components/markdown/shared/MacToolbar';
 import { ViewSourceToggle } from '@components/markdown/shared/ViewSourceToggle';
 import { useIsDarkTheme } from '@hooks/useIsDarkTheme';
+import { useTranslation } from '@hooks/useTranslation';
 import { Icon } from '@iconify/react';
 import { openModal } from '@store/modal';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
@@ -26,6 +27,7 @@ interface InfographicToolbarProps {
 }
 
 export function InfographicToolbar({ preElement }: InfographicToolbarProps) {
+  const { t } = useTranslation();
   const isDark = useIsDarkTheme();
   const [isSourceView, setIsSourceView] = useState(false);
   const instanceRef = useRef<unknown>(null);
@@ -125,8 +127,8 @@ export function InfographicToolbar({ preElement }: InfographicToolbarProps) {
         type="button"
         onClick={handleFullscreen}
         className="flex h-8 w-8 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground active:scale-95"
-        aria-label="全屏查看"
-        title="全屏查看"
+        aria-label={t('diagram.fullscreen')}
+        title={t('diagram.fullscreen')}
       >
         <Icon icon="ri:fullscreen-line" className="size-4" />
       </button>

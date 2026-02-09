@@ -1,3 +1,4 @@
+import { useTranslation } from '@hooks/useTranslation';
 import type { ParsedQuiz } from '@lib/quiz';
 import { cn } from '@lib/utils';
 import { useCallback, useState } from 'react';
@@ -6,6 +7,7 @@ import { QuizExplanation } from './QuizExplanation';
 import { QuizOption } from './QuizOption';
 
 export function SingleChoiceQuiz({ quiz }: { quiz: ParsedQuiz }) {
+  const { t } = useTranslation();
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
   const [revealed, setRevealed] = useState(false);
 
@@ -27,7 +29,7 @@ export function SingleChoiceQuiz({ quiz }: { quiz: ParsedQuiz }) {
         {/* biome-ignore lint/security/noDangerouslySetInnerHtml: Content from build-time Markdown */}
         <span dangerouslySetInnerHTML={{ __html: quiz.questionHtml }} />
       </div>
-      <fieldset className="space-y-2 border-none p-0" aria-label="单选题选项">
+      <fieldset className="space-y-2 border-none p-0" aria-label={t('quiz.quizOptions', { type: t('quiz.single') })}>
         {quiz.options.map((option, index) => (
           <QuizOption
             // biome-ignore lint/suspicious/noArrayIndexKey: Options are static
@@ -54,8 +56,8 @@ export function SingleChoiceQuiz({ quiz }: { quiz: ParsedQuiz }) {
       >
         {revealed &&
           (isCorrect
-            ? '回答正确！'
-            : `回答错误。正确答案是 ${String.fromCharCode(65 + quiz.options.findIndex((o) => o.isCorrect))}。`)}
+            ? t('quiz.correct')
+            : t('quiz.incorrectAnswer', { answer: String.fromCharCode(65 + quiz.options.findIndex((o) => o.isCorrect)) }))}
       </output>
       <QuizExplanation html={quiz.explanationHtml} visible={revealed} />
     </div>

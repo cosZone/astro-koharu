@@ -4,6 +4,7 @@
  */
 
 import { useCopyToClipboard } from '@hooks/useCopyToClipboard';
+import { useTranslation } from '@hooks/useTranslation';
 import { Icon } from '@iconify/react';
 import { cn } from '@lib/utils';
 import { CheckIcon } from './icons';
@@ -16,6 +17,9 @@ interface CopyButtonProps {
 
 export function CopyButton({ text, className, showLabel }: CopyButtonProps) {
   const { copied, copy } = useCopyToClipboard();
+  const { t } = useTranslation();
+
+  const label = copied ? t('common.copied') : t('common.copy');
 
   return (
     <button
@@ -28,11 +32,11 @@ export function CopyButton({ text, className, showLabel }: CopyButtonProps) {
         copied && 'text-primary',
         className,
       )}
-      aria-label={copied ? '已复制' : '复制'}
-      title={copied ? '已复制' : '复制'}
+      aria-label={label}
+      title={label}
     >
       {copied ? <CheckIcon /> : <Icon icon="ri:file-copy-line" className="size-4" />}
-      {showLabel && <span className="text-sm">{copied ? '已复制' : '复制'}</span>}
+      {showLabel && <span className="text-sm">{label}</span>}
     </button>
   );
 }

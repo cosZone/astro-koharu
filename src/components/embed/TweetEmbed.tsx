@@ -4,6 +4,7 @@
  */
 
 import { useIsDarkTheme } from '@hooks/index';
+import { useTranslation } from '@hooks/useTranslation';
 import { useEffect, useState } from 'react';
 import { Tweet } from 'react-tweet';
 
@@ -12,6 +13,7 @@ interface TweetEmbedProps {
 }
 
 function TweetEmbed({ tweetId }: TweetEmbedProps) {
+  const { t } = useTranslation();
   const [mounted, setMounted] = useState(false);
   const isDark = useIsDarkTheme();
 
@@ -23,7 +25,7 @@ function TweetEmbed({ tweetId }: TweetEmbedProps) {
 
   if (!mounted) {
     return (
-      <output className="my-6 flex justify-center" aria-busy="true" aria-label="正在加载 Tweet">
+      <output className="my-6 flex justify-center" aria-busy="true" aria-label={t('embed.loadingTweet')}>
         <div className="w-full max-w-[550px] animate-pulse rounded-xl bg-muted/50 p-4">
           <div className="mb-2 flex items-center gap-2">
             <div className="h-12 w-12 rounded-full bg-muted"></div>

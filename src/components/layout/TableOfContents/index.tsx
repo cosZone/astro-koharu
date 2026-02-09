@@ -6,6 +6,7 @@
  */
 
 import { useActiveHeading, useExpandedState, useHeadingClickHandler, useHeadingTree } from '@hooks/index';
+import { useTranslation } from '@hooks/useTranslation';
 import { HeadingList } from './HeadingList';
 
 // Constants
@@ -25,6 +26,7 @@ interface TableOfContentsProps {
  * delegates rendering to HeadingList sub-component.
  */
 export function TableOfContents({ defaultExpanded = false, enableNumbering = true }: TableOfContentsProps = {}) {
+  const { t } = useTranslation();
   // Use custom hooks for heading tree, active heading, and expand/collapse state
   const headings = useHeadingTree();
   const activeId = useActiveHeading({ offsetTop: SCROLL_OFFSET_TOP });
@@ -41,7 +43,7 @@ export function TableOfContents({ defaultExpanded = false, enableNumbering = tru
   if (headings.length === 0) {
     return (
       <div className="py-6 text-center text-muted-foreground">
-        <div className="text-sm">暂无目录</div>
+        <div className="text-sm">{t('toc.empty')}</div>
       </div>
     );
   }
@@ -49,7 +51,7 @@ export function TableOfContents({ defaultExpanded = false, enableNumbering = tru
   return (
     <nav
       className={`toc-container vertical-scrollbar scroll-gutter-stable flex h-full flex-col gap-2 overflow-auto pr-1 [--scrollbar-width:0.25rem] ${enableNumbering ? '' : 'toc-no-numbering'}`}
-      aria-label="文章目录"
+      aria-label={t('toc.title')}
     >
       <HeadingList
         headings={headings}

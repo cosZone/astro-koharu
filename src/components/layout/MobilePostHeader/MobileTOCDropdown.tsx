@@ -10,6 +10,7 @@ import { FloatingFocusManager, FloatingPortal, useClick, useDismiss, useInteract
 import { useControlledState } from '@hooks/useControlledState';
 import { useFloatingUI } from '@hooks/useFloatingUI';
 import type { Heading } from '@hooks/useHeadingTree';
+import { useTranslation } from '@hooks/useTranslation';
 import { AnimatePresence, motion } from 'motion/react';
 import type React from 'react';
 import { cloneElement } from 'react';
@@ -45,6 +46,7 @@ export function MobileTOCDropdown({
   onOpenChange,
   enableNumbering = true,
 }: MobileTOCDropdownProps) {
+  const { t } = useTranslation();
   const [isOpen, setIsOpen] = useControlledState({
     value: passedOpen,
     defaultValue: false,
@@ -89,7 +91,7 @@ export function MobileTOCDropdown({
               >
                 <nav
                   className={cn('toc-container vertical-scrollbar', { 'toc-no-numbering': !enableNumbering })}
-                  aria-label="文章目录"
+                  aria-label={t('toc.title')}
                 >
                   <div className="space-y-1">
                     <HeadingList

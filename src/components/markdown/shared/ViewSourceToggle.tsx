@@ -3,6 +3,7 @@
  * Shared by mermaid and infographic toolbars.
  */
 
+import { useTranslation } from '@hooks/useTranslation';
 import { Icon } from '@iconify/react';
 import { cn } from '@lib/utils';
 
@@ -14,6 +15,9 @@ interface ViewSourceToggleProps {
 }
 
 export function ViewSourceToggle({ isSourceView, onToggle, disabled, className }: ViewSourceToggleProps) {
+  const { t } = useTranslation();
+  const label = isSourceView ? t('code.viewRendered') : t('code.viewSource');
+
   return (
     <button
       type="button"
@@ -25,8 +29,8 @@ export function ViewSourceToggle({ isSourceView, onToggle, disabled, className }
         'disabled:cursor-not-allowed disabled:opacity-50',
         className,
       )}
-      aria-label={isSourceView ? '查看渲染结果' : '查看源码'}
-      title={isSourceView ? '查看渲染结果' : '查看源码'}
+      aria-label={label}
+      title={label}
     >
       {isSourceView ? (
         <Icon icon="ri:bar-chart-box-line" className="size-4" />

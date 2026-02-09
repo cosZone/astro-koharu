@@ -6,6 +6,7 @@
  */
 
 import { useAudioPlayer } from '@hooks/useAudioPlayer';
+import { useTranslation } from '@hooks/useTranslation';
 import type { MetingSong } from '@lib/meting';
 import { resolvePlaylist } from '@lib/meting';
 import { useCallback, useEffect, useMemo, useState } from 'react';
@@ -29,6 +30,7 @@ interface AudioPlayerProps {
 }
 
 export function AudioPlayer({ element }: AudioPlayerProps) {
+  const { t } = useTranslation();
   const dataSrc = element.dataset.src || '[]';
   const apiUrl = element.dataset.api;
 
@@ -104,7 +106,7 @@ export function AudioPlayer({ element }: AudioPlayerProps) {
     return (
       <div className="audio-player audio-player-loading">
         <div className="audio-player-spinner" />
-        <span>加载播放列表…</span>
+        <span>{t('audio.loading')}</span>
       </div>
     );
   }
@@ -112,9 +114,9 @@ export function AudioPlayer({ element }: AudioPlayerProps) {
   if (error) {
     return (
       <div className="audio-player audio-player-error">
-        <span>加载失败: {error}</span>
+        <span>{t('audio.loadError', { error })}</span>
         <button type="button" className="audio-player-btn" onClick={() => setRetryCount((c) => c + 1)}>
-          重试
+          {t('audio.retry')}
         </button>
       </div>
     );
@@ -123,7 +125,7 @@ export function AudioPlayer({ element }: AudioPlayerProps) {
   if (tracks.length === 0) {
     return (
       <div className="audio-player audio-player-empty">
-        <span>暂无曲目</span>
+        <span>{t('audio.empty')}</span>
       </div>
     );
   }
