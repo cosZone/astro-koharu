@@ -1,5 +1,6 @@
 ---
 import { buildCategoryPath, type Category } from '@lib/content';
+import { getLocaleFromUrl, localizedPath } from '@/i18n';
 import CategoryTitle from './CategoryTitle.astro';
 
 interface Props {
@@ -9,13 +10,13 @@ interface Props {
 }
 
 const { category, parentName, countMap } = Astro.props;
+const locale = getLocaleFromUrl(Astro.url.pathname);
 ---
 
-<!-- <div class="flex flex-col gap-2 pl-6"> -->
 <CategoryTitle
   title={category.name}
   count={countMap[category.name]}
-  href={buildCategoryPath([parentName, category.name])}
+  href={localizedPath(buildCategoryPath([parentName, category.name]), locale)}
   level="h3"
 />
 {
@@ -23,7 +24,7 @@ const { category, parentName, countMap } = Astro.props;
     <div class="category-second-level-container flex flex-col">
       {category.children.map((grandChild) => (
         <p class="shoka-decoration-circle relative px-7.5 py-2 text-base/9 text-primary hover:text-blue">
-          <a href={buildCategoryPath([parentName, category.name, grandChild.name])} class="dashed-border">
+          <a href={localizedPath(buildCategoryPath([parentName, category.name, grandChild.name]), locale)} class="dashed-border">
             {grandChild.name}
           </a>
           <span class="text-sm text-muted-foreground">({countMap[grandChild.name] ?? 0})</span>

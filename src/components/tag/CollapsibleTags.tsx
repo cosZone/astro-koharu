@@ -10,9 +10,10 @@ interface TagData {
 
 interface CollapsibleTagsProps {
   tags: TagData[];
+  locale?: string;
 }
 
-export function CollapsibleTags({ tags }: CollapsibleTagsProps) {
+export function CollapsibleTags({ tags, locale }: CollapsibleTagsProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   const contentId = useId();
 
@@ -38,7 +39,7 @@ export function CollapsibleTags({ tags }: CollapsibleTagsProps) {
       >
         <div className="flex flex-wrap gap-3 overflow-hidden px-4 pt-3 md:px-0" style={{ minHeight: 0 }}>
           {tags.map((props) => (
-            <TagItem key={props.tag} {...props} />
+            <TagItem key={props.tag} {...props} locale={locale} />
           ))}
         </div>
       </div>

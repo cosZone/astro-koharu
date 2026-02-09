@@ -1,19 +1,20 @@
 ---
 import { CONTENT_PADDING } from '@constants/layout';
-import { type Category, getPostsByCategory } from '@lib/content';
+import { type Category, getPostSlug, getPostsByCategory } from '@lib/content';
 import { displayDate } from '@lib/date';
 import { encodeSlug } from '@lib/route';
 import { cn } from '@lib/utils';
+import { getLocaleFromUrl, localizedPath, t } from '@/i18n';
 import SubCategory from './SubCategory.astro';
 
 interface Props {
   categories: Category[];
   countMap: Record<string, number>;
-  // category page
   rootCategory: Category | null;
 }
 const { categories, countMap, rootCategory } = Astro.props;
-const posts = await getPostsByCategory(rootCategory?.name ?? '');
+const locale = getLocaleFromUrl(Astro.url.pathname);
+const posts = await getPostsByCategory(rootCategory?.name ?? '', locale);
 ---
 
 <div class={`shadow-box mx-0 flex w-full flex-col bg-gradient-start ${CONTENT_PADDING.normal}`}>
@@ -22,10 +23,10 @@ const posts = await getPostsByCategory(rootCategory?.name ?? '');
       'has-children': posts?.length || rootCategory?.children?.length,
     })}
   >
-    <a href="/" class="dashed-border text-muted-foreground hover:text-blue border-b"> 首页 </a>
+    <a href={localizedPath('/', locale)} class="dashed-border text-muted-foreground hover:text-blue border-b"> {t(locale, 'nav.home')} </a>
     <span class="text-muted-foreground mx-2 text-xl">/</span>
     <span class="text-muted-foreground">{rootCategory?.name}</span>
-    <span class="text-muted-foreground mx-2 text-xl">分类</span>
+    <span class="text-muted-foreground mx-2 text-xl">{t(locale, 'category.categoryLabel')}</span>
   </h2>
 
   <div class="flex w-full flex-col">
@@ -48,7 +49,7 @@ const posts = await getPostsByCategory(rootCategory?.name ?? '');
           {posts.map((post) => (
             <p class="shoka-decoration-circle group text-primary hover:text-blue relative px-6 py-2 text-base/9">
               <span class="text-muted-foreground mr-2 text-xs">{displayDate.shortDate(post.data.date)}</span>
-              <a href={`/post/${encodeSlug(post?.data?.link ?? post.slug)}`} class="dashed-border">
+              <a href={localizedPath(`/post/${encodeSlug(getPostSlug(post))}`, locale)} class="dashed-border">
                 {post?.data?.title}
               </a>
             </p>

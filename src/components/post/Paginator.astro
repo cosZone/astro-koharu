@@ -3,6 +3,7 @@ import { Button } from '@components/ui/button';
 import type { Page } from 'astro';
 import { FaChevronLeft, FaChevronRight } from 'react-icons/fa';
 import type { BlogPost } from 'types/blog';
+import { getLocaleFromUrl, localizedPath } from '@/i18n';
 
 interface Props {
   page: Page<BlogPost>;
@@ -10,15 +11,16 @@ interface Props {
   isHomePage?: boolean; // 是否是首页
 }
 
-const { page, baseUrl = '/posts', isHomePage = false } = Astro.props;
+const locale = getLocaleFromUrl(Astro.url.pathname);
+const defaultBaseUrl = localizedPath('/posts', locale);
+const { page, baseUrl = defaultBaseUrl, isHomePage = false } = Astro.props;
 
 // 生成页面链接的辅助函数
+const homeUrl = localizedPath('/', locale);
 const getPageUrl = (pageNum: number) => {
-  // 如果是首页模式，第1页指向 '/'，其他页指向 '/posts/x'
   if (isHomePage) {
-    return pageNum === 1 ? '/' : `${baseUrl}/${pageNum}`;
+    return pageNum === 1 ? homeUrl : `${baseUrl}/${pageNum}`;
   }
-  // 普通模式：第1页是 baseUrl，其他页是 baseUrl/2 等
   return pageNum === 1 ? baseUrl : `${baseUrl}/${pageNum}`;
 };
 ---

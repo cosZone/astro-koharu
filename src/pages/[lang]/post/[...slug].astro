@@ -1,0 +1,25 @@
+---
+import { getPostSlug, getSortedPosts } from '@lib/content';
+import { defaultLocale, localeList } from '@/i18n/config';
+import PostPage from '../../post/[...slug].astro';
+
+export async function getStaticPaths() {
+  const nonDefaultLocales = localeList.filter((l) => l !== defaultLocale);
+  const paths = [];
+
+  for (const lang of nonDefaultLocales) {
+    const posts = await getSortedPosts(lang);
+    for (const post of posts) {
+      paths.push({
+        params: { lang, slug: getPostSlug(post) },
+        props: { post, postId: post.id },
+      });
+    }
+  }
+
+  return paths;
+}
+
+const { post, postId } = Astro.props;
+---
+<PostPage post={post} postId={postId} />

@@ -10,6 +10,7 @@ import { getLqipProps } from '@lib/lqip';
 import { routeBuilder } from '@lib/route';
 import { cn } from '@lib/utils';
 import { Icon } from 'astro-icon/components';
+import { getLocaleFromUrl, localizedPath } from '@/i18n';
 import type { PostCardData } from '@/types/blog';
 
 export interface PostItemCardProps {
@@ -37,12 +38,13 @@ const hideCover = hideCoverProp ?? isSimple;
 
 const { cover, date, categories, title, draft, description, slug, link, tags, wordCount, readingTime } = data ?? {};
 
+const locale = getLocaleFromUrl(Astro.url.pathname);
 const finalCover = cover ?? randomCover ?? defaultCoverList[0];
-const href = routeBuilder(Routes.Post, { slug, link, title });
+const href = localizedPath(routeBuilder(Routes.Post, { slug, link, title }), locale);
 const isDraft = import.meta.env.DEV && draft === true;
 
 const categoryArr = getCategoryArr(categories?.[0]);
-const categoryLink = buildCategoryPath(categoryArr);
+const categoryLink = localizedPath(buildCategoryPath(categoryArr), locale);
 const categoryStr = categoryArr?.length ? categoryArr[categoryArr.length - 1] : '';
 
 // 直接使用 description（已在 PostCardData 中计算好）
@@ -179,7 +181,7 @@ function getStaggerPadding(rowIndex: number): string {
         >
           {tags?.length
             ? tags.map((tag: string) => (
-                <a href={buildTagPath(tag)}>
+                <a href={localizedPath(buildTagPath(tag), locale)}>
                   <Badge
                     className='hover:text-badge-primary/80 shrink-0 cursor-pointer gap-0.5 border-none px-1 text-xs font-bold whitespace-nowrap transition-colors duration-300 flex'
                     variant="outline"

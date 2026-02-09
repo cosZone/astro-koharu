@@ -1,6 +1,7 @@
 ---
 import { CONTENT_PADDING } from '@constants/layout';
 import { buildCategoryPath, type Category } from '@lib/content';
+import { getLocaleFromUrl, localizedPath, t } from '@/i18n';
 import CategoryTitle from './CategoryTitle.astro';
 import SubCategory from './SubCategory.astro';
 
@@ -10,12 +11,13 @@ interface Props {
   totalCount: number;
 }
 const { categories, countMap, totalCount } = Astro.props;
+const locale = getLocaleFromUrl(Astro.url.pathname);
 ---
 
 <div class={`shadow-box mx-0 flex w-full flex-col bg-gradient-start ${CONTENT_PADDING.standard}`}>
   <h2 class="shoka-decoration-circle group relative px-6 py-5 text-2xl/9 font-bold md:text-xl/9">
-    <a href="/" class="dashed-border text-muted-foreground group-hover:border-blue group-hover:text-blue border-b"> 首页 </a>
-    <span class="text-muted-foreground text-xl md:text-base">/</span> 共 {totalCount} 个分类
+    <a href={localizedPath('/', locale)} class="dashed-border text-muted-foreground group-hover:border-blue group-hover:text-blue border-b"> {t(locale, 'nav.home')} </a>
+    <span class="text-muted-foreground text-xl md:text-base">/</span> {t(locale, 'category.totalCategories', { count: totalCount })}
   </h2>
 
   <div class="flex w-full flex-col">
@@ -25,7 +27,7 @@ const { categories, countMap, totalCount } = Astro.props;
           <CategoryTitle
             title={category.name}
             count={countMap[category.name]}
-            href={buildCategoryPath(category.name)}
+            href={localizedPath(buildCategoryPath(category.name), locale)}
             className={category?.children?.length ? 'has-children' : ''}
           />
           {category?.children?.length && (

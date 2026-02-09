@@ -3,6 +3,7 @@ import { getSortedPosts } from '@lib/content';
 import { getRelatedPosts, hasSimilarityData } from '@lib/content/similarities';
 import { toPostRefWithCategory } from '@lib/content/transforms';
 import type { BlogPost } from 'types/blog';
+import { getLocaleFromUrl } from '@/i18n';
 import PostFooterLists from './PostFooterLists';
 import RandomPostList from './RandomPostList';
 import RelatedPostList from './RelatedPostList';
@@ -12,12 +13,13 @@ interface Props {
 }
 
 const { post } = Astro.props;
+const locale = getLocaleFromUrl(Astro.url.pathname);
 
 // Check if similarity data is available
 const hasData = hasSimilarityData();
 
 // Get all posts
-const allPosts = await getSortedPosts();
+const allPosts = await getSortedPosts(locale);
 const totalPosts = allPosts.length;
 
 // Calculate how many posts to show on each side
@@ -37,11 +39,11 @@ const relatedPosts = hasData && post ? getRelatedPosts(post, allPosts, 5).map(to
 
 <div class="tablet:grid-cols-1 grid grid-cols-2 gap-4 px-10 md:px-6">
   {totalPosts <= 10 ? (
-    <PostFooterLists client:only="react" allPosts={allPostItems} relatedPosts={relatedPosts} leftCount={leftCount} rightCount={rightCount} />
+    <PostFooterLists client:only="react" allPosts={allPostItems} relatedPosts={relatedPosts} leftCount={leftCount} rightCount={rightCount} locale={locale} />
   ) : (
     <>
-      <RandomPostList client:only="react" postsPool={leftPool} count={leftCount} />
-      {(hasData || totalPosts <= 10) && <RelatedPostList client:only="react" posts={relatedPosts} fallbackPool={rightPool} fallbackCount={rightCount} startIndex={leftCount + 1} />}
+      <RandomPostList client:only="react" postsPool={leftPool} count={leftCount} locale={locale} />
+      {(hasData || totalPosts <= 10) && <RelatedPostList client:only="react" posts={relatedPosts} fallbackPool={rightPool} fallbackCount={rightCount} startIndex={leftCount + 1} locale={locale} />}
     </>
   )}
 </div>

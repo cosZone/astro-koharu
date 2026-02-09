@@ -15,6 +15,7 @@ import { cn, filterNavItems } from '@lib/utils';
 import { memo, useEffect, useRef } from 'react';
 import { defaultLocale, resolveNavName, stripLocaleFromPath } from '@/i18n';
 import DropdownNav from './DropdownNav';
+import LanguageSwitcher from './LanguageSwitcher';
 import { SearchTrigger } from './SearchDialog';
 
 interface NavigatorProps {
@@ -142,6 +143,7 @@ const Navigator = memo(function Navigator({ currentPath, locale = defaultLocale 
 
       <div className="ml-auto flex items-center gap-2">
         <SearchTrigger />
+        <LanguageSwitcher locale={locale} currentPath={currentPath} />
         <ThemeToggle />
       </div>
     </div>

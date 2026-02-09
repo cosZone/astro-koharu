@@ -5,46 +5,48 @@ import { CONTENT_PADDING } from '@constants/layout';
 import { siteConfig } from '@constants/site-config';
 import Layout from '@layouts/Layout.astro';
 import TwoColumnLayout from '@layouts/TwoColumnLayout.astro';
-import { getPostLastCategory, getSortedPosts, normalizeTag } from '@lib/content';
+import { getPostLastCategory, getPostSlug, getSortedPosts, normalizeTag } from '@lib/content';
 import { displayDate } from '@lib/date';
 import { encodeSlug } from '@lib/route';
+import { defaultLocale, getLocaleFromUrl, localizedPath, t } from '@/i18n';
 
 export async function getStaticPaths() {
-  const posts = await getSortedPosts();
+  const posts = await getSortedPosts(defaultLocale);
   const tags = new Set<string>();
 
-  posts.forEach((post) => {
+  for (const post of posts) {
     const postTags = post.data.tags || [];
-    postTags.forEach((tag) => {
+    for (const tag of postTags) {
       tags.add(normalizeTag(tag));
-    });
-  });
+    }
+  }
 
   return Array.from(tags).map((tag) => ({
     params: { tag: normalizeTag(tag).replace(/\//g, '-') },
     props: {
-      posts: posts.filter((post) => post.data.tags?.some((t) => normalizeTag(t) === tag)),
+      posts: posts.filter((post) => post.data.tags?.some((tg) => normalizeTag(tg) === tag)),
       tag,
     },
   }));
 }
 
 const { tag, posts } = Astro.props;
+const locale = getLocaleFromUrl(Astro.url.pathname);
 ---
 
-<Layout title={`标签:${tag} | ${siteConfig.title}`} description={`标签 ${tag} 下的所有文章`}>
+<Layout title={`${t(locale, 'tag.postsWithTag', { name: tag })} | ${siteConfig.title}`} description={t(locale, 'tag.postsWithTag', { name: tag })}>
   <TwoColumnLayout>
-    <Cover slot="cover" title={`包含标签"${tag}"的文章`} />
+    <Cover slot="cover" title={t(locale, 'tag.postsWithTag', { name: tag })} />
     <HomeSider slot="sider" />
     <div class={`shadow-box mx-0 flex w-full flex-col bg-gradient-start ${CONTENT_PADDING.standard}`}>
       <h2 class="shoka-decoration-circle has-children group relative h-19 px-6 py-5 text-2xl/9 font-bold">
         <a
-          href={Astro.url.origin + '/tags'}
-          class="dashed-border text-muted-foreground group-hover:border-blue group-hover:text-blue border-b">全部</a
+          href={localizedPath('/tags', locale)}
+          class="dashed-border text-muted-foreground group-hover:border-blue group-hover:text-blue border-b">{t(locale, 'tag.all')}</a
         >
         <span class="text-muted-foreground text-lg"> / </span>
         <span class="text-muted-foreground">{tag}</span>
-        <span class="text-muted-foreground text-lg">({posts.length} 篇文章)</span>
+        <span class="text-muted-foreground text-lg">({t(locale, 'tag.postCount', { count: posts.length })})</span>
       </h2>
       {
         posts?.length && (
@@ -57,12 +59,12 @@ const { tag, posts } = Astro.props;
                     {displayDate.shortDate(post.data.date)}
                   </span>
                   <a
-                    href={Astro.url.origin + link}
+                    href={localizedPath(link, locale)}
                     class="text-muted-foreground hover:text-blue mr-2 inline-block text-xs md:relative md:-top-1"
                   >
                     {name}
                   </a>
-                  <a href={`/post/${encodeSlug(post?.data?.link ?? post.slug)}`} class="dashed-border md:absolute md:top-7 md:left-7">
+                  <a href={localizedPath(`/post/${encodeSlug(getPostSlug(post))}`, locale)} class="dashed-border md:absolute md:top-7 md:left-7">
                     {post?.data?.title}
                   </a>
                 </p>

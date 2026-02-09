@@ -6,15 +6,17 @@ import { useIsMounted } from '@hooks/useIsMounted';
 import { routeBuilder } from '@lib/route';
 import { cn } from '@lib/utils';
 import { RiArrowDownSLine, RiArrowLeftSLine, RiArrowRightSLine, RiArrowUpSLine } from 'react-icons/ri';
+import { localizedPath } from '@/i18n';
 import type { PostRef } from '@/types/blog';
 
 interface SeriesNavigationProps {
   prevPost?: PostRef | null;
   nextPost?: PostRef | null;
   className?: string;
+  locale?: string;
 }
 
-export function SeriesNavigation({ prevPost, nextPost, className }: SeriesNavigationProps) {
+export function SeriesNavigation({ prevPost, nextPost, className, locale }: SeriesNavigationProps) {
   const isMounted = useIsMounted();
 
   if (!prevPost && !nextPost) {
@@ -31,7 +33,7 @@ export function SeriesNavigation({ prevPost, nextPost, className }: SeriesNaviga
         {prevPost ? (
           isMounted && (
             <a
-              href={routeBuilder(Routes.Post, prevPost)}
+              href={localizedPath(routeBuilder(Routes.Post, prevPost), locale ?? 'zh')}
               className={cn(
                 'group flex items-center gap-1.5 rounded-md px-2 py-1.5 transition-colors',
                 'text-muted-foreground hover:bg-accent hover:text-primary',
@@ -51,7 +53,7 @@ export function SeriesNavigation({ prevPost, nextPost, className }: SeriesNaviga
         {nextPost ? (
           isMounted && (
             <a
-              href={routeBuilder(Routes.Post, nextPost)}
+              href={localizedPath(routeBuilder(Routes.Post, nextPost), locale ?? 'zh')}
               className={cn(
                 'group flex items-center gap-1.5 rounded-md px-2 py-1.5 transition-colors',
                 'text-muted-foreground hover:bg-accent hover:text-primary',
