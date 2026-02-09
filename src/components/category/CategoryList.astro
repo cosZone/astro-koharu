@@ -1,6 +1,6 @@
 ---
 import { CONTENT_PADDING } from '@constants/layout';
-import { buildCategoryPath, type Category } from '@lib/content';
+import { buildCategoryPath, type Category, translateCategoryName } from '@lib/content';
 import { getLocaleFromUrl, localizedPath, t } from '@/i18n';
 import CategoryTitle from './CategoryTitle.astro';
 import SubCategory from './SubCategory.astro';
@@ -25,7 +25,7 @@ const locale = getLocaleFromUrl(Astro.url.pathname);
       categories.map((category) => (
         <>
           <CategoryTitle
-            title={category.name}
+            title={translateCategoryName(category.name, locale)}
             count={countMap[category.name]}
             href={localizedPath(buildCategoryPath(category.name), locale)}
             className={category?.children?.length ? 'has-children' : ''}

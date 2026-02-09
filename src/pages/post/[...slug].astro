@@ -16,6 +16,7 @@ import {
   getPostSlug,
   getPostSummary,
   getSortedPosts,
+  translateCategoryName,
 } from '@lib/content';
 import { formatForSeo } from '@lib/date';
 import { encodeSlug } from '@lib/route';
@@ -66,7 +67,7 @@ const jsonLd = {
 };
 
 const categoryArr = getCategoryArr(categories?.[0]);
-const categoryStr = categoryArr?.length ? ` | ${categoryArr.join(' / ')}` : '';
+const categoryStr = categoryArr?.length ? ` | ${categoryArr.map((c) => translateCategoryName(c, locale)).join(' / ')}` : '';
 
 // Generate breadcrumb data for categories
 const breadcrumbCategories = [];

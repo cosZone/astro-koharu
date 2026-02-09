@@ -17,6 +17,8 @@ export {
   getCategoryList,
   getCategoryNameByLink,
   getParentCategory,
+  translateCategoryName,
+  translateSeriesField,
 } from './content/categories';
 export type { SlugLocaleInfo } from './content/locale';
 

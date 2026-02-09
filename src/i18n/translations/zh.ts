@@ -237,11 +237,30 @@ export const uiStrings = {
   'notFound.browseArchives': '浏览归档',
   'notFound.message': '喵？页面被吃掉了~',
 
+  // ── Category Names (by slug from categoryMap) ──────────────
+  'categoryName.life': '随笔',
+  'categoryName.note': '笔记',
+  'categoryName.tools': '工具',
+  'categoryName.weekly': '周刊',
+  'categoryName.front-end': '前端',
+
+  // ── Category Stats ────────────────────────────────────────
+  'category.subCategoryCount': '{count} 个子分类',
+  'category.postCount': '{count} 篇文章',
+
+  // ── Post Card ─────────────────────────────────────────────
+  'post.readingTimeTooltip': '预计阅读时长: {time}',
+
   // ── Featured Series ─────────────────────────────────────────
   'series.latestPost': '最新文章',
   'series.viewAll': '查看全部',
   'series.postCount': '{count} 篇',
   'series.noPosts': '暂无系列文章',
+  'series.rss': 'RSS 订阅',
+  'series.chromeExtension': 'Chrome 插件',
+  'series.docs': '文档',
+  'series.weekly.label': '我的周刊',
+  'series.weekly.fullName': '我的技术周刊',
 
   // ── Home Info ───────────────────────────────────────────────
   'homeInfo.articles': '文章',

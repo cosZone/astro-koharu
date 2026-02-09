@@ -4,12 +4,20 @@ import { Button } from '@components/ui/button';
 import { categoryMap } from '@constants/category';
 import { Routes } from '@constants/router';
 import { siteConfig } from '@constants/site-config';
-import { type Category, getCategoryByLink, getCategoryList, getParentCategory, getPostsByCategory } from '@lib/content';
+import {
+  type Category,
+  getCategoryByLink,
+  getCategoryList,
+  getParentCategory,
+  getPostsByCategory,
+  translateCategoryName,
+} from '@lib/content';
 import { toPostRefs } from '@lib/content/transforms';
 import { getLqipStyle } from '@lib/lqip';
 import { routeBuilder } from '@lib/route';
 import { cn } from '@lib/utils';
 import { Icon } from 'astro-icon/components';
+import { getLocaleFromUrl, localizedPath, t } from '@/i18n';
 import type { PostRef } from '@/types/blog';
 import FlippedCard from './FlippedCard.astro';
 
@@ -22,12 +30,13 @@ interface CategoryWithPosts {
   parentCategory: Category | null;
 }
 
-const { categories } = await getCategoryList();
+const locale = getLocaleFromUrl(Astro.url.pathname);
+const { categories } = await getCategoryList(locale);
 
 const categoryPosts: CategoryWithPosts[] = await Promise.all(
   siteConfig.featuredCategories?.map(async (category) => {
     const categoryInfo = getCategoryByLink(categories, category?.link);
-    const posts = await getPostsByCategory(categoryInfo?.name ?? '');
+    const posts = await getPostsByCategory(categoryInfo?.name ?? '', locale);
     return {
       link: category.link,
       label: category?.label,
@@ -45,10 +54,10 @@ const categoryPosts: CategoryWithPosts[] = await Promise.all(
     categoryPosts.map((category) => {
       const parentCategory = category?.parentCategory;
       const parentCategoryLink = parentCategory
-        ? Routes.Categories + '/' + (category?.link.split('/').slice(0, -1).join('/') ?? '')
+        ? localizedPath(Routes.Categories + '/' + (category?.link.split('/').slice(0, -1).join('/') ?? ''), locale)
         : '';
       const categoryInfo = category?.category;
-      const categoryLink = Routes.Categories + '/' + (category?.link ?? '');
+      const categoryLink = localizedPath(Routes.Categories + '/' + (category?.link ?? ''), locale);
       const childrenLen = categoryInfo?.children?.length ?? 0;
       const posts = category?.posts?.slice(0, 6 - (childrenLen ?? 0));
       return (
@@ -63,10 +72,10 @@ const categoryPosts: CategoryWithPosts[] = await Promise.all(
               class="absolute inset-0 -z-10 h-full w-full rounded-md object-cover"
             />
             <div class="bg-shoka-card-mask absolute inset-0 -z-10 h-full w-full rounded-md opacity-25" />
-            <h2 class="text-2xl text-white">{category?.label ?? categoryInfo?.name}</h2>
+            <h2 class="text-2xl text-white">{category?.label ? translateCategoryName(category.label, locale) : categoryInfo ? translateCategoryName(categoryInfo.name, locale) : ''}</h2>
             {parentCategory?.name ? (
               <Badge variant="shoka-tag" className="absolute right-3 top-2.5 text-xs text-white opacity-80 shadow-sm">
-                {parentCategory.name}
+                {translateCategoryName(parentCategory.name, locale)}
               </Badge>
             ) : null}
           </div>
@@ -79,7 +88,7 @@ const categoryPosts: CategoryWithPosts[] = await Promise.all(
               )}
             >
               <a class="hover:animate-shake block text-base text-white" href={categoryLink}>
-                {category?.label || categoryInfo?.name}
+                {category?.label ? translateCategoryName(category.label, locale) : categoryInfo ? translateCategoryName(categoryInfo.name, locale) : ''}
               </a>
             </div>
             <div class="grid max-h-24 grid-cols-2 gap-x-5 gap-y-3 overflow-auto">
@@ -89,13 +98,13 @@ const categoryPosts: CategoryWithPosts[] = await Promise.all(
                       href={categoryLink + '/' + categoryMap[child?.name]}
                       class="text-primary hover:text-blue truncate text-left transition-colors duration-300"
                     >
-                      {child.name}
+                      {translateCategoryName(child.name, locale)}
                     </a>
                   ))
                 : null}
               {posts.map((post) => (
                 <a
-                  href={routeBuilder(Routes.Post, post)}
+                  href={localizedPath(routeBuilder(Routes.Post, post), locale)}
                   class="text-primary hover:text-blue truncate text-left transition-colors duration-300"
                 >
                   {post.title}
@@ -109,13 +118,13 @@ const categoryPosts: CategoryWithPosts[] = await Promise.all(
                   class="group hover:text-blue mr-1 flex cursor-pointer items-center transition duration-300"
                 >
                   <Icon name="ri:flag-fill" class="mr-0.5 text-base" />
-                  <span class="mr-2">{parentCategory.name}</span>
+                  <span class="mr-2">{translateCategoryName(parentCategory.name, locale)}</span>
                 </a>
               ) : null}
               <Fragment>
                 <Icon name="gg:loadbar-doc" class="mr-0.5 text-base" />
-                {categoryInfo?.children?.length ? `${categoryInfo.children.length} 个子分类，` : ''}
-                {category.posts?.length} 篇文章
+                {categoryInfo?.children?.length ? t(locale, 'category.subCategoryCount', { count: categoryInfo.children.length }) + ', ' : ''}
+                {t(locale, 'category.postCount', { count: category.posts?.length })}
               </Fragment>
             </p>
             <a href={categoryLink} aria-label="more info" class="absolute right-0 bottom-0">

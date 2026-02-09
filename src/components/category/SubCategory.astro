@@ -1,5 +1,5 @@
 ---
-import { buildCategoryPath, type Category } from '@lib/content';
+import { buildCategoryPath, type Category, translateCategoryName } from '@lib/content';
 import { getLocaleFromUrl, localizedPath } from '@/i18n';
 import CategoryTitle from './CategoryTitle.astro';
 
@@ -14,7 +14,7 @@ const locale = getLocaleFromUrl(Astro.url.pathname);
 ---
 
 <CategoryTitle
-  title={category.name}
+  title={translateCategoryName(category.name, locale)}
   count={countMap[category.name]}
   href={localizedPath(buildCategoryPath([parentName, category.name]), locale)}
   level="h3"
@@ -25,7 +25,7 @@ const locale = getLocaleFromUrl(Astro.url.pathname);
       {category.children.map((grandChild) => (
         <p class="shoka-decoration-circle relative px-7.5 py-2 text-base/9 text-primary hover:text-blue">
           <a href={localizedPath(buildCategoryPath([parentName, category.name, grandChild.name]), locale)} class="dashed-border">
-            {grandChild.name}
+            {translateCategoryName(grandChild.name, locale)}
           </a>
           <span class="text-sm text-muted-foreground">({countMap[grandChild.name] ?? 0})</span>
         </p>

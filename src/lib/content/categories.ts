@@ -5,6 +5,8 @@
 import { getCollection } from 'astro:content';
 import { categoryMap } from '@constants/category';
 import type { BlogPost } from 'types/blog';
+import type { Locale, TranslationKey } from '@/i18n/types';
+import { t } from '@/i18n/utils';
 import { encodeSlug } from '../route';
 import { filterPostsByLocale } from './locale';
 import type { Category, CategoryListResult } from './types';
@@ -190,4 +192,28 @@ export function getCategoryArr(categories?: string[] | string) {
   if (Array.isArray(categories) && categories.length) {
     return categories as string[];
   } else return [categories as string];
+}
+
+/**
+ * Translate a category name based on locale.
+ * Uses categoryMap to find the slug, then looks up 'categoryName.{slug}' translation key.
+ * Falls back to the original name if no translation is defined.
+ */
+export function translateCategoryName(name: string, locale: Locale): string {
+  const slug = categoryMap[name];
+  if (!slug) return name;
+  const key = `categoryName.${slug}` as TranslationKey;
+  const translated = t(locale, key);
+  return translated === key ? name : translated;
+}
+
+/**
+ * Translate a featured series field (label, fullName, etc.) based on locale.
+ * Tries 'series.{slug}.{field}' translation key, falls back to the raw YAML value.
+ */
+export function translateSeriesField(slug: string, field: string, fallback: string | undefined, locale: Locale): string {
+  if (!fallback) return '';
+  const key = `series.${slug}.${field}` as TranslationKey;
+  const translated = t(locale, key);
+  return translated === key ? fallback : translated;
 }

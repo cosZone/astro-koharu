@@ -239,11 +239,30 @@ export const uiStrings: UIStrings = {
   'notFound.browseArchives': 'Browse Archives',
   'notFound.message': 'Meow? The page was eaten~',
 
+  // ── Category Names (by slug from categoryMap) ──────────────
+  'categoryName.life': 'Life',
+  'categoryName.note': 'Notes',
+  'categoryName.tools': 'Tools',
+  'categoryName.weekly': 'Weekly',
+  'categoryName.front-end': 'Frontend',
+
+  // ── Category Stats ────────────────────────────────────────
+  'category.subCategoryCount': '{count} subcategories',
+  'category.postCount': '{count} posts',
+
+  // ── Post Card ─────────────────────────────────────────────
+  'post.readingTimeTooltip': 'Estimated reading time: {time}',
+
   // ── Featured Series ─────────────────────────────────────────
   'series.latestPost': 'Latest',
   'series.viewAll': 'View all',
   'series.postCount': '{count} posts',
   'series.noPosts': 'No posts in this series',
+  'series.rss': 'RSS Feed',
+  'series.chromeExtension': 'Chrome Extension',
+  'series.docs': 'Documentation',
+  'series.weekly.label': 'My Weekly',
+  'series.weekly.fullName': 'My Tech Weekly',
 
   // ── Home Info ───────────────────────────────────────────────
   'homeInfo.articles': 'Articles',

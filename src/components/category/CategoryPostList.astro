@@ -1,6 +1,6 @@
 ---
 import { CONTENT_PADDING } from '@constants/layout';
-import { type Category, getPostSlug, getPostsByCategory } from '@lib/content';
+import { type Category, getPostSlug, getPostsByCategory, translateCategoryName } from '@lib/content';
 import { displayDate } from '@lib/date';
 import { encodeSlug } from '@lib/route';
 import { cn } from '@lib/utils';
@@ -25,7 +25,7 @@ const posts = await getPostsByCategory(rootCategory?.name ?? '', locale);
   >
     <a href={localizedPath('/', locale)} class="dashed-border text-muted-foreground hover:text-blue border-b"> {t(locale, 'nav.home')} </a>
     <span class="text-muted-foreground mx-2 text-xl">/</span>
-    <span class="text-muted-foreground">{rootCategory?.name}</span>
+    <span class="text-muted-foreground">{rootCategory ? translateCategoryName(rootCategory.name, locale) : ''}</span>
     <span class="text-muted-foreground mx-2 text-xl">{t(locale, 'category.categoryLabel')}</span>
   </h2>
 

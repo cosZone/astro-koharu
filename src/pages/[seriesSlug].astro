@@ -7,7 +7,7 @@ import { siteConfig } from '@constants/site-config';
 import Layout from '@layouts/Layout.astro';
 import TwoColumnLayout from '@layouts/TwoColumnLayout.astro';
 import type { FeaturedSeriesItem } from '@lib/config/types';
-import { getEnabledSeries, getPostsByCategory } from '@lib/content';
+import { getEnabledSeries, getPostsByCategory, translateSeriesField } from '@lib/content';
 import { toPostCardDataList } from '@lib/content/transforms';
 import type { GetStaticPaths } from 'astro';
 import { getLocaleFromUrl, localizedPath, t } from '@/i18n';
@@ -31,7 +31,9 @@ const locale = getLocaleFromUrl(Astro.url.pathname);
 // Get all posts for this series (transform to card data)
 const seriesPosts = series.categoryName ? toPostCardDataList(await getPostsByCategory(series.categoryName, locale)) : [];
 
-const pageTitle = series.fullName ?? series.label ?? series.categoryName;
+const seriesFullName = translateSeriesField(series.slug, 'fullName', series.fullName, locale);
+const seriesLabel = translateSeriesField(series.slug, 'label', series.label, locale);
+const pageTitle = seriesFullName || seriesLabel || series.categoryName;
 ---
 
 <Layout title={`${pageTitle} | ${siteConfig.title}`} description={series.description?.slice(0, 160)}>

@@ -1,10 +1,12 @@
 ---
 import type { FeaturedSeriesItem } from '@lib/config/types';
+import { translateSeriesField } from '@lib/content';
 import { getLqipStyle } from '@lib/lqip';
 import { getSanitizeHtml } from '@lib/sanitize';
 import { Icon } from 'astro-icon/components';
 import { marked } from 'marked';
 import { MAX_WIDTH } from '@/constants/layout';
+import { getLocaleFromUrl, t } from '@/i18n';
 import WaveSvg from './wave';
 
 interface Props {
@@ -12,6 +14,12 @@ interface Props {
 }
 
 const { series } = Astro.props;
+const locale = getLocaleFromUrl(Astro.url.pathname);
+
+// Translate series fields with fallback to YAML values
+const seriesLabel = translateSeriesField(series.slug, 'label', series.label, locale);
+const seriesFullName = translateSeriesField(series.slug, 'fullName', series.fullName, locale);
+const seriesTitle = seriesFullName || seriesLabel || series.categoryName;
 
 // Convert Markdown description to HTML and sanitize for XSS protection
 const rawHtml = series.description ? await marked.parse(series.description) : '';
@@ -26,7 +34,7 @@ const descriptionHtml = getSanitizeHtml(rawHtml);
       <div class="absolute inset-0 -z-10 h-full w-full" style={getLqipStyle(series.cover)}>
         <img
           src={series.cover}
-          alt={series.fullName ?? series.label}
+          alt={seriesTitle}
           class="h-full w-full object-cover"
           loading="eager"
           fetchpriority="high"
@@ -40,7 +48,7 @@ const descriptionHtml = getSanitizeHtml(rawHtml);
   <div class={`relative z-10 flex flex-col items-center justify-center px-5 py-4 text-white ${MAX_WIDTH.content}`}>
     <!-- Title -->
     <h1 class="shadow-text text-center text-5xl font-bold md:text-3xl">
-      {series.fullName ?? series.label ?? series.categoryName}
+      {seriesTitle}
     </h1>
 
     <!-- Link buttons -->
@@ -65,7 +73,7 @@ const descriptionHtml = getSanitizeHtml(rawHtml);
               class="flex items-center gap-2 rounded-full bg-white/10 px-4 py-2 text-sm backdrop-blur-sm transition-all hover:scale-105 hover:bg-white/20"
             >
               <Icon name="ri:rss-line" class="h-5 w-5" />
-              <span>RSS 订阅</span>
+              <span>{t(locale, 'series.rss')}</span>
             </a>
           )}
           {series.links.chrome && (
@@ -75,7 +83,7 @@ const descriptionHtml = getSanitizeHtml(rawHtml);
               class="flex items-center gap-2 rounded-full bg-white/10 px-4 py-2 text-sm backdrop-blur-sm transition-all hover:scale-105 hover:bg-white/20"
             >
               <Icon name="ri:chrome-fill" class="h-5 w-5" />
-              <span>Chrome 插件</span>
+              <span>{t(locale, 'series.chromeExtension')}</span>
             </a>
           )}
           {series.links.docs && (
@@ -85,7 +93,7 @@ const descriptionHtml = getSanitizeHtml(rawHtml);
               class="flex items-center gap-2 rounded-full bg-white/10 px-4 py-2 text-sm backdrop-blur-sm transition-all hover:scale-105 hover:bg-white/20"
             >
               <Icon name="ri:book-open-line" class="h-5 w-5" />
-              <span>插件文档</span>
+              <span>{t(locale, 'series.docs')}</span>
             </a>
           )}
         </div>
