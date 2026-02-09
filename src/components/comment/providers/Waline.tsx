@@ -3,6 +3,7 @@ import '@waline/client/style';
 import '@/styles/components/waline.css';
 import { useEffect, useRef } from 'react';
 import { commentConfig } from '@/constants/site-config';
+import { getHtmlLang, getLocaleFromUrl } from '@/i18n/utils';
 
 // Config is module-level static data parsed from YAML at build time - won't change at runtime
 const config = commentConfig.waline;
@@ -14,11 +15,12 @@ export default function Waline() {
   useEffect(() => {
     if (!config || !containerRef.current) return;
 
-    // Initialize Waline
+    // Initialize Waline with locale-aware lang
+    const currentLocale = getLocaleFromUrl(window.location.pathname);
     walineInstanceRef.current = init({
       el: containerRef.current,
       serverURL: config.serverURL,
-      lang: config.lang ?? 'zh-CN',
+      lang: config.lang ?? getHtmlLang(currentLocale),
       dark: config.dark ?? 'html.dark', // CSS selector to auto-follow theme
       meta: config.meta ?? ['nick', 'mail', 'link'],
       requiredMeta: config.requiredMeta ?? ['nick'],
@@ -36,7 +38,11 @@ export default function Waline() {
 
     // Handle Astro page transitions - update path when navigating
     const handlePageLoad = () => {
-      walineInstanceRef.current?.update({ path: window.location.pathname });
+      const newLocale = getLocaleFromUrl(window.location.pathname);
+      walineInstanceRef.current?.update({
+        path: window.location.pathname,
+        lang: config.lang ?? getHtmlLang(newLocale),
+      });
     };
     document.addEventListener('astro:page-load', handlePageLoad);
 

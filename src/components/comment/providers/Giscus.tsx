@@ -1,6 +1,8 @@
 import GiscusComponent from '@giscus/react';
+import { useTranslation } from '@hooks/useTranslation';
 import { useEffect, useState } from 'react';
 import { commentConfig } from '@/constants/site-config';
+import { getHtmlLang } from '@/i18n/utils';
 
 type GiscusTheme = 'light' | 'dark';
 
@@ -16,6 +18,7 @@ function getTheme(): GiscusTheme {
 
 export default function Giscus() {
   const config = commentConfig.giscus;
+  const { locale } = useTranslation();
   const [theme, setTheme] = useState<GiscusTheme>('light');
   const [mounted, setMounted] = useState(false);
 
@@ -63,7 +66,7 @@ export default function Giscus() {
       emitMetadata={config?.emitMetadata}
       inputPosition={config?.inputPosition ?? 'top'}
       theme={config?.theme ?? theme}
-      lang={config?.lang ?? 'zh-CN'}
+      lang={config?.lang ?? getHtmlLang(locale)}
       loading={config?.loading ?? 'lazy'}
     />
   );

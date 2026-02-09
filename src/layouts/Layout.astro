@@ -27,7 +27,15 @@ import { getOgImageUrl } from '@lib/seo/og-image';
 import LoadingIndicator from 'astro-loading-indicator/component';
 import { SEO } from 'astro-seo';
 import { Tooltips } from 'astro-tooltips';
-import { getHtmlLang, getLocaleFromUrl, stripLocaleFromPath } from '@/i18n';
+import {
+  defaultLocale,
+  getAlternateUrl,
+  getHtmlLang,
+  getLocaleFromUrl,
+  localeList,
+  localizedPath,
+  stripLocaleFromPath,
+} from '@/i18n';
 
 import '@styles/index.css';
 
@@ -94,7 +102,12 @@ const ogImage = getOgImageUrl(post?.data.cover, Astro.site);
         meta: [{ name: 'author', content: siteConfig.author || '' }],
       }}
     />
-    <link rel="alternate" type="application/rss+xml" title={siteConfig.title} href={`${Astro.site}rss.xml`} />
+    <link rel="alternate" type="application/rss+xml" title={siteConfig.title} href={new URL(localizedPath('/rss.xml', locale), Astro.site).href} />
+    {/* hreflang alternate links for SEO — tells search engines about language variants */}
+    {localeList.map((loc) => (
+      <link rel="alternate" hreflang={getHtmlLang(loc)} href={new URL(getAlternateUrl(Astro.url.pathname, loc), Astro.site).href} />
+    ))}
+    <link rel="alternate" hreflang="x-default" href={new URL(getAlternateUrl(Astro.url.pathname, defaultLocale), Astro.site).href} />
 
     <script is:inline>
       // 主题系统 - 立即执行以防止 FOUC（无样式内容闪烁）
