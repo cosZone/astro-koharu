@@ -88,12 +88,18 @@ export function createTranslator(locale: Locale) {
  * Strategy: check if the first path segment is a supported locale code.
  * If not (or for default locale URLs without prefix), return defaultLocale.
  *
+ * Note: URLs with the default locale prefix (e.g., '/zh/post/hello') are treated
+ * as defaultLocale — the prefix is ignored. This works with Astro's
+ * `redirectToDefaultLocale: true` which redirects `/zh/` → `/`. No static pages
+ * are generated for the default locale prefix, so such URLs would 404 anyway.
+ *
  * @example
  * ```ts
  * getLocaleFromUrl('/en/post/hello')  // => 'en'
  * getLocaleFromUrl('/post/hello')     // => 'zh' (default)
  * getLocaleFromUrl('/en/')            // => 'en'
  * getLocaleFromUrl('/')               // => 'zh' (default)
+ * getLocaleFromUrl('/zh/post/hello')  // => 'zh' (default — prefix ignored)
  * ```
  */
 export function getLocaleFromUrl(pathname: string): Locale {
@@ -203,7 +209,7 @@ export function getHtmlLang(locale: Locale): string {
  */
 export function resolveNavName(nameKey: string | undefined, fallbackName: string | undefined, locale: Locale): string {
   if (nameKey) {
-    return t(locale, nameKey as TranslationKey);
+    return tryTranslate(locale, nameKey) ?? fallbackName ?? '';
   }
   return fallbackName ?? '';
 }

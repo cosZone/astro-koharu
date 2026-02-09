@@ -5,8 +5,8 @@
 import { getCollection } from 'astro:content';
 import { categoryMap } from '@constants/category';
 import type { BlogPost } from 'types/blog';
+import { getContentCategoryName, getContentFeaturedCategoryField, getContentSeriesField } from '@/i18n/content';
 import type { Locale } from '@/i18n/types';
-import { tryTranslate } from '@/i18n/utils';
 import { encodeSlug } from '../route';
 import { filterPostsByLocale } from './locale';
 import type { Category, CategoryListResult } from './types';
@@ -196,20 +196,35 @@ export function getCategoryArr(categories?: string[] | string) {
 
 /**
  * Translate a category name based on locale.
- * Uses categoryMap to find the slug, then looks up 'categoryName.{slug}' translation key.
- * Falls back to the original name if no translation is defined.
+ * Looks up the YAML content config (config/i18n-content.yaml), falls back to original name.
  */
 export function translateCategoryName(name: string, locale: Locale): string {
   const slug = categoryMap[name];
   if (!slug) return name;
-  return tryTranslate(locale, `categoryName.${slug}`) ?? name;
+  return getContentCategoryName(locale, slug) ?? name;
 }
 
 /**
  * Translate a featured series field (label, fullName, etc.) based on locale.
- * Tries 'series.{slug}.{field}' translation key, falls back to the raw YAML value.
+ * Looks up the YAML content config, falls back to the raw YAML value from site config.
  */
 export function translateSeriesField(slug: string, field: string, fallback: string | undefined, locale: Locale): string {
   if (!fallback) return '';
-  return tryTranslate(locale, `series.${slug}.${field}`) ?? fallback;
+  return getContentSeriesField(locale, slug, field) ?? fallback;
+}
+
+/**
+ * Translate a featured category field (label, description) based on locale.
+ *
+ * The `link` parameter matches the `link` field in featuredCategories config
+ * (e.g. 'life', 'note/front-end').
+ */
+export function translateFeaturedCategoryField(
+  link: string,
+  field: string,
+  fallback: string | undefined,
+  locale: Locale,
+): string {
+  if (!fallback) return '';
+  return getContentFeaturedCategoryField(locale, link, field) ?? fallback;
 }

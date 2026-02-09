@@ -33,6 +33,7 @@ export const uiStrings: UIStrings = {
   'common.toc': 'Table of Contents',
   'common.expand': 'Expand',
   'common.collapse': 'Collapse',
+  'common.menuLabel': '{name} menu',
 
   // ── Post ────────────────────────────────────────────────────
   'post.readMore': 'Read more',
@@ -51,6 +52,7 @@ export const uiStrings: UIStrings = {
   'post.seriesNavigation': 'Series Navigation',
   'post.seriesPrev': 'Previous',
   'post.seriesNext': 'Next',
+  'post.fallbackNotice': 'This post is not yet available in {lang}. Showing the original.',
   'post.draft': 'Draft',
   'post.pinned': 'Pinned',
   'post.noPostsFound': 'No posts found',
@@ -182,10 +184,11 @@ export const uiStrings: UIStrings = {
 
   // ── Breadcrumb ──────────────────────────────────────────────
   'breadcrumb.home': 'Home',
+  'breadcrumb.goToCategory': 'Go to {name} category',
 
   // ── Floating Group ──────────────────────────────────────────
-  'floating.backToTop': 'Back to top',
-  'floating.scrollToBottom': 'Scroll to bottom',
+  'floating.backToTop': 'Back Top',
+  'floating.scrollToBottom': 'Scroll Bottom',
   'floating.toggleTheme': 'Toggle theme',
   'floating.christmas': 'Toggle Christmas effects',
   'floating.bgm': 'Background music',
@@ -240,13 +243,6 @@ export const uiStrings: UIStrings = {
   'notFound.browseArchives': 'Browse Archives',
   'notFound.message': 'Meow? The page was eaten~',
 
-  // ── Category Names (by slug from categoryMap) ──────────────
-  'categoryName.life': 'Life',
-  'categoryName.note': 'Notes',
-  'categoryName.tools': 'Tools',
-  'categoryName.weekly': 'Weekly',
-  'categoryName.front-end': 'Frontend',
-
   // ── Category Stats ────────────────────────────────────────
   'category.subCategoryCount': '{count} subcategories',
   'category.postCount': '{count} posts',
@@ -262,8 +258,6 @@ export const uiStrings: UIStrings = {
   'series.rss': 'RSS Feed',
   'series.chromeExtension': 'Chrome Extension',
   'series.docs': 'Documentation',
-  'series.weekly.label': 'My Weekly',
-  'series.weekly.fullName': 'My Tech Weekly',
 
   // ── Home Info ───────────────────────────────────────────────
   'homeInfo.articles': 'Articles',

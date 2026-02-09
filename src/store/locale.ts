@@ -11,9 +11,15 @@ import { getLocaleFromUrl } from '@/i18n/utils';
  */
 export const $locale = atom<string>(typeof window !== 'undefined' ? getLocaleFromUrl(window.location.pathname) : defaultLocale);
 
-// Keep locale in sync with Astro client-side navigation
+// Keep locale in sync with Astro client-side navigation.
 if (typeof document !== 'undefined') {
-  document.addEventListener('astro:page-load', () => {
-    $locale.set(getLocaleFromUrl(window.location.pathname));
-  });
+  const handler = () => $locale.set(getLocaleFromUrl(window.location.pathname));
+  document.addEventListener('astro:page-load', handler);
+
+  // Clean up old listener on Vite HMR so we don't stack duplicates.
+  if (import.meta.hot) {
+    import.meta.hot.dispose(() => {
+      document.removeEventListener('astro:page-load', handler);
+    });
+  }
 }

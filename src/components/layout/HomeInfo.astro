@@ -20,9 +20,9 @@ interface Props {
 }
 
 const locale = getLocaleFromUrl(Astro.url.pathname);
-const postCount = await getPostCount();
-const { countMap } = await getCategoryList();
-const posts = await getSortedPosts();
+const postCount = await getPostCount(locale);
+const { countMap } = await getCategoryList(locale);
+const posts = await getSortedPosts(locale);
 const tags = getAllTags(posts);
 
 const allTags = Object.entries(tags).map(([tag, count]) => ({ tag, count }));
@@ -86,7 +86,7 @@ const filteredRouters = filterNavItems(routers, configuredSeriesSlugs, enabledSe
                 class="flex-center hover:bg-foreground/5 h-12 w-full cursor-pointer rounded-xl transition-colors"
                 data-collapse-trigger={collapseId}
                 aria-expanded="false"
-                aria-label={`${displayName} menu`}
+                aria-label={t(locale, 'common.menuLabel', { name: displayName })}
                 type="button"
               >
                 {item.icon && <Icon name={item.icon} class="mr-1.5" />}

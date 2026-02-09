@@ -3,7 +3,7 @@ import type { Router } from '@constants/router';
 import { Icon } from '@iconify/react';
 import { cn } from '@lib/utils';
 import { memo, useCallback, useState } from 'react';
-import { defaultLocale, resolveNavName } from '@/i18n';
+import { defaultLocale, resolveNavName, t } from '@/i18n';
 
 interface DropdownNavProps {
   item: Router;
@@ -19,7 +19,7 @@ const DropdownNavComponent = ({ item, currentPath, className, locale = defaultLo
 
   const renderDropdownContent = useCallback(
     () => (
-      <div className="nav-dropdown flex flex-col items-center">
+      <div className="nav-dropdown flex flex-col">
         {children?.length
           ? children.map((child: Router, index) => {
               const childName = resolveNavName(child.nameKey, child.name, locale);
@@ -61,7 +61,7 @@ const DropdownNavComponent = ({ item, currentPath, className, locale = defaultLo
         )}
         aria-expanded={isOpen}
         aria-haspopup="true"
-        aria-label={`${name} menu`}
+        aria-label={t(locale, 'common.menuLabel', { name })}
       >
         {icon && <Icon icon={icon} className="mr-1.5" />}
         {name}

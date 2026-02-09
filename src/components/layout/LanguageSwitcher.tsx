@@ -5,26 +5,38 @@
  * Uses i18n config to display available locales and navigates
  * to the locale-aware alternate URL.
  *
- * NOTE: This component is created in Phase 1 but will be integrated
- * into Navigator in Phase 3 when [lang]/ mirror routes are created.
+ * Derives currentPath from the live URL so it stays correct
+ * after Astro View Transition navigations.
  */
 
 import Popover from '@components/ui/popover';
 import { Icon } from '@iconify/react';
 import { cn } from '@lib/utils';
-import { memo, useCallback, useState } from 'react';
+import { memo, useCallback, useSyncExternalStore } from 'react';
 import { getAlternateUrl, localeEntries } from '@/i18n';
+
+/** Subscribe to pathname changes via Astro's `astro:page-load` event. */
+function subscribePathname(callback: () => void) {
+  document.addEventListener('astro:page-load', callback);
+  return () => document.removeEventListener('astro:page-load', callback);
+}
+
+function getPathname() {
+  return window.location.pathname;
+}
+
+function getServerPathname() {
+  return '/';
+}
 
 interface LanguageSwitcherProps {
   /** Current locale code (e.g., 'zh', 'en') */
   locale: string;
-  /** Current page pathname for generating alternate URLs */
-  currentPath: string;
   className?: string;
 }
 
-const LanguageSwitcherComponent = ({ locale, currentPath, className }: LanguageSwitcherProps) => {
-  const [isOpen, setIsOpen] = useState(false);
+const LanguageSwitcherComponent = ({ locale, className }: LanguageSwitcherProps) => {
+  const currentPath = useSyncExternalStore(subscribePathname, getPathname, getServerPathname);
 
   // Find current locale label
   const currentLabel = localeEntries.find((l) => l.code === locale)?.label ?? locale;
@@ -66,15 +78,14 @@ const LanguageSwitcherComponent = ({ locale, currentPath, className }: LanguageS
   }
 
   return (
-    <Popover open={isOpen} onOpenChange={setIsOpen} placement="bottom-end" trigger="hover" render={renderDropdownContent}>
+    <Popover placement="bottom-end" trigger="hover" render={renderDropdownContent}>
       <button
         type="button"
         className={cn('cursor-pointer transition duration-300 hover:scale-110', className)}
         aria-label={`Language: ${currentLabel}`}
-        aria-expanded={isOpen}
         aria-haspopup="true"
       >
-        <Icon icon="ri:translate-2" className="size-5" />
+        <Icon icon="ri:translate" className="size-8" />
       </button>
     </Popover>
   );

@@ -1,0 +1,39 @@
+# =============================================================================
+# i18n Content Translations
+# =============================================================================
+# Non-default locale translations for content-level strings.
+# Default locale (zh) values come from config/site.yaml — only add overrides here.
+#
+# Structure:
+#   <locale>:
+#     categories:    { <slug>: <translated name> }
+#     series:        { <slug>: { label?, fullName?, description? } }
+#     featuredCategories: { <link>: { label?, description? } }
+# =============================================================================
+
+en:
+  categories:
+    life: Life
+    note: Notes
+    tools: Tools
+    weekly: Weekly
+    front-end: Frontend
+
+  series:
+    weekly:
+      label: My Weekly
+      fullName: My Tech Weekly
+
+  featuredCategories:
+    life:
+      label: Life
+      description: Life journals and essays
+    note:
+      label: Notes
+      description: Technical and study notes
+    note/front-end:
+      label: Frontend
+      description: Frontend technologies
+    tools:
+      label: Tools
+      description: Tool usage and productivity

@@ -10,7 +10,7 @@ import { getLqipProps } from '@lib/lqip';
 import { routeBuilder } from '@lib/route';
 import { cn } from '@lib/utils';
 import { Icon } from 'astro-icon/components';
-import { getLocaleFromUrl, localizedPath, t } from '@/i18n';
+import { defaultLocale, getLocaleFromUrl, getLocaleLabel, localizedPath, t } from '@/i18n';
 import type { PostCardData } from '@/types/blog';
 
 export interface PostItemCardProps {
@@ -36,12 +36,13 @@ const {
 const showTags = showTagsProp ?? !isSimple;
 const hideCover = hideCoverProp ?? isSimple;
 
-const { cover, date, categories, title, draft, description, slug, link, tags, wordCount, readingTime } = data ?? {};
+const { cover, date, categories, title, draft, description, slug, link, tags, wordCount, readingTime, postLocale } = data ?? {};
 
 const locale = getLocaleFromUrl(Astro.url.pathname);
 const finalCover = cover ?? randomCover ?? defaultCoverList[0];
 const href = localizedPath(routeBuilder(Routes.Post, { slug, link, title }), locale);
 const isDraft = import.meta.env.DEV && draft === true;
+const isFallback = postLocale != null && locale !== defaultLocale && postLocale !== locale;
 
 const categoryArr = getCategoryArr(categories?.[0]);
 const categoryLink = localizedPath(buildCategoryPath(categoryArr), locale);
@@ -152,6 +153,14 @@ function getStaggerPadding(rowIndex: number): string {
             <Badge className="bg-yellow-700 border border-yellow-600/20 gap-1 text-white shrink-0 hover:bg-yellow-500 whitespace-nowrap transition-colors duration-300 ">
               <Icon name="fa6-solid:file-pen" class="h-3 w-3" />
               {t(locale, 'post.draft')}
+            </Badge>
+          )
+        }
+        {
+          isFallback && (
+            <Badge className="border-amber-500/30 bg-amber-500/10 text-amber-700 dark:text-amber-400 gap-1 shrink-0 whitespace-nowrap transition-colors duration-300">
+              <Icon name="ri:translate-2" class="h-3 w-3" />
+              {getLocaleLabel(postLocale ?? defaultLocale)}
             </Badge>
           )
         }

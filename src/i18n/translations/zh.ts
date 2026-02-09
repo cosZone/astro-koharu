@@ -32,6 +32,7 @@ export const uiStrings = {
   'common.toc': '目录',
   'common.expand': '展开',
   'common.collapse': '收起',
+  'common.menuLabel': '{name}菜单',
 
   // ── Post ────────────────────────────────────────────────────
   'post.readMore': '阅读全文',
@@ -50,6 +51,7 @@ export const uiStrings = {
   'post.seriesNavigation': '系列导航',
   'post.seriesPrev': '上一篇',
   'post.seriesNext': '下一篇',
+  'post.fallbackNotice': '本文暂无{lang}翻译，显示原文内容',
   'post.draft': '草稿',
   'post.pinned': '置顶',
   'post.noPostsFound': '暂无文章',
@@ -180,6 +182,7 @@ export const uiStrings = {
 
   // ── Breadcrumb ──────────────────────────────────────────────
   'breadcrumb.home': '首页',
+  'breadcrumb.goToCategory': '前往{name}分类',
 
   // ── Floating Group ──────────────────────────────────────────
   'floating.backToTop': '回到顶部',
@@ -238,13 +241,6 @@ export const uiStrings = {
   'notFound.browseArchives': '浏览归档',
   'notFound.message': '喵？页面被吃掉了~',
 
-  // ── Category Names (by slug from categoryMap) ──────────────
-  'categoryName.life': '随笔',
-  'categoryName.note': '笔记',
-  'categoryName.tools': '工具',
-  'categoryName.weekly': '周刊',
-  'categoryName.front-end': '前端',
-
   // ── Category Stats ────────────────────────────────────────
   'category.subCategoryCount': '{count} 个子分类',
   'category.postCount': '{count} 篇文章',
@@ -260,8 +256,6 @@ export const uiStrings = {
   'series.rss': 'RSS 订阅',
   'series.chromeExtension': 'Chrome 插件',
   'series.docs': '文档',
-  'series.weekly.label': '我的周刊',
-  'series.weekly.fullName': '我的技术周刊',
 
   // ── Home Info ───────────────────────────────────────────────
   'homeInfo.articles': '文章',

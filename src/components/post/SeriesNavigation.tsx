@@ -79,7 +79,7 @@ export function SeriesNavigation({ prevPost, nextPost, className, locale }: Seri
             type="button"
             onClick={() => window.scrollTo({ top: 0, behavior: scrollBehavior })}
             className={cn(
-              'flex items-center justify-center gap-1.5 rounded-md px-3 py-1.5 transition-colors',
+              'flex items-center justify-center gap-1.5 rounded-md px-2 py-1.5 transition-colors',
               'text-muted-foreground text-xs hover:bg-accent hover:text-primary',
             )}
             title={t('floating.backToTop')}
@@ -92,7 +92,7 @@ export function SeriesNavigation({ prevPost, nextPost, className, locale }: Seri
             type="button"
             onClick={() => window.scrollTo({ top: document.body.scrollHeight, behavior: scrollBehavior })}
             className={cn(
-              'flex items-center justify-center gap-1.5 rounded-md px-3 py-1.5 transition-colors',
+              'flex items-center justify-center gap-1.5 rounded-md px-2 py-1.5 transition-colors',
               'text-muted-foreground text-xs hover:bg-accent hover:text-primary',
             )}
             title={t('floating.scrollToBottom')}

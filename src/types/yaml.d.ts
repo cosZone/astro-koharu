@@ -16,6 +16,12 @@ declare module '*/config/cms.yaml' {
   export default value;
 }
 
+declare module '*/config/i18n-content.yaml' {
+  import type { I18nContentConfig } from '@/i18n/content-types';
+  const value: I18nContentConfig;
+  export default value;
+}
+
 // Fallback for other YAML files
 declare module '*.yaml' {
   const value: Record<string, unknown>;

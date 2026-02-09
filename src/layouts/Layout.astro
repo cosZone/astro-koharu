@@ -51,6 +51,14 @@ const isPostPage = stripLocaleFromPath(Astro.url.pathname).startsWith('/post/');
 
 // OGP image: use post cover if available, otherwise use default from config, fallback to avatar
 const ogImage = getOgImageUrl(post?.data.cover, Astro.site);
+
+// Pre-compute i18n URLs for <head> links
+const rssHref = new URL(localizedPath('/rss.xml', locale), Astro.site).href;
+const hreflangLinks = localeList.map((loc) => ({
+  lang: getHtmlLang(loc),
+  href: new URL(getAlternateUrl(Astro.url.pathname, loc), Astro.site).href,
+}));
+const xDefaultHref = new URL(getAlternateUrl(Astro.url.pathname, defaultLocale), Astro.site).href;
 ---
 
 <!doctype html>
@@ -102,12 +110,12 @@ const ogImage = getOgImageUrl(post?.data.cover, Astro.site);
         meta: [{ name: 'author', content: siteConfig.author || '' }],
       }}
     />
-    <link rel="alternate" type="application/rss+xml" title={siteConfig.title} href={new URL(localizedPath('/rss.xml', locale), Astro.site).href} />
+    <link rel="alternate" type="application/rss+xml" title={siteConfig.title} href={rssHref} />
     {/* hreflang alternate links for SEO — tells search engines about language variants */}
-    {localeList.map((loc) => (
-      <link rel="alternate" hreflang={getHtmlLang(loc)} href={new URL(getAlternateUrl(Astro.url.pathname, loc), Astro.site).href} />
+    {hreflangLinks.map(({ lang, href }) => (
+      <link rel="alternate" hreflang={lang} href={href} />
     ))}
-    <link rel="alternate" hreflang="x-default" href={new URL(getAlternateUrl(Astro.url.pathname, defaultLocale), Astro.site).href} />
+    <link rel="alternate" hreflang="x-default" href={xDefaultHref} />
 
     <script is:inline>
       // 主题系统 - 立即执行以防止 FOUC（无样式内容闪烁）

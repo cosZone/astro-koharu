@@ -124,7 +124,9 @@ const categoryPosts: CategoryWithPosts[] = await Promise.all(
               ) : null}
               <Fragment>
                 <Icon name="gg:loadbar-doc" class="mr-0.5 text-base" />
-                {categoryInfo?.children?.length ? t(locale, 'category.subCategoryCount', { count: categoryInfo.children.length }) + ', ' : ''}
+                {categoryInfo?.children?.length
+                  ? `${t(locale, 'category.subCategoryCount', { count: categoryInfo.children.length })}, `
+                  : ''}
                 {t(locale, 'category.postCount', { count: category.posts?.length ?? 0 })}
               </Fragment>
             </p>

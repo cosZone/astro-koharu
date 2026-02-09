@@ -7,6 +7,14 @@
 
 // Config
 export { buildFallbackMap, defaultLocale, getLocaleLabel, isLocaleSupported, localeEntries, localeList } from './config';
+// Content translations (YAML-based)
+export { getContentCategoryName, getContentFeaturedCategoryField, getContentSeriesField } from './content';
+export type {
+  FeaturedCategoryContentTranslation,
+  I18nContentConfig,
+  LocaleContentTranslations,
+  SeriesContentTranslation,
+} from './content-types';
 // Types
 export type { DefaultUIStrings, Locale, TranslationKey, TranslationParams, UIStrings } from './types';
 // Utilities

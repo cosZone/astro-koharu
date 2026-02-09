@@ -13,18 +13,18 @@ import {
   buildCategoryPath,
   getCategoryArr,
   getPostDescription,
+  getPostLocale,
   getPostSlug,
   getPostSummary,
   getSortedPosts,
   translateCategoryName,
 } from '@lib/content';
 import { formatForSeo } from '@lib/date';
-import { encodeSlug } from '@lib/route';
 import { getOgImageUrl } from '@lib/seo/og-image';
 import { Icon } from 'astro-icon/components';
 import { Comment } from '@/components/comment';
 import EditButton from '@/components/EditButton';
-import { defaultLocale, getLocaleFromUrl, localizedPath, t } from '@/i18n';
+import { defaultLocale, getLocaleFromUrl, getLocaleLabel, localizedPath, t } from '@/i18n';
 import { extractTextFromMarkdown } from '@/lib/sanitize';
 
 export async function getStaticPaths() {
@@ -37,6 +37,7 @@ export async function getStaticPaths() {
 }
 const { post, postId } = Astro.props;
 const locale = getLocaleFromUrl(Astro.url.pathname);
+const isFallback = getPostLocale(post) !== locale;
 const { Content } = await post.render();
 const { title, categories = [], tags = [], date, math: postMath } = post?.data ?? {};
 // KaTeX CSS: only load when global enableMath is on AND post hasn't opted out.
@@ -69,14 +70,14 @@ const jsonLd = {
 const categoryArr = getCategoryArr(categories?.[0]);
 const categoryStr = categoryArr?.length ? ` | ${categoryArr.map((c) => translateCategoryName(c, locale)).join(' / ')}` : '';
 
-// Generate breadcrumb data for categories
+// Generate breadcrumb data for categories (translated for current locale)
 const breadcrumbCategories = [];
 if (categoryArr?.length) {
   for (let i = 0; i < categoryArr.length; i++) {
     const partialCategories = categoryArr.slice(0, i + 1);
     const link = localizedPath(buildCategoryPath(partialCategories), locale);
     breadcrumbCategories.push({
-      name: categoryArr[i],
+      name: translateCategoryName(categoryArr[i], locale),
       link: link,
     });
   }
@@ -165,7 +166,7 @@ if (post.data.description) {
                 <a
                   href={category.link}
                   class={`hover:text-blue transition-colors duration-300 ${index === breadcrumbCategories.length - 1 ? 'text-primary bg-primary/10 hover:text-primary hover:bg-primary/20 rounded-full px-2.5 py-1' : ''}`}
-                  aria-label={`前往${category.name}分类`}
+                  aria-label={t(locale, 'breadcrumb.goToCategory', { name: category.name })}
                 >
                   {category.name}
                 </a>
@@ -175,6 +176,12 @@ if (post.data.description) {
         </div>
         {import.meta.env.DEV && <EditButton client:only="react" postId={postId} />}
       </nav>
+      {isFallback && (
+        <div class="flex items-center gap-2 rounded-lg border border-amber-500/20 bg-amber-500/10 px-4 py-3 text-sm text-amber-700 dark:text-amber-400">
+          <Icon name="ri:translate-2" class="h-4 w-4 shrink-0" />
+          <span>{t(locale, 'post.fallbackNotice', { lang: getLocaleLabel(locale) })}</span>
+        </div>
+      )}
       {
         summaryText && summarySource && (
           <SummaryPanel client:visible summary={summaryText} source={summarySource} className="mt-2" />
