@@ -20,9 +20,15 @@ export async function getStaticPaths() {
   });
 }
 
-const { category } = Astro.props;
+const { category: propCategory } = Astro.props;
 const locale = getLocaleFromUrl(Astro.url.pathname);
 const { categories: allCategories, countMap } = await getCategoryList(locale);
+
+// Re-derive category from locale-aware data to ensure consistency with countMap.
+// When rendered by [lang]/ mirrors, propCategory comes from a different getCategoryList call;
+// re-deriving from the same data source prevents subtle mismatches.
+const slug = Astro.params.slug;
+const category = slug ? getCategoryByLink(allCategories, slug) : propCategory;
 
 // 如果是子分类，只展示当前分类的内容
 const displayCategories = category ? [category] : allCategories;

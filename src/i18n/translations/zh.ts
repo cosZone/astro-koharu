@@ -120,6 +120,7 @@ export const uiStrings = {
   'code.exitFullscreen': '退出全屏',
   'code.wrapLines': '自动换行',
   'code.viewSource': '查看源码',
+  'code.viewRendered': '查看渲染结果',
 
   // ── Diagram / Infographic ───────────────────────────────────
   'diagram.fullscreen': '全屏查看',
@@ -304,7 +305,4 @@ export const uiStrings = {
 
   // ── Copy Link ───────────────────────────────────────────────
   'cover.copyLink': '复制链接',
-
-  // ── Code View Source ────────────────────────────────────────
-  'code.viewRendered': '查看渲染结果',
 } as const;

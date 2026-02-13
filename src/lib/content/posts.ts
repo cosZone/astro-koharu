@@ -107,10 +107,13 @@ export async function getPostsBySticky(locale?: string): Promise<{
 
 /**
  * Get post count (excluding drafts in production)
+ * Uses a lightweight path: getCollection + filter, skipping the sort step.
  */
 export async function getPostCount(locale?: string) {
-  const posts = await getSortedPosts(locale);
-  return posts.length;
+  const posts = await getCollection('blog', ({ data }) => {
+    return import.meta.env.PROD ? data.draft !== true : true;
+  });
+  return filterPostsByLocale(posts, locale).length;
 }
 
 /**

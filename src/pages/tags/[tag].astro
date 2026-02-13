@@ -5,7 +5,7 @@ import { CONTENT_PADDING } from '@constants/layout';
 import { siteConfig } from '@constants/site-config';
 import Layout from '@layouts/Layout.astro';
 import TwoColumnLayout from '@layouts/TwoColumnLayout.astro';
-import { getPostLastCategory, getPostSlug, getSortedPosts, normalizeTag } from '@lib/content';
+import { getPostLastCategory, getPostSlug, getSortedPosts, normalizeTag, translateCategoryName } from '@lib/content';
 import { displayDate } from '@lib/date';
 import { encodeSlug } from '@lib/route';
 import { defaultLocale, getLocaleFromUrl, localizedPath, t } from '@/i18n';
@@ -62,7 +62,7 @@ const locale = getLocaleFromUrl(Astro.url.pathname);
                     href={localizedPath(link, locale)}
                     class="text-muted-foreground hover:text-blue mr-2 inline-block text-xs md:relative md:-top-1"
                   >
-                    {name}
+                    {translateCategoryName(name, locale)}
                   </a>
                   <a href={localizedPath(`/post/${encodeSlug(getPostSlug(post))}`, locale)} class="dashed-border md:absolute md:top-7 md:left-7">
                     {post?.data?.title}
