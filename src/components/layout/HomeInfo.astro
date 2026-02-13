@@ -8,7 +8,7 @@ import { getAllTags, getCategoryList, getPostCount, getSortedPosts } from '@lib/
 import { getLqipStyle } from '@lib/lqip';
 import { cn, filterNavItems } from '@lib/utils';
 import { Icon } from 'astro-icon/components';
-import { getLocaleFromUrl, resolveNavName, t } from '@/i18n';
+import { getLocaleFromUrl, localizedPath, resolveNavName, stripLocaleFromPath, t } from '@/i18n';
 import type { BlogSchema } from '@/types/blog';
 import Social from './Social.astro';
 
@@ -33,6 +33,7 @@ const { className } = Astro.props;
 
 // Filter navigation items to exclude disabled series
 const filteredRouters = filterNavItems(routers, configuredSeriesSlugs, enabledSeriesSlugs, RESERVED_ROUTES);
+const strippedPath = stripLocaleFromPath(Astro.url.pathname);
 ---
 
 <div class={cn('flex flex-col items-center', className)} data-home-info-container={uniqueId}>
@@ -54,19 +55,19 @@ const filteredRouters = filterNavItems(routers, configuredSeriesSlugs, enabledSe
   <div
     class="text-muted-foreground mt-3 flex justify-center text-center text-sm/4 whitespace-nowrap select-none dark:text-white/80"
   >
-    <a href="/" class="hover:text-blue flex cursor-pointer flex-col gap-2 p-1 transition">
+    <a href={localizedPath('/', locale)} class="hover:text-blue flex cursor-pointer flex-col gap-2 p-1 transition">
       <span class="text-lg/5 font-bold">{postCount}</span>
       {t(locale, 'homeInfo.articles')}
     </a>
     <div class="bg-muted-foreground mx-3 w-px"></div>
-    <a href="/categories" aria-label={t(locale, 'homeInfo.categories')} class="hover:text-blue">
+    <a href={localizedPath('/categories', locale)} aria-label={t(locale, 'homeInfo.categories')} class="hover:text-blue">
       <p class="flex cursor-pointer flex-col gap-2 p-1 transition">
         <span class="text-lg/5 font-bold">{Object.keys(countMap).length}</span>
         {t(locale, 'homeInfo.categories')}
       </p>
     </a>
     <div class="bg-muted-foreground mx-3 w-px"></div>
-    <a href="/tags" class="hover:text-blue flex cursor-pointer flex-col gap-2 p-1 transition">
+    <a href={localizedPath('/tags', locale)} class="hover:text-blue flex cursor-pointer flex-col gap-2 p-1 transition">
       <span class="text-lg/5 font-bold">{allTags?.length ?? 0}</span>
       {t(locale, 'homeInfo.tags')}
     </a>
@@ -101,14 +102,15 @@ const filteredRouters = filterNavItems(routers, configuredSeriesSlugs, enabledSe
                 <div class="flex flex-col items-center">
                   {item.children.map((child) => {
                     const childName = resolveNavName(child.nameKey, child.name, locale);
+                    const childUrl = child.path ? localizedPath(child.path, locale) : child.path;
                     return (
                       <ButtonLink
-                        url={child.path}
+                        url={childUrl}
                         label={childName}
                         variant="gradient-shoka"
                         className={cn('shoka-button-shadow h-12 w-40 rounded-xl text-base tracking-wider', {
                           'text-muted-foreground/80 hover:bg-muted-foreground/10 bg-none shadow-none hover:shadow-none':
-                            child.path !== Astro.url.pathname,
+                            child.path !== strippedPath,
                         })}
                       >
                         {child.icon && <Icon name={child.icon} class="mr-1.5" />}
@@ -121,16 +123,17 @@ const filteredRouters = filterNavItems(routers, configuredSeriesSlugs, enabledSe
             </div>
           );
         }
+        const itemUrl = item.path ? localizedPath(item.path, locale) : item.path;
         return (
           <ButtonLink
-            url={item.path}
+            url={itemUrl}
             label={displayName}
             variant="gradient-shoka"
             className={cn(
               'shoka-button-shadow h-12 w-40 rounded-xl text-base tracking-wider opacity-75 transition-all duration-300 hover:opacity-100',
               {
                 'text-muted-foreground/80 hover:bg-muted-foreground/10 bg-none shadow-none hover:shadow-none':
-                  item.path !== Astro.url.pathname,
+                  item.path !== strippedPath,
               },
             )}
           >

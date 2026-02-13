@@ -13,7 +13,7 @@ import { useScrollTrigger } from '@hooks/useScrollTrigger';
 import { Icon } from '@iconify/react';
 import { cn, filterNavItems } from '@lib/utils';
 import { memo, useEffect, useRef } from 'react';
-import { defaultLocale, resolveNavName, stripLocaleFromPath } from '@/i18n';
+import { defaultLocale, localizedPath, resolveNavName, stripLocaleFromPath } from '@/i18n';
 import DropdownNav from './DropdownNav';
 import LanguageSwitcher from './LanguageSwitcher';
 import { SearchTrigger } from './SearchDialog';
@@ -132,8 +132,9 @@ const Navigator = memo(function Navigator({ currentPath, locale = defaultLocale 
             return <DropdownNav key={item.path ?? item.name} item={item} currentPath={currentPath} locale={locale} />;
           }
           if (!item.path || !displayName) return null;
+          const localizedUrl = localizedPath(item.path, locale);
           return (
-            <ButtonLink key={item.path} url={item.path} label={displayName} isActive={item.path === currentPath}>
+            <ButtonLink key={item.path} url={localizedUrl} label={displayName} isActive={item.path === strippedPath}>
               {item.icon && <NavIcon name={item.icon} />}
               {displayName}
             </ButtonLink>

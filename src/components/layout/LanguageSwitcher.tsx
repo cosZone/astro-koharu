@@ -13,7 +13,7 @@ import Popover from '@components/ui/popover';
 import { Icon } from '@iconify/react';
 import { cn } from '@lib/utils';
 import { memo, useCallback, useSyncExternalStore } from 'react';
-import { getAlternateUrl, localeEntries } from '@/i18n';
+import { getAlternateUrl, getLocaleFromUrl, localeEntries } from '@/i18n';
 
 /** Subscribe to pathname changes via Astro's `astro:page-load` event. */
 function subscribePathname(callback: () => void) {
@@ -30,13 +30,16 @@ function getServerPathname() {
 }
 
 interface LanguageSwitcherProps {
-  /** Current locale code (e.g., 'zh', 'en') */
+  /** Initial locale code from SSR (e.g., 'zh', 'en') */
   locale: string;
   className?: string;
 }
 
-const LanguageSwitcherComponent = ({ locale, className }: LanguageSwitcherProps) => {
+const LanguageSwitcherComponent = ({ locale: _ssrLocale, className }: LanguageSwitcherProps) => {
   const currentPath = useSyncExternalStore(subscribePathname, getPathname, getServerPathname);
+
+  // Derive locale from live URL so it stays in sync after View Transition navigations
+  const locale = typeof window !== 'undefined' ? getLocaleFromUrl(currentPath) : _ssrLocale;
 
   // Find current locale label
   const currentLabel = localeEntries.find((l) => l.code === locale)?.label ?? locale;

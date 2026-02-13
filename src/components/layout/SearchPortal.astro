@@ -5,6 +5,10 @@ import Search from 'astro-pagefind/components/Search';
  *
  * Provides the Pagefind search UI that gets portal'd into SearchDialog.
  * Listens for search-dialog-open/close events to move the search component.
+ *
+ * TODO(i18n): Pagefind search result links are not locale-aware — they always
+ * point to root-level URLs (e.g., /post/xxx) regardless of the current locale.
+ * A future iteration could use custom result rendering to prepend locale prefix.
  */
 import { getLocaleFromUrl, t } from '@/i18n';
 
