@@ -8,6 +8,7 @@
 
 import { FloatingFocusManager, FloatingPortal, useDismiss, useFloating, useInteractions, useRole } from '@floating-ui/react';
 import { useKeyboardShortcut } from '@hooks/useKeyboardShortcut';
+import { useTranslation } from '@hooks/useTranslation';
 import { useZoomPan } from '@hooks/useZoomPan';
 import { Icon } from '@iconify/react';
 import { useStore } from '@nanostores/react';
@@ -16,6 +17,7 @@ import { AnimatePresence, motion } from 'motion/react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
 export default function ImageLightbox() {
+  const { t } = useTranslation();
   const data = useStore($imageLightboxData);
   const isOpen = data !== null;
   const [imageLoaded, setImageLoaded] = useState(false);
@@ -159,21 +161,31 @@ export default function ImageLightbox() {
                   animate={{ opacity: 1 }}
                   transition={{ duration: 0.2, delay: 0.1 }}
                 >
-                  <ToolbarButton icon="ri:zoom-in-line" label="放大" onClick={handleZoomIn} disabled={state.scale >= 4.9} />
+                  <ToolbarButton
+                    icon="ri:zoom-in-line"
+                    label={t('image.zoomIn')}
+                    onClick={handleZoomIn}
+                    disabled={state.scale >= 4.9}
+                  />
                   <motion.button
                     type="button"
                     onClick={handleResetAll}
                     className="flex size-10 items-center justify-center rounded-full text-white/60 text-xs tabular-nums transition-colors hover:bg-white/15 hover:text-white/80"
                     whileTap={{ scale: 0.85 }}
-                    aria-label="重置缩放和旋转"
+                    aria-label={t('image.resetZoomRotate')}
                   >
                     {zoomLevel}
                   </motion.button>
-                  <ToolbarButton icon="ri:zoom-out-line" label="缩小" onClick={handleZoomOut} disabled={state.scale <= 0.55} />
+                  <ToolbarButton
+                    icon="ri:zoom-out-line"
+                    label={t('image.zoomOut')}
+                    onClick={handleZoomOut}
+                    disabled={state.scale <= 0.55}
+                  />
                   <div className="h-px tablet:h-5 tablet:w-px w-5 bg-white/20" />
-                  <ToolbarButton icon="ri:clockwise-line" label="旋转 90°" onClick={handleRotate} />
+                  <ToolbarButton icon="ri:clockwise-line" label={t('image.rotate')} onClick={handleRotate} />
                   <div className="h-px tablet:h-5 tablet:w-px w-5 bg-white/20" />
-                  <ToolbarButton icon="ri:close-line" label="关闭" onClick={() => closeModal()} />
+                  <ToolbarButton icon="ri:close-line" label={t('image.close')} onClick={() => closeModal()} />
                 </motion.div>
 
                 {/* Image viewport with zoom/pan */}
@@ -214,7 +226,13 @@ export default function ImageLightbox() {
                 {/* Navigation bar */}
                 {data.images.length > 1 && (
                   <div className="absolute bottom-12 left-1/2 flex -translate-x-1/2 items-center gap-0.5 rounded-full bg-black/50 p-1 backdrop-blur-sm">
-                    <NavButton direction={-1} disabled={data.currentIndex === 0} onClick={() => navigateTo(-1)} />
+                    <NavButton
+                      direction={-1}
+                      disabled={data.currentIndex === 0}
+                      onClick={() => navigateTo(-1)}
+                      prevLabel={t('image.prev')}
+                      nextLabel={t('image.next')}
+                    />
                     <span className="min-w-14 px-1 text-center font-mono text-sm text-white/80 tabular-nums">
                       {data.currentIndex + 1} / {data.images.length}
                     </span>
@@ -222,6 +240,8 @@ export default function ImageLightbox() {
                       direction={1}
                       disabled={data.currentIndex === data.images.length - 1}
                       onClick={() => navigateTo(1)}
+                      prevLabel={t('image.prev')}
+                      nextLabel={t('image.next')}
                     />
                   </div>
                 )}
@@ -267,7 +287,19 @@ const BOUNCE_LEFT = { x: [0, -2.5, 0] };
 const BOUNCE_RIGHT = { x: [0, 2.5, 0] };
 const BOUNCE_NONE = { x: 0 };
 
-function NavButton({ direction, disabled, onClick }: { direction: 1 | -1; disabled: boolean; onClick: () => void }) {
+function NavButton({
+  direction,
+  disabled,
+  onClick,
+  prevLabel,
+  nextLabel,
+}: {
+  direction: 1 | -1;
+  disabled: boolean;
+  onClick: () => void;
+  prevLabel: string;
+  nextLabel: string;
+}) {
   const isLeft = direction === -1;
   return (
     <motion.button
@@ -276,7 +308,7 @@ function NavButton({ direction, disabled, onClick }: { direction: 1 | -1; disabl
       disabled={disabled}
       className="flex size-8 items-center justify-center rounded-full text-white/80 transition-colors hover:bg-white/15 disabled:pointer-events-none disabled:opacity-30"
       whileTap={{ scale: 0.82 }}
-      aria-label={isLeft ? '上一张' : '下一张'}
+      aria-label={isLeft ? prevLabel : nextLabel}
     >
       <motion.span
         animate={disabled ? BOUNCE_NONE : isLeft ? BOUNCE_LEFT : BOUNCE_RIGHT}
@@ -289,6 +321,7 @@ function NavButton({ direction, disabled, onClick }: { direction: 1 | -1; disabl
 }
 
 function ZoomHint() {
+  const { t } = useTranslation();
   const [visible, setVisible] = useState(true);
 
   useEffect(() => {
@@ -303,8 +336,8 @@ function ZoomHint() {
       animate={{ opacity: visible ? 1 : 0 }}
       transition={{ duration: 0.3 }}
     >
-      <span className="hidden touch-none sm:inline">双击放大 · 滚轮/双指缩放</span>
-      <span className="sm:hidden">双击放大 · 双指缩放</span>
+      <span className="hidden touch-none sm:inline">{t('image.hintDesktop')}</span>
+      <span className="sm:hidden">{t('image.hintMobile')}</span>
     </motion.div>
   );
 }
