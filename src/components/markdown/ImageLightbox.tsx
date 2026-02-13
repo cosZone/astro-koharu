@@ -226,13 +226,7 @@ export default function ImageLightbox() {
                 {/* Navigation bar */}
                 {data.images.length > 1 && (
                   <div className="absolute bottom-12 left-1/2 flex -translate-x-1/2 items-center gap-0.5 rounded-full bg-black/50 p-1 backdrop-blur-sm">
-                    <NavButton
-                      direction={-1}
-                      disabled={data.currentIndex === 0}
-                      onClick={() => navigateTo(-1)}
-                      prevLabel={t('image.prev')}
-                      nextLabel={t('image.next')}
-                    />
+                    <NavButton direction={-1} disabled={data.currentIndex === 0} onClick={() => navigateTo(-1)} />
                     <span className="min-w-14 px-1 text-center font-mono text-sm text-white/80 tabular-nums">
                       {data.currentIndex + 1} / {data.images.length}
                     </span>
@@ -240,8 +234,6 @@ export default function ImageLightbox() {
                       direction={1}
                       disabled={data.currentIndex === data.images.length - 1}
                       onClick={() => navigateTo(1)}
-                      prevLabel={t('image.prev')}
-                      nextLabel={t('image.next')}
                     />
                   </div>
                 )}
@@ -287,19 +279,8 @@ const BOUNCE_LEFT = { x: [0, -2.5, 0] };
 const BOUNCE_RIGHT = { x: [0, 2.5, 0] };
 const BOUNCE_NONE = { x: 0 };
 
-function NavButton({
-  direction,
-  disabled,
-  onClick,
-  prevLabel,
-  nextLabel,
-}: {
-  direction: 1 | -1;
-  disabled: boolean;
-  onClick: () => void;
-  prevLabel: string;
-  nextLabel: string;
-}) {
+function NavButton({ direction, disabled, onClick }: { direction: 1 | -1; disabled: boolean; onClick: () => void }) {
+  const { t } = useTranslation();
   const isLeft = direction === -1;
   return (
     <motion.button
@@ -308,7 +289,7 @@ function NavButton({
       disabled={disabled}
       className="flex size-8 items-center justify-center rounded-full text-white/80 transition-colors hover:bg-white/15 disabled:pointer-events-none disabled:opacity-30"
       whileTap={{ scale: 0.82 }}
-      aria-label={isLeft ? prevLabel : nextLabel}
+      aria-label={isLeft ? t('image.prev') : t('image.next')}
     >
       <motion.span
         animate={disabled ? BOUNCE_NONE : isLeft ? BOUNCE_LEFT : BOUNCE_RIGHT}

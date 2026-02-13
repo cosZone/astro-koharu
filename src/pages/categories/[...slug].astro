@@ -5,7 +5,7 @@ import Cover from '@components/ui/cover/Cover.astro';
 import { seoConfig } from '@constants/site-config';
 import Layout from '@layouts/Layout.astro';
 import TwoColumnLayout from '@layouts/TwoColumnLayout.astro';
-import { getCategoryByLink, getCategoryLinks, getCategoryList } from '@lib/content';
+import { getCategoryByLink, getCategoryLinks, getCategoryList, translateCategoryName } from '@lib/content';
 import { defaultLocale, getLocaleFromUrl, t } from '@/i18n';
 
 export async function getStaticPaths() {
@@ -28,9 +28,9 @@ const { categories: allCategories, countMap } = await getCategoryList(locale);
 const displayCategories = category ? [category] : allCategories;
 ---
 
-<Layout title={`${t(locale, 'category.postsInCategory', { name: category?.name ?? '' })} | ${seoConfig.title}`}>
+<Layout title={`${t(locale, 'category.postsInCategory', { name: translateCategoryName(category?.name ?? '', locale) })} | ${seoConfig.title}`}>
   <TwoColumnLayout>
-    <Cover slot="cover" title={t(locale, 'category.postsInCategory', { name: category?.name ?? '' })} />
+    <Cover slot="cover" title={t(locale, 'category.postsInCategory', { name: translateCategoryName(category?.name ?? '', locale) })} />
     <HomeSider slot="sider" />
     <CategoryPostList rootCategory={category} categories={displayCategories} countMap={countMap} />
   </TwoColumnLayout>

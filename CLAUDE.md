@@ -86,6 +86,7 @@ pnpm koharu list         # List all backups
 - **Framework**: Astro 5.x with React integration
 - **Styling**: Tailwind CSS 4.x with plugins
 - **Content**: Astro Content Collections (`src/content/blog/`)
+- **i18n**: Custom translation system (`src/i18n/`) with Astro i18n routing
 - **Animations**: Motion (Framer Motion successor)
 - **State**: Nanostores
 - **Search**: Pagefind (static)
@@ -95,9 +96,10 @@ pnpm koharu list         # List all backups
 ```plain
 src/
 ├── components/   # React & Astro components
-├── content/blog/ # Markdown/MDX posts
+├── content/blog/ # Markdown/MDX posts (translations under <locale>/ subdirs)
+├── i18n/         # Internationalization (translations, config, utils)
 ├── layouts/      # Page layouts
-├── pages/        # File-based routing
+├── pages/        # File-based routing ([lang]/ mirrors for non-default locales)
 ├── lib/          # Utility functions
 ├── hooks/        # React hooks
 ├── constants/    # Config, router, animations
@@ -141,6 +143,14 @@ pages/ → components/ → hooks/ → lib/ → constants/
 **Featured Series**: Special category-based content series with dedicated pages and homepage highlights. Configured via `featuredSeries` in `config/site.yaml`. Each series requires a unique `slug` (must not conflict with reserved routes) and `categoryName`. Supports multiple series, individual enable/disable, and homepage highlight control. Dynamic routes generated at `[seriesSlug].astro`.
 
 **Theme System**: Dark/light toggle with localStorage, inline check in `<head>` prevents FOUC.
+
+**i18n System**: Two-layer translation architecture:
+- **UI strings** (`src/i18n/translations/`): TypeScript dictionaries with `t(locale, key, params?)` function. Keys defined in `zh.ts` (source-of-truth), other locales are partial overrides.
+- **Content strings** (`config/i18n-content.yaml`): YAML-based translations for category names, series fields, etc.
+- **Routing**: Default locale has no URL prefix; other locales use `/<locale>/` prefix. Pages under `src/pages/[lang]/` mirror root pages for non-default locales.
+- **React hook**: `useTranslation()` reads from `$locale` nanostore (synced via `astro:page-load` event).
+- **Content locale**: Posts in `src/content/blog/<locale>/` are detected by slug prefix; `filterPostsByLocale()` handles fallback to default locale.
+- **Do NOT enable Astro `fallback`** in `astro.config.mjs` — it breaks `[seriesSlug].astro` dynamic routes.
 
 **Markdown**: Shiki highlighting, auto-generated heading IDs/links via rehype plugins, GFM support.
 

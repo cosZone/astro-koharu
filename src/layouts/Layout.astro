@@ -7,6 +7,8 @@ interface Props {
   description?: string;
   siderType?: HomeSiderType;
   post?: BlogPost;
+  /** Override canonical URL (e.g., for fallback pages pointing to default-locale version) */
+  canonical?: string;
 }
 
 import { ClientRouter } from 'astro:transitions';
@@ -39,7 +41,13 @@ import {
 
 import '@styles/index.css';
 
-const { title = seoConfig.title, description = seoConfig.description, siderType, post } = Astro.props;
+const {
+  title = seoConfig.title,
+  description = seoConfig.description,
+  siderType,
+  post,
+  canonical: canonicalOverride,
+} = Astro.props;
 // TODO: siderType should be custom in router file, not in layout
 
 // i18n: derive locale from URL and compute BCP 47 lang tag
@@ -59,6 +67,7 @@ const hreflangLinks = localeList.map((loc) => ({
   href: new URL(getAlternateUrl(Astro.url.pathname, loc), Astro.site).href,
 }));
 const xDefaultHref = new URL(getAlternateUrl(Astro.url.pathname, defaultLocale), Astro.site).href;
+const canonicalHref = canonicalOverride ?? Astro.url.href;
 ---
 
 <!doctype html>
@@ -87,7 +96,7 @@ const xDefaultHref = new URL(getAlternateUrl(Astro.url.pathname, defaultLocale),
     <SEO
       title={title}
       description={description}
-      canonical={Astro.url.href}
+      canonical={canonicalHref}
       openGraph={{
         basic: {
           title: title,

@@ -20,6 +20,7 @@ import {
   translateCategoryName,
 } from '@lib/content';
 import { formatForSeo } from '@lib/date';
+import { encodeSlug } from '@lib/route';
 import { getOgImageUrl } from '@lib/seo/og-image';
 import { Icon } from 'astro-icon/components';
 import { Comment } from '@/components/comment';
@@ -38,6 +39,10 @@ export async function getStaticPaths() {
 const { post, postId } = Astro.props;
 const locale = getLocaleFromUrl(Astro.url.pathname);
 const isFallback = getPostLocale(post) !== locale;
+// For fallback pages (showing default-locale content under /en/), canonical should point to the original
+const canonicalUrl = isFallback
+  ? new URL(localizedPath(`/post/${encodeSlug(getPostSlug(post))}`, defaultLocale), Astro.site).href
+  : undefined;
 const { Content } = await post.render();
 const { title, categories = [], tags = [], date, math: postMath } = post?.data ?? {};
 // KaTeX CSS: only load when global enableMath is on AND post hasn't opted out.
@@ -140,6 +145,7 @@ if (post.data.description) {
   description={finalDescription}
   siderType={HomeSiderType.POST}
   post={post}
+  canonical={canonicalUrl}
 >
   <script is:inline slot="head" type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
   <script is:inline slot="head" type="application/ld+json" set:html={JSON.stringify(breadcrumbJsonLd)} />

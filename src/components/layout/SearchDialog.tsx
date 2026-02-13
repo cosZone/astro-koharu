@@ -138,8 +138,7 @@ export default function SearchDialog() {
                       >
                         <p>{t('search.dialogHint')}</p>
                         <p className="mt-1 text-xs">
-                          <kbd className="rounded bg-black/10 px-1.5 py-0.5 font-mono dark:bg-white/10">ESC</kbd>{' '}
-                          {t('search.dialogClose')}
+                          <kbd className="kbd">ESC</kbd> {t('search.dialogClose')}
                         </p>
                       </div>
 

@@ -96,6 +96,7 @@ pnpm dev
 - Smart TOC navigation with CSS counter auto-numbering (can be disabled per post)
 - Mobile article reading header (shows current section title, circular reading progress, expandable TOC)
 - Friend links system and archive page
+- **Internationalization (i18n)**: Built-in Chinese/English UI translations, custom language packs, content-level translations (category/series names), language switcher, hreflang SEO tags, and locale-aware RSS feeds. Default locale URLs have no prefix; other locales are prefixed (e.g., `/en/post/xxx`)
 - RSS feed support
 - LQIP support: Gradient placeholders before images load for better visual experience
 - [Toggleable] Semantic similarity-based smart article recommendation system using [transformers.js](https://huggingface.co/docs/transformers.js) to generate local article embedding vectors
@@ -227,10 +228,57 @@ All blog configuration is managed through **`config/site.yaml`**, including:
 - Announcement system
 - **Comment system** (Waline / Giscus / Remark42, Waline recommended)
 - Analytics (Umami)
+- **Internationalization (i18n)**
 - Christmas special toggle
 - Development tools (the `dev` section in `config/site.yaml` for local editor jump)
 
 See the documentation for detailed configuration instructions.
+
+### Multi-language Configuration (i18n)
+
+Configure supported languages in the `i18n` section of `config/site.yaml`:
+
+```yaml
+i18n:
+  defaultLocale: zh        # Default locale (no URL prefix)
+  locales:
+    - code: zh
+      label: 中文
+    - code: en
+      label: English
+```
+
+**Content translations**: Configure translations for category names, series names, and other content-level strings in `config/i18n-content.yaml`:
+
+```yaml
+en:
+  categories:
+    life: Life
+    note: Notes
+    tools: Tools
+  series:
+    weekly:
+      label: My Weekly
+      fullName: My Tech Weekly
+```
+
+**Adding translated posts**: Place translated posts under `src/content/blog/<locale>/`, mirroring the default locale's directory structure:
+
+```plain
+src/content/blog/
+├── tools/getting-started.md        # Default locale (zh)
+├── en/tools/getting-started.md     # English translation
+└── en/life/hello-world.md          # English translation
+```
+
+Posts without a translation will automatically fall back to the default locale content, with a notice displayed.
+
+**Adding a new language**:
+
+1. Add the new locale to `i18n.locales` in `config/site.yaml`
+2. Create `src/i18n/translations/<code>.ts` — translate UI strings as needed (missing keys fall back to the default locale)
+3. Register the new locale in `src/i18n/translations/index.ts`
+4. Add content translations in `config/i18n-content.yaml` (optional)
 
 ### Switching Comment Systems
 

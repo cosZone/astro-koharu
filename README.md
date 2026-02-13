@@ -96,6 +96,7 @@ pnpm dev
 - 智能目录导航，支持 CSS 计数器自动编号（可按文章关闭）
 - 移动端文章阅读头部（显示当前章节标题、圆形阅读进度、可展开目录）
 - 友链系统与归档页面
+- **多语言支持（i18n）**：内置中英文 UI 翻译，支持自定义语言包、内容级翻译（分类名/系列名）、语言切换器、hreflang SEO 标签、locale-aware RSS 订阅。默认语言 URL 无前缀，其他语言自动加前缀（如 `/en/post/xxx`）
 - RSS 订阅支持
 - 支持 LQIP：图片加载前显示渐变色占位，提升视觉体验
 - [可开关] 基于语义相似度的智能文章推荐系统，使用 [transformers.js](https://huggingface.co/docs/transformers.js) 在本地生成文章嵌入向量，计算文章间的语义相似度
@@ -227,10 +228,57 @@ pnpm koharu generate all          # 生成全部
 - 公告系统
 - **评论系统**（Waline / Giscus / Remark42，推荐使用 Waline）
 - 数据统计（Umami）
+- **国际化配置（i18n）**
 - 圣诞特辑开关
 - 开发工具配置（`config/site.yaml` 的 `dev` 部分，用于本地编辑器跳转）
 
 详细配置说明请参考文档。
+
+### 多语言配置（i18n）
+
+在 `config/site.yaml` 的 `i18n` 部分配置支持的语言：
+
+```yaml
+i18n:
+  defaultLocale: zh        # 默认语言（URL 无前缀）
+  locales:
+    - code: zh
+      label: 中文
+    - code: en
+      label: English
+```
+
+**内容翻译**：在 `config/i18n-content.yaml` 中配置分类名、系列名等内容级字符串的翻译：
+
+```yaml
+en:
+  categories:
+    life: Life
+    note: Notes
+    tools: Tools
+  series:
+    weekly:
+      label: My Weekly
+      fullName: My Tech Weekly
+```
+
+**添加翻译文章**：将翻译文章放在 `src/content/blog/<locale>/` 目录下，保持与默认语言相同的路径结构：
+
+```plain
+src/content/blog/
+├── tools/getting-started.md        # 默认语言 (zh)
+├── en/tools/getting-started.md     # 英文翻译
+└── en/life/hello-world.md          # 英文翻译
+```
+
+没有对应翻译的文章会自动回退显示默认语言内容，并标注提示。
+
+**添加新语言**：
+
+1. 在 `config/site.yaml` 的 `i18n.locales` 中添加新语言
+2. 创建 `src/i18n/translations/<code>.ts`，按需翻译 UI 字符串（未翻译的 key 会回退到默认语言）
+3. 在 `src/i18n/translations/index.ts` 中注册新语言
+4. 在 `config/i18n-content.yaml` 中添加内容翻译（可选）
 
 ### 评论系统切换
 
