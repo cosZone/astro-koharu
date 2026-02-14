@@ -6,7 +6,7 @@
  */
 
 import type { BlogPost } from 'types/blog';
-import { defaultLocale, isLocaleSupported } from '@/i18n/config';
+import { allKnownLocales, defaultLocale } from '@/i18n/config';
 
 export interface SlugLocaleInfo {
   /** Detected locale code (e.g., 'en') or defaultLocale if none found */
@@ -21,6 +21,9 @@ export interface SlugLocaleInfo {
  * Convention: default-locale files live at root (slug = "tools/getting-started"),
  * translations live under `<locale>/` (slug = "en/tools/getting-started").
  *
+ * Uses `allKnownLocales` (including disabled locales) to detect directory prefixes,
+ * so posts in disabled locale directories are correctly excluded by filterPostsByLocale.
+ *
  * @example
  * getSlugLocaleInfo('tools/getting-started')     // { locale: 'zh', localeFreeSlug: 'tools/getting-started' }
  * getSlugLocaleInfo('en/tools/getting-started')   // { locale: 'en', localeFreeSlug: 'tools/getting-started' }
@@ -34,7 +37,7 @@ export function getSlugLocaleInfo(slug: string): SlugLocaleInfo {
 
   const firstSegment = slug.slice(0, firstSlash);
 
-  if (firstSegment !== defaultLocale && isLocaleSupported(firstSegment)) {
+  if (firstSegment !== defaultLocale && allKnownLocales.has(firstSegment)) {
     return {
       locale: firstSegment,
       localeFreeSlug: slug.slice(firstSlash + 1),

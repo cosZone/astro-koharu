@@ -513,6 +513,8 @@ export interface LocaleConfig {
   code: string;
   /** Display label for the locale (e.g., '中文', 'English') */
   label?: string;
+  /** Whether this locale is active. Defaults to true. Set false to keep content but hide locale from routing/UI. */
+  enabled?: boolean;
 }
 
 export interface I18nConfig {

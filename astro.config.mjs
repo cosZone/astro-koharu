@@ -59,10 +59,7 @@ const robotsConfig = yamlConfig.seo?.robots;
 const i18nYaml = yamlConfig.i18n;
 const i18nDefaultLocale = i18nYaml?.defaultLocale ?? 'zh';
 const i18nLocales = (i18nYaml?.locales ?? [{ code: 'zh' }]).map((l) => l.code);
-// Fallback map will be enabled in Phase 3 when [lang]/ mirror routes are created:
-// const i18nFallback = Object.fromEntries(
-//   i18nLocales.filter((code) => code !== i18nDefaultLocale).map((code) => [code, i18nDefaultLocale]),
-// );
+const hasMultipleLocales = i18nLocales.length > 1;
 
 /**
  * Vite plugin for conditional Three.js bundling
@@ -230,16 +227,17 @@ export default defineConfig({
       include: ['@antv/infographic'],
     },
   },
-  i18n: {
-    defaultLocale: i18nDefaultLocale,
-    locales: i18nLocales,
-    routing: {
-      prefixDefaultLocale: false,
-      redirectToDefaultLocale: true,
+  // Only enable Astro i18n routing when multiple locales are configured.
+  // Single-locale sites skip this entirely — no /[lang]/ routes are generated.
+  ...(hasMultipleLocales && {
+    i18n: {
+      defaultLocale: i18nDefaultLocale,
+      locales: i18nLocales,
+      routing: {
+        prefixDefaultLocale: false,
+        redirectToDefaultLocale: true,
+      },
     },
-    // fallback will be enabled in Phase 3 when [lang]/ mirror routes are created:
-    // fallback: i18nFallback,
-    // routing.fallbackType: 'rewrite',
-  },
+  }),
   trailingSlash: 'ignore',
 });

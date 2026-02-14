@@ -115,7 +115,7 @@ function DiagramToolbar({ data, zoomLevel, onReset }: { data: DiagramFullscreenD
           title={t('diagram.resetZoom')}
         >
           <Icon icon="ri:refresh-line" className="size-4" />
-          <span className="text-sm">{t('image.resetZoom')}</span>
+          <span className="text-sm">{t('diagram.resetZoom')}</span>
         </button>
         <CopyButton text={data.source} showLabel />
       </div>

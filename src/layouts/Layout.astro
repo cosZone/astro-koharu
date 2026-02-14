@@ -34,6 +34,7 @@ import {
   getAlternateUrl,
   getHtmlLang,
   getLocaleFromUrl,
+  isI18nEnabled,
   localeList,
   localizedPath,
   stripLocaleFromPath,
@@ -120,11 +121,11 @@ const canonicalHref = canonicalOverride ?? Astro.url.href;
       }}
     />
     <link rel="alternate" type="application/rss+xml" title={siteConfig.title} href={rssHref} />
-    {/* hreflang alternate links for SEO — tells search engines about language variants */}
-    {hreflangLinks.map(({ lang, href }) => (
+    {/* hreflang alternate links for SEO — only output when multiple locales are configured */}
+    {isI18nEnabled && hreflangLinks.map(({ lang, href }) => (
       <link rel="alternate" hreflang={lang} href={href} />
     ))}
-    <link rel="alternate" hreflang="x-default" href={xDefaultHref} />
+    {isI18nEnabled && <link rel="alternate" hreflang="x-default" href={xDefaultHref} />}
 
     <script is:inline>
       // 主题系统 - 立即执行以防止 FOUC（无样式内容闪烁）

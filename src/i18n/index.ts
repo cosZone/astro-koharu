@@ -6,7 +6,15 @@
  */
 
 // Config
-export { buildFallbackMap, defaultLocale, getLocaleLabel, isLocaleSupported, localeEntries, localeList } from './config';
+export {
+  allKnownLocales,
+  defaultLocale,
+  getLocaleLabel,
+  isI18nEnabled,
+  isLocaleSupported,
+  localeEntries,
+  localeList,
+} from './config';
 // Content translations (YAML-based)
 export { getContentCategoryName, getContentFeaturedCategoryField, getContentSeriesField } from './content';
 export type {
