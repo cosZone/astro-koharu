@@ -58,28 +58,13 @@ export function t(locale: Locale, key: TranslationKey, params?: TranslationParam
  * Unlike `t()`, accepts an arbitrary string key and returns `undefined` if not found.
  * This avoids `as TranslationKey` casts for dynamically constructed keys.
  */
-export function tryTranslate(locale: Locale, key: string, params?: TranslationParams): string | undefined {
+function tryTranslate(locale: Locale, key: string, params?: TranslationParams): string | undefined {
   const dict = translations[locale];
   const value = dict?.[key as TranslationKey] ?? defaultStrings[key as TranslationKey];
 
   if (!value) return undefined;
 
   return interpolate(value, params);
-}
-
-/**
- * Create a bound translator for a specific locale.
- * Useful in components where the locale is known and fixed.
- *
- * @example
- * ```ts
- * const t = createTranslator('en');
- * t('nav.home') // => 'Home'
- * t('post.totalPosts', { count: 5 }) // => '5 posts'
- * ```
- */
-export function createTranslator(locale: Locale) {
-  return (key: TranslationKey, params?: TranslationParams): string => t(locale, key, params);
 }
 
 /**
@@ -126,7 +111,7 @@ export function getLocaleFromUrl(pathname: string): Locale {
  * localizedPath('/', 'en')            // => '/en'
  * ```
  */
-export function localizedPath(path: string, locale: Locale): string {
+export function localizedPath(path: string, locale: Locale = defaultLocale): string {
   // Ensure path starts with /
   const normalizedPath = path.startsWith('/') ? path : `/${path}`;
 

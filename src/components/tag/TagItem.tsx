@@ -1,6 +1,6 @@
 import { useTranslation } from '@hooks/useTranslation';
 import { buildTagPath } from '@lib/content/tags';
-import { defaultLocale, localizedPath } from '@/i18n';
+import { localizedPath } from '@/i18n';
 
 const TAG_COLORS = [
   'from-blue-400/10 to-indigo-300/10 hover:from-blue-400/80 hover:to-indigo-300/80 text-blue-400/70 hover:text-blue-50',
@@ -20,7 +20,7 @@ export function TagItem({ tag, count, colorIndex, locale }: TagItemProps) {
   const { t } = useTranslation();
   return (
     <a
-      href={localizedPath(buildTagPath(tag), locale ?? defaultLocale)}
+      href={localizedPath(buildTagPath(tag), locale)}
       aria-label={t('tag.viewTagPosts', { tag, count })}
       className={`relative flex items-center rounded-lg bg-linear-to-r px-3 py-1.5 text-sm transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg ${TAG_COLORS[colorIndex]}`}
     >

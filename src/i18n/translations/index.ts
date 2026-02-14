@@ -15,6 +15,3 @@ export const translations: Record<string, DefaultUIStrings | UIStrings> = {
   zh,
   en,
 };
-
-/** Re-export individual dictionaries for direct import */
-export { en, zh };

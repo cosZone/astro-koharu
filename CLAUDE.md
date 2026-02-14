@@ -144,12 +144,14 @@ pages/ → components/ → hooks/ → lib/ → constants/
 
 **Theme System**: Dark/light toggle with localStorage, inline check in `<head>` prevents FOUC.
 
-**i18n System**: Two-layer translation architecture:
-- **UI strings** (`src/i18n/translations/`): TypeScript dictionaries with `t(locale, key, params?)` function. Keys defined in `zh.ts` (source-of-truth), other locales are partial overrides.
-- **Content strings** (`config/i18n-content.yaml`): YAML-based translations for category names, series fields, etc.
-- **Routing**: Default locale has no URL prefix; other locales use `/<locale>/` prefix. Pages under `src/pages/[lang]/` mirror root pages for non-default locales.
-- **React hook**: `useTranslation()` reads from `$locale` nanostore (synced via `astro:page-load` event).
-- **Content locale**: Posts in `src/content/blog/<locale>/` are detected by slug prefix; `filterPostsByLocale()` handles fallback to default locale.
+**i18n System**: Two-layer translation architecture with locale-aware routing.
+- **UI strings** (`src/i18n/translations/`): TypeScript dictionaries with `t(locale, key, params?)` function. Keys defined in `zh.ts` (source-of-truth), other locales are partial overrides. ~170 keys.
+- **Content strings** (`config/i18n-content.yaml`): YAML-based translations for category names, series fields, featured category labels. Accessed via `getContentCategoryName()` / `getContentSeriesField()` / `getContentFeaturedCategoryField()` (internal to `src/lib/content/categories.ts`).
+- **Routing**: Default locale has no URL prefix; other locales use `/<locale>/` prefix. Static pages in `src/pages/[lang]/` are thin wrappers using `getLocaleStaticPaths()`. Dynamic pages (post, tags, categories, series) have per-locale `getStaticPaths`. Root pages derive locale from URL via `getLocaleFromUrl()`.
+- **React hook**: `useTranslation()` reads from `$locale` nanostore (synced via `astro:page-load` event). Returns `{ t, locale }`.
+- **Content locale**: Posts in `src/content/blog/<locale>/` are detected by slug prefix (`getSlugLocaleInfo()`); `filterPostsByLocale()` provides fallback — non-default locales show translations + untranslated default-locale posts.
+- **Locale config**: `enabled` flag in `config/site.yaml` allows disabling locales without removing content. `isI18nEnabled` controls conditional Astro i18n routing.
+- **`localizedPath(path, locale?)`** defaults to `defaultLocale` — no need for `locale ?? defaultLocale` at call sites.
 - **Do NOT enable Astro `fallback`** in `astro.config.mjs` — it breaks `[seriesSlug].astro` dynamic routes.
 
 **Markdown**: Shiki highlighting, auto-generated heading IDs/links via rehype plugins, GFM support.

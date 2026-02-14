@@ -18,15 +18,13 @@ export {
   getCategoryNameByLink,
   getParentCategory,
   translateCategoryName,
-  translateFeaturedCategoryField,
   translateSeriesField,
 } from './content/categories';
-export type { SlugLocaleInfo } from './content/locale';
 
 // =============================================================================
 // Locale Utilities
 // =============================================================================
-export { filterPostsByLocale, getPostLocale, getPostSlug, getSlugLocaleInfo } from './content/locale';
+export { getPostLocale, getPostSlug } from './content/locale';
 // =============================================================================
 // Post Utilities
 // =============================================================================
