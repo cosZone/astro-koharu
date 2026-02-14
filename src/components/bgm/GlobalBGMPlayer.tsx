@@ -11,7 +11,7 @@
 import { PlayerPlaylist, type PlaylistGroup } from '@components/markdown/audio-player/PlayerPlaylist';
 import { PlayerPreview } from '@components/markdown/audio-player/PlayerPreview';
 import { MediaControls } from '@components/markdown/shared/MediaControls';
-import { FloatingFocusManager, FloatingPortal, useDismiss, useFloating, useInteractions, useRole } from '@floating-ui/react';
+import { FloatingFocusManager, useDismiss, useFloating, useInteractions, useRole } from '@floating-ui/react';
 import { useAudioPlayer } from '@hooks/useAudioPlayer';
 import { useMediaQuery } from '@hooks/useMediaQuery';
 import { useTranslation } from '@hooks/useTranslation';
@@ -178,35 +178,33 @@ export default function GlobalBGMPlayer({ audioGroups }: GlobalBGMPlayerProps) {
   };
 
   return (
-    <FloatingPortal>
-      <AnimatePresence>
-        {panelOpen && !isHidden && (
-          <FloatingFocusManager context={context} modal={false}>
-            <motion.div
-              ref={refs.setFloating}
-              {...getFloatingProps()}
-              className="fixed right-16 bottom-20 z-40 w-[460px] max-w-[calc(100vw-5rem)]"
-              initial={{ opacity: 0, y: 20, scale: 0.95 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: 20, scale: 0.95 }}
-              transition={{ duration: 0.2, ease: 'easeOut' }}
-            >
-              <div className="bgm-panel max-h-[85vh] overflow-y-auto rounded-2xl shadow-xl sm:max-h-[70vh] sm:overflow-hidden">
-                {/* Close button */}
-                <button
-                  type="button"
-                  className="absolute top-2 right-2 z-10 rounded-full bg-background/80 p-1.5 text-muted-foreground backdrop-blur-sm transition-colors hover:bg-background hover:text-foreground"
-                  onClick={closeBgmPanel}
-                  aria-label={t('audio.closePanel')}
-                >
-                  <Icon icon="ri:close-line" className="h-4 w-4" />
-                </button>
-                {renderPanelContent()}
-              </div>
-            </motion.div>
-          </FloatingFocusManager>
-        )}
-      </AnimatePresence>
-    </FloatingPortal>
+    <AnimatePresence>
+      {panelOpen && !isHidden && (
+        <FloatingFocusManager context={context} modal={false}>
+          <motion.div
+            ref={refs.setFloating}
+            {...getFloatingProps()}
+            className="fixed right-16 bottom-20 z-40 w-[460px] max-w-[calc(100vw-5rem)]"
+            initial={{ opacity: 0, y: 20, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 20, scale: 0.95 }}
+            transition={{ duration: 0.2, ease: 'easeOut' }}
+          >
+            <div className="bgm-panel max-h-[85vh] overflow-y-auto overscroll-none rounded-2xl shadow-xl sm:max-h-[70vh] sm:overflow-hidden">
+              {/* Close button */}
+              <button
+                type="button"
+                className="absolute top-2 right-2 z-10 rounded-full bg-background/80 p-1.5 text-muted-foreground backdrop-blur-sm transition-colors hover:bg-background hover:text-foreground"
+                onClick={closeBgmPanel}
+                aria-label={t('audio.closePanel')}
+              >
+                <Icon icon="ri:close-line" className="h-4 w-4" />
+              </button>
+              {renderPanelContent()}
+            </div>
+          </motion.div>
+        </FloatingFocusManager>
+      )}
+    </AnimatePresence>
   );
 }
