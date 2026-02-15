@@ -3,7 +3,7 @@
  * Comment Router Component
  *
  * Selects the appropriate comment provider based on site configuration.
- * Supports: remark42, giscus, waline, none
+ * Supports: remark42, giscus, waline, twikoo, none
  */
 import { commentConfig } from '@/constants/site-config';
 import { cn } from '@/lib/utils';
@@ -18,6 +18,8 @@ if (provider === 'remark42') {
   Provider = (await import('./providers/GiscusClient.astro')).default;
 } else if (provider === 'waline') {
   Provider = (await import('./providers/WalineClient.astro')).default;
+} else if (provider === 'twikoo') {
+  Provider = (await import('./providers/TwikooClient.astro')).default;
 }
 ---
 

@@ -104,6 +104,7 @@
     "tailwindcss": "^4.1.17",
     "tailwindcss-animate": "^1.0.7",
     "three": "^0.182.0",
+    "twikoo": "^1.6.44",
     "unified": "^11.0.5",
     "unist-util-visit": "^5.0.0",
     "vfile": "^6.0.3",
