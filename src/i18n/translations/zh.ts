@@ -290,6 +290,7 @@ export const uiStrings = {
 
   // ── Table of Contents ───────────────────────────────────────
   'toc.title': '文章目录',
+  'toc.expand': '展开目录',
   'toc.empty': '暂无目录',
 
   // ── Embed ─────────────────────────────────────────────────

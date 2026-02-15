@@ -8,6 +8,7 @@
 import { animation } from '@constants/design-tokens';
 import { useActiveHeading, useExpandedState, useHeadingClickHandler, useHeadingTree, useMediaQuery } from '@hooks/index';
 import { useCurrentHeading } from '@hooks/useCurrentHeading';
+import { useTranslation } from '@hooks/useTranslation';
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
 import { siteConfig } from '@/constants/site-config';
 import { HeadingTitle } from './HeadingTitle';
@@ -37,6 +38,7 @@ export function MobilePostHeader({
   logoSrc,
   enableNumbering = true,
 }: MobilePostHeaderProps) {
+  const { t } = useTranslation();
   const shouldReduceMotion = useReducedMotion();
 
   // Check if we're on mobile (tablet breakpoint: max-width 992px)
@@ -101,8 +103,8 @@ export function MobilePostHeader({
               trigger={
                 <button
                   type="button"
-                  className="flex w-[calc(100vw-10.5rem)] items-center gap-2.5 rounded-full bg-foreground/10 py-1 pr-3 pl-1.5 backdrop-blur-sm transition-colors hover:bg-foreground/20"
-                  aria-label="展开目录"
+                  className="flex w-[calc(100vw-12rem)] items-center gap-2.5 rounded-full bg-foreground/10 py-1 pr-3 pl-1.5 backdrop-blur-sm transition-colors hover:bg-foreground/20"
+                  aria-label={t('toc.expand')}
                 >
                   {/* Progress circle - fixed size container */}
                   <div className="relative shrink-0">

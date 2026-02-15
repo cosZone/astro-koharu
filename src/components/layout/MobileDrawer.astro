@@ -2,7 +2,7 @@
 import { HomeSiderType } from '@constants/enum';
 import { Icon } from 'astro-icon/components';
 import type { BlogPost } from 'types/blog';
-import { getLocaleFromUrl, t } from '@/i18n';
+import { getAlternateUrl, getLocaleFromUrl, localeEntries, t } from '@/i18n';
 import HomeSider from './HomeSider.astro';
 
 interface Props {
@@ -20,15 +20,39 @@ const locale = getLocaleFromUrl(Astro.url.pathname);
 <!-- 移动端抽屉导航 -->
 <div
   id="mobile-drawer"
-  class="bg-gradient-start tablet:flex fixed inset-y-0 left-0 z-50 hidden h-screen w-[70vw] min-w-64 -translate-x-full transform px-4 pt-6 shadow-lg backdrop-blur-sm transition-transform duration-300 md:px-0"
+  class="bg-gradient-start tablet:flex fixed inset-y-0 left-0 z-50 hidden h-screen w-[70vw] min-w-64 -translate-x-full transform px-4 pt-3 shadow-lg backdrop-blur-sm transition-transform duration-300 md:px-0"
   role="dialog"
   aria-label={t(locale, 'drawer.navMenu')}
   aria-modal="true"
 >
   <div class="flex h-full w-full flex-col overflow-auto">
-    <button id="close-drawer" aria-label={t(locale, 'drawer.close')} class="invisible">
-      <Icon name="ri:close-line" class="h-6 w-6" />
-    </button>
+    <div class="flex items-center">
+      <button id="close-drawer" aria-label={t(locale, 'drawer.close')} class="invisible">
+        <Icon name="ri:close-line" class="h-6 w-6" />
+      </button>
+      {localeEntries.length > 1 && (
+        <div class="ml-auto flex items-center gap-1.5 mr-4">
+          <Icon name="ri:translate" class="size-4 text-white/50" />
+          {localeEntries.map((entry) => {
+            const isActive = entry.code === locale;
+            return (
+              <a
+                href={getAlternateUrl(Astro.url.pathname, entry.code)}
+                class:list={[
+                  'rounded-lg px-2.5 py-1 text-sm transition-colors',
+                  isActive
+                    ? 'bg-gradient-shoka-button font-medium text-white'
+                    : 'text-white/70 hover:bg-white/10 hover:text-white',
+                ]}
+                aria-current={isActive ? 'true' : undefined}
+              >
+                {entry.label}
+              </a>
+            );
+          })}
+        </div>
+      )}
+    </div>
     <HomeSider className="tablet:flex tablet:mt-0 mt-4 hidden w-full min-w-full p-0" isDrawer type={type} post={post} />
   </div>
 </div>

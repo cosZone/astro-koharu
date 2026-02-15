@@ -240,7 +240,7 @@ pnpm koharu generate all          # 生成全部
 
 ```yaml
 i18n:
-  defaultLocale: zh        # 默认语言（URL 无前缀）
+  defaultLocale: zh # 默认语言（URL 无前缀）
   locales:
     - code: zh
       label: 中文

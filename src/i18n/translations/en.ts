@@ -291,6 +291,7 @@ export const uiStrings: UIStrings = {
 
   // ── Table of Contents ───────────────────────────────────────
   'toc.title': 'Table of Contents',
+  'toc.expand': 'Expand table of contents',
   'toc.empty': 'No headings',
 
   // ── Embed ─────────────────────────────────────────────────
