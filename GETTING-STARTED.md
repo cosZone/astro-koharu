@@ -209,6 +209,34 @@ featuredSeries:
 
 然后在 `src/content/blog/` 目录创建周刊文章。
 
+### 多语言支持（i18n）
+
+博客内置多语言支持。在 `config/site.yaml` 中配置：
+
+```yaml
+i18n:
+  defaultLocale: zh        # 默认语言（URL 无前缀）
+  locales:
+    - code: zh
+      label: 中文
+    - code: en
+      label: English
+```
+
+配置后，博客会自动生成带语言前缀的页面（如 `/en/post/xxx`），导航栏和移动端抽屉中会出现语言切换器。
+
+**添加翻译文章**：将翻译文章放在 `src/content/blog/<locale>/` 目录下，保持与默认语言相同的路径结构：
+
+```plain
+src/content/blog/
+├── tools/getting-started.md        # 默认语言 (zh)
+└── en/tools/getting-started.md     # 英文翻译
+```
+
+没有对应翻译的文章会自动回退显示默认语言内容，并标注提示。
+
+更多详细配置（内容翻译、添加新语言等）请参考 [README 的多语言配置章节](./README.md#多语言配置i18n)。
+
 ### 内容生成（可选）
 
 使用 Koharu CLI 生成内容资产：

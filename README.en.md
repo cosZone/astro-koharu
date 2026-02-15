@@ -34,13 +34,12 @@ You can provide [feedback](https://cos.featurebase.app/) and check the Roadmap h
 
 ## Deployment
 
-Supports automatic deployment on mainstream platforms including **Vercel**, **Cloudflare Pages**, and **Netlify**. The adapter is automatically selected based on the environment; unrecognized platforms fall back to the Node.js adapter (suitable for Docker or self-hosting).
+Supports automatic deployment on mainstream platforms including **Vercel** and **Netlify**. The adapter is automatically selected based on the environment; unrecognized platforms fall back to the Node.js adapter (suitable for Docker or self-hosting).
 
 ### One-Click Deploy
 
 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/cosZone/astro-koharu&project-name=astro-koharu&repository-name=astro-koharu)
 [![Deploy to Netlify](https://www.netlify.com/img/deploy/button.svg)](https://app.netlify.com/start/deploy?repository=https://github.com/cosZone/astro-koharu)
-[![Deploy to Cloudflare Pages](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/cosZone/astro-koharu)
 
 ### Docker Deployment
 

@@ -29,7 +29,6 @@
   },
   "dependencies": {
     "@antv/infographic": "^0.2.4",
-    "@astrojs/cloudflare": "^12.6.12",
     "@astrojs/netlify": "^6.6.4",
     "@astrojs/node": "^9.5.2",
     "@astrojs/react": "^4.4.2",
