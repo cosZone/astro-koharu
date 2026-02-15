@@ -472,7 +472,7 @@ navigation:
     # path: # 用于区分不同文章的自定义 js 路径，如果您的文章路径不是 location.pathname，需传此参数
     # lang: # 语言 (默认: 'zh-CN')
 comment:
-  provider: twikoo  # 'remark42' | 'giscus' | 'waline' | 'twikoo' | 'none'
+  provider: none  # 'remark42' | 'giscus' | 'waline' | 'twikoo' | 'none'
   # remark42:
   #   host: https://comment.example.com/
   #   siteId: your-site-id

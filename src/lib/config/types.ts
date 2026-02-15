@@ -399,13 +399,6 @@ export interface TwikooConfig {
   envId: string;
 
   /**
-   * 容器元素选择器
-   * Container element selector
-   * @default '#tcomment'
-   */
-  el?: string;
-
-  /**
    * 环境地域，默认为 ap-shanghai
    * Environment region, default is ap-shanghai
    * 腾讯云环境填 ap-shanghai 或 ap-guangzhou；Vercel 环境不填

@@ -1,0 +1,79 @@
+/* Twikoo comment system theme overrides
+ * Twikoo uses hardcoded colors with no CSS variables or built-in dark mode.
+ * We override key colors to match blog theme and provide dark mode support.
+ * Pattern mirrors waline.css.
+ */
+
+/* === Light mode: override Twikoo's default blue (#409eff) with blog theme color === */
+.tk-comments-container .tk-submit .tk-row .tk-btn,
+.tk-comments-container a {
+  color: #e9546b;
+}
+
+.tk-comments-container .tk-submit .tk-row .tk-btn:hover,
+.tk-comments-container a:hover {
+  color: #ed788c;
+}
+
+.tk-comments-container .tk-submit .tk-row .tk-btn.tk-send-btn {
+  background-color: #e9546b;
+  border-color: #e9546b;
+  color: #fff;
+}
+
+.tk-comments-container .tk-submit .tk-row .tk-btn.tk-send-btn:hover {
+  background-color: #ed788c;
+  border-color: #ed788c;
+}
+
+/* === Dark mode === */
+html.dark .tk-comments-container {
+  color: #c8c8c8;
+}
+
+html.dark .tk-comments-container .tk-meta-input .el-input .el-input__inner,
+html.dark .tk-comments-container .tk-content,
+html.dark .tk-comments-container .tk-main .tk-nick {
+  color: #c8c8c8;
+}
+
+html.dark .tk-comments-container .tk-meta-input .el-input .el-input__inner {
+  background-color: transparent;
+  border-color: #444;
+}
+
+html.dark .tk-comments-container .tk-icon {
+  filter: invert(0.8);
+}
+
+html.dark .tk-comments-container a {
+  color: #ed788c;
+}
+
+html.dark .tk-comments-container a:hover {
+  color: #f09aab;
+}
+
+html.dark .tk-comments-container .tk-submit .tk-row .tk-btn.tk-send-btn {
+  background-color: #ed788c;
+  border-color: #ed788c;
+}
+
+html.dark .tk-comments-container .tk-submit .tk-row .tk-btn.tk-send-btn:hover {
+  background-color: #f09aab;
+  border-color: #f09aab;
+}
+
+html.dark .tk-comments-container .tk-admin-warn {
+  background-color: #2a2a2a;
+  border-color: #444;
+  color: #c8c8c8;
+}
+
+html.dark .tk-comments-container .tk-extras {
+  color: #888;
+}
+
+html.dark .tk-comments-container .tk-action-icon {
+  filter: invert(0.7);
+}
