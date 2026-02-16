@@ -41,7 +41,7 @@ site:
 #   - label: 语言显示名称（如 '中文', 'English'）
 # -----------------------------------------------------------------------------
 i18n:
-  defaultLocale: ja
+  defaultLocale: zh
   locales:
     - code: zh
       label: 中文
