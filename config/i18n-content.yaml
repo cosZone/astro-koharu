@@ -37,3 +37,30 @@ en:
     tools:
       label: Tools
       description: Tool usage and productivity
+
+ja:
+  categories:
+    life: 日常
+    note: ノート
+    tools: ツール
+    weekly: 週刊
+    front-end: フロントエンド
+
+  series:
+    weekly:
+      label: 週間ダイジェスト
+      fullName: テック週間ダイジェスト
+
+  featuredCategories:
+    life:
+      label: 日常
+      description: 日常の記録とエッセイ
+    note:
+      label: ノート
+      description: 技術と学習のノート
+    note/front-end:
+      label: フロントエンド
+      description: フロントエンド技術
+    tools:
+      label: ツール
+      description: ツールの使い方と生産性

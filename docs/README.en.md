@@ -1,6 +1,6 @@
 # astro-koharu
 
-[中文](README.md) | English
+[中文](../README.md) | English | [日本語](README.ja.md)
 
 ![](https://r2.cosine.ren/i/2026/01/94383107ba4586f773938ed4dae34ff1.webp)
 
@@ -295,9 +295,9 @@ comment:
 
 ## Documentation
 
-- **[Getting Started](./GETTING-STARTED.md)** - Launch your blog
-- **[Updating the Theme](./GETTING-STARTED.md#7-更新主题)** - How to safely update to a new version
-- **[Full Usage Guide](./src/content/blog/tools/astro-koharu-guide.md)** - Detailed configuration and usage for all features
+- **[Getting Started](../GETTING-STARTED.md)** - Launch your blog
+- **[Updating the Theme](../GETTING-STARTED.md#7-更新主题)** - How to safely update to a new version
+- **[Full Usage Guide](../src/content/blog/tools/astro-koharu-guide.md)** - Detailed configuration and usage for all features
 
 ## Feature Showcase
 
