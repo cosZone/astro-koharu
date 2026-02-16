@@ -38,7 +38,7 @@ export const uiStrings: UIStrings = {
   // ── Post ────────────────────────────────────────────────────
   'post.readMore': '詳細を読む',
   'post.totalPosts': '{count}件の投稿',
-  'post.stickyPosts': 'ピン留め投稿',
+  'post.stickyPosts': '固定された投稿',
   'post.postList': '投稿',
   'post.featuredCategories': 'おすすめのカテゴリー',
   'post.yearPosts': '{count}件の投稿',
@@ -54,7 +54,7 @@ export const uiStrings: UIStrings = {
   'post.seriesNext': '次へ',
   'post.fallbackNotice': 'この投稿は「{lang}」では表示できません。元の投稿を表示しています。',
   'post.draft': 'ドラフト',
-  'post.pinned': 'ピン済み',
+  'post.pinned': '固定済み',
   'post.noPostsFound': '投稿が見つかりません',
 
   // ── Categories & Tags ───────────────────────────────────────
