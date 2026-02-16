@@ -2,7 +2,7 @@
 import { HomeSiderType } from '@constants/enum';
 import { Icon } from 'astro-icon/components';
 import type { BlogPost } from 'types/blog';
-import { getAlternateUrl, getLocaleFromUrl, localeEntries, t } from '@/i18n';
+import { getAlternateUrl, getLocaleFromUrl, getLocaleLabel, localeEntries, t } from '@/i18n';
 import HomeSider from './HomeSider.astro';
 
 interface Props {
@@ -31,26 +31,35 @@ const locale = getLocaleFromUrl(Astro.url.pathname);
         <Icon name="ri:close-line" class="h-6 w-6" />
       </button>
       {localeEntries.length > 1 && (
-        <div class="ml-auto flex items-center gap-1.5 mr-4">
-          <Icon name="ri:translate" class="size-4 text-white/50" />
-          {localeEntries.map((entry) => {
-            const isActive = entry.code === locale;
-            return (
-              <a
-                href={getAlternateUrl(Astro.url.pathname, entry.code)}
-                class:list={[
-                  'rounded-lg px-2.5 py-1 text-sm transition-colors',
-                  isActive
-                    ? 'bg-gradient-shoka-button font-medium text-white'
-                    : 'text-white/70 hover:bg-white/10 hover:text-white',
-                ]}
-                aria-current={isActive ? 'true' : undefined}
-              >
-                {entry.label}
-              </a>
-            );
-          })}
-        </div>
+        <details class="language-switcher group relative ml-auto mr-4">
+          <summary
+            class="flex cursor-pointer list-none items-center gap-1.5 rounded-lg px-2.5 py-1 text-sm text-white/70 transition-colors hover:bg-white/10 hover:text-white [&::-webkit-details-marker]:hidden"
+            aria-label={t(locale, 'common.language')}
+          >
+            <Icon name="ri:translate" class="size-4" />
+            <span>{getLocaleLabel(locale)}</span>
+            <Icon name="ri:arrow-down-s-line" class="size-4 transition-transform duration-200 group-open:rotate-180" />
+          </summary>
+          <div class="absolute right-0 top-full z-10 mt-1 flex min-w-28 flex-col overflow-hidden rounded-lg bg-black/40 shadow-lg backdrop-blur-sm">
+            {localeEntries.map((entry) => {
+              const isActive = entry.code === locale;
+              return (
+                <a
+                  href={getAlternateUrl(Astro.url.pathname, entry.code)}
+                  class:list={[
+                    'px-4 py-2 text-sm transition-colors',
+                    isActive
+                      ? 'bg-gradient-shoka-button font-medium text-white'
+                      : 'text-white/70 hover:bg-white/10 hover:text-white',
+                  ]}
+                  aria-current={isActive ? 'true' : undefined}
+                >
+                  {entry.label}
+                </a>
+              );
+            })}
+          </div>
+        </details>
       )}
     </div>
     <HomeSider className="tablet:flex tablet:mt-0 mt-4 hidden w-full min-w-full p-0" isDrawer type={type} post={post} />
@@ -113,6 +122,7 @@ const locale = getLocaleFromUrl(Astro.url.pathname);
       document.addEventListener('keydown', this.handleKeyDown);
       this.elements.closeBtn?.addEventListener('click', this.handleClose);
       this.elements.overlay?.addEventListener('click', this.handleClose);
+      this.elements.drawer?.addEventListener('click', this.handleDrawerClick);
     }
 
     /**
@@ -138,6 +148,13 @@ const locale = getLocaleFromUrl(Astro.url.pathname);
       closeDrawer();
     };
 
+    private handleDrawerClick = (e: MouseEvent): void => {
+      const details = this.elements.drawer?.querySelector('details.language-switcher');
+      if (details?.hasAttribute('open') && !details.contains(e.target as Node)) {
+        details.removeAttribute('open');
+      }
+    };
+
     private open(): void {
       const { drawer, overlay, closeBtn } = this.elements;
       if (!drawer || !overlay) return;
@@ -154,6 +171,7 @@ const locale = getLocaleFromUrl(Astro.url.pathname);
 
       drawer.classList.add(DRAWER_CLASSES.translateX);
       overlay.classList.add(DRAWER_CLASSES.hidden);
+      drawer.querySelector('details.language-switcher')?.removeAttribute('open');
       document.body.style.overflow = '';
     }
 
@@ -161,6 +179,7 @@ const locale = getLocaleFromUrl(Astro.url.pathname);
       document.removeEventListener('keydown', this.handleKeyDown);
       this.elements.closeBtn?.removeEventListener('click', this.handleClose);
       this.elements.overlay?.removeEventListener('click', this.handleClose);
+      this.elements.drawer?.removeEventListener('click', this.handleDrawerClick);
 
       // Unsubscribe from nanostore
       if (this.unsubscribe) {
