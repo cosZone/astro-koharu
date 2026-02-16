@@ -41,13 +41,15 @@ site:
 #   - label: 语言显示名称（如 '中文', 'English'）
 # -----------------------------------------------------------------------------
 i18n:
-  defaultLocale: zh
+  defaultLocale: ja
   locales:
     - code: zh
       label: 中文
     - code: en
       label: English
       # enabled: false  # 内容存在但暂时禁用（保留内容但不生成路由）
+    - code: ja
+      label: 日本語
 
 # =============================================================================
 # Category Map

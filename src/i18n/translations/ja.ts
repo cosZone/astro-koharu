@@ -38,7 +38,7 @@ export const uiStrings: UIStrings = {
   // ── Post ────────────────────────────────────────────────────
   'post.readMore': '詳細を読む',
   'post.totalPosts': '{count}件の投稿',
-  'post.stickyPosts': 'ピンをした投稿',
+  'post.stickyPosts': 'ピン留め投稿',
   'post.postList': '投稿',
   'post.featuredCategories': 'おすすめのカテゴリー',
   'post.yearPosts': '{count}件の投稿',
@@ -107,7 +107,7 @@ export const uiStrings: UIStrings = {
   'friends.sitePlaceholder': 'マイブログ',
   'friends.ownerPlaceholder': 'あなたの名前',
   'friends.urlPlaceholder': 'https://your-site.com',
-  'friends.descPlaceholder': 'Brief description...',
+  'friends.descPlaceholder': '簡単な説明...',
   'friends.imagePlaceholder': 'https://...',
   'friends.previewTitle': '構成のプレビュー',
   'friends.copyConfig': '構成をコピー',
@@ -171,7 +171,7 @@ export const uiStrings: UIStrings = {
   'footer.totalWordsTitle': '合計の文字数',
   'footer.readingTimeTitle': '合計の読書時間',
   'footer.postCountTitle': '合計の投稿数',
-  'footer.runningDays': '稼働して{days}日が経過,
+  'footer.runningDays': '稼働して{days}日が経過',
   'footer.wordUnit': '文字',
   'footer.postUnit': '投稿',
 
@@ -234,7 +234,7 @@ export const uiStrings: UIStrings = {
   // ── Encrypted Block ─────────────────────────────────────────
   'encrypted.placeholder': 'パスワードを入力でロックを解除',
   'encrypted.submit': 'ロックを解除',
-  'encrypted.incorrect': 'パスワードを忘れました',
+  'encrypted.incorrect': 'パスワードが間違っています',
 
   // ── 404 ─────────────────────────────────────────────────────
   'notFound.title': 'ページは見つかりません',
