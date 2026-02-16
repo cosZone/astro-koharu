@@ -16,7 +16,7 @@ export const uiStrings: UIStrings = {
   'nav.friends': '友達',
   'nav.about': 'ブログについて',
   'nav.music': '音楽',
-  'nav.weekly': 'Weekly',
+  'nav.weekly': '週間',
 
   // ── Common ──────────────────────────────────────────────────
   'common.search': '検索',
@@ -37,13 +37,13 @@ export const uiStrings: UIStrings = {
 
   // ── Post ────────────────────────────────────────────────────
   'post.readMore': '詳細を読む',
-  'post.totalPosts': '{count}件の投稿',
+  'post.totalPosts': '{count} 件の投稿',
   'post.stickyPosts': 'ピンをした投稿',
   'post.postList': '投稿',
   'post.featuredCategories': 'おすすめのカテゴリー',
-  'post.yearPosts': '{count}件の投稿',
-  'post.readingTime': '{time}分で読み終えます',
-  'post.wordCount': '{count}文字',
+  'post.yearPosts': '{count} 件の投稿',
+  'post.readingTime': '{time} 分で読み終えます',
+  'post.wordCount': '{count} 文字',
   'post.publishedAt': '公開日: {date}',
   'post.updatedAt': '更新日: {date}',
   'post.prevPost': '前へ',
@@ -60,27 +60,27 @@ export const uiStrings: UIStrings = {
   // ── Categories & Tags ───────────────────────────────────────
   'category.allCategories': 'すべてのカテゴリー',
   'category.postsInCategory': 'Posts in {name}',
-  'category.totalCategories': '{count}件のカテゴリー',
+  'category.totalCategories': '{count} 件のカテゴリー',
   'category.categoryLabel': 'カテゴリー',
   'tag.allTags': 'すべてのタグ',
   'tag.postsWithTag': 'Posts tagged "{name}"',
-  'tag.totalTags': '{count}個のタグ',
+  'tag.totalTags': '{count} 個のタグ',
   'tag.all': 'すべて',
-  'tag.postCount': '{count}件の投稿',
+  'tag.postCount': '{count} 件の投稿',
 
   // ── Archives ────────────────────────────────────────────────
   'archives.title': 'アーカイブ',
-  'archives.totalPosts': '{count}件の投稿',
+  'archives.totalPosts': '{count} 件の投稿',
 
   // ── Search ──────────────────────────────────────────────────
-  'search.placeholder': 'Search by keyword',
+  'search.placeholder': 'キーワードで検索',
   'search.label': 'このサイトを検索',
-  'search.clear': 'クリア',
-  'search.loadMore': 'Load more results',
-  'search.filters': 'Filters',
-  'search.noResults': 'No results found',
-  'search.manyResults': '[COUNT]件の検索結果',
-  'search.oneResult': '[COUNT]件の検索結果',
+  'search.clear': '消去',
+  'search.loadMore': 'さらに検索結果を読み込み',
+  'search.filters': '絞り込み',
+  'search.noResults': '検索結果は見つかりません',
+  'search.manyResults': '[COUNT] 件の検索結果',
+  'search.oneResult': '[COUNT] 件の検索結果',
   'search.altSearch': 'No results found. Showing results for [DIFFERENT_TERM]',
   'search.suggestion': 'No results found. Try searching for:',
   'search.searching': 'Searching [SEARCH_TERM]...',
@@ -92,16 +92,16 @@ export const uiStrings: UIStrings = {
 
   // ── Friends ─────────────────────────────────────────────────
   'friends.title': '友達',
-  'friends.applyTitle': 'Apply for Friend Link',
+  'friends.applyTitle': '友達のリンクに適用',
   'friends.siteName': 'サイト名',
-  'friends.siteUrl': 'サイトのURL',
+  'friends.siteUrl': 'サイトの URL',
   'friends.ownerName': '名前',
   'friends.siteDesc': '説明',
-  'friends.avatarUrl': 'アバターのURL',
+  'friends.avatarUrl': 'アバターの URL',
   'friends.themeColor': 'テーマの色',
   'friends.submit': '送信',
   'friends.copySuccess': 'クリップボードにコピーしました',
-  'friends.copyFail': 'Copy failed, please copy manually',
+  'friends.copyFail': 'コピーに失敗、手動でコピーしてください',
   'friends.generateFormat': 'フォーマットを生成',
   'friends.copyFormat': 'フォーマットをコピー',
   'friends.sitePlaceholder': 'マイブログ',
@@ -138,19 +138,19 @@ export const uiStrings: UIStrings = {
   'image.zoomOut': '縮小',
   'image.resetZoom': 'リセット',
   'image.resetZoomRotate': '回転と拡大をリセット',
-  'image.rotate': '90°に回転',
+  'image.rotate': '90 度に回転',
   'image.close': '閉じる',
   'image.prev': '前へ',
   'image.next': '次へ',
   'image.counter': '{current} / {total}',
-  'image.hintDesktop': 'Double-click to zoom · Scroll/pinch to scale',
-  'image.hintMobile': 'Double-tap to zoom · Pinch to scale',
+  'image.hintDesktop': 'ダブルクリックで拡大 · Scroll/pinch to scale',
+  'image.hintMobile': 'ダブルタップで拡大 · Pinch to scale',
 
   // ── Media Controls ──────────────────────────────────────────
   'media.play': '再生',
   'media.pause': '一時停止',
   'media.mute': 'ミュート',
-  'media.unmute': 'ミュート解除',
+  'media.unmute': 'ミュートを解除',
   'media.fullscreen': 'フルスクリーン',
   'media.exitFullscreen': 'フルスクリーンを終了',
   'media.pictureInPicture': 'ピクチャーインピクチャー',
@@ -162,47 +162,47 @@ export const uiStrings: UIStrings = {
   'media.progress': '再生の進捗',
   'media.playModeOrder': 'Sequential',
   'media.playModeRandom': 'シャッフル',
-  'media.playModeLoop': '1回のみリピート',
+  'media.playModeLoop': '1 回のみリピート',
 
   // ── Footer ──────────────────────────────────────────────────
   'footer.poweredBy': 'Powered by {name}',
-  'footer.totalPosts': '{count}件の投稿',
-  'footer.totalWords': '{count}文字',
+  'footer.totalPosts': '{count} 件の投稿',
+  'footer.totalWords': '{count} 文字',
   'footer.totalWordsTitle': '合計の文字数',
   'footer.readingTimeTitle': '合計の読書時間',
   'footer.postCountTitle': '合計の投稿数',
-  'footer.runningDays': '{days}日の稼働日数が経過',
+  'footer.runningDays': '稼働して {days} 日が経過,
   'footer.wordUnit': '文字',
   'footer.postUnit': '投稿',
 
   // ── Pagination ──────────────────────────────────────────────
-  'pagination.prev': 'Previous',
-  'pagination.next': 'Next',
-  'pagination.page': 'Page {page}',
+  'pagination.prev': '前へ',
+  'pagination.next': '次へ',
+  'pagination.page': 'ページ: {page}',
   'pagination.currentPage': 'Page {page}, current page',
   'pagination.of': 'of {total}',
 
   // ── Breadcrumb ──────────────────────────────────────────────
-  'breadcrumb.home': 'Home',
-  'breadcrumb.goToCategory': 'Go to {name} category',
+  'breadcrumb.home': 'ホーム',
+  'breadcrumb.goToCategory': '「{name}」のカテゴリーに移動',
 
   // ── Floating Group ──────────────────────────────────────────
-  'floating.backToTop': 'Back Top',
-  'floating.scrollToBottom': 'Scroll Bottom',
-  'floating.toggleTheme': 'Toggle theme',
-  'floating.christmas': 'Toggle Christmas effects',
-  'floating.bgm': 'Background music',
-  'floating.toggleToolbar': 'Toggle toolbar',
+  'floating.backToTop': 'トップに戻る',
+  'floating.scrollToBottom': '下にスクロール',
+  'floating.toggleTheme': 'テーマを切り替え',
+  'floating.christmas': 'クリスマスエフェクトに切り替え',
+  'floating.bgm': 'BGM',
+  'floating.toggleToolbar': 'ツールバーを切り替え',
 
   // ── Announcement ────────────────────────────────────────────
-  'announcement.title': 'Announcements',
-  'announcement.new': 'New',
-  'announcement.count': '{count} announcements',
-  'announcement.unreadCount': '{count} unread',
-  'announcement.markAllRead': 'Mark all read',
-  'announcement.dismiss': 'Dismiss',
-  'announcement.learnMore': 'Learn more',
-  'announcement.empty': 'No announcements',
+  'announcement.title': 'お知らせ',
+  'announcement.new': '新着',
+  'announcement.count': '{count} 件のお知らせ',
+  'announcement.unreadCount': '{count} 件が未読',
+  'announcement.markAllRead': 'すべて既読にする',
+  'announcement.dismiss': '無視',
+  'announcement.learnMore': '詳細を読む',
+  'announcement.empty': 'お知らせは見つかりません',
   'announcement.emptyHint': 'New announcements will appear here',
 
   // ── Quiz ────────────────────────────────────────────────────
@@ -216,78 +216,78 @@ export const uiStrings: UIStrings = {
   'quiz.showAnswer': 'Show answer',
   'quiz.hideAnswer': 'Hide answer',
   'quiz.reset': 'Reset',
-  'quiz.score': 'Score: {score}/{total}',
-  'quiz.completed': 'All done!',
+  'quiz.score': '得点: {score}/{total}',
+  'quiz.completed': 'すべて完了しました!',
   'quiz.fillBlank': 'Type your answer...',
   'quiz.selectOption': 'Select an option',
-  'quiz.single': 'Single Choice',
-  'quiz.multi': 'Multiple Choice',
+  'quiz.single': '単一で選択',
+  'quiz.multi': '複数で選択',
   'quiz.trueFalse': 'True or False',
   'quiz.fill': 'Fill in the Blank',
   'quiz.optionTrue': 'True',
   'quiz.optionFalse': 'False',
   'quiz.clickToReveal': 'Click to reveal answer',
-  'quiz.quizOptions': '{type} options',
+  'quiz.quizOptions': '{type}個のオプション',
   'quiz.trueFalseCorrect': 'Correct!',
   'quiz.trueFalseIncorrect': 'Incorrect. The statement is {answer}.',
 
   // ── Encrypted Block ─────────────────────────────────────────
-  'encrypted.placeholder': 'Enter password to unlock',
-  'encrypted.submit': 'Unlock',
-  'encrypted.incorrect': 'Wrong password',
+  'encrypted.placeholder': 'パスワードを入力でロックを解除',
+  'encrypted.submit': 'ロックを解除',
+  'encrypted.incorrect': 'パスワードを忘れました',
 
   // ── 404 ─────────────────────────────────────────────────────
-  'notFound.title': 'Page Not Found',
+  'notFound.title': 'ページは見つかりません',
   'notFound.description': 'The page you are looking for does not exist',
-  'notFound.backHome': 'Back to Home',
-  'notFound.browseArchives': 'Browse Archives',
+  'notFound.backHome': 'ホームに戻る',
+  'notFound.browseArchives': 'アーカイブを参照',
   'notFound.message': 'Meow? The page was eaten~',
 
   // ── Category Stats ────────────────────────────────────────
-  'category.subCategoryCount': '{count} subcategories',
-  'category.postCount': '{count} posts',
+  'category.subCategoryCount': '{count} 件のサブカテゴリー',
+  'category.postCount': '{count} 件の投稿',
 
   // ── Post Card ─────────────────────────────────────────────
   'post.readingTimeTooltip': 'Estimated reading time: {time}',
 
   // ── Featured Series ─────────────────────────────────────────
-  'series.latestPost': 'Latest',
-  'series.viewAll': 'View all',
-  'series.postCount': '{count} posts',
+  'series.latestPost': '最新',
+  'series.viewAll': 'すべて表示',
+  'series.postCount': '{count} 件の投稿',
   'series.noPosts': 'No posts in this series',
-  'series.rss': 'RSS Feed',
-  'series.chromeExtension': 'Chrome Extension',
+  'series.rss': 'RSS フィード',
+  'series.chromeExtension': 'Chrome 拡張機能',
   'series.docs': 'Documentation',
 
   // ── Home Info ───────────────────────────────────────────────
   'homeInfo.articles': 'Articles',
-  'homeInfo.categories': 'Categories',
-  'homeInfo.tags': 'Tags',
+  'homeInfo.categories': 'カテゴリー',
+  'homeInfo.tags': 'タグ',
 
   // ── Drawer ──────────────────────────────────────────────────
-  'drawer.navMenu': 'Navigation menu',
-  'drawer.close': 'Close menu',
-  'drawer.openMenu': 'Open menu',
+  'drawer.navMenu': 'ナビゲーションメニュー',
+  'drawer.close': 'メニューを閉じる',
+  'drawer.openMenu': 'メニューを開く',
 
   // ── Summary Panel ───────────────────────────────────────────
-  'summary.description': 'Summary',
-  'summary.ai': 'AI Summary',
-  'summary.auto': 'Summary',
+  'summary.description': '概要',
+  'summary.ai': 'AI の概要',
+  'summary.auto': '概要',
 
   // ── Random Posts ────────────────────────────────────────────
-  'post.randomPosts': 'Random Posts',
+  'post.randomPosts': '投稿をランダムに表示',
 
   // ── Tag Component ───────────────────────────────────────────
-  'tag.expandAll': 'Show all',
+  'tag.expandAll': 'すべて表示',
   'tag.viewTagPosts': 'View {count} posts tagged "{tag}"',
 
   // ── Audio Player ────────────────────────────────────────────
-  'audio.loading': 'Loading playlist...',
-  'audio.loadError': 'Load failed: {error}',
-  'audio.retry': 'Retry',
-  'audio.empty': 'No tracks',
-  'audio.listTab': 'List {index}',
-  'audio.closePanel': 'Close panel',
+  'audio.loading': 'プレイリストを読み込み中...',
+  'audio.loadError': '読み込みに失敗: {error}',
+  'audio.retry': '再試行',
+  'audio.empty': 'トラックが見つかりません',
+  'audio.listTab': '{index}の一覧',
+  'audio.closePanel': 'パネルを閉じる',
 
   // ── Table of Contents ───────────────────────────────────────
   'toc.title': 'Table of Contents',
@@ -295,16 +295,16 @@ export const uiStrings: UIStrings = {
   'toc.empty': 'No headings',
 
   // ── Embed ─────────────────────────────────────────────────
-  'embed.loadingTweet': 'Loading Tweet',
+  'embed.loadingTweet': 'ポストを読み込み中',
 
   // ── Search Shortcut ───────────────────────────────────────
-  'search.searchShortcut': 'Search ({shortcut})',
+  'search.searchShortcut': '検索 ({shortcut})',
 
   // ── Sider Segmented ─────────────────────────────────────────
   'sider.overview': 'Overview',
-  'sider.toc': 'Contents',
+  'sider.toc': 'コンテンツ',
   'sider.series': 'Series',
 
   // ── Copy Link ───────────────────────────────────────────────
-  'cover.copyLink': 'Copy link',
+  'cover.copyLink': 'リンクをコピー',
 };
