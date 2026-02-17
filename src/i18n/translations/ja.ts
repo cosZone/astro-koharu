@@ -16,7 +16,7 @@ export const uiStrings: UIStrings = {
   'nav.friends': '友達',
   'nav.about': 'ブログについて',
   'nav.music': '音楽',
-  'nav.weekly': '週間',
+  'nav.weekly': '週刊',
 
   // ── Common ──────────────────────────────────────────────────
   'common.search': '検索',
