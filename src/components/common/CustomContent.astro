@@ -151,6 +151,15 @@ const finalConfig = { ...defaultContentConfig, ...config };
     enhanceContent();
   });
 
+  // Re-enhance after encrypted post decryption (new DOM needs external links, anchors, etc.)
+  document.addEventListener('content:decrypted', () => {
+    const contentContainer = document.querySelector('.custom-content');
+    if (contentContainer) {
+      contentContainer.removeAttribute('data-enhanced');
+    }
+    enhanceContent();
+  });
+
   // Run immediately if already loaded
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', enhanceContent);

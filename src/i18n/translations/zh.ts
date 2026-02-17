@@ -231,9 +231,15 @@ export const uiStrings = {
   'quiz.trueFalseIncorrect': '回答错误。该命题是{answer}的。',
 
   // ── Encrypted Block ─────────────────────────────────────────
+  'encrypted.locked': '内容已加密',
   'encrypted.placeholder': '请输入密码查看内容',
   'encrypted.submit': '解锁',
   'encrypted.incorrect': '密码错误',
+
+  // ── Encrypted Post ─────────────────────────────────────────
+  'encrypted.post.title': '此文章已加密',
+  'encrypted.post.description': '请输入密码以查看文章内容',
+  'encrypted.post.rssNotice': '此文章已加密，请在网页中查看',
 
   // ── 404 ─────────────────────────────────────────────────────
   'notFound.title': '页面未找到',

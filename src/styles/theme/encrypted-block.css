@@ -32,3 +32,52 @@
 .encrypted-block-content {
   @apply p-4;
 }
+
+/* ── Encrypted Post (full-page encryption) ─────────────────────── */
+
+/* Container - takes full content width */
+.encrypted-post {
+  @apply my-4 min-h-[300px] rounded-lg;
+}
+
+/* Locked state - centered layout, more prominent than encrypted-block */
+.encrypted-post-locked {
+  @apply flex flex-col items-center justify-center gap-4 px-8 py-16;
+}
+
+.encrypted-post-icon {
+  @apply text-5xl text-gray-400 transition-colors dark:text-gray-500;
+}
+
+.encrypted-post-icon-error {
+  @apply text-red-500 dark:text-red-400;
+}
+
+.encrypted-post-title {
+  @apply text-lg font-semibold text-gray-700 dark:text-gray-300;
+}
+
+.encrypted-post-subtitle {
+  @apply text-sm text-gray-500 dark:text-gray-400;
+}
+
+.encrypted-post-input-group {
+  @apply flex items-center gap-2;
+}
+
+.encrypted-post-input {
+  @apply h-10 w-56 rounded-md border border-gray-300 bg-white px-3 text-sm outline-none transition-colors focus:border-blue-400 focus:ring-1 focus:ring-blue-400 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200 dark:focus:border-blue-500 dark:focus:ring-blue-500;
+}
+
+.encrypted-post-btn {
+  @apply flex h-10 items-center gap-1.5 rounded-md border border-gray-300 bg-white px-4 text-sm text-gray-600 transition-colors hover:bg-gray-100 disabled:opacity-50 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600;
+}
+
+.encrypted-post-error-text {
+  @apply text-sm text-red-500 dark:text-red-400;
+}
+
+/* Shake animation for wrong password */
+.encrypted-shake {
+  animation: shake 0.6s ease-in-out;
+}

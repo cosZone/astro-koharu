@@ -232,9 +232,15 @@ export const uiStrings: UIStrings = {
   'quiz.trueFalseIncorrect': 'Incorrect. The statement is {answer}.',
 
   // ── Encrypted Block ─────────────────────────────────────────
+  'encrypted.locked': 'Encrypted content',
   'encrypted.placeholder': 'Enter password to unlock',
   'encrypted.submit': 'Unlock',
   'encrypted.incorrect': 'Wrong password',
+
+  // ── Encrypted Post ─────────────────────────────────────────
+  'encrypted.post.title': 'This post is encrypted',
+  'encrypted.post.description': 'Please enter the password to view the content',
+  'encrypted.post.rssNotice': 'This post is encrypted. Please view it on the website.',
 
   // ── 404 ─────────────────────────────────────────────────────
   'notFound.title': 'Page Not Found',

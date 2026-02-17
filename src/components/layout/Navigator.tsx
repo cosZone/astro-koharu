@@ -144,7 +144,7 @@ const Navigator = memo(function Navigator({ currentPath, locale = defaultLocale 
 
       <div className="ml-auto flex items-center gap-2">
         <SearchTrigger />
-        <div className="tablet:hidden">
+        <div className="tablet:hidden flex-center">
           <LanguageSwitcher locale={locale} />
         </div>
         <ThemeToggle />

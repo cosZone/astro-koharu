@@ -3,26 +3,10 @@ import rss from '@astrojs/rss';
 import { siteConfig } from '@constants/site-config';
 import { getCategoryArr, getPostSlug, getSortedPosts } from '@lib/content';
 import { encodeSlug } from '@lib/route';
-import { getSanitizeHtml } from '@lib/sanitize';
+import { buildRssItemFields } from '@lib/rss-utils';
 import type { APIContext } from 'astro';
-import sanitizeHtml from 'sanitize-html';
 import type { BlogPost } from 'types/blog';
 import { defaultLocale } from '@/i18n';
-
-// 用于生成纯文本摘要的函数
-const generateTextSummary = (html?: string, length: number = 150): string => {
-  // 先将Markdown转换为HTML
-  // 将HTML转换为纯文本（去除所有标签）
-  const text = sanitizeHtml(html ?? '', {
-    allowedTags: [], // 不允许任何标签
-    allowedAttributes: {},
-    // biome-ignore lint/suspicious/noControlCharactersInRegex: Intentional - filtering invalid XML characters
-    textFilter: (text) => text.replace(/[^\x09\x0A\x0D\x20-\xFF\x85\xA0-\uD7FF\uE000-\uFDCF\uFDE0-\uFFFD]/gm, ''),
-  });
-  // 截取指定长度，并确保不会截断词语
-  if (text.length <= length) return text;
-  return text.substring(0, length).replace(/\s+\S*$/, '');
-};
 
 export async function GET(context: APIContext) {
   const posts = await getSortedPosts(defaultLocale);
@@ -53,13 +37,14 @@ export async function GET(context: APIContext) {
 
         const postSlug = getPostSlug(post);
         const postLink = `/post/${encodeSlug(postSlug)}`;
+        const { title, description, content } = buildRssItemFields(post, defaultLocale);
 
         return {
-          title: post.data.title,
+          title,
           pubDate: post.data.date,
-          description: post.data?.description ?? generateTextSummary(post.rendered?.html),
+          description,
           link: postLink,
-          content: getSanitizeHtml(post.rendered?.html ?? ''),
+          content,
           categories,
           // Add domain-independent GUID using customData
           // The slug-only GUID ensures stability across domain changes

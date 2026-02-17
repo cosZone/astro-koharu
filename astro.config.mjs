@@ -20,6 +20,7 @@ import { loadEnv } from 'vite';
 import svgr from 'vite-plugin-svgr';
 import YAML from 'yaml';
 import { rehypeEncryptedBlock } from './src/lib/markdown/rehype-encrypted-block.ts';
+import { rehypeEncryptedPost } from './src/lib/markdown/rehype-encrypted-post.ts';
 import { rehypeImagePlaceholder } from './src/lib/markdown/rehype-image-placeholder.ts';
 import { rehypeShokaAttrs } from './src/lib/markdown/rehype-shoka-attrs.ts';
 import { remarkEncryptedDirective } from './src/lib/markdown/remark-encrypted-directive.ts';
@@ -155,8 +156,11 @@ const rehypePlugins = [
 if (contentConfig.enableShokaAttrs !== false) rehypePlugins.push(rehypeShokaAttrs);
 rehypePlugins.push(rehypeImagePlaceholder);
 if (contentConfig.enableMath !== false) rehypePlugins.push(rehypeKatex);
-// Encrypted block MUST be last rehype plugin — encrypts fully-rendered children
-if (contentConfig.enableEncryptedBlock) rehypePlugins.push(rehypeEncryptedBlock);
+// Encrypted block/post MUST be last rehype plugins — encrypt fully-rendered children
+if (contentConfig.enableEncryptedBlock) {
+  rehypePlugins.push(rehypeEncryptedBlock);
+  rehypePlugins.push(rehypeEncryptedPost);
+}
 
 // Shiki transformers
 const shikiTransformers = [];

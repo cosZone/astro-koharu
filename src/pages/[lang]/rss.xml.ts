@@ -2,22 +2,10 @@ import rss from '@astrojs/rss';
 import { siteConfig } from '@constants/site-config';
 import { getCategoryArr, getPostSlug, getSortedPosts } from '@lib/content';
 import { encodeSlug } from '@lib/route';
-import { getSanitizeHtml } from '@lib/sanitize';
+import { buildRssItemFields } from '@lib/rss-utils';
 import type { APIContext } from 'astro';
-import sanitizeHtml from 'sanitize-html';
 import type { BlogPost } from 'types/blog';
 import { defaultLocale, getHtmlLang, localeList, localizedPath } from '@/i18n';
-
-const generateTextSummary = (html?: string, length: number = 150): string => {
-  const text = sanitizeHtml(html ?? '', {
-    allowedTags: [],
-    allowedAttributes: {},
-    // biome-ignore lint/suspicious/noControlCharactersInRegex: Intentional - filtering invalid XML characters
-    textFilter: (text) => text.replace(/[^\x09\x0A\x0D\x20-\xFF\x85\xA0-\uD7FF\uE000-\uFDCF\uFDE0-\uFFFD]/gm, ''),
-  });
-  if (text.length <= length) return text;
-  return text.substring(0, length).replace(/\s+\S*$/, '');
-};
 
 export function getStaticPaths() {
   return localeList.filter((l) => l !== defaultLocale).map((lang) => ({ params: { lang } }));
@@ -49,13 +37,14 @@ export async function GET(context: APIContext) {
 
         const postSlug = getPostSlug(post);
         const postLink = localizedPath(`/post/${encodeSlug(postSlug)}`, lang);
+        const { title, description, content } = buildRssItemFields(post, lang);
 
         return {
-          title: post.data.title,
+          title,
           pubDate: post.data.date,
-          description: post.data?.description ?? generateTextSummary(post.rendered?.html),
+          description,
           link: postLink,
-          content: getSanitizeHtml(post.rendered?.html ?? ''),
+          content,
           categories,
           customData: `<guid isPermaLink="false">${lang}:${postSlug}</guid>`,
         };

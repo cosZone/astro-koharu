@@ -24,6 +24,8 @@ export interface BlogSchema {
   math?: boolean;
   /** Enable quiz interaction for this post */
   quiz?: boolean;
+  /** Password for encrypting the entire post content */
+  password?: string;
 }
 
 /**

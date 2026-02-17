@@ -147,6 +147,7 @@ function createActiveHeadingStore(offsetTop: number) {
       if (listeners.size === 0) {
         setupObserver();
         document.addEventListener('astro:page-load', handlePageLoad);
+        document.addEventListener('content:decrypted', handlePageLoad);
       }
 
       listeners.add(listener);
@@ -161,6 +162,7 @@ function createActiveHeadingStore(offsetTop: number) {
             observer = null;
           }
           document.removeEventListener('astro:page-load', handlePageLoad);
+          document.removeEventListener('content:decrypted', handlePageLoad);
           visibleHeadings.clear();
         }
       };

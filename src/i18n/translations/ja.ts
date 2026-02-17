@@ -232,9 +232,15 @@ export const uiStrings: UIStrings = {
   'quiz.trueFalseIncorrect': '不正解、答えは「{answer}」です。',
 
   // ── Encrypted Block ─────────────────────────────────────────
+  'encrypted.locked': '暗号化されたコンテンツ',
   'encrypted.placeholder': 'パスワードを入力でロックを解除',
   'encrypted.submit': 'ロックを解除',
   'encrypted.incorrect': 'パスワードが間違っています',
+
+  // ── Encrypted Post ─────────────────────────────────────────
+  'encrypted.post.title': 'この記事は暗号化されています',
+  'encrypted.post.description': 'パスワードを入力して内容をご覧ください',
+  'encrypted.post.rssNotice': 'この記事は暗号化されています。ウェブサイトでご覧ください。',
 
   // ── 404 ─────────────────────────────────────────────────────
   'notFound.title': 'ページは見つかりません',
