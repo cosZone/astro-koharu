@@ -1,4 +1,5 @@
 import { useRetimer } from '@hooks/useRetimer';
+import { useTranslation } from '@hooks/useTranslation';
 import { Icon } from '@iconify/react';
 import { decryptContent } from '@lib/crypto/decrypt';
 import { cn } from '@lib/utils';
@@ -15,6 +16,7 @@ export function EncryptedBlock({ element }: EncryptedBlockProps) {
   const [html, setHtml] = useState('');
   const inputRef = useRef<HTMLInputElement>(null);
   const retimer = useRetimer();
+  const { t } = useTranslation();
 
   const handleDecrypt = useCallback(async () => {
     const password = inputRef.current?.value;
@@ -60,14 +62,14 @@ export function EncryptedBlock({ element }: EncryptedBlockProps) {
       <Icon
         icon="ri:lock-2-fill"
         className={cn('encrypted-block-icon', state === 'error' && 'encrypted-block-icon-error')}
-        aria-label="Locked content"
+        aria-label={t('encrypted.locked')}
       />
       <div className="encrypted-block-input-group">
         <input
           ref={inputRef}
           type="password"
           className="encrypted-block-input"
-          placeholder="输入密码"
+          placeholder={t('encrypted.placeholder')}
           autoComplete="off"
           onKeyDown={handleKeyDown}
           disabled={state === 'decrypting'}
@@ -77,7 +79,7 @@ export function EncryptedBlock({ element }: EncryptedBlockProps) {
           className={cn('encrypted-block-btn', state === 'error' && 'encrypted-shake')}
           onClick={handleDecrypt}
           disabled={state === 'decrypting'}
-          aria-label="Unlock"
+          aria-label={t('encrypted.submit')}
         >
           {state === 'decrypting' ? (
             <Icon icon="ri:loader-4-line" className="animate-spin" />

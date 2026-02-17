@@ -49,6 +49,7 @@ const blogCollection = defineCollection({
     // Shoka features per-post toggle
     math: z.boolean().optional(),
     quiz: z.boolean().optional(),
+    password: z.string().optional(),
   }) satisfies z.ZodType<BlogSchema, z.ZodTypeDef, BlogSchemaInput>,
 });
 

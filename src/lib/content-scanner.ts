@@ -10,7 +10,17 @@ import { extractLanguage, isInfographicBlock, wrapElement } from './content-enha
 
 export interface ToolbarEntry {
   id: string;
-  type: 'code' | 'mermaid' | 'infographic' | 'quiz' | 'friend-links' | 'audio' | 'video' | 'note' | 'encrypted';
+  type:
+    | 'code'
+    | 'mermaid'
+    | 'infographic'
+    | 'quiz'
+    | 'friend-links'
+    | 'audio'
+    | 'video'
+    | 'note'
+    | 'encrypted'
+    | 'encrypted-post';
   mountPoint: HTMLElement;
   preElement: HTMLElement;
 }
@@ -155,6 +165,23 @@ export function scanNoteBlocks(container: Element): ToolbarEntry[] {
     noteBlock.insertBefore(mount, noteBlock.firstChild);
     noteBlock.dataset.reactEnhanced = 'true';
     entries.push({ id: `note-${nIndex}`, type: 'note', mountPoint: mount, preElement: noteBlock });
+  });
+
+  return entries;
+}
+
+/** Scan encrypted posts (full-page encryption) */
+export function scanEncryptedPosts(container: Element): ToolbarEntry[] {
+  const entries: ToolbarEntry[] = [];
+  const posts = container.querySelectorAll<HTMLElement>('.encrypted-post[data-cipher]');
+
+  posts.forEach((post, pIndex) => {
+    if (post.dataset.reactEnhanced === 'true') return;
+    const mount = document.createElement('div');
+    mount.className = 'encrypted-post-mount';
+    post.appendChild(mount);
+    post.dataset.reactEnhanced = 'true';
+    entries.push({ id: `encrypted-post-${pIndex}`, type: 'encrypted-post', mountPoint: mount, preElement: post });
   });
 
   return entries;

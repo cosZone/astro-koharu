@@ -376,6 +376,7 @@ sticky: false # 是否置顶（默认 false）
 excludeFromSummary: false # 是否排除 AI 摘要和相似度计算（默认 false，系列文章建议设为 true）
 math: false # 是否启用数学公式渲染（默认 false，启用后支持 KaTeX）
 quiz: false # 是否启用练习题交互（默认 false，启用后支持四种题型）
+password: mySecret # 整篇文章加密密码（可选，设置后整篇文章需输入密码才能阅读）
 ---
 ```
 
@@ -1861,9 +1862,71 @@ content:
   enableMath: true              # $数学公式$ KaTeX 渲染
   enableCodeMeta: true          # 代码块增强 (title, mark, command)
   enableQuiz: true              # 练习题交互功能
+  enableEncryptedBlock: true    # :::encrypted{password="..."} 加密内容块
 ```
 
 > **提示**：完整的语法演示可参考 [Shoka 主题 Markdown 语法演示](/post/shoka-features) 文章。
+
+*内容加密（`enableEncryptedBlock`）：*
+
+博客支持两种加密方式，满足不同的内容保护需求：
+
+**1. 加密块 —— 文章局部加密**
+
+在文章中使用 `:::encrypted{password="..."}` 语法包裹需要加密的内容：
+
+```markdown
+这部分内容公开可见。
+
+:::encrypted{password="demo"}
+这段内容需要输入密码 "demo" 才能查看。
+
+支持完整的 Markdown 语法，包括代码块、列表、图片等。
+:::
+
+这部分也是公开的。
+```
+
+加密块适合在一篇文章中**部分隐藏**敏感内容（如答案、剧透、私密笔记），其余内容正常展示。需要在 `config/site.yaml` 中启用 `enableEncryptedBlock: true`。
+
+**2. 加密文章 —— 整篇文章加密**
+
+在文章的 frontmatter 中添加 `password` 字段即可加密整篇文章：
+
+```yaml
+---
+title: 我的私密文章
+date: 2026-01-01
+password: mySecretPassword
+categories:
+  - 笔记
+---
+
+这里的所有内容都会被加密...
+```
+
+加密文章会显示一个全屏的解锁界面，输入正确密码后才能查看内容。解锁后代码高亮、目录导航、Mermaid 图表等增强功能会自动重新初始化。
+
+**安全模型说明：**
+
+加密功能使用 **AES-256-GCM** 算法，安全模型如下：
+
+- **构建时加密**：密码仅在 `pnpm build` 时用于加密，生成的 HTML 中**不包含密码明文**
+- **客户端解密**：读者在浏览器中输入密码后，通过 Web Crypto API 在本地解密，密码不会发送到任何服务器
+- **密钥派生**：使用 PBKDF2（100,000 次迭代）从密码派生加密密钥，提高暴力破解成本
+- **搜索排除**：加密内容自动添加 `data-pagefind-ignore`，不会被 Pagefind 搜索索引
+
+> ⚠️ **注意**：此加密设计的主要目的是**防止搜索引擎和爬虫索引加密内容**，而非抵御针对性攻击。密文和盐值嵌入在公开的 HTML 中，理论上可被离线暴力破解。请使用强密码，不要用于保护高度敏感的信息。
+
+**加密文章的特殊行为：**
+
+| 方面 | 行为 |
+|------|------|
+| RSS 订阅 | 标题前加 🔒 前缀，内容替换为"此文章已加密"提示 |
+| SEO / meta | description 使用 frontmatter 中的 `description`（若未设置则显示通用加密提示） |
+| 搜索索引 | 加密内容不会被 Pagefind 索引 |
+| 目录导航 | 解锁前不显示，解锁后自动重建 |
+| AI 摘要 | 基于加密前的原文生成（构建时可访问明文） |
 
 **其他增强：**
 

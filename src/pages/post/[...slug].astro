@@ -49,8 +49,10 @@ const { title, categories = [], tags = [], date, math: postMath } = post?.data ?
 // When enableMath is false globally, rehype-katex is not in the pipeline, so no math is rendered.
 const hasMath = defaultContentConfig.enableMath !== false && postMath !== false;
 
-// 使用统一的工具函数获取文章描述
-const finalDescription = getPostDescription(post);
+// 使用统一的工具函数获取文章描述（加密文章使用通用描述）
+const finalDescription = post.data.password
+  ? (post.data.description ?? t(locale, 'encrypted.post.description'))
+  : getPostDescription(post);
 
 // OGP image for BlogPosting schema (uses same fallback chain as Layout)
 const ogImage = getOgImageUrl(post?.data.cover, Astro.site);
@@ -189,7 +191,7 @@ if (post.data.description) {
         </div>
       )}
       {
-        summaryText && summarySource && (
+        !post.data.password && summaryText && summarySource && (
           <SummaryPanel client:visible summary={summaryText} source={summarySource} className="mt-2" />
         )
       }
