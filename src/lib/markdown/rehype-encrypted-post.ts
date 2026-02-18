@@ -26,7 +26,7 @@ export function rehypeEncryptedPost() {
     if (!frontmatter?.password) return;
 
     // Serialize the entire tree to HTML
-    const html = toHtml(tree);
+    const html = toHtml(tree, { allowDangerousHtml: true });
     const { cipher, iv, salt } = await encryptContent(html, frontmatter.password);
 
     // Replace the entire tree with a single encrypted container

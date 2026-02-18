@@ -32,7 +32,7 @@ export function rehypeEncryptedBlock() {
     await Promise.all(
       tasks.map(async ({ node }) => {
         const password = String(node.properties['data-password']);
-        const html = toHtml({ type: 'root', children: node.children });
+        const html = toHtml({ type: 'root', children: node.children }, { allowDangerousHtml: true });
         const { cipher, iv, salt } = await encryptContent(html, password);
 
         // Replace children with empty
