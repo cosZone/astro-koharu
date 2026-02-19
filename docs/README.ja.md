@@ -1,6 +1,6 @@
 # astro-koharu
 
-[中文](../README.md) | [English](README.en.md) | 日本語
+**Language:** [中文](../README.md) | [English](../docs/README.en.md) | **日本語**
 
 ![](https://r2.cosine.ren/i/2026/01/94383107ba4586f773938ed4dae34ff1.webp)
 
