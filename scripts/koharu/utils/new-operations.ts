@@ -162,7 +162,7 @@ export function formatDate(date: Date = new Date()): string {
 function yamlQuote(value: string): string {
   if (
     value === '' ||
-    /[[\]{}:#&*?|>!%@`'",\n]/.test(value) ||
+    /[[\]{}:#&*?|>!%@`'",\n\\]/.test(value) ||
     /^[\s-]/.test(value) ||
     /\s$/.test(value) ||
     /^(true|false|yes|no|null|~|on|off)$/i.test(value)
@@ -180,7 +180,7 @@ export function generatePostFrontmatter(data: PostData): string {
 
   lines.push(`title: ${yamlQuote(data.title)}`);
   if (data.link) {
-    lines.push(`link: ${data.link}`);
+    lines.push(`link: ${yamlQuote(data.link)}`);
   }
   lines.push(`date: ${formatDate()}`);
 
