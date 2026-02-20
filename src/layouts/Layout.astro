@@ -86,9 +86,18 @@ const canonicalHref = canonicalOverride ?? Astro.url.href;
     <link rel="preconnect" href="https://chinese-font.netlify.app" crossorigin />
     <link rel="dns-prefetch" href="https://chinese-font.netlify.app" />
 
-    <!-- Async load Chinese fonts to avoid render-blocking -->
-    <link rel="stylesheet" href="/fonts/ChillRoundFRegular/result.css" media="print" onload="this.setAttribute('media','all')" />
-    <link rel="stylesheet" href="/fonts/ChillRoundFBold/result.css" media="print" onload="this.setAttribute('media','all')" />
+    {/* Async load rounded fonts — Japanese pages use Gen Jyuu Gothic P, others use ChillRoundF (fix #113) */}
+    {locale === 'ja' ? (
+      <>
+        <link rel="stylesheet" href="/fonts/GenJyuuGothic-P-Regular/result.css" media="print" onload="this.setAttribute('media','all')" />
+        <link rel="stylesheet" href="/fonts/GenJyuuGothic-P-Bold/result.css" media="print" onload="this.setAttribute('media','all')" />
+      </>
+    ) : (
+      <>
+        <link rel="stylesheet" href="/fonts/ChillRoundFRegular/result.css" media="print" onload="this.setAttribute('media','all')" />
+        <link rel="stylesheet" href="/fonts/ChillRoundFBold/result.css" media="print" onload="this.setAttribute('media','all')" />
+      </>
+    )}
 
     <ClientRouter />
     <LoadingIndicator color="#e9536a" />
