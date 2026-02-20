@@ -3,7 +3,7 @@ import HomeSider from '@components/layout/HomeSider.astro';
 import PostList from '@components/post/PostList.astro';
 import Cover from '@components/ui/cover/Cover.astro';
 import { CONTENT_PADDING, PAGINATION } from '@constants/layout';
-import { seoConfig } from '@constants/site-config';
+import { seoConfig, siteConfig } from '@constants/site-config';
 import Layout from '@layouts/Layout.astro';
 import TwoColumnLayout from '@layouts/TwoColumnLayout.astro';
 import { getHomePagePosts } from '@lib/content';
@@ -64,8 +64,12 @@ const page: Page<BlogPost> = {
       )}
       <Divider>{t(locale, 'post.postList')}</Divider>
       <PostList posts={posts} page={page} showPaginator={true} baseUrl={postsBaseUrl} isHomePage={true} />
-      <Divider className="mt-6">{t(locale, 'post.featuredCategories')}</Divider>
-      <CategoryCards />
+      {(siteConfig?.featuredCategories && siteConfig?.featuredCategories?.length > 0) && (
+        <>
+          <Divider className="mt-6">{t(locale, 'post.featuredCategories')}</Divider>
+          <CategoryCards />
+        </>
+      )}
     </div>
   </TwoColumnLayout>
 </Layout>
