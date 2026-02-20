@@ -19,6 +19,7 @@ export default function Waline() {
     const currentLocale = getLocaleFromUrl(window.location.pathname);
     walineInstanceRef.current = init({
       el: containerRef.current,
+      path: window.location.pathname,
       serverURL: config.serverURL,
       lang: config.lang ?? getHtmlLang(currentLocale),
       dark: config.dark ?? 'html.dark', // CSS selector to auto-follow theme
@@ -32,6 +33,12 @@ export default function Waline() {
       texRenderer: config.texRenderer ?? false,
       search: config.search ?? false,
       reaction: config.reaction ?? false,
+      emoji: config.emoji,
+      commentSorting: config.commentSorting,
+      noCopyright: config.noCopyright,
+      comment: config.comment,
+      pageview: config.pageview,
+      locale: config.locale,
       recaptchaV3Key: config.recaptchaV3Key,
       turnstileKey: config.turnstileKey,
     });
