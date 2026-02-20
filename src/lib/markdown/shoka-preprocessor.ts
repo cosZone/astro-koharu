@@ -16,7 +16,6 @@
  * is handled by remark plugins since those don't conflict with Markdown.
  */
 import YAML from 'js-yaml';
-import os from 'os';
 import {
   escapeHtml,
   type FriendLinkData,
@@ -43,9 +42,8 @@ function processContainers(text: string, opts: ContainerOptions = {}, _depth = 0
   if (_depth >= MAX_CONTAINER_DEPTH) return text;
   const containers = opts.enableContainers !== false;
   const hexoTags = opts.enableHexoTags !== false;
-  // fix: replace \n with os.EOL, different line endings in different systems
-  // if use \n, This will cause parsing errors for syntax such as foldable blocks and tag groups on the Windows system.
-  const lines = text.split(os.EOL);
+  // Use regex to handle both \n and \r\n regardless of the runtime OS
+  const lines = text.split(/\r?\n/);
   const output: string[] = [];
   let i = 0;
 
