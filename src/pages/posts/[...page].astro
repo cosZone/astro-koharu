@@ -19,7 +19,7 @@ export async function getStaticPaths({ paginate }: { paginate: PaginateFunction 
 
 const { page } = Astro.props;
 const locale = getLocaleFromUrl(Astro.url.pathname);
-const postCardData = toPostCardDataList(page.data);
+const postCardData = toPostCardDataList(page.data, locale);
 ---
 
 <Layout title={seoConfig.title}>
