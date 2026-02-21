@@ -31,7 +31,10 @@ export default function Twikoo() {
       });
     };
 
-    // astro:page-load fires on initial load AND on subsequent navigations
+    // 直接调用：修复 astro:page-load 在 React 挂载前就已触发的竞态条件
+    initTwikoo();
+
+    // 保留监听器处理后续导航（View Transitions）
     document.addEventListener('astro:page-load', initTwikoo);
     return () => {
       document.removeEventListener('astro:page-load', initTwikoo);
