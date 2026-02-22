@@ -313,4 +313,7 @@ export const uiStrings: UIStrings = {
 
   // ── Copy Link ───────────────────────────────────────────────
   'cover.copyLink': 'Copy link',
+
+  // ── Comment ────────────────────────────────────────────────
+  'comment.prompt': 'If you enjoyed this, leave a comment~',
 };

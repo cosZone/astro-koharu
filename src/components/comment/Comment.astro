@@ -6,10 +6,12 @@
  * Supports: remark42, giscus, waline, twikoo, none
  */
 import { commentConfig } from '@/constants/site-config';
+import { getLocaleFromUrl, t } from '@/i18n';
 import { cn } from '@/lib/utils';
 import { christmasEnabled } from '@/store/christmas';
 
 const provider = commentConfig.provider ?? 'none';
+const locale = getLocaleFromUrl(Astro.url.pathname);
 let Provider = null;
 
 if (provider === 'remark42') {
@@ -26,7 +28,7 @@ if (provider === 'remark42') {
 {
   provider !== 'none' && Provider && (
     <div class={cn('comments w-full', { 'z-5': christmasEnabled.get() })}>
-      <p class="text-muted-foreground mb-4 text-center text-sm">喜欢的话，留下你的评论吧～</p>
+      <p class="text-muted-foreground mb-4 text-center text-sm">{t(locale, 'comment.prompt')}</p>
       <Provider />
     </div>
   )
