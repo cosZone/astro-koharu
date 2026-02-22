@@ -8,6 +8,8 @@ import summaries from '@assets/summaries.json';
 import { siteConfig } from '@constants/site-config';
 import type { FeaturedSeriesItem } from '@lib/config/types';
 import type { BlogPost } from 'types/blog';
+import { t } from '@/i18n';
+import { defaultLocale } from '@/i18n/config';
 import { extractTextFromMarkdown } from '../sanitize';
 import { buildCategoryPath } from './categories';
 import { filterPostsByLocale, getPostSlug } from './locale';
@@ -22,8 +24,10 @@ type SummariesData = Record<string, { title: string; summary: string }>;
  * @param maxLength 最大长度，默认 150 字符
  * @returns 文章描述文本
  */
-export function getPostDescription(post: BlogPost, maxLength: number = 150): string {
-  return post.data.description || extractTextFromMarkdown(post.body, maxLength);
+export function getPostDescription(post: BlogPost, locale: string = defaultLocale, maxLength: number = 150): string {
+  if (post.data.description) return post.data.description;
+  if (post.data.password) return t(locale, 'encrypted.post.description');
+  return extractTextFromMarkdown(post.body, maxLength);
 }
 
 /**
@@ -53,13 +57,21 @@ export function getPostSummary(slug: string): string | null {
 
 /**
  * 获取文章描述，带 AI 摘要 fallback
- * 优先级：frontmatter description > AI 摘要 > markdown 提取
+ * 优先级：frontmatter description > 加密文章通用描述 > AI 摘要 > markdown 提取
  * @param post 文章对象
+ * @param locale 语言环境
  * @param maxLength 最大长度，默认 150 字符
  * @returns 文章描述文本
  */
-export function getPostDescriptionWithSummary(post: BlogPost, maxLength: number = 150): string {
-  return post.data.description || getPostSummary(getPostSlug(post)) || extractTextFromMarkdown(post.body, maxLength);
+export function getPostDescriptionWithSummary(post: BlogPost, locale: string = defaultLocale, maxLength: number = 150): string {
+  // 最高优先级：frontmatter 中的描述
+  if (post.data.description) {
+    return post.data.description;
+  }
+  if (post.data.password) {
+    return t(locale, 'encrypted.post.description');
+  }
+  return getPostSummary(getPostSlug(post)) || extractTextFromMarkdown(post.body, maxLength);
 }
 
 /**

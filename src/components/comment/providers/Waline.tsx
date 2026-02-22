@@ -18,22 +18,16 @@ export default function Waline() {
     // Initialize Waline with locale-aware lang
     const currentLocale = getLocaleFromUrl(window.location.pathname);
     walineInstanceRef.current = init({
+      // Project-specific defaults (differ from Waline's built-in defaults)
+      requiredMeta: ['nick'],
+      imageUploader: false,
+      // Spread user config (overrides above defaults if explicitly set)
+      ...config,
+      // Runtime overrides (must come after spread)
       el: containerRef.current,
-      serverURL: config.serverURL,
+      path: window.location.pathname,
       lang: config.lang ?? getHtmlLang(currentLocale),
-      dark: config.dark ?? 'html.dark', // CSS selector to auto-follow theme
-      meta: config.meta ?? ['nick', 'mail', 'link'],
-      requiredMeta: config.requiredMeta ?? ['nick'],
-      login: config.login ?? 'enable',
-      wordLimit: config.wordLimit ?? 0,
-      pageSize: config.pageSize ?? 10,
-      imageUploader: config.imageUploader ?? false,
-      highlighter: config.highlighter ?? true,
-      texRenderer: config.texRenderer ?? false,
-      search: config.search ?? false,
-      reaction: config.reaction ?? false,
-      recaptchaV3Key: config.recaptchaV3Key,
-      turnstileKey: config.turnstileKey,
+      dark: config.dark ?? 'html.dark',
     });
 
     // Handle Astro page transitions - update path when navigating

@@ -43,6 +43,15 @@
     letter-spacing: 0.04em;
   }
 
+  /* Japanese pages: use Gen Jyuu Gothic P for correct JIS glyphs (fix #113) */
+  :lang(ja) {
+    font-family: "Gen Jyuu Gothic P", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  }
+
+  :lang(ja) :is(h1, h2, h3, h4, h5, h6) {
+    font-family: "Gen Jyuu Gothic P", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  }
+
   html {
     scrollbar-gutter: stable;
     background: linear-gradient(to top, var(--gradient-bg-end) 0, var(--gradient-bg-start) 30%) no-repeat bottom;

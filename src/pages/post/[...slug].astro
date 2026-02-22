@@ -50,9 +50,7 @@ const { title, categories = [], tags = [], date, math: postMath } = post?.data ?
 const hasMath = defaultContentConfig.enableMath !== false && postMath !== false;
 
 // 使用统一的工具函数获取文章描述（加密文章使用通用描述）
-const finalDescription = post.data.password
-  ? (post.data.description ?? t(locale, 'encrypted.post.description'))
-  : getPostDescription(post);
+const finalDescription = getPostDescription(post, locale);
 
 // OGP image for BlogPosting schema (uses same fallback chain as Layout)
 const ogImage = getOgImageUrl(post?.data.cover, Astro.site);

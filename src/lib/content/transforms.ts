@@ -6,6 +6,7 @@
  */
 
 import readingTime from 'reading-time';
+import { defaultLocale } from '@/i18n/config';
 import type { BlogPost } from '@/types/blog';
 import { getPostLocale, getSlugLocaleInfo } from './locale';
 import { getPostDescriptionWithSummary, getPostLastCategory } from './posts';
@@ -37,7 +38,7 @@ export type PostFieldMap = {
  * 字段提取器映射
  * 每个字段对应一个从 BlogPost 提取值的函数
  */
-const fieldExtractors: { [K in keyof PostFieldMap]: (post: BlogPost) => PostFieldMap[K] } = {
+const fieldExtractors: { [K in keyof PostFieldMap]: (post: BlogPost, locale: string) => PostFieldMap[K] } = {
   // 直接字段
   slug: (p) => getSlugLocaleInfo(p.slug).localeFreeSlug,
   link: (p) => p.data?.link,
@@ -49,7 +50,7 @@ const fieldExtractors: { [K in keyof PostFieldMap]: (post: BlogPost) => PostFiel
   draft: (p) => p.data?.draft,
   // 计算字段
   categoryName: (p) => getPostLastCategory(p).name || undefined,
-  description: (p) => getPostDescriptionWithSummary(p),
+  description: (p, locale) => getPostDescriptionWithSummary(p, locale),
   wordCount: (p) => readingTime(p.body ?? '').words,
   readingTime: (p) => readingTime(p.body ?? '').text,
   postLocale: (p) => getPostLocale(p),
@@ -60,10 +61,14 @@ const fieldExtractors: { [K in keyof PostFieldMap]: (post: BlogPost) => PostFiel
  * @example pickPost(post, ['slug', 'link', 'title'])
  * @example pickPost(post, ['slug', 'link', 'title', 'categoryName'])
  */
-export function pickPost<K extends keyof PostFieldMap>(post: BlogPost, keys: readonly K[]): Pick<PostFieldMap, K> {
+export function pickPost<K extends keyof PostFieldMap>(
+  post: BlogPost,
+  keys: readonly K[],
+  locale: string = defaultLocale,
+): Pick<PostFieldMap, K> {
   const result = {} as Pick<PostFieldMap, K>;
   for (const key of keys) {
-    result[key] = fieldExtractors[key](post);
+    result[key] = fieldExtractors[key](post, locale);
   }
   return result;
 }
@@ -73,8 +78,12 @@ export function pickPost<K extends keyof PostFieldMap>(post: BlogPost, keys: rea
  * @example pickPosts(posts, ['slug', 'link', 'title'])
  * @example pickPosts(posts, ['slug', 'link', 'title', 'categoryName'])
  */
-export function pickPosts<K extends keyof PostFieldMap>(posts: BlogPost[], keys: readonly K[]): Pick<PostFieldMap, K>[] {
-  return posts.map((post) => pickPost(post, keys));
+export function pickPosts<K extends keyof PostFieldMap>(
+  posts: BlogPost[],
+  keys: readonly K[],
+  locale: string = defaultLocale,
+): Pick<PostFieldMap, K>[] {
+  return posts.map((post) => pickPost(post, keys, locale));
 }
 
 // 便捷别名 - 保持向后兼容
@@ -114,9 +123,10 @@ export const toPostRefWithCategory = (post: BlogPost) => pickPost(post, POST_REF
 /**
  * 转换为卡片数据（卡片展示所需字段）
  */
-export const toPostCardData = (post: BlogPost) => pickPost(post, POST_CARD_DATA_KEYS);
+export const toPostCardData = (post: BlogPost, locale: string = defaultLocale) => pickPost(post, POST_CARD_DATA_KEYS, locale);
 
 // 批量转换便捷函数
 export const toPostRefs = (posts: BlogPost[]) => pickPosts(posts, POST_REF_KEYS);
 export const toPostRefsWithCategory = (posts: BlogPost[]) => pickPosts(posts, POST_REF_WITH_CATEGORY_KEYS);
-export const toPostCardDataList = (posts: BlogPost[]) => pickPosts(posts, POST_CARD_DATA_KEYS);
+export const toPostCardDataList = (posts: BlogPost[], locale: string = defaultLocale) =>
+  pickPosts(posts, POST_CARD_DATA_KEYS, locale);

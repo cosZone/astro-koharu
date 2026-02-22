@@ -158,26 +158,40 @@ export function formatDate(date: Date = new Date()): string {
   return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
 }
 
+/** Wrap value in single quotes if it contains YAML-special characters */
+function yamlQuote(value: string): string {
+  if (
+    value === '' ||
+    /[[\]{}:#&*?|>!%@`'",\n\\]/.test(value) ||
+    /^[\s-]/.test(value) ||
+    /\s$/.test(value) ||
+    /^(true|false|yes|no|null|~|on|off)$/i.test(value)
+  ) {
+    return `'${value.replace(/'/g, "''")}'`;
+  }
+  return value;
+}
+
 /**
  * Generate frontmatter YAML string for a post
  */
 export function generatePostFrontmatter(data: PostData): string {
   const lines: string[] = ['---'];
 
-  lines.push(`title: ${data.title}`);
+  lines.push(`title: ${yamlQuote(data.title)}`);
   if (data.link) {
-    lines.push(`link: ${data.link}`);
+    lines.push(`link: ${yamlQuote(data.link)}`);
   }
   lines.push(`date: ${formatDate()}`);
 
   if (data.description) {
-    lines.push(`description: ${data.description}`);
+    lines.push(`description: ${yamlQuote(data.description)}`);
   }
 
   if (data.tags.length > 0) {
     lines.push('tags:');
     for (const tag of data.tags) {
-      lines.push(`  - ${tag}`);
+      lines.push(`  - ${yamlQuote(tag)}`);
     }
   }
 
@@ -185,11 +199,11 @@ export function generatePostFrontmatter(data: PostData): string {
   lines.push('categories:');
   if (Array.isArray(data.categories) && data.categories.length > 1) {
     // Nested category: [笔记, 前端]
-    lines.push(`  - [${data.categories.join(', ')}]`);
+    lines.push(`  - [${data.categories.map(yamlQuote).join(', ')}]`);
   } else {
     // Single category
     const cat = Array.isArray(data.categories) ? data.categories[0] : data.categories;
-    lines.push(`  - ${cat}`);
+    lines.push(`  - ${yamlQuote(cat)}`);
   }
 
   if (data.draft) {

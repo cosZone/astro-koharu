@@ -3,7 +3,7 @@ import HomeSider from '@components/layout/HomeSider.astro';
 import PostList from '@components/post/PostList.astro';
 import Cover from '@components/ui/cover/Cover.astro';
 import { CONTENT_PADDING, PAGINATION } from '@constants/layout';
-import { seoConfig } from '@constants/site-config';
+import { seoConfig, siteConfig } from '@constants/site-config';
 import Layout from '@layouts/Layout.astro';
 import TwoColumnLayout from '@layouts/TwoColumnLayout.astro';
 import { getHomePagePosts } from '@lib/content';
@@ -20,12 +20,12 @@ const locale = getLocaleFromUrl(Astro.url.pathname);
 const { highlightedPosts, stickyPosts: normalStickyPosts, regularPosts } = await getHomePagePosts(locale);
 
 // 将高亮系列文章放在置顶列表开头（转换为卡片数据）
-const stickyPosts = toPostCardDataList([...highlightedPosts, ...normalStickyPosts]);
+const stickyPosts = toPostCardDataList([...highlightedPosts, ...normalStickyPosts], locale);
 
 // 首页显示前N篇普通文章（不含系列文章）
 const { pageSize } = PAGINATION;
 const regularPostsSlice = regularPosts.slice(0, pageSize);
-const posts = toPostCardDataList(regularPostsSlice);
+const posts = toPostCardDataList(regularPostsSlice, locale);
 const totalRegularPosts = regularPosts.length;
 
 const homeUrl = localizedPath('/', locale);
@@ -64,8 +64,12 @@ const page: Page<BlogPost> = {
       )}
       <Divider>{t(locale, 'post.postList')}</Divider>
       <PostList posts={posts} page={page} showPaginator={true} baseUrl={postsBaseUrl} isHomePage={true} />
-      <Divider className="mt-6">{t(locale, 'post.featuredCategories')}</Divider>
-      <CategoryCards />
+      {!!siteConfig?.featuredCategories?.length && (
+        <>
+          <Divider className="mt-6">{t(locale, 'post.featuredCategories')}</Divider>
+          <CategoryCards />
+        </>
+      )}
     </div>
   </TwoColumnLayout>
 </Layout>

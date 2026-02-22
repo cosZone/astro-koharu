@@ -312,4 +312,7 @@ export const uiStrings = {
 
   // ── Copy Link ───────────────────────────────────────────────
   'cover.copyLink': '复制链接',
+
+  // ── Comment ────────────────────────────────────────────────
+  'comment.prompt': '喜欢的话，留下你的评论吧～',
 } as const;

@@ -42,7 +42,8 @@ function processContainers(text: string, opts: ContainerOptions = {}, _depth = 0
   if (_depth >= MAX_CONTAINER_DEPTH) return text;
   const containers = opts.enableContainers !== false;
   const hexoTags = opts.enableHexoTags !== false;
-  const lines = text.split('\n');
+  // Use regex to handle both \n and \r\n regardless of the runtime OS
+  const lines = text.split(/\r?\n/);
   const output: string[] = [];
   let i = 0;
 
