@@ -6,6 +6,7 @@
  */
 
 import readingTime from 'reading-time';
+import { defaultLocale } from '@/i18n/config';
 import type { BlogPost } from '@/types/blog';
 import { getPostLocale, getSlugLocaleInfo } from './locale';
 import { getPostDescriptionWithSummary, getPostLastCategory } from './posts';
@@ -63,7 +64,7 @@ const fieldExtractors: { [K in keyof PostFieldMap]: (post: BlogPost, locale: str
 export function pickPost<K extends keyof PostFieldMap>(
   post: BlogPost,
   keys: readonly K[],
-  locale: string = 'zh',
+  locale: string = defaultLocale,
 ): Pick<PostFieldMap, K> {
   const result = {} as Pick<PostFieldMap, K>;
   for (const key of keys) {
@@ -80,7 +81,7 @@ export function pickPost<K extends keyof PostFieldMap>(
 export function pickPosts<K extends keyof PostFieldMap>(
   posts: BlogPost[],
   keys: readonly K[],
-  locale: string = 'zh',
+  locale: string = defaultLocale,
 ): Pick<PostFieldMap, K>[] {
   return posts.map((post) => pickPost(post, keys, locale));
 }
@@ -122,9 +123,10 @@ export const toPostRefWithCategory = (post: BlogPost) => pickPost(post, POST_REF
 /**
  * 转换为卡片数据（卡片展示所需字段）
  */
-export const toPostCardData = (post: BlogPost, locale: string = 'zh') => pickPost(post, POST_CARD_DATA_KEYS, locale);
+export const toPostCardData = (post: BlogPost, locale: string = defaultLocale) => pickPost(post, POST_CARD_DATA_KEYS, locale);
 
 // 批量转换便捷函数
 export const toPostRefs = (posts: BlogPost[]) => pickPosts(posts, POST_REF_KEYS);
 export const toPostRefsWithCategory = (posts: BlogPost[]) => pickPosts(posts, POST_REF_WITH_CATEGORY_KEYS);
-export const toPostCardDataList = (posts: BlogPost[], locale: string = 'zh') => pickPosts(posts, POST_CARD_DATA_KEYS, locale);
+export const toPostCardDataList = (posts: BlogPost[], locale: string = defaultLocale) =>
+  pickPosts(posts, POST_CARD_DATA_KEYS, locale);

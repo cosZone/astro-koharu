@@ -29,7 +29,9 @@ const { series } = Astro.props;
 const locale = getLocaleFromUrl(Astro.url.pathname);
 
 // Get all posts for this series (transform to card data)
-const seriesPosts = series.categoryName ? toPostCardDataList(await getPostsByCategory(series.categoryName, locale)) : [];
+const seriesPosts = series.categoryName
+  ? toPostCardDataList(await getPostsByCategory(series.categoryName, locale), locale)
+  : [];
 
 const seriesFullName = translateSeriesField(series.slug, 'fullName', series.fullName, locale);
 const seriesLabel = translateSeriesField(series.slug, 'label', series.label, locale);
