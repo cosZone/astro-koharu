@@ -1,13 +1,13 @@
 /**
- * Japanese (ja) — UI strings
+ * 日本語 (ja) — UI 文字列
  *
- * Keys not present here will fall back to the default locale (zh).
+ * ここに存在しないキーは、デフォルトのロケール (zh) にフォールバックします。
  */
 
 import type { UIStrings } from '../types';
 
 export const uiStrings: UIStrings = {
-  // ── Navigation ──────────────────────────────────────────────
+  // ── ナビゲーション ──────────────────────────────────────────────
   'nav.home': 'ホーム',
   'nav.posts': '投稿',
   'nav.categories': 'カテゴリー',
@@ -18,7 +18,7 @@ export const uiStrings: UIStrings = {
   'nav.music': '音楽',
   'nav.weekly': '週刊',
 
-  // ── Common ──────────────────────────────────────────────────
+  // ── 一般 ──────────────────────────────────────────────────
   'common.search': '検索',
   'common.close': '閉じる',
   'common.copy': 'コピー',
@@ -35,7 +35,7 @@ export const uiStrings: UIStrings = {
   'common.collapse': '折りたたむ',
   'common.menuLabel': '{name}メニュー',
 
-  // ── Post ────────────────────────────────────────────────────
+  // ── 投稿 ────────────────────────────────────────────────────
   'post.readMore': '詳細を読む',
   'post.totalPosts': '{count}件の投稿',
   'post.stickyPosts': '固定された投稿',
@@ -53,11 +53,11 @@ export const uiStrings: UIStrings = {
   'post.seriesPrev': '前へ',
   'post.seriesNext': '次へ',
   'post.fallbackNotice': 'この投稿は「{lang}」では表示できません。元の投稿を表示しています。',
-  'post.draft': 'ドラフト',
+  'post.draft': '下書き',
   'post.pinned': '固定済み',
   'post.noPostsFound': '投稿が見つかりません',
 
-  // ── Categories & Tags ───────────────────────────────────────
+  // ── カテゴリーとタグ ───────────────────────────────────────
   'category.allCategories': 'すべてのカテゴリー',
   'category.postsInCategory': '{name}の投稿',
   'category.totalCategories': '{count}件のカテゴリー',
@@ -68,11 +68,11 @@ export const uiStrings: UIStrings = {
   'tag.all': 'すべて',
   'tag.postCount': '{count}件の投稿',
 
-  // ── Archives ────────────────────────────────────────────────
+  // ── アーカイブ ────────────────────────────────────────────────
   'archives.title': 'アーカイブ',
   'archives.totalPosts': '{count}件の投稿',
 
-  // ── Search ──────────────────────────────────────────────────
+  // ── 検索 ──────────────────────────────────────────────────
   'search.placeholder': 'キーワードで検索',
   'search.label': 'このサイトを検索',
   'search.clear': 'クリア',
@@ -90,7 +90,7 @@ export const uiStrings: UIStrings = {
   'search.dialogSelect': '選択',
   'search.dialogOpen': '開く',
 
-  // ── Friends ─────────────────────────────────────────────────
+  // ── 友達 ─────────────────────────────────────────────────
   'friends.title': '友達',
   'friends.applyTitle': '友達のリンクに適用',
   'friends.siteName': 'サイト名',
@@ -114,7 +114,7 @@ export const uiStrings: UIStrings = {
   'friends.copiedConfig': 'コピーしました!',
   'friends.hint': '説明: 上記のコードをコピーして、下のコメントセクションに貼り付けてください。',
 
-  // ── Code Block ──────────────────────────────────────────────
+  // ── コードブロック ──────────────────────────────────────────────
   'code.copy': 'コードをコピー',
   'code.copied': 'コピーしました!',
   'code.fullscreen': 'フルスクリーン',
@@ -123,7 +123,7 @@ export const uiStrings: UIStrings = {
   'code.viewSource': 'ソースを表示',
   'code.viewRendered': 'レンダリングされた表示',
 
-  // ── Diagram / Infographic ───────────────────────────────────
+  // ── 図表 / インフォグラフィック ───────────────────────────────────
   'diagram.fullscreen': 'フルスクリーン',
   'diagram.exitFullscreen': 'フルスクリーンを終了',
   'diagram.viewSource': 'ソースを表示',
@@ -133,7 +133,7 @@ export const uiStrings: UIStrings = {
   'diagram.fitToScreen': '画面に合わせる',
   'diagram.download': '画像をダウンロード',
 
-  // ── Image Lightbox ──────────────────────────────────────────
+  // ── Lightboxでの画像表示 ──────────────────────────────────────────
   'image.zoomIn': '拡大',
   'image.zoomOut': '縮小',
   'image.resetZoom': 'リセット',
@@ -143,10 +143,10 @@ export const uiStrings: UIStrings = {
   'image.prev': '前へ',
   'image.next': '次へ',
   'image.counter': '{current} / {total}',
-  'image.hintDesktop': 'ダブルクリックで拡大 · スクロール/ピンチで大きさを変更',
-  'image.hintMobile': 'ダブルタップで拡大 · ピンチで大きさを変更',
+  'image.hintDesktop': 'ダブルクリックで拡大、スクロール/ピンチで大きさを変更',
+  'image.hintMobile': 'ダブルタップで拡大、ピンチで大きさを変更',
 
-  // ── Media Controls ──────────────────────────────────────────
+  // ── メディアコントロール ──────────────────────────────────────────
   'media.play': '再生',
   'media.pause': '一時停止',
   'media.mute': 'ミュート',
@@ -164,7 +164,7 @@ export const uiStrings: UIStrings = {
   'media.playModeRandom': 'シャッフル',
   'media.playModeLoop': '1回のみリピート',
 
-  // ── Footer ──────────────────────────────────────────────────
+  // ── フッター ──────────────────────────────────────────────────
   'footer.poweredBy': 'Powered by {name}',
   'footer.totalPosts': '{count}件の投稿',
   'footer.totalWords': '{count}文字',
@@ -175,18 +175,18 @@ export const uiStrings: UIStrings = {
   'footer.wordUnit': '文字',
   'footer.postUnit': '投稿',
 
-  // ── Pagination ──────────────────────────────────────────────
+  // ── ページ付け ──────────────────────────────────────────────
   'pagination.prev': '前へ',
   'pagination.next': '次へ',
   'pagination.page': 'ページ: {page}',
   'pagination.currentPage': '現在は{page}ページです',
   'pagination.of': '{total}ページの内、',
 
-  // ── Breadcrumb ──────────────────────────────────────────────
+  // ── パンくず ──────────────────────────────────────────────
   'breadcrumb.home': 'ホーム',
   'breadcrumb.goToCategory': '{name}のカテゴリーに移動',
 
-  // ── Floating Group ──────────────────────────────────────────
+  // ── フローティンググループ ──────────────────────────────────────────
   'floating.backToTop': 'トップに戻る',
   'floating.scrollToBottom': '下にスクロール',
   'floating.toggleTheme': 'テーマを切り替え',
@@ -194,7 +194,7 @@ export const uiStrings: UIStrings = {
   'floating.bgm': 'BGM',
   'floating.toggleToolbar': 'ツールバーを切り替え',
 
-  // ── Announcement ────────────────────────────────────────────
+  // ── お知らせ ────────────────────────────────────────────
   'announcement.title': 'お知らせ',
   'announcement.new': '新着',
   'announcement.count': '{count}件のお知らせ',
@@ -205,7 +205,7 @@ export const uiStrings: UIStrings = {
   'announcement.empty': 'お知らせは見つかりません',
   'announcement.emptyHint': '新しいお知らせはこちらに表示されます',
 
-  // ── Quiz ────────────────────────────────────────────────────
+  // ── クイズ ────────────────────────────────────────────────────
   'quiz.check': 'チェック',
   'quiz.correct': '正解です!',
   'quiz.incorrect': '不正解、再度お試しください。',
@@ -231,13 +231,13 @@ export const uiStrings: UIStrings = {
   'quiz.trueFalseCorrect': '正解です!',
   'quiz.trueFalseIncorrect': '不正解、答えは「{answer}」です。',
 
-  // ── Encrypted Block ─────────────────────────────────────────
+  // ── 暗号化されたブロック ─────────────────────────────────────────
   'encrypted.locked': '暗号化されたコンテンツ',
   'encrypted.placeholder': 'パスワードを入力でロックを解除',
   'encrypted.submit': 'ロックを解除',
   'encrypted.incorrect': 'パスワードが間違っています',
 
-  // ── Encrypted Post ─────────────────────────────────────────
+  // ── 暗号化された投稿 ─────────────────────────────────────────
   'encrypted.post.title': 'この記事は暗号化されています',
   'encrypted.post.description': 'パスワードを入力して内容をご覧ください',
   'encrypted.post.rssNotice': 'この記事は暗号化されています。ウェブサイトでご覧ください。',
@@ -249,45 +249,45 @@ export const uiStrings: UIStrings = {
   'notFound.browseArchives': 'アーカイブを参照',
   'notFound.message': 'んにゃー? ページは食べられちゃったよ〜',
 
-  // ── Category Stats ────────────────────────────────────────
+  // ── カテゴリーの統計 ────────────────────────────────────────
   'category.subCategoryCount': '{count}件のサブカテゴリー',
   'category.postCount': '{count}件の投稿',
 
-  // ── Post Card ─────────────────────────────────────────────
+  // ── 投稿カード ─────────────────────────────────────────────
   'post.readingTimeTooltip': '読み終える推定時間: {time}',
 
-  // ── Featured Series ─────────────────────────────────────────
+  // ── おすすめのシリーズ ─────────────────────────────────────────
   'series.latestPost': '最新',
   'series.viewAll': 'すべて表示',
   'series.postCount': '{count}件の投稿',
   'series.noPosts': 'このシリーズには投稿がありません',
   'series.rss': 'RSSフィード',
-  'series.chromeExtension': 'Chrome 拡張機能',
+  'series.chromeExtension': 'Chrome拡張機能',
   'series.docs': 'ドキュメント',
 
-  // ── Home Info ───────────────────────────────────────────────
+  // ── ホーム情報 ───────────────────────────────────────────────
   'homeInfo.articles': '記事',
   'homeInfo.categories': 'カテゴリー',
   'homeInfo.tags': 'タグ',
 
-  // ── Drawer ──────────────────────────────────────────────────
+  // ── ドロワー ──────────────────────────────────────────────────
   'drawer.navMenu': 'ナビゲーションメニュー',
   'drawer.close': 'メニューを閉じる',
   'drawer.openMenu': 'メニューを開く',
 
-  // ── Summary Panel ───────────────────────────────────────────
+  // ── 概要パネル ───────────────────────────────────────────
   'summary.description': '概要',
   'summary.ai': 'AIの概要',
   'summary.auto': '概要',
 
-  // ── Random Posts ────────────────────────────────────────────
+  // ── ランダムな投稿 ────────────────────────────────────────────
   'post.randomPosts': '投稿をランダムに表示',
 
-  // ── Tag Component ───────────────────────────────────────────
+  // ── タグコンポーネント ───────────────────────────────────────────
   'tag.expandAll': 'すべて表示',
   'tag.viewTagPosts': '「{tag}」のタグの付いた投稿を{count}件表示',
 
-  // ── Audio Player ────────────────────────────────────────────
+  // ── オーディオプレーヤー ────────────────────────────────────────────
   'audio.loading': 'プレイリストを読み込み中...',
   'audio.loadError': '読み込みに失敗: {error}',
   'audio.retry': '再試行',
@@ -295,25 +295,25 @@ export const uiStrings: UIStrings = {
   'audio.listTab': '{index}の一覧',
   'audio.closePanel': 'パネルを閉じる',
 
-  // ── Table of Contents ───────────────────────────────────────
+  // ── 目次のコンテンツ ───────────────────────────────────────
   'toc.title': '目次',
   'toc.expand': '目次のコンテンツを展開',
   'toc.empty': '見出しはありません',
 
-  // ── Embed ─────────────────────────────────────────────────
+  // ── 埋め込み ─────────────────────────────────────────────────
   'embed.loadingTweet': 'ポストを読み込み中',
 
-  // ── Search Shortcut ───────────────────────────────────────
+  // ── 検索ショートカット ───────────────────────────────────────
   'search.searchShortcut': '検索 ({shortcut})',
 
-  // ── Sider Segmented ─────────────────────────────────────────
+  // ── Sider のセグメント ─────────────────────────────────────────
   'sider.overview': '概要',
   'sider.toc': 'コンテンツ',
   'sider.series': 'シリーズ',
 
-  // ── Copy Link ───────────────────────────────────────────────
+  // ── リンクをコピー ───────────────────────────────────────────────
   'cover.copyLink': 'リンクをコピー',
 
-  // ── Comment ────────────────────────────────────────────────
-  'comment.prompt': '気に入ったら、コメントを残してね～',
+  // ── コメント ────────────────────────────────────────────────
+  'comment.prompt': '気に入ったならばコメントを残してくださいね～',
 };
