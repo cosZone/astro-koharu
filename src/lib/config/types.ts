@@ -567,6 +567,7 @@ export interface SiteYamlConfig {
   social?: SocialConfig;
   friends?: FriendsConfig;
   announcements?: AnnouncementConfig[];
+  defaultCoverList?: string[];
   content?: ContentConfig;
   navigation?: RouterItem[];
   comment?: CommentConfig;

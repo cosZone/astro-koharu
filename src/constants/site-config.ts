@@ -205,7 +205,7 @@ export const seoConfig = {
   url: siteConfig.site,
 };
 
-export const defaultCoverList = Array.from({ length: 21 }, (_, index) => index + 1).map((item) => `/img/cover/${item}.webp`);
+export const defaultCoverList = yamlConfig?.defaultCoverList || [];
 
 // Analytics config types
 type AnalyticsConfig = {
