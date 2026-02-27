@@ -137,15 +137,15 @@ dev:
     - id: vscode
       name: VS Code
       icon: devicon-plain:vscode # 可从 https://icon-sets.iconify.design/ 搜寻图标
-      urlTemplate: "vscode://file{path}"
+      urlTemplate: "vscode://file/{path}"
     - id: cursor
       name: Cursor
       icon: simple-icons:cursor
-      urlTemplate: "cursor://file{path}"
+      urlTemplate: "cursor://file/{path}"
     - id: zed
       name: Zed
       icon: simple-icons:zedindustries
-      urlTemplate: "zed://file{path}"
+      urlTemplate: "zed://file/{path}"
 ```
 
 **配置说明：**
