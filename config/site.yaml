@@ -296,34 +296,12 @@ announcements:
 
 # =============================================================================
 # Default Cover List
-# 默认封面列表 - 文章没有指定封面时将随机从列表中选择一张作为封面，列表不能为空
+# 默认封面列表 - 文章没有指定封面时将随机从列表中选择一张作为封面
+# 不设置则使用内置的 21 张默认封面 (/img/cover/1~21.webp)
 # =============================================================================
-# 字段说明：
-#   封面列表 - 封面 url
-# -----------------------------------------------------------------------------
-
-defaultCoverList:
-  - /img/cover/1.webp
-  - /img/cover/2.webp
-  - /img/cover/3.webp
-  - /img/cover/4.webp
-  - /img/cover/5.webp
-  - /img/cover/6.webp
-  - /img/cover/7.webp
-  - /img/cover/8.webp
-  - /img/cover/9.webp
-  - /img/cover/10.webp
-  - /img/cover/11.webp
-  - /img/cover/12.webp
-  - /img/cover/13.webp
-  - /img/cover/14.webp
-  - /img/cover/15.webp
-  - /img/cover/16.webp
-  - /img/cover/17.webp
-  - /img/cover/18.webp
-  - /img/cover/19.webp
-  - /img/cover/20.webp
-  - /img/cover/21.webp
+# defaultCoverList:
+#   - /img/cover/1.webp
+#   - https://example.com/custom-cover.webp
 
 
 # =============================================================================
