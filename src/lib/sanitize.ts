@@ -54,6 +54,7 @@ export const extractTextFromMarkdown = (content: string, maxLength: number = 150
 
   let lineStart = idx;
   let inCodeBlock = false;
+  let containerDepth = 0;
 
   // 逐字符扫描 (避免split产生数组)
   while (idx < searchEnd && resultLen < targetLen) {
@@ -71,15 +72,20 @@ export const extractTextFromMarkdown = (content: string, maxLength: number = 150
             // '```'
             inCodeBlock = !inCodeBlock;
           } else if (!inCodeBlock) {
-            // 跳过表格和容器 (字符码比较比字符串快)
             const firstChar = line.charCodeAt(0);
-            if (firstChar !== 124 && firstChar !== 58) {
-              // '|' ':' (:::)
-              const processed = processLine(line);
-              if (processed.length >= 3) {
-                if (resultLen > 0) result += ' ';
-                result += processed;
-                resultLen += processed.length + 1;
+            // 检测 ::: 容器块边界 (encrypted, info, warning 等)
+            if (firstChar === 58 && line.charCodeAt(1) === 58 && line.charCodeAt(2) === 58) {
+              if (line.length > 3) containerDepth++;
+              else if (containerDepth > 0) containerDepth--;
+            } else if (containerDepth === 0) {
+              // 跳过表格行 '|' 和单冒号 ':' 行
+              if (firstChar !== 124 && firstChar !== 58) {
+                const processed = processLine(line);
+                if (processed.length >= 3) {
+                  if (resultLen > 0) result += ' ';
+                  result += processed;
+                  resultLen += processed.length + 1;
+                }
               }
             }
           }
@@ -91,7 +97,7 @@ export const extractTextFromMarkdown = (content: string, maxLength: number = 150
   }
 
   // 处理最后一行
-  if (lineStart < searchEnd && resultLen < targetLen && !inCodeBlock) {
+  if (lineStart < searchEnd && resultLen < targetLen && !inCodeBlock && containerDepth === 0) {
     const line = content.slice(lineStart, Math.min(lineStart + 200, searchEnd)).trim();
     if (line.length >= 3) {
       const processed = processLine(line);
