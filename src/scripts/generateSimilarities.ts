@@ -19,9 +19,11 @@ import { glob } from 'glob';
 import matter from 'gray-matter';
 import { remark } from 'remark';
 import strip from 'strip-markdown';
+import { getNonDefaultLocaleGlobs } from './locale-filter';
 
 // --------- Configuration ---------
 const CONTENT_GLOB = 'src/content/blog/**/*.md';
+const NON_DEFAULT_LOCALE_GLOBS = getNonDefaultLocaleGlobs();
 const OUTPUT_FILE = 'src/assets/similarities.json';
 const TOP_N_SIMILAR = 5;
 const MODEL_NAME = 'Snowflake/snowflake-arctic-embed-m-v2.0';
@@ -340,7 +342,7 @@ async function main() {
     console.log(chalk.green('Model loaded!\n'));
 
     // 3. Find all markdown files
-    const files = await glob(CONTENT_GLOB);
+    const files = await glob(CONTENT_GLOB, { ignore: NON_DEFAULT_LOCALE_GLOBS });
     if (!files.length) {
       console.log(chalk.yellow('No content files found.'));
       return;

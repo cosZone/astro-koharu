@@ -23,9 +23,11 @@ import { glob } from 'glob';
 import matter from 'gray-matter';
 import { remark } from 'remark';
 import strip from 'strip-markdown';
+import { getNonDefaultLocaleGlobs } from './locale-filter';
 
 // --------- Configuration ---------
 const CONTENT_GLOB = 'src/content/blog/**/*.md';
+const NON_DEFAULT_LOCALE_GLOBS = getNonDefaultLocaleGlobs();
 const CACHE_FILE = '.cache/summaries-cache.json';
 const OUTPUT_FILE = 'src/assets/summaries.json';
 const CACHE_VERSION = '1';
@@ -252,7 +254,7 @@ async function main() {
     }
 
     // Find all markdown files
-    const files = await glob(CONTENT_GLOB);
+    const files = await glob(CONTENT_GLOB, { ignore: NON_DEFAULT_LOCALE_GLOBS });
     if (!files.length) {
       console.log(chalk.yellow('No content files found.'));
       return;
