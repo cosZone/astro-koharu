@@ -4,15 +4,19 @@
 
 import { getCollection } from 'astro:content';
 import readingTime from 'reading-time';
+import { defaultLocale } from '../i18n/config';
+import { filterPostsByLocale } from './content/locale';
 
 /**
  * Calculate total word count and reading time for all posts (excluding drafts in production)
+ * Only counts default locale posts to avoid inflating stats with translations
  */
 export async function getSiteStats() {
-  const posts = await getCollection('blog', ({ data }) => {
+  const allPosts = await getCollection('blog', ({ data }) => {
     // 在生产环境中，过滤掉草稿
     return import.meta.env.PROD ? data.draft !== true : true;
   });
+  const posts = filterPostsByLocale(allPosts, defaultLocale);
 
   let totalWords = 0;
   let totalMinutes = 0;

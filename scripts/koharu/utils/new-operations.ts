@@ -98,7 +98,16 @@ export async function getCategoryTree(): Promise<CategoryTreeItem[]> {
 
   // For nested categories, we need to identify parent-child relationships
   // based on the directory structure in src/content/blog
-  const blogDirs = (await fs.promises.readdir(BLOG_CONTENT_PATH, { withFileTypes: true })).filter((d) => d.isDirectory());
+  // Exclude locale directories (e.g., en/, ja/) to avoid treating them as categories
+  const config = await loadSiteConfig();
+  const i18nConfig = config.i18n as { defaultLocale?: string; locales?: { code: string }[] } | undefined;
+  const localeDirs = new Set(
+    (i18nConfig?.locales ?? []).map((l) => l.code).filter((code) => code !== (i18nConfig?.defaultLocale ?? 'zh')),
+  );
+
+  const blogDirs = (await fs.promises.readdir(BLOG_CONTENT_PATH, { withFileTypes: true })).filter(
+    (d) => d.isDirectory() && !localeDirs.has(d.name),
+  );
 
   const nestedItems: CategoryTreeItem[] = [];
 
