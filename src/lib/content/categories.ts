@@ -8,6 +8,7 @@ import type { BlogPost } from 'types/blog';
 import { getContentCategoryName, getContentFeaturedCategoryField, getContentSeriesField } from '@/i18n/content';
 import type { Locale } from '@/i18n/types';
 import { encodeSlug } from '../route';
+import { memoize } from './cache';
 import { filterPostsByLocale } from './locale';
 import type { Category, CategoryListResult } from './types';
 
@@ -15,45 +16,47 @@ import type { Category, CategoryListResult } from './types';
  * Get hierarchical category list with counts (excluding drafts in production)
  */
 export async function getCategoryList(locale?: string): Promise<CategoryListResult> {
-  const rawPosts = await getCollection('blog', ({ data }) => {
-    // 在生产环境中，过滤掉草稿
-    return import.meta.env.PROD ? data.draft !== true : true;
-  });
-  const allBlogPosts = filterPostsByLocale(rawPosts as BlogPost[], locale);
-  const countMap: { [key: string]: number } = {}; // TODO: 需要优化，应该以分类路径为键名而不是 name 如数据结构既是根分类也是笔记-后端-数据结构。
-  const resCategories: Category[] = [];
+  return memoize('categoryList', locale ?? '__all__', async () => {
+    const rawPosts = await getCollection('blog', ({ data }) => {
+      // 在生产环境中，过滤掉草稿
+      return import.meta.env.PROD ? data.draft !== true : true;
+    });
+    const allBlogPosts = filterPostsByLocale(rawPosts as BlogPost[], locale);
+    const countMap: { [key: string]: number } = {}; // TODO: 需要优化，应该以分类路径为键名而不是 name 如数据结构既是根分类也是笔记-后端-数据结构。
+    const resCategories: Category[] = [];
 
-  // 统计每个分类的直接文章数量
-  for (let i = 0; i < allBlogPosts.length; ++i) {
-    const post = allBlogPosts[i];
-    const { catalog, categories } = post.data;
-    if (!catalog || !categories?.length) {
-      continue;
-    }
-
-    const firstCategory = categories[0];
-    if (Array.isArray(firstCategory)) {
-      // categories[0] = ['笔记', '算法']
-      if (!firstCategory.length) continue;
-
-      for (let j = 0; j < firstCategory.length; ++j) {
-        const name = firstCategory[j];
-        countMap[name] = (countMap[name] || 0) + 1;
-        if (j === 0) {
-          addCategoryRecursively(resCategories, [], name);
-        } else {
-          const parentNames = firstCategory.slice(0, j);
-          addCategoryRecursively(resCategories, parentNames, name);
-        }
+    // 统计每个分类的直接文章数量
+    for (let i = 0; i < allBlogPosts.length; ++i) {
+      const post = allBlogPosts[i];
+      const { catalog, categories } = post.data;
+      if (!catalog || !categories?.length) {
+        continue;
       }
-    } else if (typeof firstCategory === 'string') {
-      // categories[0] = '工具'
-      countMap[firstCategory] = (countMap[firstCategory] || 0) + 1;
-      addCategoryRecursively(resCategories, [], firstCategory);
-    }
-  }
 
-  return { categories: resCategories, countMap };
+      const firstCategory = categories[0];
+      if (Array.isArray(firstCategory)) {
+        // categories[0] = ['笔记', '算法']
+        if (!firstCategory.length) continue;
+
+        for (let j = 0; j < firstCategory.length; ++j) {
+          const name = firstCategory[j];
+          countMap[name] = (countMap[name] || 0) + 1;
+          if (j === 0) {
+            addCategoryRecursively(resCategories, [], name);
+          } else {
+            const parentNames = firstCategory.slice(0, j);
+            addCategoryRecursively(resCategories, parentNames, name);
+          }
+        }
+      } else if (typeof firstCategory === 'string') {
+        // categories[0] = '工具'
+        countMap[firstCategory] = (countMap[firstCategory] || 0) + 1;
+        addCategoryRecursively(resCategories, [], firstCategory);
+      }
+    }
+
+    return { categories: resCategories, countMap };
+  });
 }
 
 /**

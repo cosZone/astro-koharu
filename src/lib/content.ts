@@ -45,6 +45,7 @@ export {
   getNonWeeklyPosts,
   /** @deprecated Use getNonFeaturedPostsBySticky() instead */
   getNonWeeklyPostsBySticky,
+  getPostById,
   getPostCount,
   getPostDescription,
   getPostDescriptionWithSummary,
