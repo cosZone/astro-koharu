@@ -18,6 +18,10 @@ const caches = new Map<string, Map<string, unknown>>();
  * @param fn        - Async factory that produces the value on cache miss
  */
 export async function memoize<T>(namespace: string, key: string, fn: () => Promise<T>): Promise<T> {
+  // In dev mode, Astro's own getCollection invalidates on file changes,
+  // but this module-level cache persists across HMR — skip it to avoid stale data.
+  if (import.meta.env.DEV) return fn();
+
   let cache = caches.get(namespace);
   if (!cache) {
     cache = new Map();

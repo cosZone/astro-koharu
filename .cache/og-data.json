@@ -1,12 +1,4 @@
 {
-  "https://zhuanlan.zhihu.com/p/1900483903984243480": {
-    "data": {
-      "originUrl": "https://zhuanlan.zhihu.com/p/1900483903984243480",
-      "url": "https://zhuanlan.zhihu.com/p/1900483903984243480",
-      "error": "Failed to fetch: 403"
-    },
-    "timestamp": 1772209620038
-  },
   "https://react-tweet.vercel.app/": {
     "data": {
       "originUrl": "https://react-tweet.vercel.app/",
@@ -116,22 +108,6 @@
       "logo": "https://t1.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https://marketplace.cursorapi.com/items?itemName=vscode-icons-team.vscode-icons&size=128"
     },
     "timestamp": 1767721421523
-  },
-  "https://books.studygolang.com/gopl-zh/ch2/ch2.html": {
-    "data": {
-      "originUrl": "https://books.studygolang.com/gopl-zh/ch2/ch2.html",
-      "url": "https://books.studygolang.com/gopl-zh/ch2/ch2.html",
-      "error": "fetch failed"
-    },
-    "timestamp": 1767721423151
-  },
-  "https://www.npmjs.com/package/awesome-typescript-loader": {
-    "data": {
-      "originUrl": "https://www.npmjs.com/package/awesome-typescript-loader",
-      "url": "https://www.npmjs.com/package/awesome-typescript-loader",
-      "error": "Failed to fetch: 403"
-    },
-    "timestamp": 1767721421647
   },
   "https://developer.mozilla.org/en-US/docs/Web/API/HTMLMediaElement": {
     "data": {
@@ -324,14 +300,6 @@
     },
     "timestamp": 1767881085603
   },
-  "https://cos.featurebase.app/": {
-    "data": {
-      "originUrl": "https://cos.featurebase.app/",
-      "url": "https://cos.featurebase.app/",
-      "error": "Failed to fetch: 403"
-    },
-    "timestamp": 1767953832616
-  },
   "https://github.com/yusixian/moe-copy-ai/releases/tag/0.2.0": {
     "data": {
       "originUrl": "https://github.com/yusixian/moe-copy-ai/releases/tag/0.2.0",
@@ -420,30 +388,6 @@
     },
     "timestamp": 1767363637371
   },
-  "https://infographic.antv.vision/gallery": {
-    "data": {
-      "originUrl": "https://infographic.antv.vision/gallery",
-      "url": "https://infographic.antv.vision/gallery",
-      "error": "Request timeout"
-    },
-    "timestamp": 1768066040661
-  },
-  "https://github.com/antvis/Infographic/tree/main/.skills": {
-    "data": {
-      "originUrl": "https://github.com/antvis/Infographic/tree/main/.skills",
-      "url": "https://github.com/antvis/Infographic/tree/main/.skills",
-      "error": "Request timeout"
-    },
-    "timestamp": 1768066040661
-  },
-  "https://stackoverflow.com/questions/7261855/best-options-parameters-for-imagemagick-to-compress-jpegs-files-to-the-minimal-s": {
-    "data": {
-      "originUrl": "https://stackoverflow.com/questions/7261855/best-options-parameters-for-imagemagick-to-compress-jpegs-files-to-the-minimal-s",
-      "url": "https://stackoverflow.com/questions/7261855/best-options-parameters-for-imagemagick-to-compress-jpegs-files-to-the-minimal-s",
-      "error": "Failed to fetch: 403"
-    },
-    "timestamp": 1767718875102
-  },
   "https://imagemagick.org/script/command-line-processing.php": {
     "data": {
       "originUrl": "https://imagemagick.org/script/command-line-processing.php",
@@ -476,13 +420,5 @@
       "logo": "https://docs.astro.build/favicon.ico"
     },
     "timestamp": 1768031593390
-  },
-  "https://waline.js.org/guide/server/socials.html#github": {
-    "data": {
-      "originUrl": "https://waline.js.org/guide/server/socials.html#github",
-      "url": "https://waline.js.org/guide/server/socials.html#github",
-      "error": "Failed to fetch: 404"
-    },
-    "timestamp": 1768723774175
   }
 }

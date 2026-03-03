@@ -61,15 +61,25 @@ function loadCache(): CacheData {
 }
 
 /**
- * Save cache to file system
+ * Save cache to file system.
+ * Prunes expired entries before writing to keep the file lean (important
+ * because og-data.json is committed to git for Vercel build caching).
  */
 function saveCache(cache: CacheData): void {
   try {
     if (!fs.existsSync(CACHE_DIR)) {
       fs.mkdirSync(CACHE_DIR, { recursive: true });
     }
-    fs.writeFileSync(CACHE_FILE, JSON.stringify(cache, null, 2));
-    memoryCache = cache;
+    const now = Date.now();
+    const pruned: CacheData = {};
+    for (const [url, entry] of Object.entries(cache)) {
+      const ttl = entry.data.error ? ERROR_CACHE_TTL : CACHE_TTL;
+      if (now - entry.timestamp < ttl) {
+        pruned[url] = entry;
+      }
+    }
+    fs.writeFileSync(CACHE_FILE, `${JSON.stringify(pruned, null, 2)}\n`);
+    memoryCache = pruned;
   } catch (error) {
     console.warn('[Link Embed] Failed to save cache:', error);
   }
