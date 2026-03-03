@@ -3,10 +3,10 @@
  */
 
 import { type CollectionEntry, getCollection } from 'astro:content';
-
 import summaries from '@assets/summaries.json';
 import { siteConfig } from '@constants/site-config';
 import type { FeaturedSeriesItem } from '@lib/config/types';
+import readingTime from 'reading-time';
 import type { BlogPost } from 'types/blog';
 import { t } from '@/i18n';
 import { defaultLocale } from '@/i18n/config';
@@ -14,6 +14,23 @@ import { extractTextFromMarkdown } from '../sanitize';
 import { memoize } from './cache';
 import { buildCategoryPath } from './categories';
 import { filterPostsByLocale, getPostSlug } from './locale';
+
+/** WeakMap-based cache for reading-time results — auto-GC when post objects are collected */
+const readingTimeCache = new WeakMap<CollectionEntry<'blog'>, { words: number; text: string; minutes: number }>();
+
+/**
+ * Get reading-time stats for a post, cached per object identity.
+ * Ensures each post's body is parsed at most once across transforms, Cover, and stats.
+ */
+export function getPostReadingTime(post: CollectionEntry<'blog'>): { words: number; text: string; minutes: number } {
+  let cached = readingTimeCache.get(post);
+  if (!cached) {
+    const result = readingTime(post.body ?? '');
+    cached = { words: result.words, text: result.text, minutes: result.minutes };
+    readingTimeCache.set(post, cached);
+  }
+  return cached;
+}
 
 /** AI 摘要数据类型 */
 type SummariesData = Record<string, { title: string; summary: string }>;

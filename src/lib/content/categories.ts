@@ -2,14 +2,11 @@
  * Category-related utility functions
  */
 
-import { getCollection } from 'astro:content';
 import { categoryMap } from '@constants/category';
-import type { BlogPost } from 'types/blog';
 import { getContentCategoryName, getContentFeaturedCategoryField, getContentSeriesField } from '@/i18n/content';
 import type { Locale } from '@/i18n/types';
 import { encodeSlug } from '../route';
 import { memoize } from './cache';
-import { filterPostsByLocale } from './locale';
 import type { Category, CategoryListResult } from './types';
 
 /**
@@ -17,11 +14,9 @@ import type { Category, CategoryListResult } from './types';
  */
 export async function getCategoryList(locale?: string): Promise<CategoryListResult> {
   return memoize('categoryList', locale ?? '__all__', async () => {
-    const rawPosts = await getCollection('blog', ({ data }) => {
-      // 在生产环境中，过滤掉草稿
-      return import.meta.env.PROD ? data.draft !== true : true;
-    });
-    const allBlogPosts = filterPostsByLocale(rawPosts as BlogPost[], locale);
+    // Dynamic import to avoid circular dependency (posts.ts → categories.ts → posts.ts)
+    const { getSortedPosts } = await import('./posts');
+    const allBlogPosts = await getSortedPosts(locale);
     const countMap: { [key: string]: number } = {}; // TODO: 需要优化，应该以分类路径为键名而不是 name 如数据结构既是根分类也是笔记-后端-数据结构。
     const resCategories: Category[] = [];
 

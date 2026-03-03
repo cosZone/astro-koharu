@@ -50,6 +50,8 @@ export {
   getPostDescription,
   getPostDescriptionWithSummary,
   getPostLastCategory,
+  // Reading time utility
+  getPostReadingTime,
   getPostSummary,
   getPostsByCategory,
   getPostsBySeriesSlug,

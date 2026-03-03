@@ -5,11 +5,10 @@
  * Uses a flexible pick-based API that allows selecting specific fields on demand
  */
 
-import readingTime from 'reading-time';
 import { defaultLocale } from '@/i18n/config';
 import type { BlogPost } from '@/types/blog';
 import { getPostLocale, getSlugLocaleInfo } from './locale';
-import { getPostDescriptionWithSummary, getPostLastCategory } from './posts';
+import { getPostDescriptionWithSummary, getPostLastCategory, getPostReadingTime } from './posts';
 
 /**
  * BlogPost 可提取的字段映射
@@ -51,8 +50,8 @@ const fieldExtractors: { [K in keyof PostFieldMap]: (post: BlogPost, locale: str
   // 计算字段
   categoryName: (p) => getPostLastCategory(p).name || undefined,
   description: (p, locale) => getPostDescriptionWithSummary(p, locale),
-  wordCount: (p) => readingTime(p.body ?? '').words,
-  readingTime: (p) => readingTime(p.body ?? '').text,
+  wordCount: (p) => getPostReadingTime(p).words,
+  readingTime: (p) => getPostReadingTime(p).text,
   postLocale: (p) => getPostLocale(p),
 };
 

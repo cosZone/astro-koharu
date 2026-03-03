@@ -2,10 +2,9 @@
  * Site statistics utilities
  */
 
-import readingTime from 'reading-time';
 import { defaultLocale } from '../i18n/config';
 import { memoize } from './content/cache';
-import { getSortedPosts } from './content/posts';
+import { getPostReadingTime, getSortedPosts } from './content/posts';
 
 /**
  * Calculate total word count and reading time for all posts (excluding drafts in production)
@@ -19,8 +18,7 @@ export async function getSiteStats() {
     let totalMinutes = 0;
 
     for (const post of posts) {
-      const content = post.body || '';
-      const stats = readingTime(content);
+      const stats = getPostReadingTime(post);
 
       totalWords += stats.words;
       totalMinutes += Math.ceil(stats.minutes);
