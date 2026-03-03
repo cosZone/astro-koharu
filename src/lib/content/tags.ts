@@ -23,11 +23,17 @@ export const tagToSlug = (tag: string) => encodeSlug(normalizeTag(tag).replace(/
  */
 export const buildTagPath = (tag: string) => `/tags/${tagToSlug(tag)}`;
 
+/** WeakMap cache: reuse tag counts when the same posts array reference is passed */
+const tagsCache = new WeakMap<BlogPost[], Record<string, number>>();
+
 /**
  * Get all tags with their counts (case-insensitive)
  */
 export const getAllTags = (posts: BlogPost[]) => {
-  return posts.reduce<Record<string, number>>((acc, post) => {
+  let cached = tagsCache.get(posts);
+  if (cached) return cached;
+
+  cached = posts.reduce<Record<string, number>>((acc, post) => {
     const postTags = post.data.tags || [];
     postTags.forEach((tag: string) => {
       const normalized = normalizeTag(tag);
@@ -38,4 +44,7 @@ export const getAllTags = (posts: BlogPost[]) => {
     });
     return acc;
   }, {});
+
+  tagsCache.set(posts, cached);
+  return cached;
 };

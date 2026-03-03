@@ -453,39 +453,3 @@ export async function getHomePagePosts(locale?: string): Promise<{
 
   return { highlightedPosts, stickyPosts, regularPosts };
 }
-
-// =============================================================================
-// Deprecated Functions (for backwards compatibility)
-// =============================================================================
-
-/**
- * @deprecated Use getPostsBySeriesSlug('weekly') instead
- */
-export async function getWeeklyPosts(): Promise<BlogPost[]> {
-  return await getPostsBySeriesSlug('weekly');
-}
-
-/**
- * @deprecated Use getHomeHighlightedPosts() instead
- */
-export async function getLatestWeeklyPost(): Promise<BlogPost | null> {
-  const posts = await getPostsBySeriesSlug('weekly');
-  return posts[0] ?? null;
-}
-
-/**
- * @deprecated Use getNonFeaturedPosts() instead
- */
-export async function getNonWeeklyPosts(): Promise<BlogPost[]> {
-  return await getNonFeaturedPosts();
-}
-
-/**
- * @deprecated Use getNonFeaturedPostsBySticky() instead
- */
-export async function getNonWeeklyPostsBySticky(): Promise<{
-  stickyPosts: BlogPost[];
-  regularPosts: BlogPost[];
-}> {
-  return await getNonFeaturedPostsBySticky();
-}

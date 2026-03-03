@@ -5,6 +5,21 @@
 import type { BlogPost } from 'types/blog';
 import { getPostSlug } from './locale';
 
+/** WeakMap cache: reuse slug→post Map when the same allPosts array reference is passed */
+const slugToPostCache = new WeakMap<BlogPost[], Map<string, BlogPost>>();
+
+function getSlugToPostMap(allPosts: BlogPost[]): Map<string, BlogPost> {
+  let map = slugToPostCache.get(allPosts);
+  if (!map) {
+    map = new Map();
+    for (const post of allPosts) {
+      map.set(getPostSlug(post), post);
+    }
+    slugToPostCache.set(allPosts, map);
+  }
+  return map;
+}
+
 interface SimilarPost {
   slug: string;
   title: string;
@@ -67,12 +82,8 @@ export function getRelatedPosts(currentPost: BlogPost, allPosts: BlogPost[], cou
       return [];
     }
 
-    // Create a map from slug to full post object
-    const slugToPost = new Map<string, BlogPost>();
-    for (const post of allPosts) {
-      const slug = getPostSlug(post);
-      slugToPost.set(slug, post);
-    }
+    // Reuse cached slug→post map (built once per allPosts reference)
+    const slugToPost = getSlugToPostMap(allPosts);
 
     // Map related slugs to full posts, maintaining similarity order
     const relatedPosts: BlogPost[] = [];
