@@ -99,7 +99,7 @@ export function filterPostsByLocale(posts: BlogPost[], locale?: string): BlogPos
 
   // Merge and re-sort by date (newest first) to maintain consistent ordering
   const merged = [...translated, ...fallback];
-  merged.sort((a, b) => new Date(b.data.date).getTime() - new Date(a.data.date).getTime());
+  merged.sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
 
   return merged;
 }

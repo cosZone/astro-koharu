@@ -27,29 +27,27 @@ export async function GET(context: APIContext) {
     trailingSlash: false,
     customData: `<language>${getHtmlLang(lang)}</language>`,
     stylesheet: '/rss/feed.xsl',
-    items: posts
-      .map((post: BlogPost) => {
-        const categoryArr = getCategoryArr(post.data.categories?.[0]);
-        const categories = [
-          ...(categoryArr || []).map((cat) => `category:${cat}`),
-          ...(post.data.tags || []).map((tag) => `tag:${tag}`),
-        ];
+    items: posts.slice(0, 20).map((post: BlogPost) => {
+      const categoryArr = getCategoryArr(post.data.categories?.[0]);
+      const categories = [
+        ...(categoryArr || []).map((cat) => `category:${cat}`),
+        ...(post.data.tags || []).map((tag) => `tag:${tag}`),
+      ];
 
-        const postSlug = getPostSlug(post);
-        const postLink = localizedPath(`/post/${encodeSlug(postSlug)}`, lang);
-        const { title, description, content } = buildRssItemFields(post, lang);
+      const postSlug = getPostSlug(post);
+      const postLink = localizedPath(`/post/${encodeSlug(postSlug)}`, lang);
+      const { title, description, content } = buildRssItemFields(post, lang);
 
-        return {
-          title,
-          pubDate: post.data.date,
-          description,
-          link: postLink,
-          content,
-          categories,
-          customData: `<guid isPermaLink="false">${lang}:${postSlug}</guid>`,
-        };
-      })
-      .slice(0, 20),
+      return {
+        title,
+        pubDate: post.data.date,
+        description,
+        link: postLink,
+        content,
+        categories,
+        customData: `<guid isPermaLink="false">${lang}:${postSlug}</guid>`,
+      };
+    }),
   });
 
   const headers = new Headers(response.headers);

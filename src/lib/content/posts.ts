@@ -106,7 +106,7 @@ export async function getSortedPosts(locale?: string): Promise<CollectionEntry<'
 
     // 使用浅拷贝避免原地修改 Astro 内部缓存的数组
     const sortedPosts = [...posts].sort((a: BlogPost, b: BlogPost) => {
-      return new Date(b.data.date).getTime() - new Date(a.data.date).getTime();
+      return b.data.date.getTime() - a.data.date.getTime();
     });
 
     return filterPostsByLocale(sortedPosts, locale);

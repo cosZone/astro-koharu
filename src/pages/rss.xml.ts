@@ -22,36 +22,34 @@ export async function GET(context: APIContext) {
     site,
     trailingSlash: false,
     stylesheet: '/rss/feed.xsl', // https://docs.astro.build/en/recipes/rss/#adding-a-stylesheet
-    items: posts
-      .map((post: BlogPost) => {
-        // 获取分类数组
-        const categoryArr = getCategoryArr(post.data.categories?.[0]);
+    items: posts.slice(0, 20).map((post: BlogPost) => {
+      // 获取分类数组
+      const categoryArr = getCategoryArr(post.data.categories?.[0]);
 
-        // 构建 categories 数组，包含分类和标签
-        const categories = [
-          // 添加分类信息 (使用 domain 属性区分)
-          ...(categoryArr || []).map((cat) => `category:${cat}`),
-          // 添加标签信息
-          ...(post.data.tags || []).map((tag) => `tag:${tag}`),
-        ];
+      // 构建 categories 数组，包含分类和标签
+      const categories = [
+        // 添加分类信息 (使用 domain 属性区分)
+        ...(categoryArr || []).map((cat) => `category:${cat}`),
+        // 添加标签信息
+        ...(post.data.tags || []).map((tag) => `tag:${tag}`),
+      ];
 
-        const postSlug = getPostSlug(post);
-        const postLink = `/post/${encodeSlug(postSlug)}`;
-        const { title, description, content } = buildRssItemFields(post, defaultLocale);
+      const postSlug = getPostSlug(post);
+      const postLink = `/post/${encodeSlug(postSlug)}`;
+      const { title, description, content } = buildRssItemFields(post, defaultLocale);
 
-        return {
-          title,
-          pubDate: post.data.date,
-          description,
-          link: postLink,
-          content,
-          categories,
-          // Add domain-independent GUID using customData
-          // The slug-only GUID ensures stability across domain changes
-          customData: `<guid isPermaLink="false">${postSlug}</guid>`,
-        };
-      })
-      .slice(0, 20),
+      return {
+        title,
+        pubDate: post.data.date,
+        description,
+        link: postLink,
+        content,
+        categories,
+        // Add domain-independent GUID using customData
+        // The slug-only GUID ensures stability across domain changes
+        customData: `<guid isPermaLink="false">${postSlug}</guid>`,
+      };
+    }),
   });
 
   // 显式设置 Content-Type 包含 charset，解决中文乱码问题
