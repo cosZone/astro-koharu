@@ -12,7 +12,7 @@ import { t } from '@/i18n';
 import { defaultLocale } from '@/i18n/config';
 import { extractTextFromMarkdown } from '../sanitize';
 import { memoize } from './cache';
-import { buildCategoryPath } from './categories';
+import { buildCategoryPath } from './category-path';
 import { filterPostsByLocale, getPostSlug } from './locale';
 
 /** WeakMap-based cache for reading-time results — auto-GC when post objects are collected */
