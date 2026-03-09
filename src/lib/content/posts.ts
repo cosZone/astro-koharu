@@ -35,6 +35,12 @@ export function getPostReadingTime(post: CollectionEntry<'blog'>): { words: numb
 /** AI 摘要数据类型 */
 type SummariesData = Record<string, { title: string; summary: string }>;
 
+/** Pre-built lowercase slug → original key map for O(1) case-insensitive fallback */
+const summaryLowerMap = new Map<string, string>();
+for (const key of Object.keys(summaries as SummariesData)) {
+  summaryLowerMap.set(key.toLowerCase(), key);
+}
+
 /**
  * 获取文章描述
  * 优先使用 frontmatter 中的 description，如果不存在则从 Markdown 内容中智能提取
@@ -60,17 +66,9 @@ export function getPostSummary(slug: string): string | null {
   const exactMatch = data[slug]?.summary ?? null;
   if (exactMatch) return exactMatch;
 
-  // Fallback: case-insensitive search for backward compatibility
-  const lowerSlug = slug.toLowerCase();
-  const keys = Object.keys(data);
-
-  for (const key of keys) {
-    if (key.toLowerCase() === lowerSlug) {
-      return data[key].summary;
-    }
-  }
-
-  return null;
+  // Fallback: case-insensitive lookup via pre-built map
+  const originalKey = summaryLowerMap.get(slug.toLowerCase());
+  return originalKey ? data[originalKey].summary : null;
 }
 
 /**

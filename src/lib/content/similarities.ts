@@ -40,6 +40,14 @@ try {
   console.warn('similarities.json not found. Run `pnpm generate:similarities` to generate it.');
 }
 
+/** Pre-built lowercase slug → original key map for O(1) case-insensitive fallback */
+const similarityLowerMap = new Map<string, string>();
+for (const key of Object.keys(similarityData)) {
+  similarityLowerMap.set(key.toLowerCase(), key);
+}
+
+const _hasSimilarityData = similarityLowerMap.size > 0;
+
 /**
  * Get related post slugs for a given post
  * @param currentSlug Current post's slug (from post.data.link or post.slug)
@@ -53,17 +61,9 @@ export function getRelatedPostSlugs(currentSlug: string, count: number = 5): Sim
     return exactMatch.slice(0, count);
   }
 
-  // Fallback: case-insensitive search for backward compatibility
-  const lowerSlug = currentSlug.toLowerCase();
-  const keys = Object.keys(similarityData);
-
-  for (const key of keys) {
-    if (key.toLowerCase() === lowerSlug) {
-      return similarityData[key].slice(0, count);
-    }
-  }
-
-  return [];
+  // Fallback: case-insensitive lookup via pre-built map
+  const originalKey = similarityLowerMap.get(currentSlug.toLowerCase());
+  return originalKey ? similarityData[originalKey].slice(0, count) : [];
 }
 
 /**
@@ -105,5 +105,5 @@ export function getRelatedPosts(currentPost: BlogPost, allPosts: BlogPost[], cou
  * Check if similarity data is available
  */
 export function hasSimilarityData(): boolean {
-  return Object.keys(similarityData).length > 0;
+  return _hasSimilarityData;
 }

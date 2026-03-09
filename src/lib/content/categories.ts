@@ -10,6 +10,12 @@ import { memoize } from './cache';
 import { getSortedPosts } from './posts';
 import type { Category, CategoryListResult } from './types';
 
+/** Reverse map: slug → category name for O(1) lookup */
+const slugToName = new Map<string, string>();
+for (const [name, slug] of Object.entries(categoryMap)) {
+  slugToName.set(slug, name);
+}
+
 // Re-export pure path utilities (defined in category-path.ts to break circular dependency)
 export { buildCategoryPath, getCategoryArr } from './category-path';
 
@@ -121,8 +127,7 @@ export function getCategoryNameByLink(link: string): string {
   if (segments.length === 0) return '';
 
   const lastSegment = decodeURIComponent(segments[segments.length - 1]);
-  const res = Object.keys(categoryMap).find((key) => categoryMap[key] === lastSegment) ?? '';
-  return res;
+  return slugToName.get(lastSegment) ?? '';
 }
 
 /**
