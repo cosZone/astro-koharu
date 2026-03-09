@@ -80,41 +80,46 @@ export function rehypeShokaAttrs() {
       }
     });
 
-    // Pass 2: Handle list item trailing {.class}
-    // Scans all children of <li> for trailing {.class} patterns — handles:
-    //   - Direct text child (simple li)
-    //   - Text inside <p> child (loose list / nested list case)
-    //   - Non-last text children (li with sub-list where text precedes <ul>)
-    visit(tree, 'element', (node: Element) => {
-      if (node.tagName !== 'li') return;
-
-      for (const child of node.children) {
-        let textNode: Text | undefined;
-
-        if (child.type === 'text') {
-          textNode = child;
-        } else if (child.type === 'element' && child.children.length > 0) {
-          const last = child.children[child.children.length - 1];
-          if (last?.type === 'text') textNode = last as Text;
-        }
-
-        if (!textNode) continue;
-
-        const match = textNode.value.match(/\{([^}]+)\}\s*$/);
-        if (match) {
-          const attrs = parseAttrs(match[1]);
-          textNode.value = textNode.value.slice(0, match.index).trimEnd();
-          applyAttrs(node, attrs);
-          return;
-        }
-      }
-    });
-
-    // Pass 2.5: Handle trailing {.class} text after element siblings
-    // e.g., <ins>text</ins>{.wavy} → apply .wavy to <ins>
+    // Pass 2: Handle list item trailing {.class} AND trailing {.class} after element siblings
+    // Combined into a single visit to avoid duplicate AST traversals.
     const TRAILING_ATTR_REGEX = /^\{([^}]+)\}/;
 
     visit(tree, 'element', (node: Element) => {
+      // --- Part A: List item trailing {.class} ---
+      // Scans all children of <li> for trailing {.class} patterns — handles:
+      //   - Direct text child (simple li)
+      //   - Text inside <p> child (loose list / nested list case)
+      //   - Non-last text children (li with sub-list where text precedes <ul>)
+      if (node.tagName === 'li') {
+        let liHandled = false;
+        for (const child of node.children) {
+          let textNode: Text | undefined;
+
+          if (child.type === 'text') {
+            textNode = child;
+          } else if (child.type === 'element' && child.children.length > 0) {
+            const last = child.children[child.children.length - 1];
+            if (last?.type === 'text') textNode = last as Text;
+          }
+
+          if (!textNode) continue;
+
+          const match = textNode.value.match(/\{([^}]+)\}\s*$/);
+          if (match) {
+            const attrs = parseAttrs(match[1]);
+            textNode.value = textNode.value.slice(0, match.index).trimEnd();
+            applyAttrs(node, attrs);
+            liHandled = true;
+            break;
+          }
+        }
+        if (liHandled) return;
+      }
+
+      // --- Part B: Trailing {.class} text after element siblings (non-li only) ---
+      // Skip <li> elements — their trailing attrs are fully handled by Part A above.
+      if (node.tagName === 'li') return;
+      // e.g., <ins>text</ins>{.wavy} → apply .wavy to <ins>
       const { children } = node;
       for (let i = children.length - 1; i >= 0; i--) {
         const child = children[i];

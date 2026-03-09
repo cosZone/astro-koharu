@@ -3,19 +3,43 @@
  */
 
 import { type CollectionEntry, getCollection } from 'astro:content';
-
 import summaries from '@assets/summaries.json';
 import { siteConfig } from '@constants/site-config';
 import type { FeaturedSeriesItem } from '@lib/config/types';
+import readingTime from 'reading-time';
 import type { BlogPost } from 'types/blog';
 import { t } from '@/i18n';
 import { defaultLocale } from '@/i18n/config';
 import { extractTextFromMarkdown } from '../sanitize';
-import { buildCategoryPath } from './categories';
+import { memoize } from './cache';
+import { buildCategoryPath } from './category-path';
 import { filterPostsByLocale, getPostSlug } from './locale';
+
+/** WeakMap-based cache for reading-time results — auto-GC when post objects are collected */
+const readingTimeCache = new WeakMap<CollectionEntry<'blog'>, { words: number; text: string; minutes: number }>();
+
+/**
+ * Get reading-time stats for a post, cached per object identity.
+ * Ensures each post's body is parsed at most once across transforms, Cover, and stats.
+ */
+export function getPostReadingTime(post: CollectionEntry<'blog'>): { words: number; text: string; minutes: number } {
+  let cached = readingTimeCache.get(post);
+  if (!cached) {
+    const result = readingTime(post.body ?? '');
+    cached = { words: result.words, text: result.text, minutes: result.minutes };
+    readingTimeCache.set(post, cached);
+  }
+  return cached;
+}
 
 /** AI 摘要数据类型 */
 type SummariesData = Record<string, { title: string; summary: string }>;
+
+/** Pre-built lowercase slug → original key map for O(1) case-insensitive fallback */
+const summaryLowerMap = new Map<string, string>();
+for (const key of Object.keys(summaries as SummariesData)) {
+  summaryLowerMap.set(key.toLowerCase(), key);
+}
 
 /**
  * 获取文章描述
@@ -42,17 +66,9 @@ export function getPostSummary(slug: string): string | null {
   const exactMatch = data[slug]?.summary ?? null;
   if (exactMatch) return exactMatch;
 
-  // Fallback: case-insensitive search for backward compatibility
-  const lowerSlug = slug.toLowerCase();
-  const keys = Object.keys(data);
-
-  for (const key of keys) {
-    if (key.toLowerCase() === lowerSlug) {
-      return data[key].summary;
-    }
-  }
-
-  return null;
+  // Fallback: case-insensitive lookup via pre-built map
+  const originalKey = summaryLowerMap.get(slug.toLowerCase());
+  return originalKey ? data[originalKey].summary : null;
 }
 
 /**
@@ -80,17 +96,31 @@ export function getPostDescriptionWithSummary(post: BlogPost, locale: string = d
  * @param locale Optional locale filter — undefined returns all, 'zh' returns default only, 'en' returns en + fallback
  */
 export async function getSortedPosts(locale?: string): Promise<CollectionEntry<'blog'>[]> {
-  const posts = await getCollection('blog', ({ data }) => {
-    // 在生产环境中，过滤掉草稿
-    return import.meta.env.PROD ? data.draft !== true : true;
-  });
+  return memoize('sortedPosts', locale ?? '__all__', async () => {
+    const posts = await getCollection('blog', ({ data }) => {
+      // 在生产环境中，过滤掉草稿
+      return import.meta.env.PROD ? data.draft !== true : true;
+    });
 
-  // 按日期排序
-  const sortedPosts = posts.sort((a: BlogPost, b: BlogPost) => {
-    return new Date(b.data.date).getTime() - new Date(a.data.date).getTime();
-  });
+    // 使用浅拷贝避免原地修改 Astro 内部缓存的数组
+    const sortedPosts = [...posts].sort((a: BlogPost, b: BlogPost) => {
+      return b.data.date.getTime() - a.data.date.getTime();
+    });
 
-  return filterPostsByLocale(sortedPosts, locale);
+    return filterPostsByLocale(sortedPosts, locale);
+  });
+}
+
+/**
+ * Get a single post by its collection ID.
+ * Builds an id→post Map once (per locale), then lookups are O(1).
+ */
+export async function getPostById(id: string, locale?: string): Promise<CollectionEntry<'blog'> | undefined> {
+  const map = await memoize('postByIdMap', locale ?? '__all__', async () => {
+    const posts = await getSortedPosts(locale);
+    return new Map(posts.map((p) => [p.id, p]));
+  });
+  return map.get(id);
 }
 
 /**
@@ -119,13 +149,11 @@ export async function getPostsBySticky(locale?: string): Promise<{
 
 /**
  * Get post count (excluding drafts in production)
- * Uses a lightweight path: getCollection + filter, skipping the sort step.
+ * Leverages getSortedPosts cache instead of a separate getCollection call.
  */
 export async function getPostCount(locale?: string) {
-  const posts = await getCollection('blog', ({ data }) => {
-    return import.meta.env.PROD ? data.draft !== true : true;
-  });
-  return filterPostsByLocale(posts, locale).length;
+  const posts = await getSortedPosts(locale);
+  return posts.length;
 }
 
 /**
@@ -134,21 +162,23 @@ export async function getPostCount(locale?: string) {
  * @returns 文章列表
  */
 export async function getPostsByCategory(categoryName: string, locale?: string): Promise<BlogPost[]> {
-  const posts = await getSortedPosts(locale);
-  return posts.filter((post) => {
-    const { categories } = post.data;
-    if (!categories?.length) return false;
+  return memoize('postsByCat', `${categoryName}:${locale ?? '__all__'}`, async () => {
+    const posts = await getSortedPosts(locale);
+    return posts.filter((post) => {
+      const { categories } = post.data;
+      if (!categories?.length) return false;
 
-    const firstCategory = categories[0];
-    // 处理两种分类格式
-    if (Array.isArray(firstCategory)) {
-      // ['笔记', '算法']
-      return firstCategory.includes(categoryName);
-    } else if (typeof firstCategory === 'string') {
-      // '工具'
-      return firstCategory === categoryName;
-    }
-    return false;
+      const firstCategory = categories[0];
+      // 处理两种分类格式
+      if (Array.isArray(firstCategory)) {
+        // ['笔记', '算法']
+        return firstCategory.includes(categoryName);
+      } else if (typeof firstCategory === 'string') {
+        // '工具'
+        return firstCategory === categoryName;
+      }
+      return false;
+    });
   });
 }
 
@@ -420,40 +450,4 @@ export async function getHomePagePosts(locale?: string): Promise<{
   }
 
   return { highlightedPosts, stickyPosts, regularPosts };
-}
-
-// =============================================================================
-// Deprecated Functions (for backwards compatibility)
-// =============================================================================
-
-/**
- * @deprecated Use getPostsBySeriesSlug('weekly') instead
- */
-export async function getWeeklyPosts(): Promise<BlogPost[]> {
-  return await getPostsBySeriesSlug('weekly');
-}
-
-/**
- * @deprecated Use getHomeHighlightedPosts() instead
- */
-export async function getLatestWeeklyPost(): Promise<BlogPost | null> {
-  const posts = await getPostsBySeriesSlug('weekly');
-  return posts[0] ?? null;
-}
-
-/**
- * @deprecated Use getNonFeaturedPosts() instead
- */
-export async function getNonWeeklyPosts(): Promise<BlogPost[]> {
-  return await getNonFeaturedPosts();
-}
-
-/**
- * @deprecated Use getNonFeaturedPostsBySticky() instead
- */
-export async function getNonWeeklyPostsBySticky(): Promise<{
-  stickyPosts: BlogPost[];
-  regularPosts: BlogPost[];
-}> {
-  return await getNonFeaturedPostsBySticky();
 }

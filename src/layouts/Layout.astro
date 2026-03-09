@@ -354,10 +354,10 @@ const canonicalHref = canonicalOverride ?? Astro.url.href;
       <MobileDrawer type={siderType} post={post} />
       <SearchDialog client:idle />
       <SearchPortal />
-      <CodeBlockFullscreen client:load />
+      <CodeBlockFullscreen client:idle />
       <DiagramFullscreen client:idle />
       <ImageLightbox client:idle />
-      <Toaster client:load />
+      <Toaster client:idle />
       <AnnouncementProvider />
     </div>
   </body>

@@ -1,9 +1,9 @@
 ---
 import { siteConfig } from '@constants/site-config';
+import { getPostReadingTime } from '@lib/content/posts';
 import { displayDate } from '@lib/date';
 import { getLqipStyle } from '@lib/lqip';
 import { Icon } from 'astro-icon/components';
-import readingTime from 'reading-time';
 import type { BlogPost } from 'types/blog';
 import { MAX_WIDTH } from '@/constants/layout';
 import WaveSvg from './wave';
@@ -17,7 +17,7 @@ const { data, title } = Astro.props as CoverProps;
 
 const { date, updated, title: dataTitle, draft } = data?.data ?? {};
 
-const readState = readingTime(data?.body ?? '');
+const readState = data ? getPostReadingTime(data) : null;
 const isDraft = import.meta.env.DEV && draft === true;
 
 // 获取横幅图片的 LQIP 样式

@@ -12,6 +12,7 @@ import TwoColumnLayout from '@layouts/TwoColumnLayout.astro';
 import {
   buildCategoryPath,
   getCategoryArr,
+  getPostById,
   getPostDescription,
   getPostLocale,
   getPostSlug,
@@ -33,11 +34,16 @@ export async function getStaticPaths() {
 
   return postCollections.map((post) => ({
     params: { slug: getPostSlug(post) },
-    props: { post, postId: post.id },
+    props: { postId: post.id },
   }));
 }
-const { post, postId } = Astro.props;
+const { postId } = Astro.props;
 const locale = getLocaleFromUrl(Astro.url.pathname);
+// Look up by locale first (may find a translated version); fall back to defaultLocale
+// which is guaranteed to exist since getStaticPaths enumerates from defaultLocale posts.
+const post =
+  (await getPostById(postId, locale)) ?? (locale !== defaultLocale ? await getPostById(postId, defaultLocale) : undefined);
+if (!post) throw new Error(`Post not found: ${postId}`);
 const isFallback = getPostLocale(post) !== locale;
 // For fallback pages (showing default-locale content under /en/), canonical should point to the original
 const canonicalUrl = isFallback

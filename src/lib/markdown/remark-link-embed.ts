@@ -26,7 +26,8 @@ import { classifyLink, isStandaloneLinkParagraph } from './link-utils';
 
 const CACHE_DIR = path.join(process.cwd(), '.cache');
 const CACHE_FILE = path.join(CACHE_DIR, 'og-data.json');
-const CACHE_TTL = 7 * 24 * 60 * 60 * 1000; // 7 days in milliseconds
+const CACHE_TTL = 30 * 24 * 60 * 60 * 1000; // 30 days for successful entries
+const ERROR_CACHE_TTL = 1 * 24 * 60 * 60 * 1000; // 1 day for error entries (retry sooner)
 
 interface CacheEntry {
   data: OGData;
@@ -60,36 +61,53 @@ function loadCache(): CacheData {
 }
 
 /**
- * Save cache to file system
+ * Save cache to file system.
+ * Prunes expired entries before writing to keep the file lean (important
+ * because og-data.json is committed to git for Vercel build caching).
  */
 function saveCache(cache: CacheData): void {
   try {
     if (!fs.existsSync(CACHE_DIR)) {
       fs.mkdirSync(CACHE_DIR, { recursive: true });
     }
-    fs.writeFileSync(CACHE_FILE, JSON.stringify(cache, null, 2));
-    memoryCache = cache;
+    const now = Date.now();
+    const pruned: CacheData = {};
+    for (const [url, entry] of Object.entries(cache)) {
+      const ttl = entry.data.error ? ERROR_CACHE_TTL : CACHE_TTL;
+      if (now - entry.timestamp < ttl) {
+        pruned[url] = entry;
+      }
+    }
+    fs.writeFileSync(CACHE_FILE, `${JSON.stringify(pruned, null, 2)}\n`);
+    memoryCache = pruned;
   } catch (error) {
     console.warn('[Link Embed] Failed to save cache:', error);
   }
 }
 
 /**
- * Get cached OG data if valid
+ * Get cached OG data if valid.
+ * Error entries expire after 1 day; successful entries after 30 days.
  */
 function getCachedOGData(url: string): OGData | null {
   const cache = loadCache();
   const entry = cache[url];
+  if (!entry) return null;
 
-  if (entry && Date.now() - entry.timestamp < CACHE_TTL) {
+  const ttl = entry.data.error ? ERROR_CACHE_TTL : CACHE_TTL;
+  if (Date.now() - entry.timestamp < ttl) {
     return entry.data;
   }
 
   return null;
 }
 
+/** Whether the in-memory cache has unflushed changes */
+let cacheDirty = false;
+
 /**
- * Set OG data in cache
+ * Set OG data in memory cache (does NOT write to disk immediately).
+ * Call `flushCache()` after batch processing to persist.
  */
 function setCachedOGData(url: string, data: OGData): void {
   const cache = loadCache();
@@ -97,7 +115,16 @@ function setCachedOGData(url: string, data: OGData): void {
     data,
     timestamp: Date.now(),
   };
-  saveCache(cache);
+  cacheDirty = true;
+}
+
+/**
+ * Flush in-memory cache to disk if it has been modified.
+ */
+function flushCache(): void {
+  if (!cacheDirty || !memoryCache) return;
+  saveCache(memoryCache);
+  cacheDirty = false;
 }
 
 interface OGData {
@@ -433,6 +460,9 @@ export function remarkLinkEmbed(options: RemarkLinkEmbedOptions = {}) {
 
     // Wait for all fetches to complete in parallel
     const embedNodes = await Promise.all(fetchPromises);
+
+    // Flush cache to disk once per markdown file (instead of per-URL)
+    flushCache();
 
     // Replace nodes with their embed counterparts
     nodesToReplace.forEach(({ index, parent }, i) => {
