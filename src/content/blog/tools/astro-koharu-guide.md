@@ -68,6 +68,12 @@ pnpm preview
 
 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/cosZone/astro-koharu&project-name=astro-koharu&repository-name=astro-koharu)
 
+### 构建缓存说明
+
+项目将 `.cache/og-data.json` 提交到 Git 仓库。该文件缓存了链接嵌入功能抓取的外部链接 OG 元数据（标题、描述、图片等），提交到 Git 后 Vercel、Netlify 等平台构建时可直接复用，无需每次重新抓取，显著加速构建速度。
+
+`.cache/` 目录下的其他文件（如 `transformers/` 模型缓存、`summaries-cache.json`）仍被 `.gitignore` 忽略，不会提交。
+
 ## 基本配置
 
 ### 站点配置

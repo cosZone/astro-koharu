@@ -215,6 +215,12 @@ pnpm koharu generate summaries    # 生成 AI 摘要
 pnpm koharu generate all          # 生成全部
 ```
 
+## 构建缓存
+
+项目将 `.cache/og-data.json` 提交到 Git 仓库，用于缓存链接嵌入功能抓取的 OG 元数据（标题、描述、图片等）。这样在 Vercel、Netlify 等平台构建时可以直接复用已有缓存，避免每次构建都重新抓取外部链接的元信息，显著加速构建并减少对外部站点的请求。
+
+`.cache/` 目录下的其他文件（如 transformers 模型缓存）仍被 `.gitignore` 忽略。
+
 ## 配置说明
 
 博客配置统一使用 **`config/site.yaml`** 文件管理，包括：

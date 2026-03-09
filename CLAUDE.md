@@ -47,6 +47,7 @@ astro-koharu is an Astro-based blog rebuilt from Hexo, inspired by the Shoka the
 - **Keep CLAUDE.md updated**: Ask to update when making architectural changes
 - **Run lint before completion**: `pnpm lint:fix` must pass before completing tasks
 - **Check for dead code**: Run `pnpm knip` periodically
+- **Build cache**: `.cache/og-data.json` is intentionally committed to Git for build acceleration (OG metadata cache for link embeds). Do NOT add it to `.gitignore`. Other files under `.cache/` (transformers models, summaries-cache) are already ignored.
 
 ## Development Commands
 
