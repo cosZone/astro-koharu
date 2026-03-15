@@ -293,6 +293,21 @@ function processContainers(text: string, opts: ContainerOptions = {}, _depth = 0
 }
 
 /**
+ * Process escaped Shoka delimiters (\++, \==, \!!) by inserting HTML comments
+ * to break token pairing. Must run before remark parsing since `\` escapes
+ * are consumed by the Markdown parser before remark plugins see the text.
+ *
+ * `\++` or `\+\+` → `+<!-- -->+` (breaks ++ token matching, renders as ++)
+ */
+function processEscapedDelimiters(text: string): string {
+  // Per-character escapes (\+\+, \=\=, \!\!) must run before delimiter escapes
+  // (\++, \==, \!!) to avoid partial matches leaving a dangling backslash
+  text = text.replace(/\\([+=!])\\\1/g, '$1<!-- -->$1');
+  text = text.replace(/\\([+=!])\1(?!\1)/g, '$1<!-- -->$1');
+  return text;
+}
+
+/**
  * Process inline ~sub~ and ^sup^ syntax, skipping protected regions.
  * Must be done before GFM parsing to avoid ~text~ being treated as strikethrough.
  */
@@ -353,6 +368,9 @@ export function preprocessShokaSyntax(
       enableHexoTags: options?.enableHexoTags,
     });
   }
+
+  // Process escaped delimiters before remark parsing consumes backslashes
+  result = processOutsideProtectedRegions(result, processEscapedDelimiters);
 
   // Process inline sub/sup before GFM strikethrough conflicts
   if (options?.enableSuperSub !== false) {
