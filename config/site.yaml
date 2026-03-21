@@ -30,6 +30,9 @@ site:
     - 前端
     # 请根据你的网站内容添加关键词
   # breadcrumbHome: 首页  # 面包屑导航中首页的显示名称（默认: '首页'）
+  # icp:                         # ICP 备案号（可自定义链接）
+  #   text: "粤ICP备xxxxxxxxxx号"
+  #   link: "https://beian.miit.gov.cn/"
 
 # =============================================================================
 # Internationalization (i18n)

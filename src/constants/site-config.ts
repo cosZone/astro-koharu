@@ -196,6 +196,14 @@ export const siteConfig: SiteConfig = {
 
 export const socialConfig: SocialConfig = yamlConfig.social ?? {};
 
+// ICP filing config — normalize string shorthand to { text } object
+export const icpConfig: { text: string; link?: string } | undefined = (() => {
+  const raw = yamlConfig.site.icp;
+  if (!raw) return undefined;
+  if (typeof raw === 'string') return { text: raw };
+  return raw;
+})();
+
 const { title, alternate, subtitle } = siteConfig;
 
 export const seoConfig = {

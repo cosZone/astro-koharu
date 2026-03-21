@@ -1,7 +1,7 @@
 ---
 import FooterAnnouncementEntry from '@components/announcement/FooterAnnouncementEntry';
 import { MAX_WIDTH } from '@constants/layout';
-import { siteConfig } from '@constants/site-config';
+import { icpConfig, siteConfig } from '@constants/site-config';
 import { getSiteStats } from '@lib/stats';
 import { cn } from '@lib/utils';
 import { Icon } from 'astro-icon/components';
@@ -69,6 +69,19 @@ const startYear = siteConfig?.startYear ?? currentYear;
         {siteConfig?.alternate ? `@${siteConfig.alternate}` : ''}
       </span>
     </div>
+
+    <!-- ICP Filing -->
+    {icpConfig && (
+      <div class="text-muted-foreground/80 text-xs">
+        {icpConfig.link ? (
+          <a href={icpConfig.link} target="_blank" rel="noopener noreferrer" class="footer-link font-medium">
+            {icpConfig.text}
+          </a>
+        ) : (
+          <span class="opacity-75">{icpConfig.text}</span>
+        )}
+      </div>
+    )}
 
     <!-- Powered By -->
     <div class="text-muted-foreground/80 flex items-center gap-2 text-xs">
