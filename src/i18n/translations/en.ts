@@ -17,6 +17,7 @@ export const uiStrings: UIStrings = {
   'nav.about': 'About',
   'nav.music': 'Music',
   'nav.weekly': 'Weekly',
+  'nav.bangumi': 'Bangumi',
 
   // ── Common ──────────────────────────────────────────────────
   'common.search': 'Search',
@@ -331,6 +332,7 @@ export const uiStrings: UIStrings = {
   'bangumi.watching': 'Watching',
   'bangumi.onHold': 'On Hold',
   'bangumi.dropped': 'Dropped',
+  'bangumi.noImage': 'No Image',
   'bangumi.noItems': 'No collections',
   'bangumi.error': 'Failed to load, please try again',
   'bangumi.retry': 'Retry',

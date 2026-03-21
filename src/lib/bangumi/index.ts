@@ -1,4 +1,4 @@
-export { fetchAllCollections, fetchUserCollections } from './api';
+export { fetchAllCollections } from './api';
 export {
   COLLECTION_STATUS_COLORS,
   ITEMS_PER_PAGE,

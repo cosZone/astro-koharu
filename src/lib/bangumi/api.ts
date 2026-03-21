@@ -12,7 +12,7 @@ export async function fetchUserCollections(
   url.searchParams.set('limit', String(limit));
   url.searchParams.set('offset', String(offset));
 
-  const res = await fetch(url.toString());
+  const res = await fetch(url);
   if (!res.ok) {
     throw new Error(`Bangumi API error: ${res.status} ${res.statusText}`);
   }

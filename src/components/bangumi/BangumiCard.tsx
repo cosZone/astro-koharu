@@ -41,7 +41,7 @@ export function BangumiCard({ item }: BangumiCardProps) {
         {imageUrl ? (
           <img src={imageUrl} alt={title} loading="lazy" className="size-full object-cover" />
         ) : (
-          <div className="flex size-full items-center justify-center text-muted-foreground text-sm">No Image</div>
+          <div className="flex size-full items-center justify-center text-muted-foreground text-sm">{t('bangumi.noImage')}</div>
         )}
 
         <div className="absolute inset-x-0 bottom-0 h-2/3 bg-gradient-to-t from-black/80 to-transparent" />

@@ -616,12 +616,12 @@ christmas:
 # 字段说明：
 #   userId: Bangumi 用户名或数字 ID（必填）
 #   label: 导航显示名称（可选，默认：追番）
-#   icon: 导航图标，Iconify 格式（可选，默认：ri:tv-line）
+#   icon: 导航图标，Iconify 格式（可选，默认：ri:bilibili-fill）
 # -----------------------------------------------------------------------------
 bangumi:
   userId: cosine
   # label: 追番
-  # icon: ri:tv-line
+  # icon: ri:bilibili-fill
 
 # =============================================================================
 # Development Tools (Dev Only)

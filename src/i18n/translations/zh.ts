@@ -331,6 +331,7 @@ export const uiStrings = {
   'bangumi.watching': '在看',
   'bangumi.onHold': '搁置',
   'bangumi.dropped': '抛弃',
+  'bangumi.noImage': '暂无图片',
   'bangumi.noItems': '暂无收藏',
   'bangumi.error': '加载失败，请稍后重试',
   'bangumi.retry': '重试',

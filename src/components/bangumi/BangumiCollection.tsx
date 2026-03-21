@@ -1,5 +1,6 @@
 import { useBangumiData } from '@hooks/useBangumiData';
 import { useTranslation } from '@hooks/useTranslation';
+import { Icon } from '@iconify/react';
 import { cn } from '@lib/utils';
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
 import { useMemo, useState } from 'react';
@@ -205,9 +206,9 @@ export function BangumiCollection({ userId }: BangumiCollectionProps) {
             onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
             disabled={currentPage === 1}
             aria-label={t('pagination.prev')}
-            className="rounded-md bg-muted px-3 py-1.5 text-sm transition-colors hover:bg-muted/80 disabled:opacity-50"
+            className="flex size-8 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground disabled:pointer-events-none disabled:opacity-40"
           >
-            ←
+            <Icon icon="ri:arrow-left-s-line" className="size-4" />
           </button>
           <div className="flex gap-1">
             {Array.from({ length: totalPages }, (_, i) => i + 1)
@@ -244,9 +245,9 @@ export function BangumiCollection({ userId }: BangumiCollectionProps) {
             onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
             disabled={currentPage === totalPages}
             aria-label={t('pagination.next')}
-            className="rounded-md bg-muted px-3 py-1.5 text-sm transition-colors hover:bg-muted/80 disabled:opacity-50"
+            className="flex size-8 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground disabled:pointer-events-none disabled:opacity-40"
           >
-            →
+            <Icon icon="ri:arrow-right-s-line" className="size-4" />
           </button>
         </div>
       )}
