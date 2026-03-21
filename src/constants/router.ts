@@ -14,6 +14,7 @@ export enum Routes {
   Friends = '/friends',
   Post = '/post',
   Archives = '/archives',
+  Bangumi = '/bangumi',
 }
 
 // Reserved routes that cannot be used as series slugs
@@ -27,6 +28,7 @@ export const RESERVED_ROUTES = new Set([
   'post',
   'posts',
   'archives',
+  'bangumi',
   '404',
   // Special files
   'rss.xml',

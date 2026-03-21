@@ -6,8 +6,8 @@
  */
 
 import ThemeToggle from '@components/theme/ThemeToggle';
-import { RESERVED_ROUTES, routers } from '@constants/router';
-import { configuredSeriesSlugs, enabledSeriesSlugs } from '@constants/site-config';
+import { RESERVED_ROUTES } from '@constants/router';
+import { configuredSeriesSlugs, enabledSeriesSlugs, routers } from '@constants/site-config';
 import { useIsTablet } from '@hooks/useMediaQuery';
 import { useScrollTrigger } from '@hooks/useScrollTrigger';
 import { Icon } from '@iconify/react';

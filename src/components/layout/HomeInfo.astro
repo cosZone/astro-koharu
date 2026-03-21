@@ -2,8 +2,8 @@
 import ChristmasHat from '@components/christmas/ChristmasHat.astro';
 import ButtonLink from '@components/control/ButtonLink.astro';
 import type { HomeSiderType } from '@constants/enum';
-import { RESERVED_ROUTES, routers } from '@constants/router';
-import { christmasConfig, configuredSeriesSlugs, enabledSeriesSlugs, siteConfig } from '@constants/site-config';
+import { RESERVED_ROUTES } from '@constants/router';
+import { christmasConfig, configuredSeriesSlugs, enabledSeriesSlugs, routers, siteConfig } from '@constants/site-config';
 import { getAllTags, getCategoryList, getPostCount, getSortedPosts } from '@lib/content';
 import { getLqipStyle } from '@lib/lqip';
 import { cn, filterNavItems } from '@lib/utils';
