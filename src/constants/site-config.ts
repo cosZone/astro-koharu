@@ -1,17 +1,19 @@
 // Import YAML config directly - processed by @rollup/plugin-yaml
 
 import type {
+  BangumiConfig,
   BgmAudioGroup,
   CommentConfig,
   DevConfig,
   FeaturedCategory,
   FeaturedSeriesItem,
   I18nConfig,
+  RouterItem,
   SiteBasicConfig,
 } from '@lib/config/types';
 import { DEFAULT_TIMEZONE, isValidTimezone } from '@lib/timezone';
 import yamlConfig from '../../config/site.yaml';
-import { isReservedSlug, RESERVED_ROUTES } from './router';
+import { routers as baseRouters, isReservedSlug, RESERVED_ROUTES } from './router';
 
 /**
  * Runtime site configuration
@@ -298,6 +300,22 @@ export const bgmConfig: { enabled: boolean; audio: BgmAudioGroup[] } = {
   enabled: yamlConfig.bgm?.enabled ?? (yamlConfig.bgm?.audio?.length ?? 0) > 0,
   audio: yamlConfig.bgm?.audio ?? [],
 };
+
+// Bangumi media tracking config — null when disabled (section commented out in YAML)
+export const bangumiConfig: BangumiConfig | null = yamlConfig.bangumi ?? null;
+
+// Navigation routers with auto-injected bangumi entry
+export const routers: RouterItem[] = bangumiConfig
+  ? [
+      ...baseRouters,
+      {
+        name: bangumiConfig.label,
+        nameKey: bangumiConfig.label ? undefined : 'nav.bangumi',
+        path: '/bangumi',
+        icon: bangumiConfig.icon ?? 'ri:bilibili-fill',
+      },
+    ]
+  : baseRouters;
 
 // Map YAML dev tools config with defaults (dev only)
 export const devConfig: DevConfig = {

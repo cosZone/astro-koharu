@@ -1,0 +1,1 @@
+export { BangumiCollection } from './BangumiCollection';

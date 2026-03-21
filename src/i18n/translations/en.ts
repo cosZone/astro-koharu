@@ -316,4 +316,22 @@ export const uiStrings: UIStrings = {
 
   // ── Comment ────────────────────────────────────────────────
   'comment.prompt': 'If you enjoyed this, leave a comment~',
+
+  // ── Bangumi ───────────────────────────────────────────────
+  'bangumi.title': 'Bangumi',
+  'bangumi.description': 'My media collection',
+  'bangumi.anime': 'Anime',
+  'bangumi.book': 'Books',
+  'bangumi.music': 'Music',
+  'bangumi.game': 'Games',
+  'bangumi.real': 'Real',
+  'bangumi.all': 'All',
+  'bangumi.wish': 'Wish',
+  'bangumi.collected': 'Completed',
+  'bangumi.watching': 'Watching',
+  'bangumi.onHold': 'On Hold',
+  'bangumi.dropped': 'Dropped',
+  'bangumi.noItems': 'No collections',
+  'bangumi.error': 'Failed to load, please try again',
+  'bangumi.retry': 'Retry',
 };

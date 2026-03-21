@@ -1,0 +1,30 @@
+---
+import { BangumiCollection } from '@components/bangumi';
+import HomeSider from '@components/layout/HomeSider.astro';
+import Cover from '@components/ui/cover/Cover.astro';
+import { CONTENT_PADDING } from '@constants/layout';
+import { bangumiConfig, siteConfig } from '@constants/site-config';
+import Layout from '@layouts/Layout.astro';
+import TwoColumnLayout from '@layouts/TwoColumnLayout.astro';
+import { Comment } from '@/components/comment';
+import { getLocaleFromUrl, t } from '@/i18n';
+
+if (!bangumiConfig) return Astro.redirect('/404');
+
+const locale = getLocaleFromUrl(Astro.url.pathname);
+const title = `${t(locale, 'bangumi.title')} | ${siteConfig.title}`;
+const description = t(locale, 'bangumi.description');
+---
+
+<Layout title={title} description={description}>
+  <TwoColumnLayout>
+    <Cover slot="cover" title={t(locale, 'bangumi.title')} />
+    <HomeSider slot="sider" />
+    <div
+      class={`bg-gradient-start shadow-box tablet:shadow-none flex flex-col overflow-hidden ${CONTENT_PADDING.standard}`}
+    >
+      <BangumiCollection client:load userId={bangumiConfig.userId} />
+      <Comment />
+    </div>
+  </TwoColumnLayout>
+</Layout>
