@@ -35,6 +35,7 @@ function TwikooSkeleton() {
 
 export default function Twikoo() {
   const containerRef = useRef<HTMLDivElement>(null);
+  const generationRef = useRef(0);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -42,14 +43,19 @@ export default function Twikoo() {
 
     const initTwikoo = async () => {
       if (!containerRef.current) return;
+
+      // Increment generation counter — stale concurrent calls bail out after await
+      const thisGen = ++generationRef.current;
+
       setLoading(true);
-      // Clear container to avoid duplicate init (Twikoo has no destroy/update API)
       containerRef.current.innerHTML = '';
       const locale = getLocaleFromUrl(window.location.pathname);
       // Dynamic import: twikoo is a UMD bundle (~500KB) with no type definitions,
       // and accesses `document` at module load time — lazy loading is the cleanest approach
       const { init } = await import('twikoo/dist/twikoo.nocss.js');
-      if (!containerRef.current) return;
+
+      if (thisGen !== generationRef.current || !containerRef.current) return;
+
       await init({
         envId: config.envId,
         el: containerRef.current,
@@ -57,6 +63,8 @@ export default function Twikoo() {
         path: config.path ?? window.location.pathname,
         lang: config.lang ?? getHtmlLang(locale),
       });
+
+      if (thisGen !== generationRef.current) return;
       setLoading(false);
     };
 
