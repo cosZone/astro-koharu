@@ -85,35 +85,31 @@ function handleImageClick(e: Event): void {
 
 export function enhanceImages(container: Element): void {
   const images = container.querySelectorAll<HTMLImageElement>('.markdown-image');
-  let loadedCount = 0;
-  const totalImages = images.length;
 
   // Event delegation for clicks
   container.addEventListener('click', handleImageClick);
 
-  const checkAllLoaded = () => {
-    loadedCount++;
-    if (loadedCount >= totalImages) {
-      groupPortraitImages(container);
-    }
+  // Debounced grouping so lazy-loaded images get grouped as they load,
+  // instead of waiting for every image on the page to finish.
+  let groupTimer: ReturnType<typeof setTimeout> | undefined;
+  const scheduleGrouping = () => {
+    clearTimeout(groupTimer);
+    groupTimer = setTimeout(() => groupPortraitImages(container), 100);
   };
 
   images.forEach((img) => {
     if (enhancedImages.has(img)) {
-      checkAllLoaded();
       return;
     }
     enhancedImages.add(img);
 
     if (img.complete && img.naturalWidth > 0) {
       handleImageLoaded(img);
-      checkAllLoaded();
       return;
     }
 
     if (img.complete && img.naturalWidth === 0) {
       handleImageError(img);
-      checkAllLoaded();
       return;
     }
 
@@ -121,7 +117,7 @@ export function enhanceImages(container: Element): void {
       'load',
       () => {
         handleImageLoaded(img);
-        checkAllLoaded();
+        scheduleGrouping();
       },
       { once: true },
     );
@@ -130,15 +126,13 @@ export function enhanceImages(container: Element): void {
       'error',
       () => {
         handleImageError(img);
-        checkAllLoaded();
       },
       { once: true },
     );
   });
 
-  if (totalImages === 0) {
-    groupPortraitImages(container);
-  }
+  // Initial grouping for already-loaded images
+  scheduleGrouping();
 }
 
 function handleImageLoaded(img: HTMLImageElement): void {
