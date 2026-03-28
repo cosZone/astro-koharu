@@ -466,6 +466,7 @@
 
 .prose .markdown-image-row {
   display: flex;
+  align-items: center;
   gap: 0.75rem;
   margin: 1.5rem 0;
 }
@@ -479,8 +480,15 @@
 
 .prose .markdown-image-row .markdown-image.loaded {
   width: 100%;
+  height: auto;
   max-height: 60vh;
   object-fit: contain;
+}
+
+/* Portrait specificity override: portrait rule (0,5,0) sets width:auto which
+   beats the row rule (0,4,0) above. This (0,6,0) selector restores width:100%. */
+.prose .markdown-image-row .markdown-image-wrapper.portrait .markdown-image.loaded {
+  width: 100%;
 }
 
 /* Lightbox is now React-based (ImageLightbox.tsx), styles handled by Tailwind */
