@@ -130,7 +130,16 @@ export function LinkPreview({ url }: LinkPreviewProps) {
         <div className="flex flex-row bg-card md:flex-col">
           <div className="flex-1 p-4">
             <div className="mb-2 flex items-center gap-2">
-              {ogData.logo && <img src={ogData.logo} alt="" className="h-4 w-4 shrink-0" loading="lazy" aria-hidden="true" />}
+              {ogData.logo && (
+                <img
+                  src={ogData.logo}
+                  alt=""
+                  className="h-4 w-4 shrink-0"
+                  loading="lazy"
+                  aria-hidden="true"
+                  referrerPolicy="no-referrer"
+                />
+              )}
               <span className="truncate font-medium text-muted-foreground text-xs">{domain}</span>
             </div>
             <h3 className="mb-2 line-clamp-2 font-semibold text-foreground leading-tight">{ogData.title}</h3>
