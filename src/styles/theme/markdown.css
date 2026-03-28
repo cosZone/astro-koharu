@@ -370,14 +370,14 @@
   background-color: hsl(var(--muted));
 }
 
-/* 图片样式 - 16:9 默认占位比例 */
+/* Image styles — default 4:3 placeholder aspect ratio */
 .prose .markdown-image {
   display: block;
   width: 100%;
   height: auto;
 
-  /* 默认 16:9 比例防止布局抖动 */
-  aspect-ratio: 16 / 9;
+  /* Default 4:3 ratio to prevent layout shift, balanced for landscape & portrait */
+  aspect-ratio: 4 / 3;
   object-fit: contain;
 
   /* 淡入动画 */
@@ -393,7 +393,6 @@
   opacity: 1;
   aspect-ratio: auto;
   max-height: 70vh;
-  object-fit: contain;
 }
 
 /* 全屏按钮样式 */
@@ -435,6 +434,34 @@
   opacity: 1;
 }
 
+/* Image caption */
+/* Hide caption before image loads but preserve space to reduce CLS */
+.prose .markdown-image-caption {
+  visibility: hidden;
+  margin-top: 0;
+  padding: 0.375rem 0.5rem;
+  font-size: 0.8rem;
+  line-height: 1.4;
+  color: hsl(var(--muted-foreground));
+  text-align: center;
+}
+
+.prose .markdown-image.loaded ~ .markdown-image-caption {
+  visibility: visible;
+}
+
+/* ========== Portrait image centering ========== */
+
+.prose .markdown-image-wrapper.portrait {
+  width: fit-content;
+  max-width: 100%;
+}
+
+.prose .markdown-image-wrapper.portrait .markdown-image.loaded {
+  width: auto;
+  max-width: 100%;
+}
+
 /* ========== 竖图并排显示 ========== */
 
 .prose .markdown-image-row {
@@ -447,10 +474,13 @@
   flex: 1;
   margin: 0;
   min-width: 0;
+  width: auto;
 }
 
 .prose .markdown-image-row .markdown-image.loaded {
+  width: 100%;
   max-height: 60vh;
+  object-fit: contain;
 }
 
 /* Lightbox is now React-based (ImageLightbox.tsx), styles handled by Tailwind */

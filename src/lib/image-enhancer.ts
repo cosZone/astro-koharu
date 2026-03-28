@@ -145,11 +145,15 @@ function handleImageLoaded(img: HTMLImageElement): void {
   img.classList.add('loaded');
 
   const isPortrait = img.naturalHeight > img.naturalWidth * 1.2;
+  const wrapper = img.closest('.markdown-image-wrapper');
   if (isPortrait) {
-    img.closest('.markdown-image-wrapper')?.classList.add('portrait');
+    wrapper?.classList.add('portrait');
   }
 
-  const wrapper = img.closest('.markdown-image-wrapper');
+  // Store aspect ratio for flex distribution in groupPortraitImages
+  if (wrapper && img.naturalWidth && img.naturalHeight) {
+    (wrapper as HTMLElement).dataset.aspectRatio = String(img.naturalWidth / img.naturalHeight);
+  }
   if (!wrapper || wrapper.querySelector('.markdown-image-fullscreen')) return;
 
   const fullscreenBtn = createFullscreenButton();
@@ -185,6 +189,12 @@ function groupPortraitImages(container: Element): void {
 
       const fragment = document.createDocumentFragment();
       currentGroup.forEach((wrapper) => {
+        const el = wrapper as HTMLElement;
+        // Proportional flex so all images in the row share the same rendered height
+        const ratio = el.dataset.aspectRatio;
+        if (ratio) {
+          el.style.flex = ratio;
+        }
         fragment.appendChild(wrapper);
       });
       row.appendChild(fragment);
