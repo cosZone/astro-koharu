@@ -33,14 +33,14 @@ const locale = getLocaleFromUrl(Astro.url.pathname);
       {localeEntries.length > 1 && (
         <details class="language-switcher group relative ml-auto mr-4">
           <summary
-            class="flex cursor-pointer list-none items-center gap-1.5 rounded-lg px-2.5 py-1 text-sm text-white/70 transition-colors hover:bg-white/10 hover:text-white [&::-webkit-details-marker]:hidden"
+            class="flex cursor-pointer list-none items-center gap-1.5 rounded-lg px-2.5 py-1 text-sm text-muted-foreground transition-colors hover:bg-foreground/10 hover:text-foreground [&::-webkit-details-marker]:hidden"
             aria-label={t(locale, 'common.language')}
           >
             <Icon name="ri:translate" class="size-4" />
             <span>{getLocaleLabel(locale)}</span>
             <Icon name="ri:arrow-down-s-line" class="size-4 transition-transform duration-200 group-open:rotate-180" />
           </summary>
-          <div class="absolute right-0 top-full z-10 mt-1 flex min-w-28 flex-col overflow-hidden rounded-lg bg-black/40 shadow-lg backdrop-blur-sm">
+          <div class="absolute right-0 top-full z-10 mt-1 flex min-w-28 flex-col overflow-hidden rounded-lg bg-background/80 shadow-lg backdrop-blur-sm dark:bg-black/40">
             {localeEntries.map((entry) => {
               const isActive = entry.code === locale;
               return (
@@ -50,7 +50,7 @@ const locale = getLocaleFromUrl(Astro.url.pathname);
                     'px-4 py-2 text-sm transition-colors',
                     isActive
                       ? 'bg-gradient-shoka-button font-medium text-white'
-                      : 'text-white/70 hover:bg-white/10 hover:text-white',
+                      : 'text-muted-foreground hover:bg-foreground/10 hover:text-foreground',
                   ]}
                   aria-current={isActive ? 'true' : undefined}
                 >
