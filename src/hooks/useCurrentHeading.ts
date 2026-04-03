@@ -25,17 +25,21 @@ export interface CurrentHeading {
 export interface UseCurrentHeadingOptions {
   /** Offset from top of viewport for detecting active heading (default: 80px) */
   offsetTop?: number;
+  /** Threshold for article visibility detection (default: 0.1) */
+  articleThreshold?: number;
 }
 
 /**
  * Creates a scroll store for tracking current heading using Intersection Observer
  * This avoids forced reflows by using async intersection callbacks
  */
-function createHeadingStore(offsetTop: number) {
+function createHeadingStore(offsetTop: number, articleThreshold: number) {
   let currentHeading: CurrentHeading | null = null;
   const listeners = new Set<() => void>();
-  let observer: IntersectionObserver | null = null;
+  let headingObserver: IntersectionObserver | null = null;
+  let articleObserver: IntersectionObserver | null = null;
   const visibleHeadings = new Map<string, { top: number; element: HTMLElement }>(); // id -> { top, element }
+  let isArticleVisible = true;
 
   const notifyListeners = () => {
     listeners.forEach((listener) => {
@@ -81,10 +85,43 @@ function createHeadingStore(offsetTop: number) {
     }
   };
 
-  // Setup Intersection Observer
-  const setupObserver = () => {
-    if (observer) {
-      observer.disconnect();
+  // Setup article visibility observer
+  const setupArticleObserver = () => {
+    if (articleObserver) {
+      articleObserver.disconnect();
+    }
+
+    const article = document.querySelector('article');
+    if (!article) return;
+
+    // Root margin: negative bottom margin to detect when article is out of view
+    const rootMargin = '0px 0px -20% 0px';
+
+    articleObserver = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          isArticleVisible = entry.isIntersecting && entry.intersectionRatio >= articleThreshold;
+
+          if (!isArticleVisible) {
+            // Article is out of view, clear current heading
+            updateHeading(null);
+            visibleHeadings.clear();
+          }
+        }
+      },
+      {
+        rootMargin,
+        threshold: articleThreshold,
+      },
+    );
+
+    articleObserver.observe(article);
+  };
+
+  // Setup headings Intersection Observer
+  const setupHeadingObserver = () => {
+    if (headingObserver) {
+      headingObserver.disconnect();
     }
 
     visibleHeadings.clear();
@@ -96,9 +133,14 @@ function createHeadingStore(offsetTop: number) {
     // Root margin: negative top margin to account for header offset
     const rootMargin = `-${offsetTop}px 0px -70% 0px`;
 
-    observer = new IntersectionObserver(
+    headingObserver = new IntersectionObserver(
       (entries) => {
         for (const entry of entries) {
+          if (!isArticleVisible) {
+            // Skip heading updates if article is not visible
+            continue;
+          }
+
           const element = entry.target as HTMLElement;
           const id = element.id;
           if (!id) continue;
@@ -125,12 +167,12 @@ function createHeadingStore(offsetTop: number) {
 
     headings.forEach((heading) => {
       if (heading.id) {
-        observer?.observe(heading);
+        headingObserver?.observe(heading);
       }
     });
 
     // Initial check for headings already above viewport
-    if (headings.length > 0 && visibleHeadings.size === 0) {
+    if (headings.length > 0 && visibleHeadings.size === 0 && isArticleVisible) {
       requestAnimationFrame(() => {
         const headingArray = Array.from(headings);
         for (let i = headingArray.length - 1; i >= 0; i--) {
@@ -150,21 +192,28 @@ function createHeadingStore(offsetTop: number) {
     }
   };
 
+  // Setup both observers
+  const setupObservers = () => {
+    setupArticleObserver();
+    setupHeadingObserver();
+  };
+
   // Handle Astro page transitions
   const handlePageLoad = () => {
     visibleHeadings.clear();
     currentHeading = null;
+    isArticleVisible = true;
     requestAnimationFrame(() => {
-      setupObserver();
+      setupObservers();
     });
   };
 
   return {
     subscribe: (listener: () => void) => {
-      // First listener - set up observer
+      // First listener - set up observers
       if (listeners.size === 0) {
         if (document.readyState !== 'loading') {
-          setupObserver();
+          setupObservers();
         }
         document.addEventListener('astro:page-load', handlePageLoad);
         document.addEventListener('content:decrypted', handlePageLoad);
@@ -177,9 +226,13 @@ function createHeadingStore(offsetTop: number) {
 
         // Last listener - clean up
         if (listeners.size === 0) {
-          if (observer) {
-            observer.disconnect();
-            observer = null;
+          if (headingObserver) {
+            headingObserver.disconnect();
+            headingObserver = null;
+          }
+          if (articleObserver) {
+            articleObserver.disconnect();
+            articleObserver = null;
           }
           document.removeEventListener('astro:page-load', handlePageLoad);
           document.removeEventListener('content:decrypted', handlePageLoad);
@@ -203,9 +256,12 @@ function createHeadingStore(offsetTop: number) {
  * @param options - Options for heading detection
  * @returns Current heading info or null if not scrolled past any heading
  */
-export function useCurrentHeading({ offsetTop = 80 }: UseCurrentHeadingOptions = {}): CurrentHeading | null {
+export function useCurrentHeading({
+  offsetTop = 80,
+  articleThreshold = 0.1,
+}: UseCurrentHeadingOptions = {}): CurrentHeading | null {
   // Memoize store creation to avoid recreating on every render
-  const store = useMemo(() => createHeadingStore(offsetTop), [offsetTop]);
+  const store = useMemo(() => createHeadingStore(offsetTop, articleThreshold), [offsetTop, articleThreshold]);
 
   return useSyncExternalStore(store.subscribe, store.getSnapshot, store.getServerSnapshot);
 }
