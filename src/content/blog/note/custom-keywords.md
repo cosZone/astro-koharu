@@ -1,0 +1,38 @@
+---
+title: 自定义关键词示例
+link: custom-keywords
+date: 2024-01-07 00:00:00
+description: 展示如何设置文章关键词。
+tags:
+  - 教程
+categories:
+  - 笔记
+keywords:
+  - 示例关键词
+  - cos 姐 最棒啦
+  - kissablecho 爱你们哦
+# kissablecho: 没人会看见的吧。。。
+---
+
+本文展示如何设置文章关键词。
+
+## frontmatter 关键词设置
+
+在文章的 frontmatter 中添加 keywords 字段即可设置关键词：
+
+```markdown
+---
+title: 我的文章
+date: 2026-01-01
+keywords:
+  - 示例关键词
+---
+
+这是篇带有关键词的文章。
+```
+
+然后生成的页面会包含以下 meta 标签：
+
+```html
+<meta name="keywords" content="示例关键词, site.keywords">
+```
