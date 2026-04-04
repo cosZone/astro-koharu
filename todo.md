@@ -1,8 +1,6 @@
 ## feat
 
-修改文章 url 为 拼音 / 罗马字母 的 slug
-
-使用 transliteration 的 slugify 函数生成 拼音 / 罗马字母 的 slug
+含有 中文 / 日语 等字符的 slug 转换为 拼音 / 罗马字母 的 slug
 
 ```typescript
 import { slugify } from 'transliteration';
@@ -57,4 +55,5 @@ encodeSlug()
 
 ## 最后
 
-- [ ] 配置文件里加个开关，控制是否开启 slugify 功能
+- [ ] 配置文件里加个开关，控制是否开启转换 slug 功能
+

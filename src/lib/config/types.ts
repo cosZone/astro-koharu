@@ -27,6 +27,8 @@ export interface SiteBasicConfig {
   timezone?: string;
   /** ICP filing number. Supports plain text or { text, link } format */
   icp?: string | { text: string; link?: string };
+  /** 是否启用 slug 转换功能（将中文/日语等字符转换为拼音/罗马字母） @default false */
+  enableSlugTransliteration?: boolean;
 }
 
 // =============================================================================

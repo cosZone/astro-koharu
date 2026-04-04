@@ -7,6 +7,7 @@
 
 import { slugify } from 'transliteration';
 import type { BlogPost, PostRefWithSlugLinkAndDataLink } from 'types/blog';
+import { siteConfig } from '@/constants/site-config';
 import { allKnownLocales, defaultLocale } from '@/i18n/config';
 
 export interface SlugLocaleInfo {
@@ -62,7 +63,9 @@ export function getPostLocale(post: BlogPost): string {
 export function getPostSlug(post: PostRefWithSlugLinkAndDataLink): string {
   const rawSlug = post.slug;
   const localeInfo = getSlugLocaleInfo(rawSlug).localeFreeSlug;
-  const slug = slugify(localeInfo, { allowedChars: 'a-zA-Z0-9-_.~/', separator: '-' });
+  const slug = siteConfig.enableSlugTransliteration
+    ? slugify(localeInfo, { allowedChars: 'a-zA-Z0-9-_.~/', separator: '-' })
+    : localeInfo;
   // debugger
   return post?.data?.link ?? post.link ?? slug;
 }
