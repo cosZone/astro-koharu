@@ -194,6 +194,7 @@ export const siteConfig: SiteConfig = {
   breadcrumbHome: yamlConfig.site.breadcrumbHome,
   featuredCategories: yamlConfig.featuredCategories,
   featuredSeries: normalizeFeaturedSeries(yamlConfig.featuredSeries),
+  enableSlugTransliteration: yamlConfig.site.enableSlugTransliteration,
 };
 
 export const socialConfig: SocialConfig = yamlConfig.social ?? {};

@@ -33,6 +33,7 @@ site:
   # icp:                         # ICP 备案号（可自定义链接）
   #   text: "粤ICP备xxxxxxxxxx号"
   #   link: "https://beian.miit.gov.cn/"
+  # enableSlugTransliteration: true # 启用 slug 转换功能（将中文/日语等字符转换为拼音/罗马字母）
 
 # =============================================================================
 # Internationalization (i18n)
