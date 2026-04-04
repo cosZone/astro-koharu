@@ -383,6 +383,7 @@ excludeFromSummary: false # 是否排除 AI 摘要和相似度计算（默认 fa
 math: false # 是否启用数学公式渲染（默认 false，启用后支持 KaTeX）
 quiz: false # 是否启用练习题交互（默认 false，启用后支持四种题型）
 password: mySecret # 整篇文章加密密码（可选，设置后整篇文章需输入密码才能阅读）
+keywords: # 文章关键词（可选）
 ---
 ```
 
