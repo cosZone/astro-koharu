@@ -439,6 +439,12 @@ export interface UmamiConfig {
   enabled: boolean;
   id: string;
   endpoint: string;
+  statistics_display?: {
+    token: string;
+    loginType: 'classic' | 'shared';
+    article_page_views: boolean;
+    footer_site_stats: boolean;
+  };
 }
 
 export interface AnalyticsConfig {

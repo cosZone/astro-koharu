@@ -552,12 +552,26 @@ comment:
 # id: Umami 网站 ID
 # endpoint: Umami 服务器地址
 # enabled: 是否启用统计
+# statistics_display: 统计信息显示配置
+#   token: Umami 访问令牌
+#   loginType: 登录类型， classic 或 shared
+#   article_page_views: 在文章详情页显示访问量
+#   footer_site_stats: 在页脚 Site Stats 中显示全站访问量
 # -----------------------------------------------------------------------------
 analytics:
   umami:
-    enabled: true
+    enabled: false
     id: your-umami-id
-    endpoint: https://stats.example.com
+    endpoint: https://stats.example.co
+    # 统计信息显示配置
+    statistics_display:
+      token: your-umami-token  # Umami 访问令牌
+      loginType: shared # 登录类型， classic 或 shared
+      # 在文章详情页显示访问量
+      article_page_views: true
+      # 在页脚 Site Stats 中显示全站访问量
+      footer_site_stats: true
+
 
 # =============================================================================
 # SEO Configuration
