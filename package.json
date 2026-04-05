@@ -25,6 +25,7 @@
     "prepare": "husky",
     "knip": "knip",
     "koharu": "npx tsx scripts/koharu.tsx",
+    "preserve-old-links": "npx tsx scripts/preserve-old-links.js.tsx",
     "cms": "cd cms && pnpm dev",
     "cms:install": "cd cms && pnpm install"
   },
