@@ -2679,7 +2679,7 @@ cover: /img/cover/1.webp
 
 ### 如何添加评论功能？
 
-项目支持三种评论系统：**Waline**、**Giscus**、**Remark42**。在 `config/site.yaml` 的 `comment` 配置块中选择使用的提供商。
+项目支持四种评论系统：**Waline**、**Giscus**、**Remark42**、**Twikoo**。在 `config/site.yaml` 的 `comment` 配置块中选择使用的提供商。
 
 #### Waline（推荐）
 
@@ -2908,6 +2908,61 @@ comment:
 
 - [giscus 官网](https://giscus.app/zh-CN)
 - [giscus-component 文档](https://github.com/giscus/giscus-component)
+
+### Twikoo
+
+[Twikoo](https://twikoo.js.org/) 是一个搭建免费，部署简单，功能丰富的简洁、安全、易用的静态网站评论系统。
+
+**特点：**
+
+- ☁️ 云开发 / 自托管双部署模式
+- 🔒 隐私安全，无广告、无恶意追踪
+- 📧 支持邮件 / 微信公众号评论通知
+- ⚙️ 后台评论审核、敏感词过滤
+- 😊 内置表情包、支持图片上传
+- 🌙 原生支持深色 / 浅色主题切换
+- 👥 访客标记、评论点赞、楼中楼回复
+- 🛡️ 内置反垃圾评论防护
+
+**前置要求：**
+
+1. 部署 Twikoo 服务端（腾讯云开发 / 自托管，部署指南）
+2. 配置云开发环境 ID 或 自托管服务地址
+
+**配置示例：**
+
+```yaml
+comment:
+  provider: twikoo
+  twikoo:
+    envId: # Twikoo 环境 ID (腾讯云) 或 Vercel 环境地址 (必填)
+    region: # 环境地域，默认为 ap-shanghai
+    path: # 用于区分不同文章的自定义 js 路径，如果您的文章路径不是 location.pathname，需传此参数
+    lang: # 语言 (默认: 'zh-CN')
+```
+
+**参数说明：**
+
+| 参数     | 类型     | 说明                                                          |
+| -------- | -------- | ------------------------------------------------------------- |
+| `envId`  | `string` | Twikoo 环境 ID (**必填**，需带 `https://` 或 `https://`） |
+| `region` | `string` | 环境地域，默认为 `'ap-shanghai'`                           |
+| `path`   | `string` | 用于区分不同文章的自定义 js 路径，如果您的文章路径不是 location.pathname，需传此参数 |
+| `lang`   | `string` | 语言 (默认: `'zh-CN'`)                                    |
+
+**部署 Twikoo 服务端：**
+
+参考 [Twikoo 官网](https://twikoo.js.org/) 获取详细部署指南。
+
+**主题自动切换：**
+
+Twikoo 已实现主题自动切换
+
+**参考链接：**
+
+- [Twikoo 官网](https://twikoo.js.org/)
+
+
 
 ### 草稿文章如何预览？
 
