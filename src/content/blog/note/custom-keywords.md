@@ -1,7 +1,7 @@
 ---
 title: 自定义关键词示例
 link: custom-keywords
-date: 2024-01-07 00:00:00
+date: 2026-04-05 18:43:11
 description: 展示如何设置文章关键词。
 tags:
   - 教程
