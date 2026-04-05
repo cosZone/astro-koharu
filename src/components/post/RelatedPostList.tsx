@@ -1,4 +1,5 @@
 import { useTranslation } from '@hooks/useTranslation';
+import { translateCategoryName } from '@lib/content/category-translate';
 import { encodeSlug } from '@lib/route';
 import { localizedPath } from '@/i18n';
 import { cn, shuffleArray } from '@/lib/utils';
@@ -39,7 +40,11 @@ export default function RelatedPostList({ posts, fallbackPool, fallbackCount, st
           >
             <span className="shrink-0 font-mono text-foreground/30">{index + (hasRelatedPosts ? 1 : startIndex)}</span>
             <div className="flex min-w-0 flex-col gap-0.5">
-              {post.categoryName && <div className="truncate text-foreground/50 text-xs">{post.categoryName}</div>}
+              {post.categoryName && (
+                <div className="truncate text-foreground/50 text-xs">
+                  {locale ? translateCategoryName(post.categoryName, locale) : post.categoryName}
+                </div>
+              )}
               <div className="line-clamp-2 text-foreground/80 transition-colors group-hover:text-primary">{post.title}</div>
             </div>
           </a>
