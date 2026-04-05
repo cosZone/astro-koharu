@@ -335,6 +335,7 @@ comment:
 | ----------------------------------------- | ---------- | --------------------------------------------------------------- | ---------------------------- |
 | **[余弦の博客](http://blog.cosine.ren/)** | **cosine** | [cosZone/astro-koharu](https://github.com/cosZone/astro-koharu) | 本主题                       |
 | [雪花的博客](https://xhblog.top/)         | XueHua-s   | [XueHua-s/astro-snow](https://github.com/XueHua-s/astro-snow)   | 精简了很多功能，增加了起始页 |
+| [Ksable's 小屋](https://blog.ksable.top/) | Ksable    | - | 修改 / 新增了部分功能 |
 
 ## 🙏 鸣谢
 
