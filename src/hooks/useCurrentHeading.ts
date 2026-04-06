@@ -25,21 +25,18 @@ export interface CurrentHeading {
 export interface UseCurrentHeadingOptions {
   /** Offset from top of viewport for detecting active heading (default: 80px) */
   offsetTop?: number;
-  /** Threshold for article visibility detection (default: 0.1) */
-  articleThreshold?: number;
 }
 
 /**
  * Creates a scroll store for tracking current heading using Intersection Observer
  * This avoids forced reflows by using async intersection callbacks
  */
-function createHeadingStore(offsetTop: number, articleThreshold: number) {
+function createHeadingStore(offsetTop: number) {
   let currentHeading: CurrentHeading | null = null;
   const listeners = new Set<() => void>();
-  let headingObserver: IntersectionObserver | null = null;
-  let articleObserver: IntersectionObserver | null = null;
+  let observer: IntersectionObserver | null = null;
   const visibleHeadings = new Map<string, { top: number; element: HTMLElement }>(); // id -> { top, element }
-  let isArticleVisible = true;
+  let cachedHeadings: HTMLElement[] = []; // cached heading elements to avoid repeated querySelectorAll
 
   const notifyListeners = () => {
     listeners.forEach((listener) => {
@@ -58,7 +55,28 @@ function createHeadingStore(offsetTop: number, articleThreshold: number) {
   // Determine current heading from visible headings
   const updateCurrentHeading = () => {
     if (visibleHeadings.size === 0) {
-      // No visible headings in the intersection zone
+      // No headings in the intersection zone — defer layout query to avoid forced reflow
+      if (cachedHeadings.length === 0) {
+        updateHeading(null);
+        return;
+      }
+      requestAnimationFrame(() => {
+        // Find the last heading that's above the offset (user scrolled past it)
+        for (let i = cachedHeadings.length - 1; i >= 0; i--) {
+          const heading = cachedHeadings[i];
+          if (heading.id && heading.getBoundingClientRect().top < offsetTop) {
+            const level = parseInt(heading.tagName.substring(1), 10) as 2 | 3;
+            updateHeading({
+              id: heading.id,
+              text: heading.textContent?.trim() || '',
+              level,
+            });
+            return;
+          }
+        }
+        // No heading above viewport — user is at the very top
+        updateHeading(null);
+      });
       return;
     }
 
@@ -85,62 +103,27 @@ function createHeadingStore(offsetTop: number, articleThreshold: number) {
     }
   };
 
-  // Setup article visibility observer
-  const setupArticleObserver = () => {
-    if (articleObserver) {
-      articleObserver.disconnect();
-    }
-
-    const article = document.querySelector('article');
-    if (!article) return;
-
-    // Root margin: negative bottom margin to detect when article is out of view
-    const rootMargin = '0px 0px -20% 0px';
-
-    articleObserver = new IntersectionObserver(
-      (entries) => {
-        for (const entry of entries) {
-          isArticleVisible = entry.isIntersecting && entry.intersectionRatio >= articleThreshold;
-
-          if (!isArticleVisible) {
-            // Article is out of view, clear current heading
-            updateHeading(null);
-            visibleHeadings.clear();
-          }
-        }
-      },
-      {
-        rootMargin,
-        threshold: articleThreshold,
-      },
-    );
-
-    articleObserver.observe(article);
-  };
-
-  // Setup headings Intersection Observer
-  const setupHeadingObserver = () => {
-    if (headingObserver) {
-      headingObserver.disconnect();
+  // Setup Intersection Observer
+  const setupObserver = () => {
+    if (observer) {
+      observer.disconnect();
     }
 
     visibleHeadings.clear();
     currentHeading = null;
 
     const article = document.querySelector('article');
-    if (!article) return;
+    if (!article) {
+      cachedHeadings = [];
+      return;
+    }
 
     // Root margin: negative top margin to account for header offset
     const rootMargin = `-${offsetTop}px 0px -70% 0px`;
 
-    headingObserver = new IntersectionObserver(
+    observer = new IntersectionObserver(
       (entries) => {
         for (const entry of entries) {
-          if (!isArticleVisible) {
-            // Skip heading updates if article is not visible
-            continue;
-          }
-
           const element = entry.target as HTMLElement;
           const id = element.id;
           if (!id) continue;
@@ -164,21 +147,19 @@ function createHeadingStore(offsetTop: number, articleThreshold: number) {
 
     // Observe H2/H3 headings in article (excluding link preview blocks)
     const headings = article.querySelectorAll<HTMLElement>('h2:not(.link-preview-block h2), h3:not(.link-preview-block h3)');
+    cachedHeadings = Array.from(headings).filter((h) => h.id);
 
-    headings.forEach((heading) => {
-      if (heading.id) {
-        headingObserver?.observe(heading);
-      }
+    cachedHeadings.forEach((heading) => {
+      observer?.observe(heading);
     });
 
     // Initial check for headings already above viewport
-    if (headings.length > 0 && visibleHeadings.size === 0 && isArticleVisible) {
+    if (cachedHeadings.length > 0 && visibleHeadings.size === 0) {
       requestAnimationFrame(() => {
-        const headingArray = Array.from(headings);
-        for (let i = headingArray.length - 1; i >= 0; i--) {
-          const heading = headingArray[i];
+        for (let i = cachedHeadings.length - 1; i >= 0; i--) {
+          const heading = cachedHeadings[i];
           const rect = heading.getBoundingClientRect();
-          if (rect.top < offsetTop && heading.id) {
+          if (rect.top < offsetTop) {
             const level = parseInt(heading.tagName.substring(1), 10) as 2 | 3;
             updateHeading({
               id: heading.id,
@@ -192,28 +173,21 @@ function createHeadingStore(offsetTop: number, articleThreshold: number) {
     }
   };
 
-  // Setup both observers
-  const setupObservers = () => {
-    setupArticleObserver();
-    setupHeadingObserver();
-  };
-
   // Handle Astro page transitions
   const handlePageLoad = () => {
     visibleHeadings.clear();
     currentHeading = null;
-    isArticleVisible = true;
     requestAnimationFrame(() => {
-      setupObservers();
+      setupObserver();
     });
   };
 
   return {
     subscribe: (listener: () => void) => {
-      // First listener - set up observers
+      // First listener - set up observer
       if (listeners.size === 0) {
         if (document.readyState !== 'loading') {
-          setupObservers();
+          setupObserver();
         }
         document.addEventListener('astro:page-load', handlePageLoad);
         document.addEventListener('content:decrypted', handlePageLoad);
@@ -226,17 +200,14 @@ function createHeadingStore(offsetTop: number, articleThreshold: number) {
 
         // Last listener - clean up
         if (listeners.size === 0) {
-          if (headingObserver) {
-            headingObserver.disconnect();
-            headingObserver = null;
-          }
-          if (articleObserver) {
-            articleObserver.disconnect();
-            articleObserver = null;
+          if (observer) {
+            observer.disconnect();
+            observer = null;
           }
           document.removeEventListener('astro:page-load', handlePageLoad);
           document.removeEventListener('content:decrypted', handlePageLoad);
           visibleHeadings.clear();
+          cachedHeadings = [];
         }
       };
     },
@@ -256,12 +227,9 @@ function createHeadingStore(offsetTop: number, articleThreshold: number) {
  * @param options - Options for heading detection
  * @returns Current heading info or null if not scrolled past any heading
  */
-export function useCurrentHeading({
-  offsetTop = 80,
-  articleThreshold = 0.1,
-}: UseCurrentHeadingOptions = {}): CurrentHeading | null {
+export function useCurrentHeading({ offsetTop = 80 }: UseCurrentHeadingOptions = {}): CurrentHeading | null {
   // Memoize store creation to avoid recreating on every render
-  const store = useMemo(() => createHeadingStore(offsetTop, articleThreshold), [offsetTop, articleThreshold]);
+  const store = useMemo(() => createHeadingStore(offsetTop), [offsetTop]);
 
   return useSyncExternalStore(store.subscribe, store.getSnapshot, store.getServerSnapshot);
 }
