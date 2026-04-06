@@ -74,7 +74,6 @@ const canonicalHref = canonicalOverride ?? Astro.url.href;
 
 const keywords = keywordsOverride || siteConfig.keywords || [siteConfig.title];
 ---
----
 
 <!doctype html>
 <html transition:name="root" lang={htmlLang} class="vertical-scrollbar">
@@ -134,7 +133,7 @@ const keywords = keywordsOverride || siteConfig.keywords || [siteConfig.title];
         meta: [{ name: 'author', content: siteConfig.author || '' }],
       }}
     />
-    {/* astro-seo 尽然没管理 keywords */}
+    {/* astro-seo 暂不支持管理 keywords */}
     <meta name="keywords" content={keywords.join(', ')} />
 
     <link rel="alternate" type="application/rss+xml" title={siteConfig.title} href={rssHref} />

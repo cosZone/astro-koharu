@@ -8,10 +8,8 @@ tags:
 categories:
   - 笔记
 keywords:
-  - 示例关键词
-  - cos 姐 最棒啦
-  - kissablecho 爱你们哦
-# kissablecho: 没人会看见的吧。。。
+  - 示例关键词一
+  - 示例关键词二
 ---
 
 本文展示如何设置文章关键词。
@@ -25,7 +23,8 @@ keywords:
 title: 我的文章
 date: 2026-01-01
 keywords:
-  - 示例关键词
+  - 示例关键词一
+  - 示例关键词二
 ---
 
 这是篇带有关键词的文章。
@@ -34,5 +33,5 @@ keywords:
 然后生成的页面会包含以下 meta 标签：
 
 ```html
-<meta name="keywords" content="示例关键词, site.keywords">
+<meta name="keywords" content="示例关键词一, 示例关键词二, ... site.keywords">
 ```
