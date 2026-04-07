@@ -61,10 +61,12 @@ function createHeadingStore(offsetTop: number) {
         return;
       }
       requestAnimationFrame(() => {
+        // Intersection events may have fired since we scheduled this frame
+        if (visibleHeadings.size > 0) return;
         // Find the last heading that's above the offset (user scrolled past it)
         for (let i = cachedHeadings.length - 1; i >= 0; i--) {
           const heading = cachedHeadings[i];
-          if (heading.id && heading.getBoundingClientRect().top < offsetTop) {
+          if (heading.getBoundingClientRect().top < offsetTop) {
             const level = parseInt(heading.tagName.substring(1), 10) as 2 | 3;
             updateHeading({
               id: heading.id,
