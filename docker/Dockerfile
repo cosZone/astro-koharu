@@ -29,14 +29,10 @@ ARG REMARK_SITE_ID
 ARG UMAMI_ID
 ARG UMAMI_ENDPOINT
 
-# Set environment variables for build
-ENV REMARK_URL=${REMARK_URL}
-ENV REMARK_SITE_ID=${REMARK_SITE_ID}
-ENV UMAMI_ID=${UMAMI_ID}
-ENV UMAMI_ENDPOINT=${UMAMI_ENDPOINT}
-
-# Build the static site
-RUN pnpm build
+# Build the static site (pass ARGs as inline env to avoid persisting in layer history)
+RUN REMARK_URL=$REMARK_URL REMARK_SITE_ID=$REMARK_SITE_ID \
+    UMAMI_ID=$UMAMI_ID UMAMI_ENDPOINT=$UMAMI_ENDPOINT \
+    pnpm build
 
 # =============================================================================
 # Stage 2: Production (nginx)

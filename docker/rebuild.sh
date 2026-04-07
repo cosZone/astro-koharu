@@ -20,9 +20,10 @@ echo "  或单独运行生成脚本以更新 LQIP、相似度和 AI 摘要数据
 echo "================================================"
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-cd "$SCRIPT_DIR"
+REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+cd "$REPO_ROOT"
 
-ENV_FILE="${ENV_FILE:-../.env}"
+ENV_FILE="${ENV_FILE:-$REPO_ROOT/.env}"
 SKIP_DOWN="${SKIP_DOWN:-false}"
 
 if [ ! -f "$ENV_FILE" ]; then
@@ -31,7 +32,7 @@ if [ ! -f "$ENV_FILE" ]; then
   exit 1
 fi
 
-COMPOSE_CMD=(docker compose --env-file "$ENV_FILE")
+COMPOSE_CMD=(docker compose --env-file "$ENV_FILE" -f "$SCRIPT_DIR/docker-compose.yml")
 
 echo "🔐 Using environment file: $ENV_FILE"
 echo "🔄 Rebuilding blog with updated configuration..."
@@ -44,5 +45,6 @@ fi
 echo "🚀 Building and starting containers..."
 "${COMPOSE_CMD[@]}" up -d --build
 
+BLOG_PORT=$(grep -E '^BLOG_PORT=' "$ENV_FILE" 2>/dev/null | cut -d= -f2 | tr -d '"' || true)
 echo "✅ Blog rebuilt and deployed!"
-echo "🌐 Access at: http://localhost:4321"
+echo "🌐 Access at: http://localhost:${BLOG_PORT:-4321}"

@@ -2,7 +2,9 @@
 node_modules/
 dist/
 .astro/
-.cache/
+# Keep .cache/og-data.json for build acceleration (OG metadata cache)
+.cache/transformers/
+.cache/summaries-cache/
 .git/
 .gitignore
 .husky/
