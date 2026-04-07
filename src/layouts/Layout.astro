@@ -347,7 +347,7 @@ const canonicalHref = canonicalOverride ?? Astro.url.href;
       </main>
       {bgmConfig.enabled && bgmConfig.audio.length > 0 && (
         <div transition:persist="global-bgm">
-          <GlobalBGMPlayer client:only="react" audioGroups={bgmConfig.audio} />
+          <GlobalBGMPlayer client:only="react" audioGroups={bgmConfig.audio} metingApi={bgmConfig.metingApi} />
         </div>
       )}
       <FloatingGroup client:only="react" />

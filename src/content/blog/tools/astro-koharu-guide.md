@@ -1634,7 +1634,9 @@ fn main() {
 
 *音频播放器（`enableShokaHexoTags`）：*
 
-使用 `{% media audio %}` 标签嵌入音频播放器，支持网易云音乐等平台（通过 Meting API 解析）：
+使用 `{% media audio %}` 标签嵌入音频播放器，支持网易云音乐、QQ 音乐等平台（通过 [Meting](https://github.com/metowolf/meting) API 解析）。
+
+默认使用 `https://163.hyc.moe/` 作为 Meting API，可在 `config/site.yaml` 的 `bgm.metingApi` 中自定义，推荐自部署以获得更稳定的服务。
 
 ```markdown
 {% media audio %}
