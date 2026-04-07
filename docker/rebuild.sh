@@ -14,9 +14,9 @@ set -euo pipefail
 
 # Reminder for content generation
 echo "================================================"
-echo "  Reminder: 如果添加了新内容，建议先运行："
-echo "    pnpm generate:all"
-echo "  或单独运行生成脚本以更新 LQIP、相似度和 AI 摘要数据"
+echo "  Reminder: If you added new content, consider running first:"
+echo "    pnpm koharu generate all"
+echo "  to update LQIP, similarity vectors, and AI summaries."
 echo "================================================"
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -28,7 +28,7 @@ SKIP_DOWN="${SKIP_DOWN:-false}"
 
 if [ ! -f "$ENV_FILE" ]; then
   echo "❌ Environment file not found at $ENV_FILE"
-  echo "   Copy .env.example to .env in the repository root and fill in your secrets."
+  echo "   Copy .env.example to .env in the repository root and fill in your values."
   exit 1
 fi
 

@@ -89,7 +89,6 @@ function createActiveHeadingStore(offsetTop: number) {
           if (!id) continue;
 
           if (entry.isIntersecting) {
-            // Track this heading as visible with its boundingClientRect.top
             // Using entry.boundingClientRect avoids forced reflow
             visibleHeadings.set(id, entry.boundingClientRect.top);
           } else {

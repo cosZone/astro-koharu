@@ -57,17 +57,9 @@ cp .env.example .env
 ```bash
 # 博客端口（默认 4321）
 BLOG_PORT=4321
-
-# Remark42 评论系统（可选）
-REMARK_URL=https://remark.example.com
-REMARK_SITE_ID=your-site-id
-
-# Umami 统计分析（可选）
-UMAMI_ID=your-umami-id
-UMAMI_ENDPOINT=https://umami.example.com
 ```
 
-> 评论和统计的环境变量是 **构建时** 注入到静态 HTML 中的，修改后需要重新构建镜像。
+> 评论系统和统计分析等配置已迁移到 `config/site.yaml`，无需通过环境变量注入。
 
 **2. 构建并启动**
 
@@ -142,10 +134,6 @@ ports:
 | 变量 | 说明 | 默认值 |
 |------|------|--------|
 | `BLOG_PORT` | 主机端口映射 | `4321` |
-| `REMARK_URL` | Remark42 服务地址 | — |
-| `REMARK_SITE_ID` | Remark42 站点 ID | — |
-| `UMAMI_ID` | Umami 追踪 ID | — |
-| `UMAMI_ENDPOINT` | Umami 服务地址 | — |
 
 ## 本地测试
 

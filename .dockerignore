@@ -14,7 +14,6 @@ docker/rebuild.sh
 docker/nginx/*.md
 
 # Local configuration and secrets
-.env
 .env*
 *.local
 

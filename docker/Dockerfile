@@ -23,16 +23,8 @@ RUN pnpm install --frozen-lockfile --prod=false
 # Copy source files
 COPY . .
 
-# Build-time arguments for sensitive configuration
-ARG REMARK_URL
-ARG REMARK_SITE_ID
-ARG UMAMI_ID
-ARG UMAMI_ENDPOINT
-
-# Build the static site (pass ARGs as inline env to avoid persisting in layer history)
-RUN REMARK_URL=$REMARK_URL REMARK_SITE_ID=$REMARK_SITE_ID \
-    UMAMI_ID=$UMAMI_ID UMAMI_ENDPOINT=$UMAMI_ENDPOINT \
-    pnpm build
+# Build the static site
+RUN pnpm build
 
 # =============================================================================
 # Stage 2: Production (nginx)
