@@ -20,6 +20,7 @@
  * ```
  */
 
+import { lockHeadingTo } from '@lib/heading-scroll-lock';
 import { useCallback } from 'react';
 import { findHeadingById, getParentIds, getSiblingIds, type Heading } from './useHeadingTree';
 
@@ -47,6 +48,7 @@ export function useHeadingClickHandler({ headings, setExpandedIds }: UseHeadingC
       const element = document.getElementById(id);
       if (!element) return;
 
+      lockHeadingTo(id);
       element.scrollIntoView({ behavior: 'smooth', block: 'start' });
 
       // 获取点击的标题节点
