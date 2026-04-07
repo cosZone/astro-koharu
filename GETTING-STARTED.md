@@ -237,6 +237,22 @@ src/content/blog/
 
 更多详细配置（内容翻译、添加新语言等）请参考 [README 的多语言配置章节](./README.md#多语言配置i18n)。
 
+### 背景音乐（BGM）
+
+在 `config/site.yaml` 中配置背景音乐播放器：
+
+```yaml
+bgm:
+  enabled: true
+  # metingApi: https://163.hyc.moe/  # 自定义 Meting API 地址（默认 https://163.hyc.moe/）
+  audio:
+    - title: 我的歌单
+      list:
+        - https://music.163.com/playlist?id=你的歌单ID
+```
+
+音频播放器通过 [Meting](https://github.com/metowolf/meting) API 解析音乐平台链接，默认使用公共 API，**推荐自部署以获得更稳定的服务**。
+
 ### 内容生成（可选）
 
 使用 Koharu CLI 生成内容资产：

@@ -236,6 +236,7 @@ pnpm koharu generate all          # 生成全部
 - **评论系统**（Waline / Giscus / Remark42 / Twikoo，推荐使用 Waline）
 - 数据统计（Umami）
 - **国际化配置（i18n）**
+- **背景音乐（BGM）**：配置 `bgm.audio` 添加歌单，`bgm.metingApi` 可自定义 [Meting](https://github.com/metowolf/meting) API 地址（默认 `https://163.hyc.moe/`，推荐自部署）
 - **追番页面（Bangumi）**：配置 `bangumi.userId` 即可开启，注释掉整段关闭
 - 圣诞特辑开关
 - 开发工具配置（`config/site.yaml` 的 `dev` 部分，用于本地编辑器跳转）
@@ -324,7 +325,7 @@ comment:
 - 公告系统
   ![公告系统](https://r2.cosine.ren/i/2026/01/a4660955f52438b3cc2d21bdc931bbd4.gif)
 - Shoka 兼容 Markdown 语法 - 提醒块、折叠块、标签卡、文字特效、隐藏文字、注音标注、练习题等
-- 音视频播放器 - 支持网易云音乐歌单和视频播放
+- 音视频播放器 - 支持音乐歌单和视频播放，通过 [Meting](https://github.com/metowolf/meting) API 解析，推荐自部署
 
 ## 使用本主题的博客
 
