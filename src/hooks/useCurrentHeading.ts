@@ -151,7 +151,8 @@ function createHeadingStore(offsetTop: number) {
           }
           const cached = visibleHeadings.get(locked);
           const element = cached?.element ?? cachedHeadings.find((h) => h.id === locked);
-          if (element && (element.tagName === 'H2' || element.tagName === 'H3')) {
+          if (!element) return;
+          if (element.tagName === 'H2' || element.tagName === 'H3') {
             const level = parseInt(element.tagName.substring(1), 10) as 2 | 3;
             updateHeading({ id: locked, text: element.textContent?.trim() || '', level });
           }
