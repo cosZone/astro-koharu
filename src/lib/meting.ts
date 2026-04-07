@@ -90,9 +90,10 @@ export async function fetchMeting(server: string, type: string, id: string, apiU
   const cached = getFromCache(cacheKey);
   if (cached) return cached;
 
-  const api = apiUrl || DEFAULT_API;
+  const url = new URL(apiUrl || DEFAULT_API);
   const params = new URLSearchParams({ server, type, id });
-  const response = await fetch(`${api}?${params}`);
+  url.search = params.toString();
+  const response = await fetch(url);
   if (!response.ok) throw new Error(`Meting API error: ${response.status}`);
 
   const data: unknown = await response.json();
