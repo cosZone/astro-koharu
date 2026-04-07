@@ -36,6 +36,8 @@ function createHeadingStore(offsetTop: number) {
   const listeners = new Set<() => void>();
   let observer: IntersectionObserver | null = null;
   const visibleHeadings = new Map<string, { top: number; element: HTMLElement }>(); // id -> { top, element }
+  let cachedHeadings: HTMLElement[] = [];
+  let pendingRaf: number | null = null;
 
   const notifyListeners = () => {
     listeners.forEach((listener) => {
@@ -51,10 +53,33 @@ function createHeadingStore(offsetTop: number) {
     }
   };
 
+  // Find the last heading that's been scrolled past (above the offset line)
+  const findLastHeadingAboveOffset = (): CurrentHeading | null => {
+    for (let i = cachedHeadings.length - 1; i >= 0; i--) {
+      const heading = cachedHeadings[i];
+      if (heading.getBoundingClientRect().top < offsetTop) {
+        const level = parseInt(heading.tagName.substring(1), 10) as 2 | 3;
+        return { id: heading.id, text: heading.textContent?.trim() || '', level };
+      }
+    }
+    return null;
+  };
+
   // Determine current heading from visible headings
   const updateCurrentHeading = () => {
     if (visibleHeadings.size === 0) {
-      // No visible headings in the intersection zone
+      // No headings in the intersection zone — defer layout query to avoid forced reflow
+      if (cachedHeadings.length === 0) {
+        updateHeading(null);
+        return;
+      }
+      if (pendingRaf !== null) return;
+      pendingRaf = requestAnimationFrame(() => {
+        pendingRaf = null;
+        // Intersection events may have fired since we scheduled this frame
+        if (visibleHeadings.size > 0) return;
+        updateHeading(findLastHeadingAboveOffset());
+      });
       return;
     }
 
@@ -72,10 +97,10 @@ function createHeadingStore(offsetTop: number) {
     });
 
     if (closestElement && closestId) {
-      const level = parseInt((closestElement as HTMLElement).tagName.substring(1), 10) as 2 | 3;
+      const level = parseInt(closestElement.tagName.substring(1), 10) as 2 | 3;
       updateHeading({
         id: closestId,
-        text: (closestElement as HTMLElement).textContent?.trim() || '',
+        text: closestElement.textContent?.trim() || '',
         level,
       });
     }
@@ -91,7 +116,10 @@ function createHeadingStore(offsetTop: number) {
     currentHeading = null;
 
     const article = document.querySelector('article');
-    if (!article) return;
+    if (!article) {
+      cachedHeadings = [];
+      return;
+    }
 
     // Root margin: negative top margin to account for header offset
     const rootMargin = `-${offsetTop}px 0px -70% 0px`;
@@ -122,30 +150,16 @@ function createHeadingStore(offsetTop: number) {
 
     // Observe H2/H3 headings in article (excluding link preview blocks)
     const headings = article.querySelectorAll<HTMLElement>('h2:not(.link-preview-block h2), h3:not(.link-preview-block h3)');
+    cachedHeadings = Array.from(headings).filter((h) => h.id);
 
-    headings.forEach((heading) => {
-      if (heading.id) {
-        observer?.observe(heading);
-      }
+    cachedHeadings.forEach((heading) => {
+      observer?.observe(heading);
     });
 
-    // Initial check for headings already above viewport
-    if (headings.length > 0 && visibleHeadings.size === 0) {
+    // IO doesn't fire for elements already scrolled past before observer setup
+    if (cachedHeadings.length > 0 && visibleHeadings.size === 0) {
       requestAnimationFrame(() => {
-        const headingArray = Array.from(headings);
-        for (let i = headingArray.length - 1; i >= 0; i--) {
-          const heading = headingArray[i];
-          const rect = heading.getBoundingClientRect();
-          if (rect.top < offsetTop && heading.id) {
-            const level = parseInt(heading.tagName.substring(1), 10) as 2 | 3;
-            updateHeading({
-              id: heading.id,
-              text: heading.textContent?.trim() || '',
-              level,
-            });
-            break;
-          }
-        }
+        updateHeading(findLastHeadingAboveOffset());
       });
     }
   };
@@ -183,7 +197,12 @@ function createHeadingStore(offsetTop: number) {
           }
           document.removeEventListener('astro:page-load', handlePageLoad);
           document.removeEventListener('content:decrypted', handlePageLoad);
+          if (pendingRaf !== null) {
+            cancelAnimationFrame(pendingRaf);
+            pendingRaf = null;
+          }
           visibleHeadings.clear();
+          cachedHeadings = [];
         }
       };
     },
