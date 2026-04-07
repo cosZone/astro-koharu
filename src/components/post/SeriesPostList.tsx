@@ -23,7 +23,7 @@ export function SeriesPostList({ posts, currentPostSlug, className, locale }: Se
   }
 
   return (
-    <div className={cn('flex flex-col gap-1', className)}>
+    <div className={cn('flex flex-col gap-1 md:pb-3 md:pl-2', className)}>
       {posts.map((post) => {
         const href = localizedPath(routeBuilder(Routes.Post, post), locale);
         const isActive = post.slug === currentPostSlug;
@@ -33,7 +33,7 @@ export function SeriesPostList({ posts, currentPostSlug, className, locale }: Se
             key={post.slug}
             href={href}
             className={cn(
-              'group relative flex items-start gap-3 rounded-md px-1 py-2 transition-colors',
+              'group relative flex items-center gap-3 rounded-md px-1 py-2 transition-colors',
               'hover:bg-accent/50',
               isActive && 'font-medium text-primary',
             )}
@@ -41,7 +41,7 @@ export function SeriesPostList({ posts, currentPostSlug, className, locale }: Se
             {/* 圆点指示器 */}
             <span
               className={cn(
-                'mt-2 h-2 w-2 shrink-0 rounded-full transition-colors',
+                'size-2 shrink-0 rounded-full transition-colors',
                 isActive ? 'bg-primary' : 'bg-muted-foreground/40 group-hover:bg-muted-foreground/60',
               )}
             />
