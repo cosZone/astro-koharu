@@ -14,24 +14,25 @@ set -euo pipefail
 
 # Reminder for content generation
 echo "================================================"
-echo "  Reminder: 如果添加了新内容，建议先运行："
-echo "    pnpm generate:all"
-echo "  或单独运行生成脚本以更新 LQIP、相似度和 AI 摘要数据"
+echo "  Reminder: If you added new content, consider running first:"
+echo "    pnpm koharu generate all"
+echo "  to update LQIP, similarity vectors, and AI summaries."
 echo "================================================"
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-cd "$SCRIPT_DIR"
+REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+cd "$REPO_ROOT"
 
-ENV_FILE="${ENV_FILE:-../.env}"
+ENV_FILE="${ENV_FILE:-$REPO_ROOT/.env}"
 SKIP_DOWN="${SKIP_DOWN:-false}"
 
 if [ ! -f "$ENV_FILE" ]; then
   echo "❌ Environment file not found at $ENV_FILE"
-  echo "   Copy .env.example to .env in the repository root and fill in your secrets."
+  echo "   Copy .env.example to .env in the repository root and fill in your values."
   exit 1
 fi
 
-COMPOSE_CMD=(docker compose --env-file "$ENV_FILE")
+COMPOSE_CMD=(docker compose --env-file "$ENV_FILE" -f "$SCRIPT_DIR/docker-compose.yml")
 
 echo "🔐 Using environment file: $ENV_FILE"
 echo "🔄 Rebuilding blog with updated configuration..."
@@ -44,5 +45,6 @@ fi
 echo "🚀 Building and starting containers..."
 "${COMPOSE_CMD[@]}" up -d --build
 
+BLOG_PORT=$(grep -E '^BLOG_PORT=' "$ENV_FILE" 2>/dev/null | cut -d= -f2 | tr -d '"' || true)
 echo "✅ Blog rebuilt and deployed!"
-echo "🌐 Access at: http://localhost:4321"
+echo "🌐 Access at: http://localhost:${BLOG_PORT:-4321}"

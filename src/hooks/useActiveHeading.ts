@@ -26,6 +26,7 @@
  * ```
  */
 
+import { getLockedHeadingId } from '@lib/heading-scroll-lock';
 import { useMemo, useSyncExternalStore } from 'react';
 
 export interface UseActiveHeadingOptions {
@@ -89,12 +90,21 @@ function createActiveHeadingStore(offsetTop: number) {
           if (!id) continue;
 
           if (entry.isIntersecting) {
-            // Track this heading as visible with its boundingClientRect.top
             // Using entry.boundingClientRect avoids forced reflow
             visibleHeadings.set(id, entry.boundingClientRect.top);
           } else {
             visibleHeadings.delete(id);
           }
+        }
+
+        // During programmatic scroll, lock to clicked heading to prevent flickering
+        const locked = getLockedHeadingId();
+        if (locked) {
+          if (activeId !== locked) {
+            activeId = locked;
+            notifyListeners();
+          }
+          return;
         }
         updateActiveHeading();
       },

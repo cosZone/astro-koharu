@@ -1,7 +1,7 @@
 {
   "name": "astro-koharu",
   "type": "module",
-  "version": "3.3.0",
+  "version": "3.3.1",
   "scripts": {
     "dev": "astro dev",
     "generate:lqips": "npx tsx src/scripts/generateLqips.ts",
@@ -26,7 +26,11 @@
     "knip": "knip",
     "koharu": "npx tsx scripts/koharu.tsx",
     "cms": "cd cms && pnpm dev",
-    "cms:install": "cd cms && pnpm install"
+    "cms:install": "cd cms && pnpm install",
+    "docker:up": "docker compose --env-file ./.env -f docker/docker-compose.yml up -d --build",
+    "docker:down": "docker compose -f docker/docker-compose.yml down",
+    "docker:logs": "docker compose -f docker/docker-compose.yml logs -f",
+    "docker:rebuild": "bash docker/rebuild.sh"
   },
   "dependencies": {
     "@antv/infographic": "^0.2.4",

@@ -23,18 +23,6 @@ RUN pnpm install --frozen-lockfile --prod=false
 # Copy source files
 COPY . .
 
-# Build-time arguments for sensitive configuration
-ARG REMARK_URL
-ARG REMARK_SITE_ID
-ARG UMAMI_ID
-ARG UMAMI_ENDPOINT
-
-# Set environment variables for build
-ENV REMARK_URL=${REMARK_URL}
-ENV REMARK_SITE_ID=${REMARK_SITE_ID}
-ENV UMAMI_ID=${UMAMI_ID}
-ENV UMAMI_ENDPOINT=${UMAMI_ENDPOINT}
-
 # Build the static site
 RUN pnpm build
 
