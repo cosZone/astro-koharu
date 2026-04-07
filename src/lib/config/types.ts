@@ -534,6 +534,8 @@ export interface BgmAudioGroup {
 
 export interface BgmConfig {
   enabled?: boolean;
+  /** Meting API endpoint URL. Defaults to 'https://163.hyc.moe/' */
+  metingApi?: string;
   audio?: BgmAudioGroup[];
 }
 
