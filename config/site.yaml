@@ -555,12 +555,20 @@ comment:
 # id: Umami 网站 ID
 # endpoint: Umami 服务器地址
 # enabled: 是否启用统计
+# statistics_display: 统计信息显示配置
+#   token: Umami 分享链接令牌（只读，可安全暴露到客户端）
+#   article_page_views: 在文章详情页显示访问量
+#   footer_site_stats: 在页脚 Site Stats 中显示全站访问量
 # -----------------------------------------------------------------------------
 analytics:
   umami:
     enabled: true
     id: your-umami-id
     endpoint: https://stats.example.com
+    # statistics_display:
+    #   token: your-umami-share-token
+    #   article_page_views: true
+    #   footer_site_stats: true
 
 # =============================================================================
 # SEO Configuration

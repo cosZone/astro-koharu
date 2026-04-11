@@ -176,6 +176,9 @@ export const uiStrings: UIStrings = {
   'footer.wordUnit': 'words',
   'footer.postUnit': 'posts',
 
+  // ── Analytics Stats ─────────────────────────────────────────
+  'stats.pageviews': 'Page views',
+
   // ── Pagination ──────────────────────────────────────────────
   'pagination.prev': 'Previous',
   'pagination.next': 'Next',
