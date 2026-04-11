@@ -324,9 +324,6 @@ importers:
       lint-staged:
         specifier: ^15.5.2
         version: 15.5.2
-      pinyin-pro:
-        specifier: ^3.28.0
-        version: 3.28.0
       react-grab:
         specifier: ^0.1.29
         version: 0.1.29(react@19.2.1)
@@ -345,6 +342,9 @@ importers:
       strip-markdown:
         specifier: ^6.0.0
         version: 6.0.0
+      transliteration:
+        specifier: ^2.6.1
+        version: 2.6.1
       tsx:
         specifier: ^4.21.0
         version: 4.21.0
@@ -7424,9 +7424,6 @@ packages:
     engines: {node: '>=0.10'}
     hasBin: true
 
-  pinyin-pro@3.28.0:
-    resolution: {integrity: sha512-mMRty6RisoyYNphJrTo3pnvp3w8OMZBrXm9YSWkxhAfxKj1KZk2y8T2PDIZlDDRsvZ0No+Hz6FI4sZpA6Ey25g==}
-
   piscina@3.2.0:
     resolution: {integrity: sha512-yn/jMdHRw+q2ZJhFhyqsmANcbF6V2QwmD84c6xRau+QpQOmtrBCoRGdvTfeuFDYXB5W2m6MfLkjkvQa9lUSmIA==}
 
@@ -8567,6 +8564,11 @@ packages:
   tr46@6.0.0:
     resolution: {integrity: sha512-bLVMLPtstlZ4iMQHpFHTR7GAGj2jxi8Dg0s2h2MafAE4uSWF98FC/3MomU51iQAMf8/qDUbKWf5GxuvvVcXEhw==}
     engines: {node: '>=20'}
+
+  transliteration@2.6.1:
+    resolution: {integrity: sha512-hJ9BhrQAOnNTbpOr1MxsNjZISkn7ppvF5TKUeFmTE1mG4ZPD/XVxF0L0LUoIUCWmQyxH0gJpVtfYLAWf298U9w==}
+    engines: {node: '>=20.0.0'}
+    hasBin: true
 
   trim-lines@3.0.1:
     resolution: {integrity: sha512-kRj8B+YHZCc9kQYdWfJB2/oUl9rA99qbowYYBtr4ui4mZyAQ2JpvVBd/6U2YloATfqBhBTSMhTpgBHtU0Mf3Rg==}
@@ -17830,8 +17832,6 @@ snapshots:
 
   pidtree@0.6.0: {}
 
-  pinyin-pro@3.28.0: {}
-
   piscina@3.2.0:
     dependencies:
       eventemitter-asyncresource: 1.0.0
@@ -19264,6 +19264,8 @@ snapshots:
   tr46@6.0.0:
     dependencies:
       punycode: 2.3.1
+
+  transliteration@2.6.1: {}
 
   trim-lines@3.0.1: {}
 

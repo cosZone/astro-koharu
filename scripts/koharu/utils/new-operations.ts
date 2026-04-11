@@ -1,54 +1,19 @@
 import fs from 'node:fs';
 import path from 'node:path';
-import { pinyin } from 'pinyin-pro';
+import { slugify } from 'transliteration';
 import YAML from 'yaml';
 import { BLOG_CONTENT_PATH, SITE_CONFIG_PATH } from '../constants/paths';
 import type { CategoryTreeItem, FriendData, PostData } from '../creators/types';
 
 /**
- * Generate a URL-friendly slug from a title
- * Converts Chinese characters to pinyin, removes special characters
+ * Generate a URL-friendly slug from a title.
+ * Converts Chinese/Japanese characters to pinyin/romaji via transliteration.
+ *
+ * Always transliterates regardless of `enableSlugTransliteration` config —
+ * CLI-generated filenames should be ASCII-safe for filesystem compatibility.
  */
 export function generateSlug(title: string): string {
-  const tokens: string[] = [];
-  let latinBuffer = '';
-
-  const isAsciiWordChar = (char: string) => /[A-Za-z0-9]/.test(char);
-  const isCjkChar = (char: string) => /[\u4e00-\u9fff]/.test(char);
-
-  const flushLatin = () => {
-    if (!latinBuffer) return;
-    tokens.push(latinBuffer);
-    latinBuffer = '';
-  };
-
-  for (const char of title) {
-    if (isAsciiWordChar(char)) {
-      latinBuffer += char;
-      continue;
-    }
-
-    flushLatin();
-
-    if (isCjkChar(char)) {
-      const result = pinyin(char, {
-        toneType: 'none',
-        type: 'array',
-        v: true,
-      });
-      const value = Array.isArray(result) ? result[0] : result;
-      if (value) tokens.push(value);
-    }
-  }
-
-  flushLatin();
-
-  return tokens
-    .join('-')
-    .toLowerCase()
-    .replace(/[^a-z0-9-]/g, '-') // Replace non-alphanumeric with hyphens
-    .replace(/-+/g, '-') // Collapse multiple hyphens
-    .replace(/^-|-$/g, ''); // Remove leading/trailing hyphens
+  return slugify(title, { separator: '-' });
 }
 
 /**
