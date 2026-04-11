@@ -9,6 +9,7 @@ interface Props {
   post?: BlogPost;
   /** Override canonical URL (e.g., for fallback pages pointing to default-locale version) */
   canonical?: string;
+  keywords?: string[];
 }
 
 import { ClientRouter } from 'astro:transitions';
@@ -48,6 +49,7 @@ const {
   siderType,
   post,
   canonical: canonicalOverride,
+  keywords: keywordsOverride,
 } = Astro.props;
 
 // react-grab: dev-only tool for copying React component context (file, component name, HTML)
@@ -73,6 +75,8 @@ const hreflangLinks = localeList.map((loc) => ({
 }));
 const xDefaultHref = new URL(getAlternateUrl(Astro.url.pathname, defaultLocale), Astro.site).href;
 const canonicalHref = canonicalOverride ?? Astro.url.href;
+
+const keywords = keywordsOverride || siteConfig.keywords || [siteConfig.title];
 ---
 
 <!doctype html>
@@ -105,6 +109,7 @@ const canonicalHref = canonicalOverride ?? Astro.url.href;
     <ClientRouter />
     <LoadingIndicator color="#e9536a" />
     <Tooltips />
+
     <!-- SEO 元数据由 astro-seo 管理 -->
     <SEO
       title={title}
@@ -132,6 +137,9 @@ const canonicalHref = canonicalOverride ?? Astro.url.href;
         meta: [{ name: 'author', content: siteConfig.author || '' }],
       }}
     />
+    {/* astro-seo 暂不支持管理 keywords */}
+    <meta name="keywords" content={keywords.join(', ')} />
+
     <link rel="alternate" type="application/rss+xml" title={siteConfig.title} href={rssHref} />
     {/* hreflang alternate links for SEO — only output when multiple locales are configured */}
     {isI18nEnabled && hreflangLinks.map(({ lang, href }) => (
