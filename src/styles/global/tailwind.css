@@ -79,6 +79,14 @@
     background: hsl(var(--primary) / 0.5); /* thumb color */
     border-radius: 0.5rem;
   }
+
+  .scrollbar-hidden {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    &::-webkit-scrollbar {
+      display: none;
+    }
+  }
 }
 
 /* utils */

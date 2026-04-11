@@ -3,8 +3,39 @@ import type { UmamiSessionStats, UmamiStatsConfig } from '@/types/umami-stats';
 
 const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
 
+// Share slug -> JWT token cache (JWT is short-lived, refresh every 30 min)
+const JWT_CACHE_TTL = 30 * 60 * 1000;
+let jwtCache: { token: string; expiresAt: number; key: string } | null = null;
+
+/** Exchange a share slug for a JWT token via GET /api/share/<slug> */
+async function resolveShareToken(baseUrl: string, shareSlug: string): Promise<string> {
+  const key = `${baseUrl}:${shareSlug}`;
+  if (jwtCache && jwtCache.key === key && jwtCache.expiresAt > Date.now()) {
+    return jwtCache.token;
+  }
+
+  const url = new URL(baseUrl);
+  const basePath = url.pathname.replace(/\/$/, '');
+  url.pathname = `${basePath}/api/share/${encodeURIComponent(shareSlug)}`;
+
+  const response = await fetch(url.toString(), {
+    method: 'GET',
+    headers: { accept: 'application/json' },
+  });
+
+  if (!response.ok) {
+    throw new Error(`Failed to resolve share token: ${response.status} ${response.statusText}`);
+  }
+
+  const data: { token: string; websiteId: string } = await response.json();
+  jwtCache = { token: data.token, expiresAt: Date.now() + JWT_CACHE_TTL, key };
+  return data.token;
+}
+
 async function getSessionStats(config: UmamiStatsConfig): Promise<UmamiSessionStats> {
-  const { baseUrl, websiteId, shareToken, path } = config;
+  const { baseUrl, websiteId, shareToken: shareSlug, path } = config;
+
+  const jwt = await resolveShareToken(baseUrl, shareSlug);
 
   const url = new URL(baseUrl);
   const basePath = url.pathname.replace(/\/$/, '');
@@ -12,7 +43,7 @@ async function getSessionStats(config: UmamiStatsConfig): Promise<UmamiSessionSt
 
   const headers = new Headers({
     accept: 'application/json',
-    'x-umami-share-token': shareToken,
+    'x-umami-share-token': jwt,
   });
 
   const params = new URLSearchParams();

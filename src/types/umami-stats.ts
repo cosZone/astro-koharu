@@ -9,7 +9,7 @@ export interface UmamiSessionStats {
 export interface UmamiStatsConfig {
   baseUrl: string;
   websiteId: string;
-  /** Umami share link token (read-only, safe to expose on client) */
+  /** Umami share slug, exchanged for a short-lived JWT at runtime (safe to expose on client) */
   shareToken: string;
   path?: string;
   startAt?: number;

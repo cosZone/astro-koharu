@@ -61,7 +61,7 @@ const finalDescription = getPostDescription(post, locale);
 // OGP image for BlogPosting schema (uses same fallback chain as Layout)
 const ogImage = getOgImageUrl(post?.data.cover, Astro.site);
 
-const categoryKeywords = categories?.length ? (Array.isArray(categories[0]) ? categories[0] : [categories[0]]) : [];
+const categoryKeywords = categories?.length ? categories.flat() : [];
 const postKw = postKeywords?.length ? postKeywords : [...tags, ...categoryKeywords];
 const keywords = [...new Set([...postKw, ...(siteConfig.keywords ?? [])])] as string[];
 const jsonLd = {
