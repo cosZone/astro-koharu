@@ -3,19 +3,7 @@ type UmamiValue = { value: number } | number;
 
 export interface UmamiSessionStats {
   pageviews: UmamiValue;
-  visitors: UmamiValue;
-  visits?: UmamiValue;
-  countries?: UmamiValue;
-  events?: UmamiValue;
-  bounces?: UmamiValue;
-  totaltime?: UmamiValue;
-  comparison?: {
-    pageviews?: UmamiValue;
-    visitors?: UmamiValue;
-    visits?: UmamiValue;
-    bounces?: UmamiValue;
-    totaltime?: UmamiValue;
-  };
+  [key: string]: unknown;
 }
 
 export interface UmamiStatsConfig {

@@ -85,7 +85,7 @@ const pageStatsConfig = href ? createArticleStatsConfig(href) : null;
               {pageStatsConfig && (
                 <span class="flex items-center gap-1">
                   <Icon name="ri:eye-line" class="h-4 w-4" />
-                  <UmamiPVSpan client:load statsConfig={pageStatsConfig} />
+                  <UmamiPVSpan client:idle statsConfig={pageStatsConfig} />
                   {t(locale, 'stats.pageviews')}
                 </span>
               )}

@@ -78,11 +78,13 @@ function normalizePath(path: string): string {
   return path.length > 1 && path.endsWith('/') ? path.slice(0, -1) : path;
 }
 
-export function createUmamiStatsConfig(config: UmamiConfig, path?: string): UmamiStatsConfig {
+export function createUmamiStatsConfig(config: UmamiConfig, path?: string): UmamiStatsConfig | null {
+  const token = config.statistics_display?.token;
+  if (!token) return null;
   return {
     baseUrl: config.endpoint,
     websiteId: config.id,
-    shareToken: config.statistics_display?.token ?? '',
+    shareToken: token,
     path: path ? normalizePath(path) : undefined,
   };
 }
