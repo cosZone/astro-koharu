@@ -175,7 +175,9 @@ export const uiStrings: UIStrings = {
   'footer.runningDays': '稼働して{days}日が経過',
   'footer.wordUnit': '文字',
   'footer.postUnit': '投稿',
-  'footer.pageviews': 'アクセス数',
+
+  // ── Analytics Stats ─────────────────────────────────────────
+  'stats.pageviews': 'アクセス数',
 
   // ── ページ付け ──────────────────────────────────────────────
   'pagination.prev': '前へ',

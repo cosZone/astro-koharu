@@ -1,6 +1,7 @@
 // Import YAML config directly - processed by @rollup/plugin-yaml
 
 import type {
+  AnalyticsConfig,
   BangumiConfig,
   BgmAudioGroup,
   CommentConfig,
@@ -12,6 +13,8 @@ import type {
   SiteBasicConfig,
 } from '@lib/config/types';
 import { DEFAULT_TIMEZONE, isValidTimezone } from '@lib/timezone';
+import { createUmamiStatsConfig } from '@lib/umami-stats';
+import type { UmamiStatsConfig } from '@/types/umami-stats';
 import yamlConfig from '../../config/site.yaml';
 import { routers as baseRouters, isReservedSlug, RESERVED_ROUTES } from './router';
 
@@ -218,20 +221,7 @@ export const seoConfig = {
 const BUILT_IN_COVERS = Array.from({ length: 21 }, (_, i) => `/img/cover/${i + 1}.webp`);
 export const defaultCoverList = yamlConfig?.defaultCoverList?.length ? yamlConfig.defaultCoverList : BUILT_IN_COVERS;
 
-// Analytics config types
-type AnalyticsConfig = {
-  umami?: {
-    enabled: boolean;
-    id: string;
-    endpoint: string;
-    statistics_display?: {
-      token: string;
-      loginType: 'classic' | 'shared';
-      article_page_views: boolean;
-      footer_site_stats: boolean;
-    };
-  };
-};
+// Analytics config — reuses AnalyticsConfig from config/types.ts
 
 // Christmas config types
 type ChristmasConfig = {
@@ -279,6 +269,17 @@ export const contentConfig: ContentConfig = yamlConfig.content || {};
 
 // Map YAML analytics config
 export const analyticsConfig: AnalyticsConfig = yamlConfig.analytics || {};
+
+const _umami = analyticsConfig?.umami;
+
+/** Pre-computed site-wide pageview stats config. null when disabled. */
+export const umamiSiteStatsConfig: UmamiStatsConfig | null =
+  _umami?.enabled && _umami.statistics_display?.footer_site_stats ? createUmamiStatsConfig(_umami) : null;
+
+/** Create per-page article stats config. Returns null when article pageviews are disabled. */
+export function createArticleStatsConfig(href: string): UmamiStatsConfig | null {
+  return _umami?.enabled && _umami.statistics_display?.article_page_views ? createUmamiStatsConfig(_umami, href) : null;
+}
 
 // Map YAML christmas config with defaults
 export const christmasConfig: ChristmasConfig = yamlConfig.christmas || {

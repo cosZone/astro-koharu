@@ -440,8 +440,8 @@ export interface UmamiConfig {
   id: string;
   endpoint: string;
   statistics_display?: {
+    /** Umami share link token (read-only, safe to expose on client) */
     token: string;
-    loginType: 'classic' | 'shared';
     article_page_views: boolean;
     footer_site_stats: boolean;
   };

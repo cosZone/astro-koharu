@@ -175,7 +175,9 @@ export const uiStrings: UIStrings = {
   'footer.runningDays': 'Running for {days} days',
   'footer.wordUnit': 'words',
   'footer.postUnit': 'posts',
-  'footer.pageviews': 'Page views',
+
+  // ── Analytics Stats ─────────────────────────────────────────
+  'stats.pageviews': 'Page views',
 
   // ── Pagination ──────────────────────────────────────────────
   'pagination.prev': 'Previous',

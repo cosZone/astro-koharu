@@ -1,32 +1,24 @@
-import { safeGetPageviews } from '@lib/umami-stats';
-import { useEffect, useRef } from 'react';
-import type { UmamiSessionStatsConfig } from '@/types/umami-stats';
+import { getPageviews } from '@lib/umami-stats';
+import { useEffect, useState } from 'react';
+import type { UmamiStatsConfig } from '@/types/umami-stats';
 
 interface Props {
-  sessionStatsConfig: UmamiSessionStatsConfig;
-  path?: string;
+  statsConfig: UmamiStatsConfig;
 }
 
-export default function UmamiPVSpan({ sessionStatsConfig }: Props) {
-  const containerRef = useRef<HTMLSpanElement>(null);
+export default function UmamiPVSpan({ statsConfig }: Props) {
+  const [pageviews, setPageviews] = useState<number | 'N/A' | null>(null);
 
   useEffect(() => {
-    if (!containerRef.current) return;
-
-    const fetchPageviews = async () => {
-      try {
-        const sitePageviews = await safeGetPageviews(sessionStatsConfig);
-
-        if (containerRef.current) {
-          containerRef.current.textContent = sitePageviews.toString();
-        }
-      } catch (error) {
-        console.error('Error fetching Umami Pageviews:', error);
-      }
+    let cancelled = false;
+    getPageviews(statsConfig).then((pv) => {
+      if (!cancelled) setPageviews(pv);
+    });
+    return () => {
+      cancelled = true;
     };
+  }, [statsConfig]);
 
-    fetchPageviews();
-  }, [sessionStatsConfig]); // 确保包含所有依赖
-
-  return <span ref={containerRef}>...</span>;
+  if (pageviews === null) return <span>...</span>;
+  return <span>{pageviews}</span>;
 }

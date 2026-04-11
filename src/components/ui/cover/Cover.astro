@@ -1,18 +1,15 @@
 ---
-import { analyticsConfig, siteConfig } from '@constants/site-config';
+import { Routes } from '@constants/router';
+import { createArticleStatsConfig, siteConfig } from '@constants/site-config';
 import { getPostReadingTime } from '@lib/content/posts';
 import { displayDate } from '@lib/date';
 import { getLqipStyle } from '@lib/lqip';
-import { UmamiConfigToSessionStatsConfig } from '@lib/umami-stats';
+import { routeBuilder } from '@lib/route';
 import { Icon } from 'astro-icon/components';
 import type { BlogPost } from 'types/blog';
 import UmamiPVSpan from '@/components/umami/UmamiPVSpan';
 import { MAX_WIDTH } from '@/constants/layout';
 import { getLocaleFromUrl, localizedPath, t } from '@/i18n';
-import type { UmamiConfig } from '@/lib/config/types';
-import { getPostSlug } from '@/lib/content/locale';
-import { encodeSlug } from '@/lib/route';
-import type { UmamiSessionStatsConfig } from '@/types/umami-stats';
 import WaveSvg from './wave';
 
 export interface CoverProps {
@@ -32,12 +29,9 @@ const bannerLqipStyle = getLqipStyle('/img/site_header_1920.webp');
 
 const locale = getLocaleFromUrl(Astro.url.pathname);
 
-const href = data && localizedPath(`/post/${encodeSlug(getPostSlug(data))}`, locale);
+const href = data && localizedPath(routeBuilder(Routes.Post, data), locale);
 
-const enableFooterPageviews = analyticsConfig?.umami?.enabled && analyticsConfig?.umami?.statistics_display?.article_page_views;
-const sessionStatsConfig = enableFooterPageviews
-  ? UmamiConfigToSessionStatsConfig(analyticsConfig.umami as UmamiConfig, href)
-  : null;
+const pageStatsConfig = href ? createArticleStatsConfig(href) : null;
 ---
 
 <div class="relative flex h-[60dvh] z-0 max-h-200 overflow-hidden">
@@ -88,11 +82,11 @@ const sessionStatsConfig = enableFooterPageviews
                 <Icon name="fa6-solid:clock" />
                 {readState?.text}
               </span>
-              { enableFooterPageviews && (
+              {pageStatsConfig && (
                 <span class="flex items-center gap-1">
                   <Icon name="ri:eye-line" class="h-4 w-4" />
-                  <UmamiPVSpan client:load sessionStatsConfig={sessionStatsConfig as UmamiSessionStatsConfig} />
-                  {t(locale, 'footer.pageviews')}
+                  <UmamiPVSpan client:load statsConfig={pageStatsConfig} />
+                  {t(locale, 'stats.pageviews')}
                 </span>
               )}
             </p>
