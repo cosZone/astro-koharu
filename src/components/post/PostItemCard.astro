@@ -180,7 +180,7 @@ function getStaggerPadding(rowIndex: number): string {
       showTags && (
         <div
           class={cn(
-            'horizontal-scrollbar [--scrollbar-width:0.25rem] flex gap-2 pt-1 pb-1 overflow-auto',
+            'horizontal-scrollbar flex gap-2 pt-1 pb-1 overflow-auto',
             hideCover ? 'justify-start' : { 'justify-end': !leftClip },
             leftClip ? 'mr-18' : 'ml-18',
             'md:mx-0 md:justify-start',

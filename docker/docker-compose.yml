@@ -17,11 +17,6 @@ services:
     build:
       context: ..
       dockerfile: docker/Dockerfile
-      args:
-        - REMARK_URL=${REMARK_URL}
-        - REMARK_SITE_ID=${REMARK_SITE_ID}
-        - UMAMI_ID=${UMAMI_ID}
-        - UMAMI_ENDPOINT=${UMAMI_ENDPOINT}
     ports:
       - "${BLOG_PORT:-4321}:80"
     restart: unless-stopped
@@ -29,6 +24,7 @@ services:
       test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost/"]
       interval: 30s
       timeout: 3s
+      start_period: 5s
       retries: 3
     networks:
       - astro-koharu-network

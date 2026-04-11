@@ -82,7 +82,7 @@ pnpm dev
 - 基于 Astro 5.x，静态站点生成，性能优异
 - 优雅的深色/浅色主题切换
 - 基于 Pagefind 的无后端全站搜索
-- **可更换评论系统**：支持 Waline（推荐）、Giscus、Remark42 三种评论组件，配置文件一键切换，主题自动跟随
+- **可更换评论系统**：支持 Waline（推荐）、Giscus、Remark42、Twikoo 四种评论组件，配置文件一键切换，主题自动跟随
 - 完整的 Markdown 增强功能（GFM、代码高亮、自动目录、Mermaid 图表、Infographic 信息图）
 - **Shoka 兼容 Markdown 语法**：文字特效（下划线/高亮/上下标/颜色）、隐藏文字（Spoiler）、注音标注（Ruby）、提醒块、折叠块、标签卡、友链卡片、音视频播放器、练习题系统（单选/多选/判断/填空）、数学公式（KaTeX）、代码块增强（title/mark/command）—— 所有功能均可独立开关
 - [可开关] **内容加密**：支持文章局部加密（加密块）和整篇文章加密（加密文章），使用 AES-256-GCM 客户端解密，密码仅在构建时使用、不传递到客户端
@@ -233,9 +233,10 @@ pnpm koharu generate all          # 生成全部
 - 分类映射（中文分类名 → URL slug）
 - 友链列表
 - 公告系统
-- **评论系统**（Waline / Giscus / Remark42，推荐使用 Waline）
+- **评论系统**（Waline / Giscus / Remark42 / Twikoo，推荐使用 Waline）
 - 数据统计（Umami）
 - **国际化配置（i18n）**
+- **背景音乐（BGM）**：配置 `bgm.audio` 添加歌单，`bgm.metingApi` 可自定义 [Meting](https://github.com/metowolf/meting) API 地址（默认 `https://163.hyc.moe/`，推荐自部署）
 - **追番页面（Bangumi）**：配置 `bangumi.userId` 即可开启，注释掉整段关闭
 - 圣诞特辑开关
 - 开发工具配置（`config/site.yaml` 的 `dev` 部分，用于本地编辑器跳转）
@@ -294,7 +295,7 @@ src/content/blog/
 
 ```yaml
 comment:
-  provider: waline # 'waline' | 'giscus' | 'remark42' | 'none'
+  provider: waline # 'waline' | 'giscus' | 'remark42' | 'twikoo' | 'none'
   waline:
     serverURL: https://your-waline-server.vercel.app
     # ... 其他配置
@@ -324,7 +325,7 @@ comment:
 - 公告系统
   ![公告系统](https://r2.cosine.ren/i/2026/01/a4660955f52438b3cc2d21bdc931bbd4.gif)
 - Shoka 兼容 Markdown 语法 - 提醒块、折叠块、标签卡、文字特效、隐藏文字、注音标注、练习题等
-- 音视频播放器 - 支持网易云音乐歌单和视频播放
+- 音视频播放器 - 支持音乐歌单和视频播放，通过 [Meting](https://github.com/metowolf/meting) API 解析，推荐自部署
 
 ## 使用本主题的博客
 
@@ -335,6 +336,7 @@ comment:
 | ----------------------------------------- | ---------- | --------------------------------------------------------------- | ---------------------------- |
 | **[余弦の博客](http://blog.cosine.ren/)** | **cosine** | [cosZone/astro-koharu](https://github.com/cosZone/astro-koharu) | 本主题                       |
 | [雪花的博客](https://xhblog.top/)         | XueHua-s   | [XueHua-s/astro-snow](https://github.com/XueHua-s/astro-snow)   | 精简了很多功能，增加了起始页 |
+| [Ksable's 小屋](https://blog.ksable.top/) | Ksable    | - | 修改 / 新增了部分功能 |
 
 ## 🙏 鸣谢
 

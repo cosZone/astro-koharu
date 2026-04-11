@@ -19,6 +19,9 @@ for (const [name, slug] of Object.entries(categoryMap)) {
 // Re-export pure path utilities (defined in category-path.ts to break circular dependency)
 export { buildCategoryPath, getCategoryArr } from './category-path';
 
+// Re-export category translation function
+export { translateCategoryName } from './category-translate';
+
 /**
  * Get hierarchical category list with counts (excluding drafts in production)
  */
@@ -172,16 +175,6 @@ export function getParentCategory(category: Category | null, categories: Categor
     }
   }
   return null;
-}
-
-/**
- * Translate a category name based on locale.
- * Looks up the YAML content config (config/i18n-content.yaml), falls back to original name.
- */
-export function translateCategoryName(name: string, locale: Locale): string {
-  const slug = categoryMap[name];
-  if (!slug) return name;
-  return getContentCategoryName(locale, slug) ?? name;
 }
 
 /**

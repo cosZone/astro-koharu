@@ -49,6 +49,10 @@ const {
   post,
   canonical: canonicalOverride,
 } = Astro.props;
+
+// react-grab: dev-only tool for copying React component context (file, component name, HTML)
+// Enable by setting REACT_GRAB=true in .env
+const enableReactGrab = import.meta.env.DEV && import.meta.env.REACT_GRAB === 'true';
 // TODO: siderType should be custom in router file, not in layout
 
 // i18n: derive locale from URL and compute BCP 47 lang tag
@@ -184,6 +188,12 @@ const canonicalHref = canonicalOverride ?? Astro.url.href;
         document.documentElement.classList.toggle('christmas', enabled);
       })();
     </script>
+
+    {enableReactGrab && (
+      <script>
+        import('react-grab');
+      </script>
+    )}
 
     <!-- 子页面可通过 slot="head" 注入额外的 head 内容（如 JSON-LD） -->
     <slot name="head" />
@@ -347,7 +357,7 @@ const canonicalHref = canonicalOverride ?? Astro.url.href;
       </main>
       {bgmConfig.enabled && bgmConfig.audio.length > 0 && (
         <div transition:persist="global-bgm">
-          <GlobalBGMPlayer client:only="react" audioGroups={bgmConfig.audio} />
+          <GlobalBGMPlayer client:only="react" audioGroups={bgmConfig.audio} metingApi={bgmConfig.metingApi} />
         </div>
       )}
       <FloatingGroup client:only="react" />
