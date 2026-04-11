@@ -59,20 +59,6 @@ export interface PostRefWithCategory extends PostRef {
 }
 
 /**
- * 含有 slug、link 二者的文章引用 - 用于生成文章 url
- * 一切为了兼容 BlogPost 和 PostRef 类型
- */
-export interface PostRefWithSlugLinkAndDataLink {
-  slug: string;
-  link?: string;
-  data?: {
-    link?: string;
-    [key: string]: any;
-  };
-  [key: string]: any;
-}
-
-/**
  * 文章卡片数据 - 用于卡片展示
  */
 export interface PostCardData {

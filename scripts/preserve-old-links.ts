@@ -1,88 +1,59 @@
-// 开启中文、日文文章 URL 自动转为拼音 / 罗马字母功能后，原有链接将失效
-// 脚本会自动将原有 URL 写入文章的 frontmatter.link 字段，防止 URL 转换后导致外部网站反向链接失效
+// 开启 slug transliteration 后，原有中文/日文 URL 将失效。
+// 此脚本将原有 slug 写入 frontmatter.link 字段，保留旧链接。
+// 用法: pnpm preserve-old-links [--dry-run]
 
+import { readFileSync, writeFileSync } from 'node:fs';
+import { relative } from 'node:path';
 import type { SiteYamlConfig } from '@lib/config/types';
-import { readFileSync, writeFileSync } from 'fs';
 import { glob } from 'glob';
+import matter from 'gray-matter';
 import { load } from 'js-yaml';
-import { relative } from 'path';
 
-// 直接读取 YAML 配置文件
+const dryRun = process.argv.includes('--dry-run');
+
 const yamlConfig = load(readFileSync('config/site.yaml', 'utf8')) as SiteYamlConfig;
 const locales = yamlConfig.i18n?.locales || [];
+const defaultLocale = yamlConfig.i18n?.defaultLocale ?? 'zh';
 const allKnownLocales = new Set(locales.map((l) => l.code));
 
-// 移除 slug 中的语言前缀
-const stripLocaleFromPath = (pathname: string): string => {
-  const path = pathname.split('/');
-  return allKnownLocales.has(path[0]) ? path.slice(1).join('/') : pathname;
-};
-
-interface Post {
-  slug: string;
-  title: string;
-  link?: string;
-}
-
-// 解析文章元数据
-const parsePost = (path: string, content: string): Post | null => {
-  const rawSlug = stripLocaleFromPath(path.replace('\\', '/'));
-  const frontmatterMatch = content.match(/^---\s*\n([\s\S]*?)\n---/);
-
-  if (!frontmatterMatch) return null;
-
-  const frontmatter = frontmatterMatch[1];
-  const title = frontmatter.match(/^title:\s*(.+?)\s*$/m)?.[1] || '';
-  const link = frontmatter.match(/^link:\s*(.+?)\s*$/m)?.[1];
-
-  return { slug: rawSlug, title, link };
-};
-
-// 添加 link 到 frontmatter.link 字段
-const addLinkToFrontmatter = (content: string, link: string): string => {
-  const lines = content.split('\n');
-  let dashCount = 0;
-  let lastDashLine = -1;
-
-  for (let i = 0; i < lines.length; i++) {
-    if (lines[i].trim() === '---') {
-      dashCount++;
-      if (dashCount === 2) {
-        lastDashLine = i;
-        break;
-      }
-    }
+// Mirrors getSlugLocaleInfo from src/lib/content/locale.ts
+// Cannot import directly because that module depends on Astro build-time config
+function stripLocalePrefix(slug: string): string {
+  const firstSlash = slug.indexOf('/');
+  if (firstSlash === -1) return slug;
+  const firstSegment = slug.slice(0, firstSlash);
+  if (firstSegment !== defaultLocale && allKnownLocales.has(firstSegment)) {
+    return slug.slice(firstSlash + 1);
   }
-
-  if (lastDashLine === -1) return content;
-
-  lines.splice(lastDashLine, 0, `link: ${link}`);
-  return lines.join('\n');
-};
-
-// 主逻辑
-interface ProcessedPost {
-  path: string;
-  content: string;
-  post: Post;
+  return slug;
 }
 
 const blogPath = 'src/content/blog';
-const posts: ProcessedPost[] = [];
+const files = glob.sync(`${blogPath}/**/*.{md,mdx}`);
+let processed = 0;
 
-for (const filePath of glob.sync(`${blogPath}/**/*.{md,mdx}`)) {
-  const content = readFileSync(filePath, 'utf8');
-  const post = parsePost(relative(blogPath, filePath), content);
+for (const filePath of files) {
+  const raw = readFileSync(filePath, 'utf8');
+  const { data, content } = matter(raw);
 
-  if (post && !post.link) {
-    posts.push({ path: filePath, content, post });
+  if (data.link) continue;
+
+  const rawSlug = relative(blogPath, filePath)
+    .replace(/\\/g, '/')
+    .replace(/\.(md|mdx)$/, '');
+  const localeFreeSlug = stripLocalePrefix(rawSlug);
+
+  data.link = localeFreeSlug;
+  processed++;
+
+  if (dryRun) {
+    console.log(`[dry-run] ${filePath} → link: ${localeFreeSlug}`);
+    continue;
   }
+
+  const updated = matter.stringify(content, data);
+  writeFileSync(filePath, updated);
+  console.log(`[${processed}/${files.length}] ${filePath} → link: ${localeFreeSlug}`);
 }
 
-// 批量处理
-posts.forEach(({ path, content, post }, index) => {
-  console.log(`Preserving link: [${index + 1}/${posts.length}]`);
-  writeFileSync(path, addLinkToFrontmatter(content, post.slug));
-});
-
-console.log(`✅ Processed ${posts.length} posts`);
+console.log(`${dryRun ? '[dry-run] ' : ''}Processed ${processed} posts (${files.length - processed} already had link)`);

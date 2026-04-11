@@ -16,7 +16,9 @@ export function routeBuilder<T extends Routes>(route: T, param: RouteParams<type
   if (!param) return href;
   switch (route) {
     case Routes.Post: {
-      href += `/${encodeSlug(getPostSlug(param))}`;
+      // CollectionEntry has `collection`; PostRef.slug is already transliterated by transforms
+      const slug = 'collection' in param ? getPostSlug(param as BlogPost) : (param.link ?? param.slug);
+      href += `/${encodeSlug(slug)}`;
       break;
     }
     default:

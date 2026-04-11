@@ -5,10 +5,9 @@
  * locale-aware filtering with fallback support.
  */
 
-import { slugify } from 'transliteration';
-import type { BlogPost, PostRefWithSlugLinkAndDataLink } from 'types/blog';
-import { siteConfig } from '@/constants/site-config';
+import type { BlogPost } from 'types/blog';
 import { allKnownLocales, defaultLocale } from '@/i18n/config';
+import { transliterateSlug } from '@/lib/slug';
 
 export interface SlugLocaleInfo {
   /** Detected locale code (e.g., 'en') or defaultLocale if none found */
@@ -59,14 +58,10 @@ export function getPostLocale(post: BlogPost): string {
 /**
  * Get the locale-free slug for a blog post.
  * Prefers `post.data.link` (custom permalink) over the computed locale-free slug.
+ * When slug transliteration is enabled, non-ASCII slugs are converted to romanized form.
  */
-export function getPostSlug(post: PostRefWithSlugLinkAndDataLink): string {
-  const rawSlug = post.slug;
-  const localeInfo = getSlugLocaleInfo(rawSlug).localeFreeSlug;
-  const slug = siteConfig.enableSlugTransliteration
-    ? slugify(localeInfo, { allowedChars: 'a-zA-Z0-9-_.~/', separator: '-' })
-    : localeInfo;
-  return post?.data?.link ?? post.link ?? slug;
+export function getPostSlug(post: BlogPost): string {
+  return post.data.link ?? transliterateSlug(getSlugLocaleInfo(post.slug).localeFreeSlug);
 }
 
 /**
