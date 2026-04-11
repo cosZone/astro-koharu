@@ -1,6 +1,6 @@
 // After enabling slug transliteration, existing CJK URLs will break.
 // This script writes the original slug into frontmatter.link to preserve old links.
-// Usage: pnpm preserve-old-links [--dry-run]
+// Usage: pnpm save-slugs [--dry-run]
 
 import { readFileSync, writeFileSync } from 'node:fs';
 import { relative } from 'node:path';

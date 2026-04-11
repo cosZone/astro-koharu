@@ -25,7 +25,7 @@
     "prepare": "husky",
     "knip": "knip",
     "koharu": "npx tsx scripts/koharu.tsx",
-    "preserve-old-links": "npx tsx scripts/preserve-old-links.ts",
+    "save-slugs": "npx tsx scripts/save-slugs.ts",
     "cms": "cd cms && pnpm dev",
     "cms:install": "cd cms && pnpm install",
     "docker:up": "docker compose --env-file ./.env -f docker/docker-compose.yml up -d --build",

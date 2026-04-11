@@ -34,7 +34,7 @@ site:
   #   text: "粤ICP备xxxxxxxxxx号"
   #   link: "https://beian.miit.gov.cn/"
   # Enable slug transliteration (converts CJK characters to pinyin/romaji)
-  # Note: enabling this will break existing CJK URLs. Run `pnpm preserve-old-links` first to save old slugs into frontmatter.link
+  # Note: enabling this will break existing CJK URLs. Run `pnpm save-slugs` first to save old slugs into frontmatter.link
   # enableSlugTransliteration: true
 
 # =============================================================================
