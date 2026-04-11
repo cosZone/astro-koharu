@@ -33,8 +33,8 @@ site:
   # icp:                         # ICP 备案号（可自定义链接）
   #   text: "粤ICP备xxxxxxxxxx号"
   #   link: "https://beian.miit.gov.cn/"
-  # 启用 slug 转换功能（将中文/日语等字符转换为拼音/罗马字母）
-  # 注意：开启后，原有的一些带有 中文 / 日语 等字符的链接将失效，可运行 pnpm run preserve-old-links 将原有链接添加到 frontmatter.link 字段
+  # Enable slug transliteration (converts CJK characters to pinyin/romaji)
+  # Note: enabling this will break existing CJK URLs. Run `pnpm preserve-old-links` first to save old slugs into frontmatter.link
   # enableSlugTransliteration: true
 
 # =============================================================================

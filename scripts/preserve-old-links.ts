@@ -1,6 +1,6 @@
-// 开启 slug transliteration 后，原有中文/日文 URL 将失效。
-// 此脚本将原有 slug 写入 frontmatter.link 字段，保留旧链接。
-// 用法: pnpm preserve-old-links [--dry-run]
+// After enabling slug transliteration, existing CJK URLs will break.
+// This script writes the original slug into frontmatter.link to preserve old links.
+// Usage: pnpm preserve-old-links [--dry-run]
 
 import { readFileSync, writeFileSync } from 'node:fs';
 import { relative } from 'node:path';
@@ -34,7 +34,7 @@ let processed = 0;
 
 for (const filePath of files) {
   const raw = readFileSync(filePath, 'utf8');
-  const { data, content } = matter(raw);
+  const { data } = matter(raw);
 
   if (data.link) continue;
 
@@ -43,7 +43,6 @@ for (const filePath of files) {
     .replace(/\.(md|mdx)$/, '');
   const localeFreeSlug = stripLocalePrefix(rawSlug);
 
-  data.link = localeFreeSlug;
   processed++;
 
   if (dryRun) {
@@ -51,7 +50,10 @@ for (const filePath of files) {
     continue;
   }
 
-  const updated = matter.stringify(content, data);
+  // Insert `link:` field directly after the opening `---` to avoid
+  // gray-matter's stringify reformatting the entire frontmatter.
+  const fmEnd = raw.indexOf('---', 3);
+  const updated = `${raw.slice(0, 3)}\nlink: ${localeFreeSlug}${raw.slice(3, fmEnd)}---${raw.slice(fmEnd + 3)}`;
   writeFileSync(filePath, updated);
   console.log(`[${processed}/${files.length}] ${filePath} → link: ${localeFreeSlug}`);
 }
