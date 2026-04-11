@@ -3,15 +3,19 @@
 import { Badge } from '@components/ui/badge';
 import { Button } from '@components/ui/button';
 import { Routes } from '@constants/router';
-import { defaultCoverList } from '@constants/site-config';
+import { analyticsConfig, defaultCoverList } from '@constants/site-config';
 import { buildCategoryPath, buildTagPath, getCategoryArr, translateCategoryName } from '@lib/content';
 import { displayDate } from '@lib/date';
 import { getLqipProps } from '@lib/lqip';
 import { routeBuilder } from '@lib/route';
+import { UmamiConfigToSessionStatsConfig } from '@lib/umami-stats';
 import { cn } from '@lib/utils';
 import { Icon } from 'astro-icon/components';
+import UmamiPVSpan from '@/components/umami/UmamiPVSpan';
 import { defaultLocale, getLocaleFromUrl, getLocaleLabel, localizedPath, t } from '@/i18n';
+import type { UmamiConfig } from '@/lib/config/types';
 import type { PostCardData } from '@/types/blog';
+import type { UmamiSessionStatsConfig } from '@/types/umami-stats';
 
 export interface PostItemCardProps {
   data: PostCardData;
@@ -68,6 +72,11 @@ function getStaggerPadding(rowIndex: number): string {
   if (!isUniformPosition || hideCover || !leftClip) return '';
   return staggerAmounts[rowIndex];
 }
+
+const enableFooterPageviews = analyticsConfig?.umami?.enabled && analyticsConfig?.umami?.statistics_display?.article_page_views;
+const sessionStatsConfig = enableFooterPageviews
+  ? UmamiConfigToSessionStatsConfig(analyticsConfig.umami as UmamiConfig, href)
+  : null;
 ---
 
 <div
@@ -139,6 +148,18 @@ function getStaggerPadding(rowIndex: number): string {
           <Icon name="fa6-solid:clock" />
           {readingTime}
         </button>
+
+        <!-- Pageviews -->
+        {
+          enableFooterPageviews && (
+            <p class="flex-center gap-1">
+              <Icon name="ri:eye-line" class="h-4 w-4" />
+              <UmamiPVSpan client:load sessionStatsConfig={sessionStatsConfig as UmamiSessionStatsConfig} />
+              {t(locale, 'footer.pageviews')}
+            </p>
+          )
+        }
+
       </div>
     </div>
     <div class={cn('mt-1 flex flex-col space-y-1.5 p-0', getStaggerPadding(1), 'md:pl-0 md:pr-0')}>

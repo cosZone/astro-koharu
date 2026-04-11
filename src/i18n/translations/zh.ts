@@ -174,6 +174,7 @@ export const uiStrings = {
   'footer.runningDays': '已运行 {days} 天',
   'footer.wordUnit': '字',
   'footer.postUnit': '篇',
+  'footer.pageviews': '访问量',
 
   // ── Pagination ──────────────────────────────────────────────
   'pagination.prev': '上一页',
