@@ -559,7 +559,7 @@ comment:
 # -----------------------------------------------------------------------------
 analytics:
   umami:
-    enabled: false
+    enabled: true
     id: your-umami-id
     endpoint: https://stats.example.com
     statistics_display:
