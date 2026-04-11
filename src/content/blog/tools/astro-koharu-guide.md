@@ -2122,7 +2122,24 @@ analytics:
     enabled: true
     id: your-umami-id
     endpoint: https://stats.example.com
+    # 页面访问量展示（可选）
+    statistics_display:
+      token: your-umami-share-token  # Umami 分享链接令牌（只读，可安全暴露到客户端）
+      article_page_views: true        # 在文章卡片和详情页显示访问量
+      footer_site_stats: true         # 在页脚显示全站访问量
 ```
+
+#### 获取 Umami Share Token
+
+`statistics_display.token` 是 Umami 的**分享链接令牌**，用于通过公开 API 读取统计数据（只读权限，可安全暴露到前端）。获取步骤：
+
+1. 登录你的 Umami 后台
+2. 进入 **Settings → Websites**，选择你的站点
+3. 点击右侧 **Share URL** 按钮（分享图标）
+4. 开启 **Enable share URL** 开关，此时会生成一个分享链接，形如：`https://stats.example.com/share/xxxxxxxx/site-name`
+5. 链接中 `/share/` 后面的那段字符串（如 `xxxxxxxx`）即为 share token，将其填入 `statistics_display.token` 即可
+
+> 注：Share token 仅提供只读权限，无法通过它修改任何数据或配置，因此可以安全地暴露到客户端代码中。
 
 ## 开发指南
 
@@ -2296,6 +2313,11 @@ analytics:
     enabled: true
     id: your-umami-id
     endpoint: https://your-umami-server.com
+    # 页面访问量展示（可选，需要 share token）
+    # statistics_display:
+    #   token: your-umami-share-token
+    #   article_page_views: true
+    #   footer_site_stats: true
 ```
 
 Docker 端口可在 `.env` 中配置 `BLOG_PORT=4321`。
