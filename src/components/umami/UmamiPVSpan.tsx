@@ -8,16 +8,17 @@ interface Props {
 
 export default function UmamiPVSpan({ statsConfig }: Props) {
   const [pageviews, setPageviews] = useState<number | null | undefined>(undefined);
+  const { baseUrl, websiteId, shareToken, path } = statsConfig;
 
   useEffect(() => {
     let cancelled = false;
-    getPageviews(statsConfig).then((pv) => {
+    getPageviews({ baseUrl, websiteId, shareToken, path }).then((pv) => {
       if (!cancelled) setPageviews(pv);
     });
     return () => {
       cancelled = true;
     };
-  }, [statsConfig]);
+  }, [baseUrl, websiteId, shareToken, path]);
 
   if (pageviews === undefined) return <span>...</span>;
   if (pageviews === null) return <span>N/A</span>;

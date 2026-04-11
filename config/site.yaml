@@ -562,10 +562,10 @@ analytics:
     enabled: true
     id: your-umami-id
     endpoint: https://stats.example.com
-    statistics_display:
-      token: your-umami-share-token
-      article_page_views: true
-      footer_site_stats: true
+    # statistics_display:
+    #   token: your-umami-share-token
+    #   article_page_views: true
+    #   footer_site_stats: true
 
 # =============================================================================
 # SEO Configuration

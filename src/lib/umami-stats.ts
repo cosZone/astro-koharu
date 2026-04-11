@@ -15,6 +15,7 @@ async function getSessionStats(config: UmamiStatsConfig): Promise<UmamiSessionSt
   });
 
   const params = new URLSearchParams();
+  // Default to Unix epoch (all-time stats)
   params.append('startAt', config.startAt?.toString() || '0');
   params.append('endAt', config.endAt?.toString() || Date.now().toString());
   if (path) params.append('path', path);
@@ -57,6 +58,11 @@ export function getPageviews(config: UmamiStatsConfig): Promise<number | null> {
     })
     .catch((error) => {
       console.error('Failed to fetch Umami pageviews:', error);
+      if (import.meta.env.DEV) {
+        console.warn(
+          `[umami-stats] Fetch failed for key "${key}". Check that your Umami endpoint, website ID, and share token are correct in config/site.yaml.`,
+        );
+      }
       cache.set(key, { value: null, expiresAt: Date.now() + CACHE_TTL });
       return null;
     })

@@ -272,13 +272,17 @@ export const analyticsConfig: AnalyticsConfig = yamlConfig.analytics || {};
 
 const _umami = analyticsConfig?.umami;
 
-/** Pre-computed site-wide pageview stats config. null when disabled. */
+/** Pre-computed site-wide pageview stats config. null when disabled or token missing. */
 export const umamiSiteStatsConfig: UmamiStatsConfig | null =
-  _umami?.enabled && _umami.statistics_display?.footer_site_stats ? createUmamiStatsConfig(_umami) : null;
+  _umami?.enabled && _umami.statistics_display?.token && _umami.statistics_display?.footer_site_stats
+    ? createUmamiStatsConfig(_umami)
+    : null;
 
-/** Create per-page article stats config. Returns null when article pageviews are disabled. */
+/** Create per-page article stats config. Returns null when disabled or token missing. */
 export function createArticleStatsConfig(href: string): UmamiStatsConfig | null {
-  return _umami?.enabled && _umami.statistics_display?.article_page_views ? createUmamiStatsConfig(_umami, href) : null;
+  return _umami?.enabled && _umami.statistics_display?.token && _umami.statistics_display?.article_page_views
+    ? createUmamiStatsConfig(_umami, href)
+    : null;
 }
 
 // Map YAML christmas config with defaults
