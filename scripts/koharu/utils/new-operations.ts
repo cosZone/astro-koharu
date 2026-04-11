@@ -8,6 +8,9 @@ import type { CategoryTreeItem, FriendData, PostData } from '../creators/types';
 /**
  * Generate a URL-friendly slug from a title.
  * Converts Chinese/Japanese characters to pinyin/romaji via transliteration.
+ *
+ * Always transliterates regardless of `enableSlugTransliteration` config —
+ * CLI-generated filenames should be ASCII-safe for filesystem compatibility.
  */
 export function generateSlug(title: string): string {
   return slugify(title, { separator: '-' });

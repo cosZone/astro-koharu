@@ -4,10 +4,12 @@ import type { BlogPost, PostRef } from 'types/blog';
 
 export type RouteParams<T extends Routes> = T extends Routes.Post ? BlogPost | PostRef | undefined : undefined;
 
+function isBlogPost(param: BlogPost | PostRef): param is BlogPost {
+  return 'collection' in param;
+}
+
 /**
- * 编码 slug，保留 / 但转义其他 URL 不安全字符，同 Hexo 行为
- * @param slug 原始 slug
- * @returns 编码后的 slug
+ * Encode a slug, preserving `/` but escaping other URL-unsafe characters (matches Hexo behavior).
  */
 export const encodeSlug = (slug: string) => slug?.split('/').map(encodeURIComponent).join('/') ?? '';
 
@@ -16,8 +18,9 @@ export function routeBuilder<T extends Routes>(route: T, param: RouteParams<type
   if (!param) return href;
   switch (route) {
     case Routes.Post: {
-      // CollectionEntry has `collection`; PostRef.slug is already transliterated by transforms
-      const slug = 'collection' in param ? getPostSlug(param as BlogPost) : (param.link ?? param.slug);
+      // BlogPost slug is resolved via getPostSlug (handles transliteration + link override);
+      // PostRef.slug is already transliterated by transforms
+      const slug = isBlogPost(param) ? getPostSlug(param) : (param.link ?? param.slug);
       href += `/${encodeSlug(slug)}`;
       break;
     }

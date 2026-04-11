@@ -28,6 +28,14 @@ function stripLocalePrefix(slug: string): string {
   return slug;
 }
 
+// Quote value if it contains YAML-special characters
+function yamlQuote(value: string): string {
+  if (/[[\]{}:#&*?|>!%@`'",\n\\]/.test(value) || /^[\s-]/.test(value) || /\s$/.test(value)) {
+    return `'${value.replace(/'/g, "''")}'`;
+  }
+  return value;
+}
+
 const blogPath = 'src/content/blog';
 const files = glob.sync(`${blogPath}/**/*.{md,mdx}`);
 let processed = 0;
@@ -44,18 +52,19 @@ for (const filePath of files) {
   const localeFreeSlug = stripLocalePrefix(rawSlug);
 
   processed++;
+  const safeValue = yamlQuote(localeFreeSlug);
 
   if (dryRun) {
-    console.log(`[dry-run] ${filePath} → link: ${localeFreeSlug}`);
+    console.log(`[dry-run] ${filePath} → link: ${safeValue}`);
     continue;
   }
 
   // Insert `link:` field directly after the opening `---` to avoid
   // gray-matter's stringify reformatting the entire frontmatter.
   const fmEnd = raw.indexOf('---', 3);
-  const updated = `${raw.slice(0, 3)}\nlink: ${localeFreeSlug}${raw.slice(3, fmEnd)}---${raw.slice(fmEnd + 3)}`;
+  const updated = `${raw.slice(0, 3)}\nlink: ${safeValue}${raw.slice(3, fmEnd)}---${raw.slice(fmEnd + 3)}`;
   writeFileSync(filePath, updated);
-  console.log(`[${processed}/${files.length}] ${filePath} → link: ${localeFreeSlug}`);
+  console.log(`[${processed}/${files.length}] ${filePath} → link: ${safeValue}`);
 }
 
 console.log(`${dryRun ? '[dry-run] ' : ''}Processed ${processed} posts (${files.length - processed} already had link)`);
