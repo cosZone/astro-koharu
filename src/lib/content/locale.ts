@@ -5,7 +5,9 @@
  * locale-aware filtering with fallback support.
  */
 
-import type { BlogPost } from 'types/blog';
+import { slugify } from 'transliteration';
+import type { BlogPost, PostRefWithSlugLinkAndDataLink } from 'types/blog';
+import { siteConfig } from '@/constants/site-config';
 import { allKnownLocales, defaultLocale } from '@/i18n/config';
 
 export interface SlugLocaleInfo {
@@ -58,8 +60,13 @@ export function getPostLocale(post: BlogPost): string {
  * Get the locale-free slug for a blog post.
  * Prefers `post.data.link` (custom permalink) over the computed locale-free slug.
  */
-export function getPostSlug(post: BlogPost): string {
-  return post.data.link ?? getSlugLocaleInfo(post.slug).localeFreeSlug;
+export function getPostSlug(post: PostRefWithSlugLinkAndDataLink): string {
+  const rawSlug = post.slug;
+  const localeInfo = getSlugLocaleInfo(rawSlug).localeFreeSlug;
+  const slug = siteConfig.enableSlugTransliteration
+    ? slugify(localeInfo, { allowedChars: 'a-zA-Z0-9-_.~/', separator: '-' })
+    : localeInfo;
+  return post?.data?.link ?? post.link ?? slug;
 }
 
 /**
