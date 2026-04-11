@@ -144,11 +144,11 @@ const pageStatsConfig = createArticleStatsConfig(href);
         </button>
 
         {pageStatsConfig && (
-          <p class="flex-center gap-1">
+          <span class="flex-center gap-1">
             <Icon name="ri:eye-line" class="h-4 w-4" />
             <UmamiPVSpan client:visible statsConfig={pageStatsConfig} />
             {t(locale, 'stats.pageviews')}
-          </p>
+          </span>
         )}
 
       </div>

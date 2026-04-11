@@ -1,6 +1,8 @@
 import type { UmamiConfig } from '@lib/config/types';
 import type { UmamiSessionStats, UmamiStatsConfig } from '@/types/umami-stats';
 
+const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
+
 async function getSessionStats(config: UmamiStatsConfig): Promise<UmamiSessionStats> {
   const { baseUrl, websiteId, shareToken, path } = config;
 
@@ -19,25 +21,44 @@ async function getSessionStats(config: UmamiStatsConfig): Promise<UmamiSessionSt
   url.search = params.toString();
 
   const response = await fetch(url.toString(), { method: 'GET', headers });
-  const data = await response.json();
   if (!response.ok) {
-    throw new Error(`Umami API error: ${data?.message ?? response.statusText}`);
+    const text = await response.text().catch(() => response.statusText);
+    throw new Error(`Umami API error: ${text}`);
   }
-  return data;
+  return await response.json();
 }
 
-const inflightRequests = new Map<string, Promise<number | 'N/A'>>();
+interface CacheEntry {
+  value: number | null;
+  expiresAt: number;
+}
 
-export function getPageviews(config: UmamiStatsConfig): Promise<number | 'N/A'> {
-  const key = `${config.baseUrl}:${config.websiteId}:${config.path ?? ''}`;
+const cache = new Map<string, CacheEntry>();
+const inflightRequests = new Map<string, Promise<number | null>>();
+
+function getCacheKey(config: UmamiStatsConfig): string {
+  return `${config.baseUrl}:${config.websiteId}:${config.path ?? ''}`;
+}
+
+export function getPageviews(config: UmamiStatsConfig): Promise<number | null> {
+  const key = getCacheKey(config);
+
+  const cached = cache.get(key);
+  if (cached && cached.expiresAt > Date.now()) return Promise.resolve(cached.value);
+
   const inflight = inflightRequests.get(key);
   if (inflight) return inflight;
 
   const promise = getSessionStats(config)
-    .then((stats) => (typeof stats.pageviews === 'number' ? stats.pageviews : stats.pageviews.value))
+    .then((stats) => {
+      const pv = typeof stats.pageviews === 'number' ? stats.pageviews : stats.pageviews.value;
+      cache.set(key, { value: pv, expiresAt: Date.now() + CACHE_TTL });
+      return pv;
+    })
     .catch((error) => {
       console.error('Failed to fetch Umami pageviews:', error);
-      return 'N/A' as const;
+      cache.set(key, { value: null, expiresAt: Date.now() + CACHE_TTL });
+      return null;
     })
     .finally(() => inflightRequests.delete(key));
 
@@ -45,11 +66,16 @@ export function getPageviews(config: UmamiStatsConfig): Promise<number | 'N/A'> 
   return promise;
 }
 
+/** Normalize path to strip trailing slash for consistent Umami matching */
+function normalizePath(path: string): string {
+  return path.length > 1 && path.endsWith('/') ? path.slice(0, -1) : path;
+}
+
 export function createUmamiStatsConfig(config: UmamiConfig, path?: string): UmamiStatsConfig {
   return {
     baseUrl: config.endpoint,
     websiteId: config.id,
     shareToken: config.statistics_display?.token ?? '',
-    path,
+    path: path ? normalizePath(path) : undefined,
   };
 }

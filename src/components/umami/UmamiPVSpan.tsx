@@ -7,7 +7,7 @@ interface Props {
 }
 
 export default function UmamiPVSpan({ statsConfig }: Props) {
-  const [pageviews, setPageviews] = useState<number | 'N/A' | null>(null);
+  const [pageviews, setPageviews] = useState<number | null | undefined>(undefined);
 
   useEffect(() => {
     let cancelled = false;
@@ -19,6 +19,7 @@ export default function UmamiPVSpan({ statsConfig }: Props) {
     };
   }, [statsConfig]);
 
-  if (pageviews === null) return <span>...</span>;
+  if (pageviews === undefined) return <span>...</span>;
+  if (pageviews === null) return <span>N/A</span>;
   return <span>{pageviews}</span>;
 }
