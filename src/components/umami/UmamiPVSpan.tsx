@@ -12,9 +12,13 @@ export default function UmamiPVSpan({ statsConfig }: Props) {
 
   useEffect(() => {
     let cancelled = false;
-    getPageviews({ baseUrl, websiteId, shareToken, path }).then((pv) => {
-      if (!cancelled) setPageviews(pv);
-    });
+    getPageviews({ baseUrl, websiteId, shareToken, path })
+      .then((pv) => {
+        if (!cancelled) setPageviews(pv);
+      })
+      .catch(() => {
+        if (!cancelled) setPageviews(null);
+      });
     return () => {
       cancelled = true;
     };

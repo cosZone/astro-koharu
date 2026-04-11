@@ -7,7 +7,8 @@ async function getSessionStats(config: UmamiStatsConfig): Promise<UmamiSessionSt
   const { baseUrl, websiteId, shareToken, path } = config;
 
   const url = new URL(baseUrl);
-  url.pathname = `/api/websites/${websiteId}/stats`;
+  const basePath = url.pathname.replace(/\/$/, '');
+  url.pathname = `${basePath}/api/websites/${encodeURIComponent(websiteId)}/stats`;
 
   const headers = new Headers({
     accept: 'application/json',
