@@ -60,7 +60,7 @@
 
   .vertical-scrollbar::-webkit-scrollbar {
     display: block;
-    width: var(--scrollbar-width, 0.5rem);
+    width: var(--scrollbar-width, 0.25rem);
     background: hsl(var(--background)); /* background color */
   }
 
@@ -71,13 +71,21 @@
 
   .horizontal-scrollbar::-webkit-scrollbar {
     display: block;
-    height: var(--scrollbar-width, 0.5rem);
+    height: var(--scrollbar-width, 0.25rem);
     background: hsl(var(--background)); /* background color */
   }
 
   .horizontal-scrollbar::-webkit-scrollbar-thumb {
     background: hsl(var(--primary) / 0.5); /* thumb color */
     border-radius: 0.5rem;
+  }
+
+  .scrollbar-hidden {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    &::-webkit-scrollbar {
+      display: none;
+    }
   }
 }
 

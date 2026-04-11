@@ -50,7 +50,7 @@ const canonicalUrl = isFallback
   ? new URL(localizedPath(`/post/${encodeSlug(getPostSlug(post))}`, defaultLocale), Astro.site).href
   : undefined;
 const { Content } = await post.render();
-const { title, categories = [], tags = [], date, math: postMath } = post?.data ?? {};
+const { title, categories = [], tags = [], date, math: postMath, keywords: postKeywords = [] } = post?.data ?? {};
 // KaTeX CSS: only load when global enableMath is on AND post hasn't opted out.
 // When enableMath is false globally, rehype-katex is not in the pipeline, so no math is rendered.
 const hasMath = defaultContentConfig.enableMath !== false && postMath !== false;
@@ -61,12 +61,15 @@ const finalDescription = getPostDescription(post, locale);
 // OGP image for BlogPosting schema (uses same fallback chain as Layout)
 const ogImage = getOgImageUrl(post?.data.cover, Astro.site);
 
+const categoryKeywords = categories?.length ? categories.flat() : [];
+const postKw = postKeywords?.length ? postKeywords : [...tags, ...categoryKeywords];
+const keywords = [...new Set([...postKw, ...(siteConfig.keywords ?? [])])] as string[];
 const jsonLd = {
   '@context': 'https://schema.org',
   '@type': 'BlogPosting',
   headline: title,
   description: finalDescription,
-  keywords: categories?.length ? tags.concat(categories[0]) : tags,
+  keywords,
   author: {
     '@type': 'Person',
     name: siteConfig.author ?? siteConfig.name,
@@ -152,6 +155,7 @@ if (post.data.description) {
   siderType={HomeSiderType.POST}
   post={post}
   canonical={canonicalUrl}
+  keywords={keywords}
 >
   <script is:inline slot="head" type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
   <script is:inline slot="head" type="application/ld+json" set:html={JSON.stringify(breadcrumbJsonLd)} />

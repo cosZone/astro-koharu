@@ -17,6 +17,7 @@ export const uiStrings: UIStrings = {
   'nav.about': 'ブログについて',
   'nav.music': '音楽',
   'nav.weekly': '週刊',
+  'nav.bangumi': 'オタ活の記録',
 
   // ── 一般 ──────────────────────────────────────────────────
   'common.search': '検索',
@@ -175,6 +176,9 @@ export const uiStrings: UIStrings = {
   'footer.wordUnit': '文字',
   'footer.postUnit': '投稿',
 
+  // ── Analytics Stats ─────────────────────────────────────────
+  'stats.pageviews': 'アクセス数',
+
   // ── ページ付け ──────────────────────────────────────────────
   'pagination.prev': '前へ',
   'pagination.next': '次へ',
@@ -316,4 +320,23 @@ export const uiStrings: UIStrings = {
 
   // ── コメント ────────────────────────────────────────────────
   'comment.prompt': '気に入ったならばコメントを残してくださいね～',
+
+  // ── Bangumi (Bangumiは日本語で提供されてないのでざっくりとした内容にしています) ──────
+  'bangumi.title': 'オタ活の記録',
+  'bangumi.description': '私のメディアコレクションです',
+  'bangumi.anime': 'アニメ',
+  'bangumi.book': '書籍',
+  'bangumi.music': '音楽',
+  'bangumi.game': 'ゲーム',
+  'bangumi.real': 'リアル',
+  'bangumi.all': 'すべて',
+  'bangumi.wish': '検討中',
+  'bangumi.collected': '完了',
+  'bangumi.watching': '視聴中',
+  'bangumi.onHold': '保留中',
+  'bangumi.dropped': '見逃した',
+  'bangumi.noImage': '画像がありません',
+  'bangumi.noItems': 'コレクションがありません',
+  'bangumi.error': '読み込みに失敗しました。もう一度お試しください。',
+  'bangumi.retry': '再試行',
 };

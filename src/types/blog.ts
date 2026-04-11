@@ -26,6 +26,8 @@ export interface BlogSchema {
   quiz?: boolean;
   /** Password for encrypting the entire post content */
   password?: string;
+  /** Keywords for SEO */
+  keywords?: string[];
 }
 
 /**

@@ -7,6 +7,7 @@
 
 import type { BlogPost } from 'types/blog';
 import { allKnownLocales, defaultLocale } from '@/i18n/config';
+import { transliterateSlug } from '@/lib/slug';
 
 export interface SlugLocaleInfo {
   /** Detected locale code (e.g., 'en') or defaultLocale if none found */
@@ -57,9 +58,10 @@ export function getPostLocale(post: BlogPost): string {
 /**
  * Get the locale-free slug for a blog post.
  * Prefers `post.data.link` (custom permalink) over the computed locale-free slug.
+ * When slug transliteration is enabled, non-ASCII slugs are converted to romanized form.
  */
 export function getPostSlug(post: BlogPost): string {
-  return post.data.link ?? getSlugLocaleInfo(post.slug).localeFreeSlug;
+  return post.data.link ?? transliterateSlug(getSlugLocaleInfo(post.slug).localeFreeSlug);
 }
 
 /**
