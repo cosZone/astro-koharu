@@ -82,9 +82,10 @@ pnpm dev
 - Built on Astro 5.x with static site generation and excellent performance
 - Elegant dark/light theme toggle
 - Serverless full-site search powered by Pagefind
-- **Swappable comment systems**: Supports Waline (recommended), Giscus, and Remark42 — one-click switch in config, theme auto-follows
+- **Swappable comment systems**: Supports Waline (recommended), Giscus, Remark42, and Twikoo — one-click switch in config, theme auto-follows
 - Full Markdown enhancements (GFM, syntax highlighting, auto TOC, Mermaid diagrams, Infographic charts)
 - **Shoka-compatible Markdown syntax**: Text effects (underline/highlight/superscript & subscript/color), spoiler text, ruby annotations, admonition blocks, collapsible blocks, tab cards, friend link cards, audio/video players, quiz system (single choice/multiple choice/true-false/fill-in-the-blank), math formulas (KaTeX), code block enhancements (title/mark/command) — all features can be individually toggled
+- [Toggleable] **Content encryption**: Supports partial encryption (encrypted blocks) and full article encryption, using AES-256-GCM client-side decryption. Passwords are only used during build and not passed to the client
 - Flexible multi-level category and tag system
 - [Toggleable] Multi-series article support (weekly digest, book notes, etc. with custom URL slugs)
   > **Note**: featuredSeries is designed for categories with many articles, separating them from the homepage main list to avoid clutter. Only the latest article in a series is highlighted on the homepage; the rest are accessed through the series' dedicated page, while still appearing normally in archive, category, and tag pages.
@@ -227,9 +228,10 @@ All blog configuration is managed through **`config/site.yaml`**, including:
 - Friend links list
 - Announcement system
 - **Bangumi page**: Set `bangumi.userId` to enable, comment out to disable
-- **Comment system** (Waline / Giscus / Remark42, Waline recommended)
+- **Comment system** (Waline / Giscus / Remark42 / Twikoo, Waline recommended)
 - Analytics (Umami)
 - **Internationalization (i18n)**
+- **Background music (BGM)**: Configure `bgm.audio` to add playlists, and `bgm.metingApi` to customize the [Meting](https://github.com/metowolf/meting) API address (default: `https://163.hyc.moe/`, self-hosting recommended)
 - Christmas special toggle
 - Development tools (the `dev` section in `config/site.yaml` for local editor jump)
 
@@ -287,7 +289,7 @@ Switch comment systems via the `comment.provider` field in `config/site.yaml`:
 
 ```yaml
 comment:
-  provider: waline # 'waline' | 'giscus' | 'remark42' | 'none'
+  provider: waline # 'waline' | 'giscus' | 'remark42' | 'twikoo' | 'none'
   waline:
     serverURL: https://your-waline-server.vercel.app
     # ... other config
@@ -328,6 +330,7 @@ comment:
 | -------------------------------------------- | ---------- | --------------------------------------------------------------- | --------------------------------------- |
 | **[Cosine's Blog](http://blog.cosine.ren/)** | **cosine** | [cosZone/astro-koharu](https://github.com/cosZone/astro-koharu) | This theme                              |
 | [XueHua's Blog](https://xhblog.top/)         | XueHua-s   | [XueHua-s/astro-snow](https://github.com/XueHua-s/astro-snow)   | Simplified features, added a start page |
+| [Ksable's Blog](https://blog.ksable.top/)    | Ksable     | -                                                               | Modified / added some features          |
 
 ## Acknowledgements
 
