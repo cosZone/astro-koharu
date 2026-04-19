@@ -82,9 +82,10 @@ pnpm dev
 - Astro 5.x ベースの静的サイト生成、優れたパフォーマンス
 - エレガントなダーク/ライトテーマ切り替え
 - Pagefind によるサーバーレス全文検索
-- **切り替え可能なコメントシステム**：Waline（推奨）、Giscus、Remark42 に対応 — 設定ファイルでワンクリック切り替え、テーマ自動追従
+- **切り替え可能なコメントシステム**：Waline（推奨）、Giscus、Remark42、Twikoo に対応 — 設定ファイルでワンクリック切り替え、テーマ自動追従
 - 完全な Markdown 拡張（GFM、シンタックスハイライト、自動目次、Mermaid 図表、インフォグラフィック）
 - **Shoka 互換 Markdown 構文**：テキストエフェクト（下線/ハイライト/上付き・下付き/色）、スポイラーテキスト、ルビ注釈、注意ブロック、折りたたみブロック、タブカード、フレンドリンクカード、オーディオ/ビデオプレーヤー、クイズシステム（単一選択/複数選択/正誤/穴埋め）、数式（KaTeX）、コードブロック拡張（title/mark/command）— すべての機能を個別に切り替え可能
+- [切り替え可能] **コンテンツ暗号化**：記事の部分暗号化（暗号化ブロック）と記事全体の暗号化に対応し、AES-256-GCM クライアントサイド復号を使用。パスワードはビルド時のみ使用され、クライアントには渡されません
 - 柔軟なマルチレベルカテゴリーとタグシステム
 - [切り替え可能] マルチシリーズ記事対応（週間ダイジェスト、読書ノートなど、カスタム URL slug 付き）
   > **補足**：featuredSeries は記事数の多いカテゴリー向けで、ホームページのメインリストから分離して見やすくします。シリーズの最新記事のみがホームページでハイライトされ、残りはシリーズ専用ページからアクセスできますが、アーカイブ・カテゴリー・タグページでは通常通り表示されます。
@@ -227,9 +228,10 @@ pnpm koharu generate all          # すべて生成
 - フレンドリンクリスト
 - お知らせシステム
 - **Bangumi ページ**：`bangumi.userId` を設定して有効化、コメントアウトで無効化
-- **コメントシステム**（Waline / Giscus / Remark42、Waline 推奨）
+- **コメントシステム**（Waline / Giscus / Remark42 / Twikoo、Waline 推奨）
 - アナリティクス（Umami）
 - **国際化（i18n）**
+- **背景音楽（BGM）**：`bgm.audio` を設定してプレイリストを追加、`bgm.metingApi` で [Meting](https://github.com/metowolf/meting) API アドレスをカスタマイズ可能（デフォルト：`https://163.hyc.moe/`、セルフホスティング推奨）
 - クリスマス特集切り替え
 - 開発ツール（`config/site.yaml` の `dev` セクション、ローカルエディタージャンプ用）
 
@@ -287,7 +289,7 @@ src/content/blog/
 
 ```yaml
 comment:
-  provider: waline # 'waline' | 'giscus' | 'remark42' | 'none'
+  provider: waline # 'waline' | 'giscus' | 'remark42' | 'twikoo' | 'none'
   waline:
     serverURL: https://your-waline-server.vercel.app
     # ... その他の設定
@@ -328,6 +330,7 @@ comment:
 | ---------------------------------------------- | ---------- | --------------------------------------------------------------- | -------------------------------------- |
 | **[Cosine のブログ](http://blog.cosine.ren/)** | **cosine** | [cosZone/astro-koharu](https://github.com/cosZone/astro-koharu) | このテーマ                              |
 | [XueHua のブログ](https://xhblog.top/)         | XueHua-s   | [XueHua-s/astro-snow](https://github.com/XueHua-s/astro-snow)   | 機能を簡素化、スタートページを追加      |
+| [Ksable's 小屋](https://blog.ksable.top/)      | Ksable     | -                                                               | 一部機能を変更 / 追加                  |
 
 ## 謝辞
 
