@@ -324,7 +324,7 @@ announcements:
 #   enableLinkEmbed: 启用链接卡片预览（解析 OG 信息）
 #   enableTweetEmbed: 启用推文嵌入展示
 #   enableOGPreview: 启用 Open Graph 预览卡片
-#   previewCacheTime: 预览信息缓存时间（秒）
+#   previewCacheTime: 预览信息缓存时间（天）
 #   lazyLoadEmbeds: 延迟加载嵌入内容（提升性能）
 #   postCardImagePosition: 文章卡片封面图位置 (alternating/left/right)
 # -----------------------------------------------------------------------------
