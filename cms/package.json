@@ -34,7 +34,7 @@
     "gray-matter": "^4.0.3",
     "hono": "^4.7.0",
     "js-yaml": "^4.1.1",
-    "pinyin-pro": "^3.28.0",
+    "transliteration": "^2.6.1",
     "react": "^19.2.1",
     "react-dom": "^19.2.1",
     "react-error-boundary": "^5.0.0",

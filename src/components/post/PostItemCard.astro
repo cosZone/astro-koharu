@@ -2,14 +2,16 @@
 // 导入所需的库和类型
 import { Badge } from '@components/ui/badge';
 import { Button } from '@components/ui/button';
+import { ScrollableRow } from '@components/ui/ScrollableRow';
 import { Routes } from '@constants/router';
-import { defaultCoverList } from '@constants/site-config';
+import { createArticleStatsConfig, defaultCoverList } from '@constants/site-config';
 import { buildCategoryPath, buildTagPath, getCategoryArr, translateCategoryName } from '@lib/content';
 import { displayDate } from '@lib/date';
 import { getLqipProps } from '@lib/lqip';
 import { routeBuilder } from '@lib/route';
 import { cn } from '@lib/utils';
 import { Icon } from 'astro-icon/components';
+import UmamiPVSpan from '@/components/umami/UmamiPVSpan';
 import { defaultLocale, getLocaleFromUrl, getLocaleLabel, localizedPath, t } from '@/i18n';
 import type { PostCardData } from '@/types/blog';
 
@@ -68,6 +70,8 @@ function getStaggerPadding(rowIndex: number): string {
   if (!isUniformPosition || hideCover || !leftClip) return '';
   return staggerAmounts[rowIndex];
 }
+
+const pageStatsConfig = createArticleStatsConfig(href);
 ---
 
 <div
@@ -109,38 +113,52 @@ function getStaggerPadding(rowIndex: number): string {
       'md:order-0',
     )}
   >
-    <div class={cn('flex w-full justify-between', { 'order-2 justify-start gap-4 pb-3 md:pb-0': isSimple }, getStaggerPadding(0), 'md:pl-0 md:pr-0')}>
+    <ScrollableRow
+      client:visible
+      className={cn('w-full', { 'order-2 pb-3 md:pb-0': isSimple }, getStaggerPadding(0), 'md:pl-0 md:pr-0')}
+      innerClassName="items-center justify-between gap-4 w-full"
+      fadeWidth={20}
+    >
       {
         categoryStr && (
-          <a href={categoryLink} class="flex-center hover:text-blue text-muted-foreground text-xs transition duration-300">
+          <a href={categoryLink} class="flex-center hover:text-blue text-muted-foreground shrink-0 text-xs whitespace-nowrap transition duration-300">
             <Icon name="gg:flag" />
             {categoryStr}
           </a>
         )
       }
-      <div class="text-muted-foreground flex justify-end gap-4 text-xs">
+      <div class="text-muted-foreground flex shrink-0 items-center gap-3 text-xs">
         {
           date ? (
-            <p class="flex-center gap-1">
+            <p class="flex-center gap-1 whitespace-nowrap">
               <Icon name="fa6-solid:calendar-days" />
               {displayDate.date(date)}
             </p>
           ) : null
         }
-        <p class="flex-center gap-1">
+        <p class="flex-center gap-1 whitespace-nowrap">
           <Icon name="fa6-solid:pen-nib" />
           {t(locale, 'post.wordCount', { count: wordCount })}
         </p>
         <button
-          class="flex-center gap-1 md:hidden"
+          class="flex-center gap-1 whitespace-nowrap md:hidden"
           title={t(locale, 'post.readingTimeTooltip', { time: readingTime })}
           data-tooltip-placement="top"
         >
           <Icon name="fa6-solid:clock" />
           {readingTime}
         </button>
+
+        {pageStatsConfig && (
+          <span class="flex-center gap-1 whitespace-nowrap">
+            <Icon name="ri:eye-line" class="h-4 w-4" />
+            <UmamiPVSpan client:visible statsConfig={pageStatsConfig} />
+            {t(locale, 'stats.pageviews')}
+          </span>
+        )}
+
       </div>
-    </div>
+    </ScrollableRow>
     <div class={cn('mt-1 flex flex-col space-y-1.5 p-0', getStaggerPadding(1), 'md:pl-0 md:pr-0')}>
       <div class="flex items-center gap-2">
         <a href={href} aria-label="post-link" class="min-w-0 flex-1"
@@ -177,30 +195,30 @@ function getStaggerPadding(rowIndex: number): string {
       {postDescription}
     </p>
     {
-      showTags && (
-        <div
-          class={cn(
-            'horizontal-scrollbar [--scrollbar-width:0.25rem] flex gap-2 pt-1 pb-1 overflow-auto',
-            hideCover ? 'justify-start' : { 'justify-end': !leftClip },
+      showTags && tags?.length && (
+        <ScrollableRow
+          client:visible
+          className={cn(
+            'pt-1 pb-1',
             leftClip ? 'mr-18' : 'ml-18',
-            'md:mx-0 md:justify-start',
+            'md:mx-0',
             getStaggerPadding(3),
             'md:pl-0 md:pr-0',
           )}
+          innerClassName="gap-2"
+          fadeWidth={16}
         >
-          {tags?.length
-            ? tags.map((tag: string) => (
-                <a href={localizedPath(buildTagPath(tag), locale)}>
-                  <Badge
-                    className='hover:text-badge-primary/80 shrink-0 cursor-pointer gap-0.5 border-none px-1 text-xs font-bold whitespace-nowrap transition-colors duration-300 flex'
-                    variant="outline"
-                  >
-                    <Icon name="fa6-solid:tags" /> {tag}
-                  </Badge>
-                </a>
-              ))
-            : null}
-        </div>
+          {tags.map((tag: string) => (
+            <a href={localizedPath(buildTagPath(tag), locale)}>
+              <Badge
+                className='hover:text-badge-primary/80 shrink-0 cursor-pointer gap-0.5 border-none px-1 text-xs font-bold whitespace-nowrap transition-colors duration-300 flex'
+                variant="outline"
+              >
+                <Icon name="fa6-solid:tags" /> {tag}
+              </Badge>
+            </a>
+          ))}
+        </ScrollableRow>
       )
     }
     <a

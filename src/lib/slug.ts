@@ -1,61 +1,26 @@
 /**
- * Slug Generation Utility
+ * Slug transliteration utility
  *
- * Generates URL-friendly slugs from titles containing mixed languages.
- * Handles Chinese characters (via pinyin) and preserves grouped ASCII characters.
+ * Converts non-ASCII slugs (Chinese, Japanese, etc.) to romanized form
+ * using the `transliteration` library. Gated by `enableSlugTransliteration`.
  */
 
-import { pinyin } from 'pinyin-pro';
+import { slugify } from 'transliteration';
+import { siteConfig } from '@/constants/site-config';
 
 /**
- * Generate a URL-friendly slug from a title.
- * Converts Chinese characters to pinyin, keeps ASCII characters grouped.
+ * Transliterate a slug containing non-ASCII characters to ASCII.
+ * Preserves path separators (/) and common URL-safe characters.
+ * Returns the slug unchanged when `enableSlugTransliteration` is off.
  *
  * @example
- * generateSlug('test123')           // 'test123'
- * generateSlug('Hello World')       // 'hello-world'
- * generateSlug('你好')              // 'ni-hao'
- * generateSlug('React学习笔记')     // 'react-xue-xi-bi-ji'
- * generateSlug('teset1234刀急急急') // 'teset1234-dao-ji-ji-ji'
+ * // with enableSlugTransliteration = true:
+ * transliterateSlug('测试')                // 'ce-shi'
+ * transliterateSlug('おはようございます')  // 'ohayougozaimasu'
+ * transliterateSlug('React学习笔记')       // 'react-xue-xi-bi-ji'
+ * transliterateSlug('tools/getting-started') // 'tools/getting-started'
  */
-export function generateSlug(title: string): string {
-  const tokens: string[] = [];
-  let latinBuffer = '';
-
-  const isAsciiWordChar = (char: string) => /[A-Za-z0-9]/.test(char);
-  const isCjkChar = (char: string) => /[\u4e00-\u9fff]/.test(char);
-
-  const flushLatin = () => {
-    if (!latinBuffer) return;
-    tokens.push(latinBuffer);
-    latinBuffer = '';
-  };
-
-  for (const char of title) {
-    if (isAsciiWordChar(char)) {
-      latinBuffer += char;
-      continue;
-    }
-
-    flushLatin();
-
-    if (isCjkChar(char)) {
-      const result = pinyin(char, {
-        toneType: 'none',
-        type: 'array',
-        v: true,
-      });
-      const value = Array.isArray(result) ? result[0] : result;
-      if (value) tokens.push(value);
-    }
-  }
-
-  flushLatin();
-
-  return tokens
-    .join('-')
-    .toLowerCase()
-    .replace(/[^a-z0-9-]/g, '-')
-    .replace(/-+/g, '-')
-    .replace(/^-|-$/g, '');
+export function transliterateSlug(slug: string): string {
+  if (!siteConfig.enableSlugTransliteration) return slug;
+  return slugify(slug, { allowedChars: 'a-zA-Z0-9-_.~/', separator: '-' });
 }

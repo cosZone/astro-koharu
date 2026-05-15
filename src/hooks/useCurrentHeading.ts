@@ -89,13 +89,13 @@ function createHeadingStore(offsetTop: number) {
     let closestTop = Number.POSITIVE_INFINITY;
     let closestElement: HTMLElement | null = null;
 
-    visibleHeadings.forEach(({ top, element }, id) => {
+    for (const [id, { top, element }] of visibleHeadings) {
       if (top < closestTop) {
         closestTop = top;
         closestId = id;
         closestElement = element;
       }
-    });
+    }
 
     if (closestElement && closestId) {
       const level = parseInt(closestElement.tagName.substring(1), 10) as 2 | 3;

@@ -1,10 +1,11 @@
 ---
 import FooterAnnouncementEntry from '@components/announcement/FooterAnnouncementEntry';
 import { MAX_WIDTH } from '@constants/layout';
-import { icpConfig, siteConfig } from '@constants/site-config';
+import { icpConfig, siteConfig, umamiSiteStatsConfig } from '@constants/site-config';
 import { getSiteStats } from '@lib/stats';
 import { cn } from '@lib/utils';
 import { Icon } from 'astro-icon/components';
+import UmamiPVSpan from '@/components/umami/UmamiPVSpan';
 import { getLocaleFromUrl, t } from '@/i18n';
 import SakuraSVG from '../svg/SakuraSvg';
 
@@ -47,6 +48,18 @@ const startYear = siteConfig?.startYear ?? currentYear;
         <span class="font-medium">{stats.postCount}</span>
         <span class="text-xs">{t(locale, 'footer.postUnit')}</span>
       </button>
+
+      {umamiSiteStatsConfig && (
+        <>
+          <div class="bg-muted-foreground/30 h-4 w-px"></div>
+          <div class="flex items-center gap-2 opacity-75 transition-opacity duration-300 hover:opacity-100" title={t(locale, 'stats.pageviews')}>
+            <Icon name="ri:eye-line" class="h-4 w-4" />
+            <span class="font-medium"><UmamiPVSpan client:load statsConfig={umamiSiteStatsConfig} /></span>
+            <span class="text-xs">{t(locale, 'stats.pageviews')}</span>
+          </div>
+        </>
+      )}
+
     </div>
 
     <!-- Copyright -->

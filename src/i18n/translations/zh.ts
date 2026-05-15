@@ -175,6 +175,9 @@ export const uiStrings = {
   'footer.wordUnit': '字',
   'footer.postUnit': '篇',
 
+  // ── Analytics Stats ─────────────────────────────────────────
+  'stats.pageviews': '访问量',
+
   // ── Pagination ──────────────────────────────────────────────
   'pagination.prev': '上一页',
   'pagination.next': '下一页',

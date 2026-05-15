@@ -1,12 +1,15 @@
 ---
-import { siteConfig } from '@constants/site-config';
+import { Routes } from '@constants/router';
+import { createArticleStatsConfig, siteConfig } from '@constants/site-config';
 import { getPostReadingTime } from '@lib/content/posts';
 import { displayDate } from '@lib/date';
 import { getLqipStyle } from '@lib/lqip';
+import { routeBuilder } from '@lib/route';
 import { Icon } from 'astro-icon/components';
 import type { BlogPost } from 'types/blog';
+import UmamiPVSpan from '@/components/umami/UmamiPVSpan';
 import { MAX_WIDTH } from '@/constants/layout';
-import { getLocaleFromUrl, t } from '@/i18n';
+import { getLocaleFromUrl, localizedPath, t } from '@/i18n';
 import WaveSvg from './wave';
 
 export interface CoverProps {
@@ -25,6 +28,10 @@ const isDraft = import.meta.env.DEV && draft === true;
 const bannerLqipStyle = getLqipStyle('/img/site_header_1920.webp');
 
 const locale = getLocaleFromUrl(Astro.url.pathname);
+
+const href = data && localizedPath(routeBuilder(Routes.Post, data), locale);
+
+const pageStatsConfig = href ? createArticleStatsConfig(href) : null;
 ---
 
 <div class="relative flex h-[60dvh] z-0 max-h-200 overflow-hidden">
@@ -75,6 +82,13 @@ const locale = getLocaleFromUrl(Astro.url.pathname);
                 <Icon name="fa6-solid:clock" />
                 {readState?.text}
               </span>
+              {pageStatsConfig && (
+                <span class="flex items-center gap-1">
+                  <Icon name="ri:eye-line" class="h-4 w-4" />
+                  <UmamiPVSpan client:idle statsConfig={pageStatsConfig} />
+                  {t(locale, 'stats.pageviews')}
+                </span>
+              )}
             </p>
           )}
         </>

@@ -7,7 +7,7 @@
 
 import { defaultLocale } from '@/i18n/config';
 import type { BlogPost } from '@/types/blog';
-import { getPostLocale, getSlugLocaleInfo } from './locale';
+import { getPostLocale, getPostSlug } from './locale';
 import { getPostDescriptionWithSummary, getPostLastCategory, getPostReadingTime } from './posts';
 
 /**
@@ -39,7 +39,7 @@ export type PostFieldMap = {
  */
 const fieldExtractors: { [K in keyof PostFieldMap]: (post: BlogPost, locale: string) => PostFieldMap[K] } = {
   // 直接字段
-  slug: (p) => getSlugLocaleInfo(p.slug).localeFreeSlug,
+  slug: (p) => getPostSlug(p),
   link: (p) => p.data?.link,
   title: (p) => p.data.title,
   date: (p) => p.data.date,

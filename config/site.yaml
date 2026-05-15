@@ -23,7 +23,7 @@ site:
   defaultOgImage: /img/avatar.webp # 默认 Open Graph 图片
   startYear: 2024 # 建站年份
   timezone: Asia/Shanghai # 时区配置 (IANA 格式)，用于日期显示和处理
-  keywords: # SEO 关键词
+  keywords: # SEO 关键词 (全局)
     - 博客
     - Astro
     - 技术
@@ -33,6 +33,9 @@ site:
   # icp:                         # ICP 备案号（可自定义链接）
   #   text: "粤ICP备xxxxxxxxxx号"
   #   link: "https://beian.miit.gov.cn/"
+  # Enable slug transliteration (converts CJK characters to pinyin/romaji)
+  # Note: enabling this will break existing CJK URLs. Run `pnpm save-slugs` first to save old slugs into frontmatter.link
+  # enableSlugTransliteration: true
 
 # =============================================================================
 # Internationalization (i18n)
@@ -552,12 +555,20 @@ comment:
 # id: Umami 网站 ID
 # endpoint: Umami 服务器地址
 # enabled: 是否启用统计
+# statistics_display: 统计信息显示配置
+#   token: Umami 分享链接令牌（只读，可安全暴露到客户端）
+#   article_page_views: 在文章详情页显示访问量
+#   footer_site_stats: 在页脚 Site Stats 中显示全站访问量
 # -----------------------------------------------------------------------------
 analytics:
   umami:
     enabled: true
     id: your-umami-id
     endpoint: https://stats.example.com
+    # statistics_display:
+    #   token: your-umami-share-token
+    #   article_page_views: true
+    #   footer_site_stats: true
 
 # =============================================================================
 # SEO Configuration
