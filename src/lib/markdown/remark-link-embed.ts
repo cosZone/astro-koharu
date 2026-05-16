@@ -26,7 +26,7 @@ import { classifyLink, isStandaloneLinkParagraph } from './link-utils';
 
 const CACHE_DIR = path.join(process.cwd(), '.cache');
 const CACHE_FILE = path.join(CACHE_DIR, 'og-data.json');
-const CACHE_TTL = 30 * 24 * 60 * 60 * 1000; // 30 days for successful entries
+let CACHE_TTL = 30 * 24 * 60 * 60 * 1000; // 30 days for successful entries
 const ERROR_CACHE_TTL = 1 * 24 * 60 * 60 * 1000; // 1 day for error entries (retry sooner)
 
 interface CacheEntry {
@@ -139,9 +139,11 @@ interface OGData {
 }
 
 interface RemarkLinkEmbedOptions {
+  enableLinkEmbed?: boolean;
   enableTweetEmbed?: boolean;
   enableCodePenEmbed?: boolean;
   enableOGPreview?: boolean;
+  previewCacheTime?: number;
 }
 
 // Initialize metascraper with plugins
@@ -382,9 +384,23 @@ function generateCodePenEmbedHTML(user: string, penId: string, url: string): str
  * This version uses metascraper to fetch OG data at build time
  */
 export function remarkLinkEmbed(options: RemarkLinkEmbedOptions = {}) {
-  const { enableTweetEmbed = true, enableCodePenEmbed = true, enableOGPreview = true } = options;
+  const {
+    enableLinkEmbed = true,
+    enableTweetEmbed = true,
+    enableCodePenEmbed = true,
+    enableOGPreview = true,
+    previewCacheTime = 30,
+  } = options;
+
+  // Cache TTL in milliseconds
+  CACHE_TTL = previewCacheTime * 24 * 60 * 60 * 1000;
 
   return async (tree: Root) => {
+    // Skip processing if link embedding is disabled or no specific embed types are enabled
+    if (!enableLinkEmbed || (!enableTweetEmbed && !enableCodePenEmbed && !enableOGPreview)) {
+      return;
+    }
+
     const nodesToReplace: Array<{
       node: Paragraph;
       index: number;
