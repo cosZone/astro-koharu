@@ -191,7 +191,7 @@ const keywords = keywordsOverride || siteConfig.keywords || [siteConfig.title];
       })();
     </script>
 
-    {enableReactGrab && <ReactGrabInit client:load />}
+    {enableReactGrab && <ReactGrabInit client:only="react" />}
 
     <!-- 子页面可通过 slot="head" 注入额外的 head 内容（如 JSON-LD） -->
     <slot name="head" />
