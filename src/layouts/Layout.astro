@@ -16,7 +16,6 @@ import { ClientRouter } from 'astro:transitions';
 import AnnouncementProvider from '@components/announcement/AnnouncementProvider.astro';
 import GlobalBGMPlayer from '@components/bgm/GlobalBGMPlayer';
 import ChristmasEffects from '@components/christmas/ChristmasEffects.astro';
-import ReactGrabInit from '@components/dev/ReactGrabInit';
 import FloatingGroup from '@components/layout/FloatingGroup';
 import Header from '@components/layout/Header.astro';
 import MobileDrawer from '@components/layout/MobileDrawer.astro';
@@ -191,7 +190,11 @@ const keywords = keywordsOverride || siteConfig.keywords || [siteConfig.title];
       })();
     </script>
 
-    {enableReactGrab && <ReactGrabInit client:only="react" />}
+    {enableReactGrab && (
+      <script is:inline type="module">
+        {`import('https://esm.sh/react-grab').catch(console.error);`}
+      </script>
+    )}
 
     <!-- 子页面可通过 slot="head" 注入额外的 head 内容（如 JSON-LD） -->
     <slot name="head" />
