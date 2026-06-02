@@ -177,7 +177,7 @@ export const uiStrings: UIStrings = {
   'footer.postUnit': '投稿',
 
   // ── 解析の統計 ─────────────────────────────────────────
-  'stats.pageviews': 'アクセス',
+  'stats.pageviews': 'ページビュー',
 
   // ── ページ付け ──────────────────────────────────────────────
   'pagination.prev': '前へ',
