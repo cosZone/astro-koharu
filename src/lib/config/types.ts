@@ -155,6 +155,7 @@ export interface ContentConfig {
   enableLinkEmbed: boolean;
   enableTweetEmbed: boolean;
   enableOGPreview: boolean;
+  enableCodePenEmbed: boolean;
   previewCacheTime: number;
   lazyLoadEmbeds: boolean;
   // Shoka compatibility features

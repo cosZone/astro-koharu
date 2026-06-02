@@ -148,7 +148,8 @@ export const defaultContentConfig: ContentConfig = {
   enableLinkEmbed: true,
   enableTweetEmbed: true,
   enableOGPreview: true,
-  previewCacheTime: 3600, // 1小时
+  enableCodePenEmbed: true,
+  previewCacheTime: 30, // 30 days
   lazyLoadEmbeds: true,
 };
 ```

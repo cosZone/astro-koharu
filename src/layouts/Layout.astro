@@ -52,9 +52,6 @@ const {
   keywords: keywordsOverride,
 } = Astro.props;
 
-// react-grab: dev-only tool for copying React component context (file, component name, HTML)
-// Enable by setting REACT_GRAB=true in .env
-const enableReactGrab = import.meta.env.DEV && import.meta.env.REACT_GRAB === 'true';
 // TODO: siderType should be custom in router file, not in layout
 
 // i18n: derive locale from URL and compute BCP 47 lang tag
@@ -86,13 +83,6 @@ const keywords = keywordsOverride || siteConfig.keywords || [siteConfig.title];
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <link rel="icon" type="image/svg+xml" href="/favicon.ico" />
     <meta name="generator" content={Astro.generator} />
-    
-    <!-- Preconnect to third-party origins for faster resource loading -->
-    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
-    <link rel="dns-prefetch" href="https://cdn.jsdelivr.net" />
-    <link rel="preconnect" href="https://chinese-font.netlify.app" crossorigin />
-    <link rel="dns-prefetch" href="https://chinese-font.netlify.app" />
-
     {/* Async load rounded fonts — Japanese pages use Gen Jyuu Gothic P, others use ChillRoundF (fix #113) */}
     {locale === 'ja' ? (
       <>
@@ -196,12 +186,6 @@ const keywords = keywordsOverride || siteConfig.keywords || [siteConfig.title];
         document.documentElement.classList.toggle('christmas', enabled);
       })();
     </script>
-
-    {enableReactGrab && (
-      <script>
-        import('react-grab');
-      </script>
-    )}
 
     <!-- 子页面可通过 slot="head" 注入额外的 head 内容（如 JSON-LD） -->
     <slot name="head" />

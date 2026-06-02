@@ -1,7 +1,7 @@
 {
   "name": "astro-koharu",
   "type": "module",
-  "version": "4.0.0",
+  "version": "4.1.0",
   "scripts": {
     "dev": "astro dev",
     "generate:lqips": "npx tsx src/scripts/generateLqips.ts",
@@ -141,7 +141,6 @@
     "ink": "^6.6.0",
     "knip": "^5.71.0",
     "lint-staged": "^15.5.2",
-    "react-grab": "^0.1.29",
     "remark": "^15.0.1",
     "sharp": "^0.34.5",
     "shiki": "^3.22.0",

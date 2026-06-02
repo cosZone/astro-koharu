@@ -324,7 +324,7 @@ announcements:
 #   enableLinkEmbed: 启用链接卡片预览（解析 OG 信息）
 #   enableTweetEmbed: 启用推文嵌入展示
 #   enableOGPreview: 启用 Open Graph 预览卡片
-#   previewCacheTime: 预览信息缓存时间（秒）
+#   previewCacheTime: 预览信息缓存时间（天）
 #   lazyLoadEmbeds: 延迟加载嵌入内容（提升性能）
 #   postCardImagePosition: 文章卡片封面图位置 (alternating/left/right)
 # -----------------------------------------------------------------------------
@@ -336,9 +336,10 @@ content:
   enableCodeCopy: true # 代码复制按钮
   enableCodeFullscreen: true # 代码全屏按钮
   enableLinkEmbed: true # 链接卡片预览
+  enableCodePenEmbed: true # CodePen 嵌入
   enableTweetEmbed: true # 推文嵌入
   enableOGPreview: true # OG 预览卡片
-  previewCacheTime: 3600 # 预览缓存时间(秒)
+  previewCacheTime: 30 # 预览缓存时间(天)
   lazyLoadEmbeds: true # 延迟加载嵌入
   postCardImagePosition: alternating # 文章卡片封面图位置在首页的显示控制 alternating 默认交替显示 left 封面图始终在左侧 right 封面图始终在右侧
   # Shoka 兼容功能（默认全部启用，设为 false 可关闭）
