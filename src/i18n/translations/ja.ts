@@ -176,8 +176,8 @@ export const uiStrings: UIStrings = {
   'footer.wordUnit': '文字',
   'footer.postUnit': '投稿',
 
-  // ── Analytics Stats ─────────────────────────────────────────
-  'stats.pageviews': 'アクセス数',
+  // ── 解析の統計 ─────────────────────────────────────────
+  'stats.pageviews': 'ページビュー',
 
   // ── ページ付け ──────────────────────────────────────────────
   'pagination.prev': '前へ',
@@ -237,8 +237,8 @@ export const uiStrings: UIStrings = {
 
   // ── 暗号化されたブロック ─────────────────────────────────────────
   'encrypted.locked': '暗号化されたコンテンツ',
-  'encrypted.placeholder': 'パスワードを入力でロックを解除',
-  'encrypted.submit': 'ロックを解除',
+  'encrypted.placeholder': 'パスワードを入力で解除',
+  'encrypted.submit': '解除',
   'encrypted.incorrect': 'パスワードが間違っています',
 
   // ── 暗号化された投稿 ─────────────────────────────────────────
