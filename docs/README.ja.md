@@ -330,7 +330,7 @@ comment:
 | ---------------------------------------------- | ---------- | --------------------------------------------------------------- | -------------------------------------- |
 | **[Cosine のブログ](http://blog.cosine.ren/)** | **cosine** | [cosZone/astro-koharu](https://github.com/cosZone/astro-koharu) | このテーマ                              |
 | [XueHua のブログ](https://xhblog.top/)         | XueHua-s   | [XueHua-s/astro-snow](https://github.com/XueHua-s/astro-snow)   | 機能を簡素化、スタートページを追加      |
-| [Ksable's 小屋](https://blog.ksable.top/)      | Ksable     | -                                                               | 一部機能を変更 / 追加                  |
+| [Ksable's 小屋](https://blog.ksable.top/)      | Ksable     | [God-2077/astro-blog](https://github.com/God-2077/astro-blog)  | 一部機能を変更 / 追加                  |
 
 ## 謝辞
 
