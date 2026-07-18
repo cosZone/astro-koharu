@@ -67,7 +67,7 @@ const pageStatsConfig = href ? createArticleStatsConfig(href) : null;
             <p class="mt-3 flex flex-wrap items-center justify-center gap-4 md:text-xs">
               <span class="flex items-center gap-1">
                 <Icon name="fa6-solid:calendar-days" />
-                {t(locale, "post.publishedAt", { date: date && displayDate.datetime(date) })}
+                {t(locale, "post.publishedAt", { date: date ? displayDate.datetime(date) : '' })}
               </span>
               {updated && (
                 <span class="flex items-center gap-1">
@@ -76,7 +76,7 @@ const pageStatsConfig = href ? createArticleStatsConfig(href) : null;
                 </span>
               )}
               <span class="flex items-center gap-1">
-                <Icon name="fa6-solid:pen-nib" /> {t(locale, "post.wordCount", { count: readState?.words })}
+                <Icon name="fa6-solid:pen-nib" /> {t(locale, "post.wordCount", { count: readState?.words ?? 0 })}
               </span>
               <span class="flex items-center gap-1">
                 <Icon name="fa6-solid:clock" />
