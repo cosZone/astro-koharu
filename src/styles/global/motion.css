@@ -1,0 +1,32 @@
+/*
+  The master motion preference disables continuous decorative motion while
+  preserving interaction feedback and loading indicators.
+*/
+
+html.motion-off footer .animate-spin,
+html.motion-off .animate-spin.duration-10000,
+html.motion-off .hover\:animate-shake,
+html.motion-off .rainbow,
+html.motion-off .typewriter-cursor,
+html.motion-off .audio-player-disc,
+html.motion-off .lightrope li,
+html.motion-off .animate-ping,
+html.motion-off .sider-slot.entering,
+html.motion-off .sider-slot.exiting {
+  animation: none !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  footer .animate-spin,
+  .animate-spin.duration-10000,
+  .hover\:animate-shake,
+  .rainbow,
+  .typewriter-cursor,
+  .audio-player-disc,
+  .lightrope li,
+  .animate-ping,
+  .sider-slot.entering,
+  .sider-slot.exiting {
+    animation: none !important;
+  }
+}

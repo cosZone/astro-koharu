@@ -44,7 +44,7 @@ export interface ImageLightboxData {
   currentIndex: number;
 }
 
-export type ModalType = 'drawer' | 'search' | 'codeFullscreen' | 'diagramFullscreen' | 'imageLightbox' | null;
+export type ModalType = 'drawer' | 'search' | 'codeFullscreen' | 'diagramFullscreen' | 'imageLightbox' | 'settings' | null;
 
 export interface ModalState {
   type: ModalType;
@@ -69,6 +69,7 @@ export const $imageLightboxData = computed($activeModal, (m) =>
   m.type === 'imageLightbox' ? (m.data as ImageLightboxData) : null,
 );
 export const $isAnyModalOpen = computed($activeModal, (m) => m.type !== null);
+export const $isSettingsOpen = computed($activeModal, (m) => m.type === 'settings');
 
 /**
  * Open a modal with optional data
@@ -84,8 +85,9 @@ export function openModal<T extends ModalType>(
         : never,
 ): void {
   $activeModal.set({ type, data });
-  if (type && typeof document !== 'undefined') {
-    document.body.style.overflow = 'hidden';
+  // Settings stays non-modal, so switching from another modal must release its scroll lock.
+  if (typeof document !== 'undefined') {
+    document.body.style.overflow = type && type !== 'settings' ? 'hidden' : '';
   }
 }
 
@@ -118,6 +120,8 @@ export const toggleDrawer = () => toggleModal('drawer');
 export const openSearch = () => openModal('search');
 export const closeSearch = () => closeModal();
 export const toggleSearch = () => toggleModal('search');
+
+export const toggleSettings = () => toggleModal('settings');
 
 export const openCodeFullscreen = (data: CodeBlockData) => openModal('codeFullscreen', data);
 export const closeCodeFullscreen = () => closeModal();

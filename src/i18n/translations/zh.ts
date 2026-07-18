@@ -122,6 +122,8 @@ export const uiStrings = {
   'code.wrapLines': '自动换行',
   'code.viewSource': '查看源码',
   'code.viewRendered': '查看渲染结果',
+  'code.collapse': '收起代码',
+  'code.expand': '展开代码',
 
   // ── Diagram / Infographic ───────────────────────────────────
   'diagram.fullscreen': '全屏查看',
@@ -196,6 +198,30 @@ export const uiStrings = {
   'floating.christmas': '切换圣诞特效',
   'floating.bgm': '背景音乐',
   'floating.toggleToolbar': '展开/收起工具栏',
+  'floating.settings': '设置',
+
+  // ── Settings Panel ────────────────────────────────────────
+  'settings.title': '设置',
+  'settings.reader': '阅读',
+  'settings.general': '通用',
+  'settings.closePanel': '关闭设置面板',
+  'settings.fontPreset': '字体预设',
+  'settings.fontPreset.round': '圆体',
+  'settings.fontPreset.system': '系统黑体',
+  'settings.fontPreset.serif': '衬线',
+  'settings.fontPreset.wenkai': '文楷',
+  'settings.fontSize': '字号',
+  'settings.lineHeight': '行距',
+  'settings.measure': '行宽',
+  'settings.justify': '两端对齐',
+  'settings.scrollProgress': '滚动进度条',
+  'settings.christmas': '圣诞特效',
+  'settings.bgmWidget': '背景音乐控件',
+  'settings.masterMotion': '减弱动画',
+  'settings.wave': '封面海浪',
+  'settings.reset': '重置为默认',
+  'settings.waveDisabledByMasterMotion': '「减弱动画」开启时不可用',
+  'settings.invalidNumber': '请输入正数',
 
   // ── Announcement ────────────────────────────────────────────
   'announcement.title': '公告',

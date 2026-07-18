@@ -24,6 +24,7 @@ import SearchPortal from '@components/layout/SearchPortal.astro';
 import CodeBlockFullscreen from '@components/markdown/CodeBlockFullscreen';
 import DiagramFullscreen from '@components/markdown/DiagramFullscreen';
 import ImageLightbox from '@components/markdown/ImageLightbox';
+import SettingsPanel from '@components/settings/SettingsPanel';
 import { Toaster } from '@components/ui/sonner';
 import { bgmConfig, christmasConfig, seoConfig, siteConfig } from '@constants/site-config';
 import { getOgImageUrl } from '@lib/seo/og-image';
@@ -184,6 +185,48 @@ const keywords = keywordsOverride || siteConfig.keywords || [siteConfig.title];
         var stored = localStorage.getItem('christmas-enabled');
         var enabled = stored !== 'false'; // 默认启用
         document.documentElement.classList.toggle('christmas', enabled);
+      })();
+    </script>
+
+    <script is:inline>
+      // Apply settings immediately to prevent a flash of default reader styles.
+      // Defaults and localStorage keys must stay in sync with src/store/settings.ts.
+      (function () {
+        function readPositiveNumber(key, fallback) {
+          var stored = parseFloat(localStorage.getItem(key));
+          return isFinite(stored) && stored > 0 ? stored : fallback;
+        }
+        function readBoolean(key, fallback) {
+          var stored = localStorage.getItem(key);
+          return stored === null ? fallback : stored === 'true';
+        }
+        function applySettings() {
+          var root = document.documentElement;
+          var preset = localStorage.getItem('reader-font-preset') || 'round';
+          root.setAttribute('data-font-preset', preset);
+          var fontSize = readPositiveNumber('reader-font-size', 16);
+          root.style.setProperty('--reader-font-size', fontSize + 'px');
+          root.style.setProperty('--reader-line-height', String(readPositiveNumber('reader-line-height', 1.8)));
+          // Convert ch to px so headings and body text share one absolute content width.
+          root.style.setProperty('--reader-measure', readPositiveNumber('reader-measure', 65) * 0.5 * fontSize + 'px');
+          root.classList.toggle('reader-justify', readBoolean('reader-justify', false));
+          root.classList.toggle('motion-off', readBoolean('site-master-motion', false));
+          root.classList.toggle('wave-off', !readBoolean('site-wave', true));
+          // Load WenKai only when the matching preset is selected.
+          if (preset === 'wenkai' && !document.getElementById('lxgw-wenkai-webfont')) {
+            var link = document.createElement('link');
+            link.id = 'lxgw-wenkai-webfont';
+            link.rel = 'stylesheet';
+            link.href = 'https://cdn.jsdelivr.net/npm/lxgw-wenkai-webfont@1.7.0/style.css';
+            document.head.appendChild(link);
+          }
+        }
+
+        // Apply before the first frame.
+        applySettings();
+
+        // Reapply before Astro renders the swapped page.
+        document.addEventListener('astro:after-swap', applySettings);
       })();
     </script>
 
@@ -353,6 +396,7 @@ const keywords = keywordsOverride || siteConfig.keywords || [siteConfig.title];
         </div>
       )}
       <FloatingGroup client:only="react" />
+      <SettingsPanel client:only="react" />
       <MobileDrawer type={siderType} post={post} />
       <SearchDialog client:idle />
       <SearchPortal />
