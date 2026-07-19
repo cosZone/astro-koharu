@@ -350,7 +350,7 @@
     color: inherit;
   }
 
-  /* Collapsible code blocks; long blocks start collapsed in CodeBlockToolbar. */
+  /* Collapsible code blocks; long blocks are wrapped in their initial state during highlighting. */
 
   /* The code element needs min-height: 0 for the 0fr row to collapse. */
   .code-block-wrapper > pre {
@@ -375,6 +375,11 @@
     padding-block: 0;
   }
 
+  /* Reserve the toolbar row before the idle-hydrated controls mount. */
+  .code-block-wrapper.code-collapsed > .code-block-wrapper-toolbar-mount {
+    min-height: 2.625rem;
+  }
+
   .code-block-wrapper.code-collapsed .code-block-wrapper-toolbar-mount > div {
     border-bottom: 1px solid hsl(var(--border));
     border-radius: 0.75rem;
@@ -383,11 +388,6 @@
   /* Make the full toolbar a collapse toggle. */
   .code-block-wrapper.code-collapsible .code-block-wrapper-toolbar-mount > div {
     cursor: pointer;
-  }
-
-  /* Suppress the first collapse animation; see CodeBlockToolbar. */
-  .code-block-wrapper.code-no-transition > pre {
-    transition: none !important;
   }
 
   /* 移除 pre code 的 Typography ::before/::after */

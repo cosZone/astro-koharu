@@ -3,45 +3,21 @@
  *
  * Nanostores-based state for reader and general preferences.
  * Preferences persist in localStorage and sync to documentElement through CSS variables,
- * data attributes, and classes.
- *
- * Defaults and localStorage keys must stay in sync with the FOUC-prevention script in Layout.astro.
+ * data attributes, and classes. Defaults and keys live in ./settings-constants.
  */
 
 import { atom } from 'nanostores';
+import {
+  FONT_PRESETS,
+  type FontPreset,
+  GENERAL_DEFAULTS,
+  READER_DEFAULTS,
+  STORAGE_KEYS,
+  WENKAI_STYLESHEET_HREF,
+  WENKAI_STYLESHEET_ID,
+} from './settings-constants';
 
-export type FontPreset = 'round' | 'system' | 'serif' | 'wenkai';
-
-export const READER_DEFAULTS = {
-  fontPreset: 'round' as FontPreset,
-  fontSize: 16,
-  lineHeight: 1.8,
-  measure: 65,
-  justify: false,
-};
-
-export const GENERAL_DEFAULTS = {
-  scrollProgress: true,
-  bgmWidget: true,
-  masterMotion: false,
-  wave: true,
-};
-
-const STORAGE_KEYS = {
-  fontPreset: 'reader-font-preset',
-  fontSize: 'reader-font-size',
-  lineHeight: 'reader-line-height',
-  measure: 'reader-measure',
-  justify: 'reader-justify',
-  scrollProgress: 'site-scroll-progress',
-  bgmWidget: 'site-bgm-widget',
-  masterMotion: 'site-master-motion',
-  wave: 'site-wave',
-} as const;
-
-/** WenKai WebFont loaded on demand from jsDelivr; see docs/adr/0003. */
-const WENKAI_STYLESHEET_ID = 'lxgw-wenkai-webfont';
-const WENKAI_STYLESHEET_HREF = 'https://cdn.jsdelivr.net/npm/lxgw-wenkai-webfont@1.7.0/style.css';
+export type { FontPreset };
 
 // Reader preferences
 export const readerFontPreset = atom<FontPreset>(READER_DEFAULTS.fontPreset);
@@ -184,19 +160,14 @@ function readBoolean(key: string, fallback: boolean): boolean {
 }
 
 /**
- * Initialize settings state from localStorage
- * Should be called on client-side only
- *
- * Default values (must match Layout.astro FOUC prevention script):
- * - fontPreset: 'round', fontSize: 16, lineHeight: 1.8, measure: 65, justify: false
- * - scrollProgress: true, bgmWidget: true, masterMotion: false, wave: true
+ * Initialize settings state from localStorage. Client-side only.
  */
 export function initSettings(): void {
   if (typeof window === 'undefined') return;
 
   const storedPreset = localStorage.getItem(STORAGE_KEYS.fontPreset);
-  if (storedPreset === 'round' || storedPreset === 'system' || storedPreset === 'serif' || storedPreset === 'wenkai') {
-    readerFontPreset.set(storedPreset);
+  if (storedPreset && FONT_PRESETS.includes(storedPreset as FontPreset)) {
+    readerFontPreset.set(storedPreset as FontPreset);
     if (storedPreset === 'wenkai') loadWenkaiFont();
   }
   readerFontSize.set(readPositiveNumber(STORAGE_KEYS.fontSize, READER_DEFAULTS.fontSize));

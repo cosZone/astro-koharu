@@ -1,0 +1,41 @@
+/**
+ * Settings defaults, localStorage keys, and WenKai font metadata.
+ *
+ * Single source of truth shared by the settings store and the FOUC-prevention script in
+ * Layout.astro. Kept free of nanostores so Layout.astro can import it at build time without
+ * pulling store side effects into the SSR bundle.
+ */
+
+export const FONT_PRESETS = ['round', 'system', 'serif', 'wenkai'] as const;
+export type FontPreset = (typeof FONT_PRESETS)[number];
+
+export const READER_DEFAULTS = {
+  fontPreset: 'round' as FontPreset,
+  fontSize: 16,
+  lineHeight: 1.8,
+  measure: 65,
+  justify: false,
+};
+
+export const GENERAL_DEFAULTS = {
+  scrollProgress: true,
+  bgmWidget: true,
+  masterMotion: false,
+  wave: true,
+};
+
+export const STORAGE_KEYS = {
+  fontPreset: 'reader-font-preset',
+  fontSize: 'reader-font-size',
+  lineHeight: 'reader-line-height',
+  measure: 'reader-measure',
+  justify: 'reader-justify',
+  scrollProgress: 'site-scroll-progress',
+  bgmWidget: 'site-bgm-widget',
+  masterMotion: 'site-master-motion',
+  wave: 'site-wave',
+} as const;
+
+/** WenKai WebFont loaded on demand from jsDelivr; see docs/adr/0003. */
+export const WENKAI_STYLESHEET_ID = 'lxgw-wenkai-webfont';
+export const WENKAI_STYLESHEET_HREF = 'https://cdn.jsdelivr.net/npm/lxgw-wenkai-webfont@1.7.0/style.css';

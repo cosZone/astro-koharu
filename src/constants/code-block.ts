@@ -1,0 +1,1 @@
+export const COLLAPSE_LINE_THRESHOLD = 8;

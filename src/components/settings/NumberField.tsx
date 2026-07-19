@@ -53,6 +53,10 @@ export function NumberField({ label, value, step, unit, onApply }: NumberFieldPr
 
   // Synchronize external changes from the stepper or reset action.
   useEffect(() => {
+    if (debounceRef.current) {
+      clearTimeout(debounceRef.current);
+      debounceRef.current = null;
+    }
     setValue('value', value, { shouldValidate: true });
   }, [value, setValue]);
 
@@ -60,9 +64,12 @@ export function NumberField({ label, value, step, unit, onApply }: NumberFieldPr
   useEffect(() => {
     const subscription = watch((data) => {
       const next = data.value;
+      if (debounceRef.current) {
+        clearTimeout(debounceRef.current);
+        debounceRef.current = null;
+      }
       if (typeof next !== 'number' || !Number.isFinite(next) || next <= 0) return;
       if (next === valueRef.current) return;
-      if (debounceRef.current) clearTimeout(debounceRef.current);
       debounceRef.current = setTimeout(() => onApply(next), APPLY_DEBOUNCE);
     });
     return () => {
@@ -74,6 +81,10 @@ export function NumberField({ label, value, step, unit, onApply }: NumberFieldPr
   const stepBy = (direction: 1 | -1) => {
     const next = round(valueRef.current + direction * step);
     if (next <= 0) return;
+    if (debounceRef.current) {
+      clearTimeout(debounceRef.current);
+      debounceRef.current = null;
+    }
     onApply(next);
   };
 

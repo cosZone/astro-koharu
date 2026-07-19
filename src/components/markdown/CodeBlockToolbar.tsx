@@ -5,15 +5,13 @@
 
 import { CopyButton } from '@components/markdown/shared/CopyButton';
 import { MacToolbar } from '@components/markdown/shared/MacToolbar';
+import { COLLAPSE_LINE_THRESHOLD } from '@constants/code-block';
 import { useTranslation } from '@hooks/useTranslation';
 import { Icon } from '@iconify/react';
 import { extractCode, extractCodeClassName, extractCodeHTML, extractLanguage } from '@lib/content-enhancer-utils';
 import { cn } from '@lib/utils';
 import { openModal } from '@store/modal';
-import { useEffect, useMemo, useRef, useState } from 'react';
-
-/** Code blocks longer than this threshold start collapsed. */
-const COLLAPSE_LINE_THRESHOLD = 8;
+import { useEffect, useLayoutEffect, useMemo, useState } from 'react';
 
 interface CodeBlockToolbarProps {
   preElement: HTMLElement;
@@ -40,24 +38,19 @@ export function CodeBlockToolbar({ preElement, enableCopy = true, enableFullscre
 
   const collapsible = useMemo(() => info.code.replace(/\n$/, '').split('\n').length > COLLAPSE_LINE_THRESHOLD, [info.code]);
   const [collapsed, setCollapsed] = useState(collapsible);
-  const isFirstRender = useRef(true);
 
-  // Mirror the collapsed state on the wrapper and make the toolbar clickable.
+  useLayoutEffect(() => {
+    const wrapper = preElement.parentElement;
+    if (!wrapper || !collapsible) return;
+    wrapper.classList.toggle('code-collapsed', collapsed);
+    return () => wrapper.classList.remove('code-collapsed');
+  }, [preElement, collapsible, collapsed]);
+
+  // Make the full toolbar clickable while preserving button and link behavior.
   useEffect(() => {
     const wrapper = preElement.parentElement;
     if (!wrapper || !collapsible) return;
     wrapper.classList.add('code-collapsible');
-
-    if (isFirstRender.current) {
-      isFirstRender.current = false;
-      // Skip the initial animation to avoid layout shifts when many long blocks mount together.
-      if (collapsed) {
-        wrapper.classList.add('code-collapsed', 'code-no-transition');
-        requestAnimationFrame(() => wrapper.classList.remove('code-no-transition'));
-      }
-    } else {
-      wrapper.classList.toggle('code-collapsed', collapsed);
-    }
 
     const toolbar = wrapper.querySelector('.code-block-wrapper-toolbar-mount');
     const handleBarClick = (event: Event) => {
@@ -67,10 +60,10 @@ export function CodeBlockToolbar({ preElement, enableCopy = true, enableFullscre
     };
     toolbar?.addEventListener('click', handleBarClick);
     return () => {
-      wrapper.classList.remove('code-collapsed', 'code-collapsible');
+      wrapper.classList.remove('code-collapsible');
       toolbar?.removeEventListener('click', handleBarClick);
     };
-  }, [preElement, collapsible, collapsed]);
+  }, [preElement, collapsible]);
 
   const handleFullscreen = () => {
     openModal('codeFullscreen', info);

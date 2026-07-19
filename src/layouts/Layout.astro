@@ -28,6 +28,14 @@ import SettingsPanel from '@components/settings/SettingsPanel';
 import { Toaster } from '@components/ui/sonner';
 import { bgmConfig, christmasConfig, seoConfig, siteConfig } from '@constants/site-config';
 import { getOgImageUrl } from '@lib/seo/og-image';
+import {
+  FONT_PRESETS,
+  GENERAL_DEFAULTS,
+  READER_DEFAULTS,
+  STORAGE_KEYS,
+  WENKAI_STYLESHEET_HREF,
+  WENKAI_STYLESHEET_ID,
+} from '@store/settings-constants';
 import LoadingIndicator from 'astro-loading-indicator/component';
 import { SEO } from 'astro-seo';
 import { Tooltips } from 'astro-tooltips';
@@ -188,9 +196,12 @@ const keywords = keywordsOverride || siteConfig.keywords || [siteConfig.title];
       })();
     </script>
 
-    <script is:inline>
+    <script
+      is:inline
+      define:vars={{ STORAGE_KEYS, READER_DEFAULTS, GENERAL_DEFAULTS, FONT_PRESETS, WENKAI_STYLESHEET_ID, WENKAI_STYLESHEET_HREF }}
+    >
       // Apply settings immediately to prevent a flash of default reader styles.
-      // Defaults and localStorage keys must stay in sync with src/store/settings.ts.
+      // Defaults and keys are injected from src/store/settings-constants.ts (single source of truth).
       (function () {
         function readPositiveNumber(key, fallback) {
           var stored = parseFloat(localStorage.getItem(key));
@@ -202,22 +213,23 @@ const keywords = keywordsOverride || siteConfig.keywords || [siteConfig.title];
         }
         function applySettings() {
           var root = document.documentElement;
-          var preset = localStorage.getItem('reader-font-preset') || 'round';
+          var stored = localStorage.getItem(STORAGE_KEYS.fontPreset);
+          var preset = FONT_PRESETS.indexOf(stored) !== -1 ? stored : READER_DEFAULTS.fontPreset;
           root.setAttribute('data-font-preset', preset);
-          var fontSize = readPositiveNumber('reader-font-size', 16);
+          var fontSize = readPositiveNumber(STORAGE_KEYS.fontSize, READER_DEFAULTS.fontSize);
           root.style.setProperty('--reader-font-size', fontSize + 'px');
-          root.style.setProperty('--reader-line-height', String(readPositiveNumber('reader-line-height', 1.8)));
+          root.style.setProperty('--reader-line-height', String(readPositiveNumber(STORAGE_KEYS.lineHeight, READER_DEFAULTS.lineHeight)));
           // Convert ch to px so headings and body text share one absolute content width.
-          root.style.setProperty('--reader-measure', readPositiveNumber('reader-measure', 65) * 0.5 * fontSize + 'px');
-          root.classList.toggle('reader-justify', readBoolean('reader-justify', false));
-          root.classList.toggle('motion-off', readBoolean('site-master-motion', false));
-          root.classList.toggle('wave-off', !readBoolean('site-wave', true));
+          root.style.setProperty('--reader-measure', readPositiveNumber(STORAGE_KEYS.measure, READER_DEFAULTS.measure) * 0.5 * fontSize + 'px');
+          root.classList.toggle('reader-justify', readBoolean(STORAGE_KEYS.justify, READER_DEFAULTS.justify));
+          root.classList.toggle('motion-off', readBoolean(STORAGE_KEYS.masterMotion, GENERAL_DEFAULTS.masterMotion));
+          root.classList.toggle('wave-off', !readBoolean(STORAGE_KEYS.wave, GENERAL_DEFAULTS.wave));
           // Load WenKai only when the matching preset is selected.
-          if (preset === 'wenkai' && !document.getElementById('lxgw-wenkai-webfont')) {
+          if (preset === 'wenkai' && !document.getElementById(WENKAI_STYLESHEET_ID)) {
             var link = document.createElement('link');
-            link.id = 'lxgw-wenkai-webfont';
+            link.id = WENKAI_STYLESHEET_ID;
             link.rel = 'stylesheet';
-            link.href = 'https://cdn.jsdelivr.net/npm/lxgw-wenkai-webfont@1.7.0/style.css';
+            link.href = WENKAI_STYLESHEET_HREF;
             document.head.appendChild(link);
           }
         }
@@ -396,7 +408,7 @@ const keywords = keywordsOverride || siteConfig.keywords || [siteConfig.title];
         </div>
       )}
       <FloatingGroup client:only="react" />
-      <SettingsPanel client:only="react" />
+      <SettingsPanel client:idle />
       <MobileDrawer type={siderType} post={post} />
       <SearchDialog client:idle />
       <SearchPortal />

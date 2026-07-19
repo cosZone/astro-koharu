@@ -119,7 +119,8 @@ html.wave-off .wave-wrap {
 
 /* The master motion preference preserves the wave shape but stops its animation. */
 html.motion-off .wave .parallax > use {
-  animation: none !important;
+  /* html.motion-off … outranks the .wave-wrap-nested source rule, so no !important needed. */
+  animation: none;
 }
 
 @media (prefers-reduced-motion: reduce) {

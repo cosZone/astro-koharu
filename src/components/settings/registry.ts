@@ -6,7 +6,6 @@
  */
 
 import { bgmConfig, christmasConfig } from '@constants/site-config';
-import { GENERAL_DEFAULTS, READER_DEFAULTS } from '@store/settings';
 import type { TranslationKey } from '@/i18n/types';
 
 export type SettingSection = 'reader' | 'general';
@@ -23,7 +22,6 @@ export interface SettingItem {
   section: SettingSection;
   type: SettingType;
   i18nKey: TranslationKey;
-  default: string | number | boolean;
   /** Display unit for numeric controls; line height has no unit. */
   unit?: string;
   /** Step size for numeric controls. */
@@ -43,7 +41,6 @@ export const SETTINGS_REGISTRY: SettingItem[] = [
     section: 'reader',
     type: 'segmented',
     i18nKey: 'settings.fontPreset',
-    default: READER_DEFAULTS.fontPreset,
     options: [
       { value: 'round', i18nKey: 'settings.fontPreset.round' },
       { value: 'system', i18nKey: 'settings.fontPreset.system' },
@@ -56,7 +53,6 @@ export const SETTINGS_REGISTRY: SettingItem[] = [
     section: 'reader',
     type: 'number',
     i18nKey: 'settings.fontSize',
-    default: READER_DEFAULTS.fontSize,
     unit: 'px',
     step: 1,
   },
@@ -65,7 +61,6 @@ export const SETTINGS_REGISTRY: SettingItem[] = [
     section: 'reader',
     type: 'number',
     i18nKey: 'settings.lineHeight',
-    default: READER_DEFAULTS.lineHeight,
     step: 0.1,
   },
   {
@@ -73,7 +68,6 @@ export const SETTINGS_REGISTRY: SettingItem[] = [
     section: 'reader',
     type: 'number',
     i18nKey: 'settings.measure',
-    default: READER_DEFAULTS.measure,
     unit: 'ch',
     step: 1,
   },
@@ -82,7 +76,6 @@ export const SETTINGS_REGISTRY: SettingItem[] = [
     section: 'reader',
     type: 'switch',
     i18nKey: 'settings.justify',
-    default: READER_DEFAULTS.justify,
   },
 
   // General preferences
@@ -91,14 +84,12 @@ export const SETTINGS_REGISTRY: SettingItem[] = [
     section: 'general',
     type: 'switch',
     i18nKey: 'settings.scrollProgress',
-    default: GENERAL_DEFAULTS.scrollProgress,
   },
   {
     key: 'christmas',
     section: 'general',
     type: 'switch',
     i18nKey: 'settings.christmas',
-    default: true,
     gatedBy: 'christmas',
   },
   {
@@ -106,7 +97,6 @@ export const SETTINGS_REGISTRY: SettingItem[] = [
     section: 'general',
     type: 'switch',
     i18nKey: 'settings.bgmWidget',
-    default: GENERAL_DEFAULTS.bgmWidget,
     gatedBy: 'bgm',
   },
   {
@@ -114,14 +104,12 @@ export const SETTINGS_REGISTRY: SettingItem[] = [
     section: 'general',
     type: 'switch',
     i18nKey: 'settings.masterMotion',
-    default: GENERAL_DEFAULTS.masterMotion,
   },
   {
     key: 'wave',
     section: 'general',
     type: 'switch',
     i18nKey: 'settings.wave',
-    default: GENERAL_DEFAULTS.wave,
     disabledByMasterMotion: true,
   },
 ];
