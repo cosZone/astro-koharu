@@ -167,6 +167,20 @@ function sanitizeText(text: string): string {
   });
 }
 
+/** Escape text for interpolation into a quoted HTML attribute. */
+function escapeHtmlAttribute(value: string): string {
+  return value
+    .replace(/&/g, '&amp;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+}
+
+function sanitizeAttribute(value: string): string {
+  return sanitizeText(value).replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
+
 /**
  * Sanitize URL to prevent XSS attacks
  * Only allows http/https protocols
@@ -178,14 +192,14 @@ function sanitizeUrl(url: string): string {
     if (!['http:', 'https:'].includes(parsed.protocol)) {
       return '';
     }
-    // Sanitize the URL string
-    return sanitizeHtml(url, {
-      allowedTags: [],
-      allowedAttributes: {},
-    });
+    return parsed.href;
   } catch {
     return '';
   }
+}
+
+function sanitizeUrlAttribute(url: string): string {
+  return escapeHtmlAttribute(sanitizeUrl(url));
 }
 
 /**
@@ -308,14 +322,15 @@ function generateLinkPreviewHTML(ogData: OGData): string {
 
     // Sanitize all user-generated content
     // Use originUrl to preserve the original URL path (metascraper may incorrectly normalize og:url)
-    const safeUrl = sanitizeUrl(originUrl);
+    const safeUrl = sanitizeUrlAttribute(originUrl);
     const safeDisplayText = sanitizeText(displayText);
+    const safeDisplayLabel = sanitizeAttribute(displayText);
     const safeSubtitle = subtitle
       ? sanitizeText(subtitle)
       : sanitizeText(originUrl.length > 60 ? `${originUrl.substring(0, 60)}...` : originUrl);
 
     return `<div class="link-preview-block not-prose" data-state="error">
-  <a href="${safeUrl}" target="_blank" class="hover:border-primary/50 group block rounded-lg border border-border bg-card p-4 transition-all hover:shadow-md" aria-label="${safeDisplayText}">
+  <a href="${safeUrl}" target="_blank" class="hover:border-primary/50 group block rounded-lg border border-border bg-card p-4 transition-all hover:shadow-md" aria-label="${safeDisplayLabel}">
     <div class="flex items-center justify-between gap-3">
       <div class="flex items-center gap-3 min-w-0 flex-1">
         <div class="bg-primary/10 text-primary flex h-10 w-10 shrink-0 items-center justify-center rounded-lg">
@@ -336,14 +351,17 @@ function generateLinkPreviewHTML(ogData: OGData): string {
 
   // Sanitize all content using sanitize-html
   // Use originUrl to preserve the original URL path (metascraper may incorrectly normalize og:url)
-  const safeUrl = sanitizeUrl(originUrl);
+  const safeUrl = sanitizeUrlAttribute(originUrl);
   const safeTitle = sanitizeText(title);
   const safeDescription = description ? sanitizeText(description) : '';
   const safeDomain = sanitizeText(domain);
-  const safeLogo = logo ? sanitizeUrl(logo) : '';
-  const safeImage = image ? sanitizeUrl(image) : '';
+  const safeAriaLabel = sanitizeAttribute(`${title} - ${domain}`);
+  const safeTitleAttribute = sanitizeAttribute(title);
+  const safeLogo = logo ? sanitizeUrlAttribute(logo) : '';
+  const safeImage = image ? sanitizeUrlAttribute(image) : '';
+  const safeOriginUrl = sanitizeText(originUrl);
   return `<div class="link-preview-block not-prose" data-state="success">
-  <a href="${safeUrl}" target="_blank" class="group block overflow-hidden rounded-lg border border-border transition-all hover:border-primary/50 hover:shadow-md" aria-label="${safeTitle} - ${safeDomain}">
+  <a href="${safeUrl}" target="_blank" class="group block overflow-hidden rounded-lg border border-border transition-all hover:border-primary/50 hover:shadow-md" aria-label="${safeAriaLabel}">
     <div class="bg-card flex md:flex-col flex-row">
       <div class="flex-1 p-4">
         <div class="mb-2 flex items-center gap-2">
@@ -353,11 +371,11 @@ function generateLinkPreviewHTML(ogData: OGData): string {
         <h3 class="text-foreground mb-2 line-clamp-2 font-semibold leading-tight">${safeTitle}</h3>
         ${safeDescription ? `<p class="text-muted-foreground mb-3 line-clamp-2 text-sm">${safeDescription}</p>` : ''}
         <div class="text-primary flex items-center gap-1 text-xs">
-          <span class="truncate">${originUrl}</span>
+          <span class="truncate">${safeOriginUrl}</span>
           <svg class="h-3 w-3 shrink-0 transition-transform group-hover:translate-x-0.5" aria-hidden="true" viewBox="0 0 12 12"><path fill="currentColor" d="M4 3.5a.5.5 0 0 0-.5.5v4a.5.5 0 0 0 .5.5h4a.5.5 0 0 0 .5-.5v-.25a.75.75 0 0 1 1.5 0V8a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h.25a.75.75 0 0 1 0 1.5zm2.75 0a.75.75 0 0 1 0-1.5h2.5a.75.75 0 0 1 .75.75v2.5a.75.75 0 0 1-1.5 0v-.69L7.28 5.78a.75.75 0 0 1-1.06-1.06L7.44 3.5z"/></svg> 
         </div>
       </div>
-      ${safeImage ? `<div class="bg-muted relative md:w-full shrink-0 aspect-1200/630 md:aspect-auto md:max-h-48 w-80"><img src="${safeImage}" alt="${safeTitle}" class="link-preview-image h-full md:h-full w-full object-cover" loading="lazy" referrerpolicy="no-referrer" data-fallback-title="${safeTitle}" /></div>` : ''}
+      ${safeImage ? `<div class="bg-muted relative md:w-full shrink-0 aspect-1200/630 md:aspect-auto md:max-h-48 w-80"><img src="${safeImage}" alt="${safeTitleAttribute}" class="link-preview-image h-full md:h-full w-full object-cover" loading="lazy" referrerpolicy="no-referrer" data-fallback-title="${safeTitleAttribute}" /></div>` : ''}
     </div>
   </a>
 </div>`;
@@ -370,11 +388,14 @@ function generateLinkPreviewHTML(ogData: OGData): string {
 function generateCodePenEmbedHTML(user: string, penId: string, url: string): string {
   // Sanitize inputs
   const safeUser = sanitizeText(user);
+  const safeUserAttribute = sanitizeAttribute(user);
   const safePenId = sanitizeText(penId);
-  const safeUrl = sanitizeUrl(url);
+  const safePenIdAttribute = sanitizeAttribute(penId);
+  const safeUrl = sanitizeUrlAttribute(url);
+  const safeAuthorUrl = sanitizeUrlAttribute(`https://codepen.io/${user}`);
 
-  return `<p class="codepen" data-height="400" data-default-tab="result" data-slug-hash="${safePenId}" data-user="${safeUser}">
-  <span>See the Pen <a href="${safeUrl}">${safePenId}</a> by ${safeUser} (<a href="https://codepen.io/${safeUser}">@${safeUser}</a>) on <a href="https://codepen.io">CodePen</a>.</span>
+  return `<p class="codepen" data-height="400" data-default-tab="result" data-slug-hash="${safePenIdAttribute}" data-user="${safeUserAttribute}">
+  <span>See the Pen <a href="${safeUrl}">${safePenId}</a> by ${safeUser} (<a href="${safeAuthorUrl}">@${safeUser}</a>) on <a href="https://codepen.io">CodePen</a>.</span>
 </p>`;
 }
 
@@ -446,10 +467,11 @@ export function remarkLinkEmbed(options: RemarkLinkEmbedOptions = {}) {
     // Second pass: fetch OG data in parallel for better performance
     const fetchPromises = nodesToReplace.map(async ({ url, type, tweetId, codepen }) => {
       if (type === 'tweet' && enableTweetEmbed && tweetId) {
-        const safeUrl = sanitizeUrl(url);
+        const safeUrl = sanitizeUrlAttribute(url);
+        const safeTweetId = sanitizeAttribute(tweetId);
         return {
           type: 'html' as const,
-          value: `<div data-tweet-embed data-tweet-id="${tweetId}" data-url="${safeUrl}"></div>`,
+          value: `<div data-tweet-embed data-tweet-id="${safeTweetId}" data-url="${safeUrl}"></div>`,
         };
       } else if (type === 'codepen' && enableCodePenEmbed && codepen) {
         const html = generateCodePenEmbedHTML(codepen.user, codepen.penId, url);

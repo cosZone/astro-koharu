@@ -66,10 +66,10 @@ export const Segmented = <T extends string | number = string | number>({
               layout={!shouldReduceMotion}
               transition={shouldReduceMotion ? { duration: 0 } : { type: 'spring', stiffness: 400, damping: 30 }}
             >
-              {/* 图标 */}
+              {/* Icon */}
               {icon && <span className="flex-center shrink-0">{React.createElement(icon, { className: 'w-4 h-4' })}</span>}
 
-              {/* 文字标签 - 只在选中时显示 */}
+              {/* Show the text label only for the selected option. */}
               <AnimatePresence initial={false} mode="wait">
                 {selected && label && (
                   <m.span
@@ -93,7 +93,7 @@ export const Segmented = <T extends string | number = string | number>({
                 )}
               </AnimatePresence>
 
-              {/* 选中背景 */}
+              {/* Selected background */}
               {selected && (
                 <m.div
                   layoutId={`segmented_selected_bg_${id ?? 'default'}`}

@@ -216,13 +216,13 @@ export function ChristmasOrnamentToggle() {
           >
             <TopDecoration />
 
-            {/* 绳子 - 顶部固定，高度随拖拽变化 */}
+            {/* The string stays anchored at the top and grows with the drag distance. */}
             <m.div
               className="pointer-events-none absolute top-0 z-99 w-[2px] origin-top bg-linear-to-b from-yellow-700 via-yellow-500 to-yellow-400 will-change-[height]"
               style={{ height: stringHeight }}
             />
 
-            {/* 球体 - 位置跟随绳子底部 */}
+            {/* The ornament follows the bottom of the string. */}
             <m.button
               className={cn(
                 'absolute cursor-grab touch-none select-none will-change-transform active:cursor-grabbing',
@@ -254,7 +254,7 @@ export function ChristmasOrnamentToggle() {
                 <OrnamentSvg isEnabled={isEnabled} />
               </div>
 
-              {/* 提示文字 */}
+              {/* Pull interaction hint */}
               <AnimatePresence>
                 {(isPulling || isHovered) && (
                   <m.div
