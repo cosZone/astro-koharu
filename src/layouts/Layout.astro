@@ -215,11 +215,22 @@ const keywords = keywordsOverride || siteConfig.keywords || [siteConfig.title];
           var stored = localStorage.getItem(key);
           return stored === null ? fallback : stored === 'true';
         }
+        function quoteFontFamily(family) {
+          return '"' + family.replaceAll('\\', '\\\\').replaceAll('"', '\\"') + '"';
+        }
         function applySettings() {
           var root = document.documentElement;
           var stored = localStorage.getItem(STORAGE_KEYS.fontPreset);
           var preset = FONT_PRESETS.indexOf(stored) !== -1 ? stored : READER_DEFAULTS.fontPreset;
           root.setAttribute('data-font-preset', preset);
+          var fontFamily = (localStorage.getItem(STORAGE_KEYS.fontFamily) || '').trim().slice(0, 128);
+          if (fontFamily) {
+            root.setAttribute('data-reader-font', 'local');
+            root.style.setProperty('--reader-font-family', quoteFontFamily(fontFamily));
+          } else {
+            root.removeAttribute('data-reader-font');
+            root.style.removeProperty('--reader-font-family');
+          }
           var fontSize = readPositiveNumber(STORAGE_KEYS.fontSize, READER_DEFAULTS.fontSize);
           root.style.setProperty('--reader-font-size', fontSize + 'px');
           root.style.setProperty('--reader-line-height', String(readPositiveNumber(STORAGE_KEYS.lineHeight, READER_DEFAULTS.lineHeight)));

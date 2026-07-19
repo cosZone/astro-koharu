@@ -20,6 +20,7 @@ import {
   bgmWidgetEnabled,
   type FontPreset,
   masterMotionEnabled,
+  readerFontFamily,
   readerFontPreset,
   readerFontSize,
   readerJustify,
@@ -32,6 +33,7 @@ import {
   setFontSize,
   setJustify,
   setLineHeight,
+  setLocalFontFamily,
   setMasterMotionEnabled,
   setMeasure,
   setScrollProgressEnabled,
@@ -40,11 +42,12 @@ import {
 } from '@store/settings';
 import { READER_CUSTOM_MEASURE } from '@store/settings-constants';
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
-import { useEffect, useState } from 'react';
+import { lazy, Suspense, useEffect, useState } from 'react';
 import { NumberField } from './NumberField';
 import { isSettingVisible, SETTINGS_REGISTRY, type SettingItem, type SettingSection } from './registry';
 
 const SECTIONS: SettingSection[] = ['reader', 'general'];
+const LocalFontPicker = lazy(() => import('./LocalFontPicker'));
 
 export default function SettingsPanelContent() {
   const { t } = useTranslation();
@@ -53,6 +56,7 @@ export default function SettingsPanelContent() {
 
   // Store bindings
   const fontPreset = useStore(readerFontPreset);
+  const fontFamily = useStore(readerFontFamily);
   const fontSize = useStore(readerFontSize);
   const lineHeight = useStore(readerLineHeight);
   const measure = useStore(readerMeasure);
@@ -62,6 +66,13 @@ export default function SettingsPanelContent() {
   const masterMotion = useStore(masterMotionEnabled);
   const wave = useStore(waveEnabled);
   const isChristmasEnabled = useStore(christmasEnabled);
+  const [fontPickerLoaded, setFontPickerLoaded] = useState(false);
+  const [fontPickerOpen, setFontPickerOpen] = useState(false);
+
+  const openFontPicker = () => {
+    setFontPickerLoaded(true);
+    setFontPickerOpen(true);
+  };
 
   const switchBindings: Record<string, { checked: boolean; onChange: (checked: boolean) => void }> = {
     justify: { checked: justify, onChange: setJustify },
@@ -122,12 +133,13 @@ export default function SettingsPanelContent() {
         return (
           <div className="flex flex-wrap gap-1">
             {item.options?.map((option) => {
-              const active = fontPreset === option.value;
+              const localOption = option.value === 'local';
+              const active = localOption ? fontFamily !== null : fontFamily === null && fontPreset === option.value;
               return (
                 <button
                   key={option.value}
                   type="button"
-                  onClick={() => setFontPreset(option.value as FontPreset)}
+                  onClick={() => (localOption ? openFontPicker() : setFontPreset(option.value as FontPreset))}
                   aria-pressed={active}
                   className={cn(
                     'relative rounded-md px-2.5 py-1 text-xs transition-colors',
@@ -181,7 +193,7 @@ export default function SettingsPanelContent() {
   return (
     <AnimatePresence>
       {open && (
-        <FloatingFocusManager context={context} modal={false}>
+        <FloatingFocusManager key="settings-panel" context={context} modal={false}>
           <motion.div
             ref={refs.setFloating}
             {...getFloatingProps()}
@@ -253,6 +265,18 @@ export default function SettingsPanelContent() {
                               {item.type !== 'segmented' && renderControl(item)}
                             </div>
                             {item.type === 'segmented' && <div className="mt-2">{renderControl(item)}</div>}
+                            {item.key === 'fontPreset' && fontFamily && (
+                              <button
+                                type="button"
+                                onClick={openFontPicker}
+                                className="mt-2 flex w-full items-center gap-2 rounded-md border border-input px-2.5 py-1.5 text-left text-xs transition-colors hover:bg-accent"
+                                aria-label={t('settings.localFont.change')}
+                              >
+                                <Icon icon="ri:font-family" className="size-4 shrink-0 text-primary" />
+                                <span className="min-w-0 flex-1 truncate">{fontFamily}</span>
+                                <Icon icon="ri:arrow-right-s-line" className="size-4 shrink-0 text-muted-foreground" />
+                              </button>
+                            )}
                             {disabled && (
                               <p className="mt-1 text-muted-foreground text-xs">{t('settings.waveDisabledByMasterMotion')}</p>
                             )}
@@ -277,6 +301,16 @@ export default function SettingsPanelContent() {
             </div>
           </motion.div>
         </FloatingFocusManager>
+      )}
+      {fontPickerLoaded && (
+        <Suspense key="local-font-picker" fallback={null}>
+          <LocalFontPicker
+            open={fontPickerOpen}
+            currentFont={fontFamily}
+            onOpenChange={setFontPickerOpen}
+            onSelect={setLocalFontFamily}
+          />
+        </Suspense>
       )}
     </AnimatePresence>
   );

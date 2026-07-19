@@ -13,6 +13,7 @@ import {
   type FontPreset,
   GENERAL_DEFAULTS,
   READER_DEFAULTS,
+  READER_FONT_FAMILY_MAX_LENGTH,
   STORAGE_KEYS,
   WENKAI_STYLESHEET_HREF,
   WENKAI_STYLESHEET_ID,
@@ -22,6 +23,7 @@ export type { FontPreset };
 
 // Reader preferences
 export const readerFontPreset = atom<FontPreset>(READER_DEFAULTS.fontPreset);
+export const readerFontFamily = atom<string | null>(null);
 export const readerFontSize = atom<number>(READER_DEFAULTS.fontSize);
 export const readerLineHeight = atom<number>(READER_DEFAULTS.lineHeight);
 export const readerMeasure = atom<number | null>(READER_DEFAULTS.measure);
@@ -63,6 +65,14 @@ function applyReaderPreferences(): void {
     root.style.setProperty('--reader-measure', `${measure * 0.5 * fontSize}px`);
   }
   root.dataset.fontPreset = readerFontPreset.get();
+  const fontFamily = readerFontFamily.get();
+  if (fontFamily) {
+    root.dataset.readerFont = 'local';
+    root.style.setProperty('--reader-font-family', `"${fontFamily.replaceAll('\\', '\\\\').replaceAll('"', '\\"')}"`);
+  } else {
+    delete root.dataset.readerFont;
+    root.style.removeProperty('--reader-font-family');
+  }
   root.classList.toggle('reader-justify', readerJustify.get());
 }
 
@@ -82,12 +92,28 @@ function persist(key: string, value: string): void {
   }
 }
 
+function removePersisted(key: string): void {
+  if (typeof localStorage !== 'undefined') {
+    localStorage.removeItem(key);
+  }
+}
+
 // Reader preference setters
 
 export function setFontPreset(preset: FontPreset): void {
   readerFontPreset.set(preset);
+  readerFontFamily.set(null);
   persist(STORAGE_KEYS.fontPreset, preset);
+  removePersisted(STORAGE_KEYS.fontFamily);
   if (preset === 'wenkai') loadWenkaiFont();
+  applyReaderPreferences();
+}
+
+export function setLocalFontFamily(family: string): void {
+  const normalized = family.trim().slice(0, READER_FONT_FAMILY_MAX_LENGTH);
+  if (!normalized) return;
+  readerFontFamily.set(normalized);
+  persist(STORAGE_KEYS.fontFamily, normalized);
   applyReaderPreferences();
 }
 
@@ -188,6 +214,8 @@ export function initSettings(): void {
     readerFontPreset.set(storedPreset as FontPreset);
     if (storedPreset === 'wenkai') loadWenkaiFont();
   }
+  const storedFontFamily = localStorage.getItem(STORAGE_KEYS.fontFamily)?.trim();
+  readerFontFamily.set(storedFontFamily ? storedFontFamily.slice(0, READER_FONT_FAMILY_MAX_LENGTH) : null);
   readerFontSize.set(readPositiveNumber(STORAGE_KEYS.fontSize, READER_DEFAULTS.fontSize));
   readerLineHeight.set(readPositiveNumber(STORAGE_KEYS.lineHeight, READER_DEFAULTS.lineHeight));
   readerMeasure.set(readOptionalPositiveNumber(STORAGE_KEYS.measure));
