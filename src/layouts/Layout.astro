@@ -288,6 +288,7 @@ const keywords = keywordsOverride || siteConfig.keywords || [siteConfig.title];
           box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
         }
         html .prose .code-block-wrapper.code-collapsed > pre > code {
+          max-height: none;
           overflow-x: auto;
           overflow-y: visible;
           padding-block: 1rem;

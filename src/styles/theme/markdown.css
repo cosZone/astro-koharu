@@ -350,7 +350,7 @@
 
   /* Collapsible code blocks; long blocks are wrapped in their initial state during highlighting. */
 
-  /* The code element needs min-height: 0 for the 0fr row to collapse. */
+  /* Keep the grid wrapper so expanded blocks retain their existing layout. */
   .code-block-wrapper > pre {
     display: grid;
     grid-template-rows: 1fr;
@@ -360,17 +360,14 @@
     min-height: 0;
   }
 
-  /* Remove the body chrome so the toolbar becomes the complete collapsed card. */
+  /* Keep an eight-line preview so collapsed blocks still reveal useful context. */
   .code-block-wrapper.code-collapsed > pre {
-    grid-template-rows: 0fr;
-    border-width: 0;
-    box-shadow: none;
+    border-top-width: 0;
   }
 
   .code-block-wrapper.code-collapsed > pre > code {
+    max-height: calc(13.6em + 2rem);
     overflow: hidden;
-    /* Padding contributes to min-content size and would keep the 0fr row open. */
-    padding-block: 0;
   }
 
   /* Reserve the toolbar row before the idle-hydrated controls mount. */
@@ -381,19 +378,58 @@
   /* Toolbar-shaped skeleton until hydration fills the mount (mirrors MacToolbar chrome). */
   .code-block-wrapper.code-collapsed > .code-block-wrapper-toolbar-mount:empty {
     border: 1px solid hsl(var(--border));
-    border-radius: 0.75rem;
+    border-bottom: 0;
+    border-radius: 0.75rem 0.75rem 0 0;
     background-color: hsl(var(--muted) / 0.5);
     box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
-  }
-
-  .code-block-wrapper.code-collapsed .code-block-wrapper-toolbar-mount > div {
-    border-bottom: 1px solid hsl(var(--border));
-    border-radius: 0.75rem;
   }
 
   /* Make the full toolbar a collapse toggle. */
   .code-block-wrapper.code-collapsible .code-block-wrapper-toolbar-mount > div {
     cursor: pointer;
+  }
+
+  .code-block-expand-overlay {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 1;
+    display: flex;
+    height: 4.5rem;
+    cursor: pointer;
+    align-items: flex-end;
+    justify-content: center;
+    border: 0;
+    border-radius: 0 0 0.75rem 0.75rem;
+    padding-bottom: 0.5rem;
+    background: linear-gradient(to bottom, transparent, hsl(var(--card) / 0.9) 60%, hsl(var(--card)));
+    color: hsl(var(--muted-foreground));
+  }
+
+  .code-block-expand-overlay-icon {
+    display: flex;
+    width: 1.75rem;
+    height: 1.75rem;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid hsl(var(--border));
+    border-radius: 9999px;
+    background-color: hsl(var(--card) / 0.85);
+    box-shadow: 0 2px 8px rgb(0 0 0 / 0.12);
+    transition:
+      color 0.2s ease,
+      transform 0.2s ease;
+  }
+
+  .code-block-expand-overlay:hover .code-block-expand-overlay-icon {
+    color: hsl(var(--primary));
+    transform: translateY(0.125rem);
+  }
+
+  .code-block-expand-overlay:focus-visible {
+    outline: 2px solid hsl(var(--ring));
+    outline-offset: -2px;
   }
 
   /* 移除 pre code 的 Typography ::before/::after */
@@ -412,14 +448,8 @@
 /* ========== Code/Mermaid/Infographic wrapper layout ========== */
 
 .code-block-wrapper {
+  position: relative;
   margin-bottom: 1.25rem;
-}
-
-/* Animate the row only when the OS motion preference allows it. */
-@media (prefers-reduced-motion: no-preference) {
-  .prose .code-block-wrapper > pre {
-    transition: grid-template-rows 0.3s ease;
-  }
 }
 
 /* 如果第一个子节点就是标题 */
