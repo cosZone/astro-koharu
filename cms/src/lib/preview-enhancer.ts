@@ -151,12 +151,13 @@ function enhanceCodeBlocks(container: HTMLElement): void {
 async function getMermaid(): Promise<typeof mermaidType> {
   if (!mermaidInstance) {
     const mod = await import('mermaid');
-    mermaidInstance = mod.default;
-    mermaidInstance.initialize({
+    const instance = mod.default;
+    instance.initialize({
       startOnLoad: false,
       theme: 'dark',
-      securityLevel: 'loose',
+      securityLevel: 'strict',
     });
+    mermaidInstance = instance;
   }
   return mermaidInstance;
 }
@@ -193,6 +194,7 @@ function createMermaidToolbar(): string {
  */
 async function renderMermaidDiagrams(container: HTMLElement): Promise<void> {
   const wrappers = container.querySelectorAll('.code-block-wrapper');
+  const candidates: Array<{ element: HTMLElement; code: string }> = [];
 
   for (const wrapper of wrappers) {
     const el = wrapper as HTMLElement;
@@ -203,48 +205,55 @@ async function renderMermaidDiagrams(container: HTMLElement): Promise<void> {
 
     const code = extractCodeContent(el);
     if (!code.trim()) continue;
-
-    try {
-      const mermaid = await getMermaid();
-      const id = `mermaid-preview-${++mermaidIdCounter}`;
-
-      const { svg } = await mermaid.render(id, code);
-
-      // Create new structure
-      const mermaidWrapper = document.createElement('div');
-      mermaidWrapper.className = 'preview-mermaid-wrapper';
-      mermaidWrapper.innerHTML = createMermaidToolbar();
-
-      const diagramContainer = document.createElement('div');
-      diagramContainer.className = 'preview-mermaid-diagram';
-      diagramContainer.innerHTML = svg;
-      mermaidWrapper.appendChild(diagramContainer);
-
-      // Replace original wrapper
-      el.replaceWith(mermaidWrapper);
-
-      // Bind copy button
-      const copyBtn = mermaidWrapper.querySelector('.preview-code-copy');
-      if (copyBtn) {
-        const originalSvg = copyBtn.innerHTML;
-        copyBtn.addEventListener('click', async () => {
-          const success = await copyToClipboard(code);
-          if (success) {
-            copyBtn.classList.add('copied');
-            copyBtn.innerHTML = createCheckmarkSvg();
-            setTimeout(() => {
-              copyBtn.classList.remove('copied');
-              copyBtn.innerHTML = originalSvg;
-            }, 2000);
-          }
-        });
-      }
-    } catch (error) {
-      console.error('Failed to render mermaid:', error);
-      // Keep original code block on error
-      el.dataset.mermaidEnhanced = 'true';
-    }
+    candidates.push({ element: el, code });
   }
+
+  if (candidates.length === 0) return;
+  const mermaid = await getMermaid();
+
+  await Promise.all(
+    candidates.map(async ({ element: el, code }) => {
+      try {
+        const id = `mermaid-preview-${++mermaidIdCounter}`;
+
+        const { svg } = await mermaid.render(id, code);
+
+        // Create new structure
+        const mermaidWrapper = document.createElement('div');
+        mermaidWrapper.className = 'preview-mermaid-wrapper';
+        mermaidWrapper.innerHTML = createMermaidToolbar();
+
+        const diagramContainer = document.createElement('div');
+        diagramContainer.className = 'preview-mermaid-diagram';
+        diagramContainer.innerHTML = svg;
+        mermaidWrapper.appendChild(diagramContainer);
+
+        // Replace original wrapper
+        el.replaceWith(mermaidWrapper);
+
+        // Bind copy button
+        const copyBtn = mermaidWrapper.querySelector('.preview-code-copy');
+        if (copyBtn) {
+          const originalSvg = copyBtn.innerHTML;
+          copyBtn.addEventListener('click', async () => {
+            const success = await copyToClipboard(code);
+            if (success) {
+              copyBtn.classList.add('copied');
+              copyBtn.innerHTML = createCheckmarkSvg();
+              setTimeout(() => {
+                copyBtn.classList.remove('copied');
+                copyBtn.innerHTML = originalSvg;
+              }, 2000);
+            }
+          });
+        }
+      } catch (error) {
+        console.error('Failed to render mermaid:', error);
+        // Keep original code block on error
+        el.dataset.mermaidEnhanced = 'true';
+      }
+    }),
+  );
 }
 
 /**
@@ -279,6 +288,7 @@ function createInfographicToolbar(): string {
  */
 async function renderInfographics(container: HTMLElement): Promise<void> {
   const wrappers = container.querySelectorAll('.code-block-wrapper');
+  const candidates: Array<{ element: HTMLElement; code: string }> = [];
 
   for (const wrapper of wrappers) {
     const el = wrapper as HTMLElement;
@@ -286,10 +296,14 @@ async function renderInfographics(container: HTMLElement): Promise<void> {
 
     if (!code.trim().startsWith('infographic ')) continue;
     if (el.dataset.infographicEnhanced === 'true') continue;
+    candidates.push({ element: el, code });
+  }
 
+  if (candidates.length === 0) return;
+  const { Infographic } = await import('@antv/infographic');
+
+  for (const { element: el, code } of candidates) {
     try {
-      const { Infographic } = await import('@antv/infographic');
-
       // Create new structure
       const infographicWrapper = document.createElement('div');
       infographicWrapper.className = 'preview-infographic-wrapper';
@@ -299,8 +313,8 @@ async function renderInfographics(container: HTMLElement): Promise<void> {
       chartContainer.className = 'preview-infographic-chart';
       infographicWrapper.appendChild(chartContainer);
 
-      // Replace original wrapper
-      el.replaceWith(infographicWrapper);
+      // Keep the source block in place until rendering succeeds so a failed lazy chunk or render stays recoverable.
+      el.insertAdjacentElement('afterend', infographicWrapper);
 
       // Render infographic
       const infographic = new Infographic({
@@ -311,6 +325,8 @@ async function renderInfographics(container: HTMLElement): Promise<void> {
       });
 
       infographic.render(code);
+      if (!chartContainer.firstElementChild) throw new Error('Infographic produced no output');
+      el.remove();
 
       // Bind copy button
       const copyBtn = infographicWrapper.querySelector('.preview-code-copy');
@@ -330,6 +346,8 @@ async function renderInfographics(container: HTMLElement): Promise<void> {
       }
     } catch (error) {
       console.error('Failed to render infographic:', error);
+      const attemptedWrapper = el.nextElementSibling;
+      if (attemptedWrapper?.classList.contains('preview-infographic-wrapper')) attemptedWrapper.remove();
       el.dataset.infographicEnhanced = 'true';
     }
   }
@@ -371,10 +389,18 @@ export async function enhancePreviewContent(
   enhanceCodeBlocks(container);
 
   // 2. Render mermaid diagrams
-  await renderMermaidDiagrams(container);
+  try {
+    await renderMermaidDiagrams(container);
+  } catch (error) {
+    console.error('Failed to initialize mermaid:', error);
+  }
 
   // 3. Render infographic charts
-  await renderInfographics(container);
+  try {
+    await renderInfographics(container);
+  } catch (error) {
+    console.error('Failed to initialize infographic:', error);
+  }
 
   // 4. Enhance images with lightbox
   enhanceImages(container, options?.onImageClick);

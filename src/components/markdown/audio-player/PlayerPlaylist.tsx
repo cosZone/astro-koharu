@@ -72,7 +72,7 @@ export const PlayerPlaylist = memo(function PlayerPlaylist({
         <div className="audio-player-tabs" role="tablist">
           {groups.map((g, i) => (
             <button
-              key={g.title || i}
+              key={`${g.title ?? 'playlist'}-${g.startIndex}`}
               type="button"
               role="tab"
               aria-selected={i === activeTab}
@@ -93,7 +93,7 @@ export const PlayerPlaylist = memo(function PlayerPlaylist({
 
           return (
             <button
-              key={`${track.name}-${globalIdx}`}
+              key={track.url}
               type="button"
               className={cn('audio-player-song-item', isCurrent && 'current')}
               onClick={(e) => handleClick(e, globalIdx)}

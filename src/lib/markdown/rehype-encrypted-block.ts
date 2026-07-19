@@ -15,7 +15,7 @@
 import type { Element, Root } from 'hast';
 import { toHtml } from 'hast-util-to-html';
 import { visit } from 'unist-util-visit';
-import { encryptContent } from '../crypto';
+import { encryptContent } from '../crypto/encrypt';
 
 export function rehypeEncryptedBlock() {
   return async (tree: Root) => {

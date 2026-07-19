@@ -4,14 +4,8 @@ export type BackupType = 'full' | 'basic';
 /** Manifest 应用名称 */
 export const MANIFEST_NAME = 'astro-koharu-backup';
 
-/** Manifest 文件名 */
-export const MANIFEST_FILENAME = 'manifest.json';
-
 /** 备份文件扩展名 */
 export const BACKUP_FILE_EXTENSION = '.tar.gz';
-
-/** 临时备份目录前缀 */
-export const TEMP_DIR_PREFIX = '.tmp-backup-';
 
 /** 备份项配置 */
 export interface BackupItem {

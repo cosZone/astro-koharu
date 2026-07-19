@@ -9,7 +9,7 @@ export default function EmptySvg({ className }: { className?: string }) {
         <path
           fillRule="evenodd"
           clipRule="evenodd"
-          d="M12.1264 23.3391V17.0277H0.00717316V38H47.9928V17.0277H35.8736V23.3391H12.1264ZM0 13.6747L10.4433 0H37.5567L48 13.6747H32.5869V19.9862H15.4131V13.6747H0Z"
+          d="M12.13 23.34V17.03H0.01V38H47.99V17.03H35.87V23.34H12.13ZM0 13.67L10.44 0H37.56L48 13.67H32.59V19.99H15.41V13.67H0Z"
           fill="current"
         />
       </g>

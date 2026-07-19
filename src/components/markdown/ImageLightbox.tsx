@@ -6,6 +6,7 @@
  * Listens for 'open-image-lightbox' custom events dispatched by image-enhancer.ts.
  */
 
+import { LazyMotionProvider } from '@components/common/LazyMotionProvider';
 import { FloatingFocusManager, FloatingPortal, useDismiss, useFloating, useInteractions, useRole } from '@floating-ui/react';
 import { useKeyboardShortcut } from '@hooks/useKeyboardShortcut';
 import { useTranslation } from '@hooks/useTranslation';
@@ -13,8 +14,8 @@ import { useZoomPan } from '@hooks/useZoomPan';
 import { Icon } from '@iconify/react';
 import { useStore } from '@nanostores/react';
 import { $imageLightboxData, closeModal, type ImageLightboxData, navigateImage, openModal } from '@store/modal';
-import { AnimatePresence, motion } from 'motion/react';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { AnimatePresence, m } from 'motion/react';
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 
 export default function ImageLightbox() {
   const { t } = useTranslation();
@@ -27,7 +28,10 @@ export default function ImageLightbox() {
 
   // Use a ref so the outsidePress callback always reads the latest scale
   const scaleRef = useRef(state.scale);
-  scaleRef.current = state.scale;
+
+  useLayoutEffect(() => {
+    scaleRef.current = state.scale;
+  }, [state.scale]);
 
   const handleResetAll = useCallback(() => {
     reset();
@@ -139,113 +143,115 @@ export default function ImageLightbox() {
   if (!data) return null;
 
   return (
-    <FloatingPortal>
-      <AnimatePresence>
-        {isOpen && (
-          <motion.div
-            className="fixed inset-0 z-50"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.2 }}
-          >
-            {/* Backdrop */}
-            <div className="fixed inset-0 bg-black/90 backdrop-blur-sm" />
-            {/* Content */}
-            <FloatingFocusManager context={context}>
-              <div ref={refs.setFloating} className="fixed inset-0 flex items-center justify-center" {...getFloatingProps()}>
-                {/* Toolbar: vertical right on desktop, horizontal top on tablet */}
-                <motion.div
-                  className="absolute tablet:top-4 top-1/2 right-4 tablet:right-auto tablet:left-1/2 z-10 flex tablet:-translate-x-1/2 -translate-y-1/2 tablet:translate-y-0 tablet:flex-row flex-col items-center gap-1 rounded-2xl bg-black/50 p-1.5 backdrop-blur-sm"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ duration: 0.2, delay: 0.1 }}
-                >
-                  <ToolbarButton
-                    icon="ri:zoom-in-line"
-                    label={t('image.zoomIn')}
-                    onClick={handleZoomIn}
-                    disabled={state.scale >= 4.9}
-                  />
-                  <motion.button
-                    type="button"
-                    onClick={handleResetAll}
-                    className="flex size-10 items-center justify-center rounded-full text-white/60 text-xs tabular-nums transition-colors hover:bg-white/15 hover:text-white/80"
-                    whileTap={{ scale: 0.85 }}
-                    aria-label={t('image.resetZoomRotate')}
+    <LazyMotionProvider>
+      <FloatingPortal>
+        <AnimatePresence>
+          {isOpen && (
+            <m.div
+              className="fixed inset-0 z-50"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+            >
+              {/* Backdrop */}
+              <div className="fixed inset-0 bg-black/90 backdrop-blur-sm" />
+              {/* Content */}
+              <FloatingFocusManager context={context}>
+                <div ref={refs.setFloating} className="fixed inset-0 flex items-center justify-center" {...getFloatingProps()}>
+                  {/* Toolbar: vertical right on desktop, horizontal top on tablet */}
+                  <m.div
+                    className="absolute tablet:top-4 top-1/2 right-4 tablet:right-auto tablet:left-1/2 z-10 flex tablet:-translate-x-1/2 -translate-y-1/2 tablet:translate-y-0 tablet:flex-row flex-col items-center gap-1 rounded-2xl bg-black/50 p-1.5 backdrop-blur-sm"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ duration: 0.2, delay: 0.1 }}
                   >
-                    {zoomLevel}
-                  </motion.button>
-                  <ToolbarButton
-                    icon="ri:zoom-out-line"
-                    label={t('image.zoomOut')}
-                    onClick={handleZoomOut}
-                    disabled={state.scale <= 0.55}
-                  />
-                  <div className="h-px tablet:h-5 tablet:w-px w-5 bg-white/20" />
-                  <ToolbarButton icon="ri:clockwise-line" label={t('image.rotate')} onClick={handleRotate} />
-                  <div className="h-px tablet:h-5 tablet:w-px w-5 bg-white/20" />
-                  <ToolbarButton icon="ri:close-line" label={t('image.close')} onClick={() => closeModal()} />
-                </motion.div>
+                    <ToolbarButton
+                      icon="ri:zoom-in-line"
+                      label={t('image.zoomIn')}
+                      onClick={handleZoomIn}
+                      disabled={state.scale >= 4.9}
+                    />
+                    <m.button
+                      type="button"
+                      onClick={handleResetAll}
+                      className="flex size-10 items-center justify-center rounded-full text-white/60 text-xs tabular-nums transition-colors hover:bg-white/15 hover:text-white/80"
+                      whileTap={{ scale: 0.85 }}
+                      aria-label={t('image.resetZoomRotate')}
+                    >
+                      {zoomLevel}
+                    </m.button>
+                    <ToolbarButton
+                      icon="ri:zoom-out-line"
+                      label={t('image.zoomOut')}
+                      onClick={handleZoomOut}
+                      disabled={state.scale <= 0.55}
+                    />
+                    <div className="h-px tablet:h-5 tablet:w-px w-5 bg-white/20" />
+                    <ToolbarButton icon="ri:clockwise-line" label={t('image.rotate')} onClick={handleRotate} />
+                    <div className="h-px tablet:h-5 tablet:w-px w-5 bg-white/20" />
+                    <ToolbarButton icon="ri:close-line" label={t('image.close')} onClick={() => closeModal()} />
+                  </m.div>
 
-                {/* Image viewport with zoom/pan */}
-                <div
-                  ref={containerRef}
-                  role="img"
-                  className="flex h-full w-full touch-none select-none items-center justify-center p-4"
-                  onDoubleClick={handleDoubleClick}
-                >
-                  <motion.div
-                    className="flex items-center justify-center"
-                    initial={{ scale: 0.95 }}
-                    animate={{ scale: 1 }}
-                    exit={{ scale: 0.95 }}
-                    transition={{ duration: 0.2 }}
+                  {/* Image viewport with zoom/pan */}
+                  <div
+                    ref={containerRef}
+                    role="img"
+                    className="flex h-full w-full touch-none select-none items-center justify-center p-4"
+                    onDoubleClick={handleDoubleClick}
                   >
-                    <motion.img
-                      src={data.src}
-                      alt={data.alt}
-                      className="max-h-[80vh] max-w-[90vw] origin-center rounded-lg object-contain shadow-2xl will-change-transform"
-                      animate={{ scale: state.scale, rotate: rotation, opacity: imageLoaded ? 1 : 0 }}
-                      transition={{
-                        scale: { type: 'tween', duration: 0.15, ease: 'easeOut' },
-                        rotate: { type: 'spring', stiffness: 300, damping: 25 },
-                        opacity: { duration: 0.2 },
-                      }}
-                      style={{
-                        x: state.translateX,
-                        y: state.translateY,
-                        cursor: state.scale > 1.05 ? 'grab' : 'zoom-in',
-                      }}
-                      onLoad={() => setImageLoaded(true)}
-                      draggable={false}
-                    />
-                  </motion.div>
-                </div>
-
-                {/* Navigation bar */}
-                {data.images.length > 1 && (
-                  <div className="absolute bottom-12 left-1/2 flex -translate-x-1/2 items-center gap-0.5 rounded-full bg-black/50 p-1 backdrop-blur-sm">
-                    <NavButton direction={-1} disabled={data.currentIndex === 0} onClick={() => navigateTo(-1)} />
-                    <span className="min-w-14 px-1 text-center font-mono text-sm text-white/80 tabular-nums">
-                      {data.currentIndex + 1} / {data.images.length}
-                    </span>
-                    <NavButton
-                      direction={1}
-                      disabled={data.currentIndex === data.images.length - 1}
-                      onClick={() => navigateTo(1)}
-                    />
+                    <m.div
+                      className="flex items-center justify-center"
+                      initial={{ scale: 0.95 }}
+                      animate={{ scale: 1 }}
+                      exit={{ scale: 0.95 }}
+                      transition={{ duration: 0.2 }}
+                    >
+                      <m.img
+                        src={data.src}
+                        alt={data.alt}
+                        className="max-h-[80vh] max-w-[90vw] origin-center rounded-lg object-contain shadow-2xl will-change-transform"
+                        animate={{ scale: state.scale, rotate: rotation, opacity: imageLoaded ? 1 : 0 }}
+                        transition={{
+                          scale: { type: 'tween', duration: 0.15, ease: 'easeOut' },
+                          rotate: { type: 'spring', stiffness: 300, damping: 25 },
+                          opacity: { duration: 0.2 },
+                        }}
+                        style={{
+                          x: state.translateX,
+                          y: state.translateY,
+                          cursor: state.scale > 1.05 ? 'grab' : 'zoom-in',
+                        }}
+                        onLoad={() => setImageLoaded(true)}
+                        draggable={false}
+                      />
+                    </m.div>
                   </div>
-                )}
 
-                {/* Zoom hint */}
-                <ZoomHint />
-              </div>
-            </FloatingFocusManager>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </FloatingPortal>
+                  {/* Navigation bar */}
+                  {data.images.length > 1 && (
+                    <div className="absolute bottom-12 left-1/2 flex -translate-x-1/2 items-center gap-0.5 rounded-full bg-black/50 p-1 backdrop-blur-sm">
+                      <NavButton direction={-1} disabled={data.currentIndex === 0} onClick={() => navigateTo(-1)} />
+                      <span className="min-w-14 px-1 text-center font-mono text-sm text-white/80 tabular-nums">
+                        {data.currentIndex + 1} / {data.images.length}
+                      </span>
+                      <NavButton
+                        direction={1}
+                        disabled={data.currentIndex === data.images.length - 1}
+                        onClick={() => navigateTo(1)}
+                      />
+                    </div>
+                  )}
+
+                  {/* Zoom hint */}
+                  <ZoomHint />
+                </div>
+              </FloatingFocusManager>
+            </m.div>
+          )}
+        </AnimatePresence>
+      </FloatingPortal>
+    </LazyMotionProvider>
   );
 }
 
@@ -261,7 +267,7 @@ function ToolbarButton({
   disabled?: boolean;
 }) {
   return (
-    <motion.button
+    <m.button
       type="button"
       onClick={onClick}
       disabled={disabled}
@@ -270,7 +276,7 @@ function ToolbarButton({
       aria-label={label}
     >
       <Icon icon={icon} className="size-5" />
-    </motion.button>
+    </m.button>
   );
 }
 
@@ -283,7 +289,7 @@ function NavButton({ direction, disabled, onClick }: { direction: 1 | -1; disabl
   const { t } = useTranslation();
   const isLeft = direction === -1;
   return (
-    <motion.button
+    <m.button
       type="button"
       onClick={onClick}
       disabled={disabled}
@@ -291,13 +297,13 @@ function NavButton({ direction, disabled, onClick }: { direction: 1 | -1; disabl
       whileTap={{ scale: 0.82 }}
       aria-label={isLeft ? t('image.prev') : t('image.next')}
     >
-      <motion.span
+      <m.span
         animate={disabled ? BOUNCE_NONE : isLeft ? BOUNCE_LEFT : BOUNCE_RIGHT}
         transition={{ duration: 1.6, repeat: 3, ease: 'easeInOut' }}
       >
         <Icon icon={isLeft ? 'ri:arrow-left-s-line' : 'ri:arrow-right-s-line'} className="size-5" />
-      </motion.span>
-    </motion.button>
+      </m.span>
+    </m.button>
   );
 }
 
@@ -311,7 +317,7 @@ function ZoomHint() {
   }, []);
 
   return (
-    <motion.div
+    <m.div
       className="pointer-events-none absolute bottom-4 left-1/2 -translate-x-1/2 rounded-full bg-black/50 px-4 py-2 text-white/70 text-xs"
       initial={{ opacity: 0 }}
       animate={{ opacity: visible ? 1 : 0 }}
@@ -319,6 +325,6 @@ function ZoomHint() {
     >
       <span className="hidden touch-none sm:inline">{t('image.hintDesktop')}</span>
       <span className="sm:hidden">{t('image.hintMobile')}</span>
-    </motion.div>
+    </m.div>
   );
 }

@@ -59,6 +59,7 @@ export function CodePenEmbed({ user, penId, url }: CodePenEmbedProps) {
         title={`CodePen by ${user}`}
         src={embedUrl}
         loading="lazy"
+        sandbox="allow-forms allow-modals allow-popups allow-presentation allow-scripts"
         allowFullScreen
       >
         <a href={url}>See the Pen on CodePen</a>

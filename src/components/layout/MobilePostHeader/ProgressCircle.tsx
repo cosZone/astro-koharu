@@ -7,7 +7,7 @@
 
 import { useStore } from '@nanostores/react';
 import { masterMotionEnabled, scrollProgressEnabled } from '@store/settings';
-import { motion, useReducedMotion, useScroll, useSpring } from 'motion/react';
+import { m, useReducedMotion, useScroll, useSpring } from 'motion/react';
 
 interface ProgressCircleProps {
   /** Circle size in pixels (default: 28) */
@@ -57,7 +57,7 @@ export function ProgressCircle({ size = 28, strokeWidth = 2, className }: Progre
         className="opacity-20"
       />
       {/* Progress circle */}
-      <motion.circle
+      <m.circle
         cx={center}
         cy={center}
         r={radius}

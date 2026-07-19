@@ -3,7 +3,7 @@
  */
 
 import { categoryMap } from '@constants/category';
-import { getContentCategoryName, getContentFeaturedCategoryField, getContentSeriesField } from '@/i18n/content';
+import { getContentFeaturedCategoryField, getContentSeriesField } from '@/i18n/content';
 import type { Locale } from '@/i18n/types';
 import { encodeSlug } from '../route';
 import { memoize } from './cache';

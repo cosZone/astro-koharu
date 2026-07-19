@@ -46,13 +46,6 @@ export function extractTweetId(url: string): string | null {
 }
 
 /**
- * Check if URL is a Twitter/X link
- */
-export function isTweetUrl(url: string): boolean {
-  return extractTweetId(url) !== null;
-}
-
-/**
  * Extract CodePen user and pen ID from CodePen URL
  * Supports formats:
  * - https://codepen.io/username/pen/PenId
@@ -85,13 +78,6 @@ export function extractCodePenId(url: string): { user: string; penId: string } |
     console.warn('[Link Utils] Failed to parse CodePen URL:', url, error);
     return null;
   }
-}
-
-/**
- * Check if URL is a CodePen link
- */
-export function isCodePenUrl(url: string): boolean {
-  return extractCodePenId(url) !== null;
 }
 
 /**

@@ -1,9 +1,10 @@
+import { LazyMotionProvider } from '@components/common/LazyMotionProvider';
 import { useIsMounted } from '@hooks/useIsMounted';
 import { cn } from '@lib/utils';
 import { useStore } from '@nanostores/react';
 import { christmasEnabled, disableChristmas, ornamentHidden, toggleChristmas } from '@store/christmas';
-import { AnimatePresence, motion, useMotionValue, useReducedMotion, useTransform } from 'motion/react';
-import { useState } from 'react';
+import { AnimatePresence, m, useMotionValue, useReducedMotion, useTransform } from 'motion/react';
+import { type KeyboardEvent, useState } from 'react';
 
 /** Minimum drag distance to trigger toggle action */
 const TOGGLE_TRIGGER_DISTANCE = 40;
@@ -11,6 +12,17 @@ const TOGGLE_TRIGGER_DISTANCE = 40;
 const MAX_DRAG_DISTANCE = 110;
 const ORNAMENT_SIZE = 72;
 const STRING_HEIGHT = 80;
+
+function handleClick() {
+  toggleChristmas();
+}
+
+function handleKeyDown(event: KeyboardEvent) {
+  if (event.key === 'Enter' || event.key === ' ') {
+    event.preventDefault();
+    toggleChristmas();
+  }
+}
 
 function TopDecoration() {
   return (
@@ -187,87 +199,80 @@ export function ChristmasOrnamentToggle() {
     }
   };
 
-  const handleClick = () => toggleChristmas();
-
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' || e.key === ' ') {
-      e.preventDefault();
-      toggleChristmas();
-    }
-  };
-
   return (
-    <AnimatePresence>
-      {shouldShowOrnament && (
-        <motion.div
-          className="fixed top-0 right-0 tablet:right-12 z-90 flex w-[100px] justify-center lg:right-40"
-          initial={{ opacity: 0, y: -50 }}
-          animate={{
-            opacity: isEnabled ? 1 : 0.5,
-            y: 0,
-          }}
-          whileHover={{ opacity: 1 }}
-          exit={{ opacity: 0, y: -50 }}
-          transition={{ duration: 0.3, ease: 'easeOut' }}
-        >
-          <TopDecoration />
-
-          {/* 绳子 - 顶部固定，高度随拖拽变化 */}
-          <motion.div
-            className="pointer-events-none absolute top-0 z-99 w-[2px] origin-top bg-linear-to-b from-yellow-700 via-yellow-500 to-yellow-400 will-change-[height]"
-            style={{ height: stringHeight }}
-          />
-
-          {/* 球体 - 位置跟随绳子底部 */}
-          <motion.button
-            className={cn(
-              'absolute cursor-grab touch-none select-none will-change-transform active:cursor-grabbing',
-              'rounded-full outline-none focus-visible:ring-4 focus-visible:ring-yellow-400/50',
-            )}
-            style={{
-              width: ORNAMENT_SIZE,
-              height: ORNAMENT_SIZE,
-              top: STRING_HEIGHT,
-              y,
+    <LazyMotionProvider>
+      <AnimatePresence>
+        {shouldShowOrnament && (
+          <m.div
+            className="fixed top-0 right-0 tablet:right-12 z-90 flex w-[100px] justify-center lg:right-40"
+            initial={{ opacity: 0, y: -50 }}
+            animate={{
+              opacity: isEnabled ? 1 : 0.5,
+              y: 0,
             }}
-            drag={shouldReduceMotion ? false : 'y'}
-            dragConstraints={{ top: 0, bottom: MAX_DRAG_DISTANCE }}
-            dragElastic={0.2}
-            dragSnapToOrigin
-            onDragStart={() => setIsPulling(true)}
-            onDragEnd={handleDragEnd}
-            onHoverStart={() => setIsHovered(true)}
-            onHoverEnd={() => setIsHovered(false)}
-            onClick={handleClick}
-            onKeyDown={handleKeyDown}
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            aria-label={isEnabled ? '关闭圣诞模式' : '开启圣诞模式'}
-            aria-pressed={isEnabled}
-            type="button"
+            whileHover={{ opacity: 1 }}
+            exit={{ opacity: 0, y: -50 }}
+            transition={{ duration: 0.3, ease: 'easeOut' }}
           >
-            <div className="pointer-events-none -mt-2 size-full">
-              <OrnamentSvg isEnabled={isEnabled} />
-            </div>
+            <TopDecoration />
 
-            {/* 提示文字 */}
-            <AnimatePresence>
-              {(isPulling || isHovered) && (
-                <motion.div
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 30 }}
-                  exit={{ opacity: 0 }}
-                  className="pointer-events-none absolute top-1/2 left-1/2 -translate-x-1/2"
-                >
-                  <div className="whitespace-nowrap rounded-full border border-white/10 bg-red-950/90 px-3 py-1 font-medium text-[10px] text-white shadow-md">
-                    {isEnabled ? '下拉关闭' : '下拉开启'}
-                  </div>
-                </motion.div>
+            {/* 绳子 - 顶部固定，高度随拖拽变化 */}
+            <m.div
+              className="pointer-events-none absolute top-0 z-99 w-[2px] origin-top bg-linear-to-b from-yellow-700 via-yellow-500 to-yellow-400 will-change-[height]"
+              style={{ height: stringHeight }}
+            />
+
+            {/* 球体 - 位置跟随绳子底部 */}
+            <m.button
+              className={cn(
+                'absolute cursor-grab touch-none select-none will-change-transform active:cursor-grabbing',
+                'rounded-full outline-none focus-visible:ring-4 focus-visible:ring-yellow-400/50',
               )}
-            </AnimatePresence>
-          </motion.button>
-        </motion.div>
-      )}
-    </AnimatePresence>
+              style={{
+                width: ORNAMENT_SIZE,
+                height: ORNAMENT_SIZE,
+                top: STRING_HEIGHT,
+                y,
+              }}
+              drag={shouldReduceMotion ? false : 'y'}
+              dragConstraints={{ top: 0, bottom: MAX_DRAG_DISTANCE }}
+              dragElastic={0.2}
+              dragSnapToOrigin
+              onDragStart={() => setIsPulling(true)}
+              onDragEnd={handleDragEnd}
+              onHoverStart={() => setIsHovered(true)}
+              onHoverEnd={() => setIsHovered(false)}
+              onClick={handleClick}
+              onKeyDown={handleKeyDown}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              aria-label={isEnabled ? '关闭圣诞模式' : '开启圣诞模式'}
+              aria-pressed={isEnabled}
+              type="button"
+            >
+              <div className="pointer-events-none -mt-2 size-full">
+                <OrnamentSvg isEnabled={isEnabled} />
+              </div>
+
+              {/* 提示文字 */}
+              <AnimatePresence>
+                {(isPulling || isHovered) && (
+                  <m.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 30 }}
+                    exit={{ opacity: 0 }}
+                    className="pointer-events-none absolute top-1/2 left-1/2 -translate-x-1/2"
+                  >
+                    <div className="whitespace-nowrap rounded-full border border-white/10 bg-red-950/90 px-3 py-1 font-medium text-[10px] text-white shadow-md">
+                      {isEnabled ? '下拉关闭' : '下拉开启'}
+                    </div>
+                  </m.div>
+                )}
+              </AnimatePresence>
+            </m.button>
+          </m.div>
+        )}
+      </AnimatePresence>
+    </LazyMotionProvider>
   );
 }

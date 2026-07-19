@@ -4,6 +4,7 @@
  * Converts markdown to HTML with Shiki syntax highlighting.
  */
 
+import DOMPurify from 'dompurify';
 import { Marked, type MarkedExtension } from 'marked';
 import { type BundledLanguage, type BundledTheme, codeToHtml, getSingletonHighlighter } from 'shiki';
 import { createLinkEmbedExtension } from './marked-link-embed';
@@ -121,6 +122,13 @@ function createMarkedInstance(): Marked {
 
 // Singleton marked instance
 let markedInstance: Marked | null = null;
+
+/** Sanitize rendered Markdown immediately before it crosses the DOM boundary. */
+export function sanitizeMarkdownHtml(html: string): string {
+  return DOMPurify.sanitize(html, {
+    USE_PROFILES: { html: true },
+  });
+}
 
 /**
  * Get or create the marked instance

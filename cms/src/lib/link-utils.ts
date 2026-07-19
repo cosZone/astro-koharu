@@ -41,6 +41,7 @@ export function extractTweetId(url: string): string | null {
 
 /**
  * Check if URL is a Twitter/X link
+ * @deprecated Use `extractTweetId(url) !== null` when the ID is also needed.
  */
 export function isTweetUrl(url: string): boolean {
   return extractTweetId(url) !== null;
@@ -82,6 +83,7 @@ export function extractCodePenId(url: string): { user: string; penId: string } |
 
 /**
  * Check if URL is a CodePen link
+ * @deprecated Use `extractCodePenId(url) !== null` when the pen details are also needed.
  */
 export function isCodePenUrl(url: string): boolean {
   return extractCodePenId(url) !== null;

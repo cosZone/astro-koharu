@@ -20,7 +20,6 @@ export function usePlaybackProgress(
   progressBarRef: RefObject<HTMLElement | null>,
   sliderRef?: RefObject<HTMLElement | null>,
 ) {
-  // biome-ignore lint/correctness/useExhaustiveDependencies: ref.current is accessed imperatively, refs are stable identity objects
   useEffect(() => {
     const sync = () => {
       const bar = progressBarRef.current;
@@ -35,7 +34,7 @@ export function usePlaybackProgress(
     };
     sync();
     return timeStore.subscribe(sync);
-  }, [timeStore]);
+  }, [timeStore, progressBarRef, sliderRef]);
 }
 
 /** Binary search for the current lyric line index. */
@@ -60,19 +59,9 @@ function findCurrentLrcIndex(lines: LrcLine[], time: number): number {
  * Only triggers re-render when the index actually changes.
  */
 export function usePlaybackLrcIndex(timeStore: PlaybackTimeStore, lrcLines: LrcLine[]): number {
-  const cachedRef = useRef(-1);
-  const lrcRef = useRef(lrcLines);
-  lrcRef.current = lrcLines;
-
   return useSyncExternalStore(
     timeStore.subscribe,
-    () => {
-      const idx = findCurrentLrcIndex(lrcRef.current, timeStore.getCurrentTime());
-      if (idx !== cachedRef.current) {
-        cachedRef.current = idx;
-      }
-      return cachedRef.current;
-    },
+    () => findCurrentLrcIndex(lrcLines, timeStore.getCurrentTime()),
     () => -1,
   );
 }

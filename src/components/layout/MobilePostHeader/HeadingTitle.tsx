@@ -6,7 +6,7 @@
  */
 
 import type { CurrentHeading } from '@hooks/useCurrentHeading';
-import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
+import { AnimatePresence, m, useReducedMotion } from 'motion/react';
 
 interface HeadingTitleProps {
   /** Current heading info */
@@ -21,7 +21,7 @@ export function HeadingTitle({ heading, className }: HeadingTitleProps) {
   return (
     <AnimatePresence mode="wait">
       {heading && (
-        <motion.span
+        <m.span
           key={heading.id}
           className={`block truncate font-medium text-sm ${className || ''}`}
           initial={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, y: 20, filter: 'blur(4px)' }}
@@ -33,7 +33,7 @@ export function HeadingTitle({ heading, className }: HeadingTitleProps) {
           }}
         >
           {heading.text}
-        </motion.span>
+        </m.span>
       )}
     </AnimatePresence>
   );

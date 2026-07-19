@@ -1,6 +1,7 @@
+import { LazyMotionProvider } from '@components/common/LazyMotionProvider';
 import { useControlledState } from '@hooks/useControlledState';
 import { cn } from '@lib/utils';
-import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
+import { AnimatePresence, m, useReducedMotion } from 'motion/react';
 import React from 'react';
 
 export type OptionType<T extends string | number = string | number> = {
@@ -38,67 +39,74 @@ export const Segmented = <T extends string | number = string | number>({
   const shouldReduceMotion = useReducedMotion();
 
   return (
-    <div
-      className={cn(
-        'flex w-fit cursor-pointer select-none rounded-sm bg-muted p-1 font-semibold text-xs backdrop-blur-lg',
-        className,
-      )}
-    >
-      {options.map((option) => {
-        if (!option) return null;
-        const { label, value, icon } = option;
-        const selected = selectedValue === value;
-        return (
-          <motion.div
-            className={cn(
-              'relative flex-center cursor-pointer gap-1.5 px-3 py-1 first:rounded-l-xs last:rounded-r-xs',
-              { 'text-primary-foreground': selected },
-              { 'opacity-50': !selected },
-              itemClass,
-            )}
-            onClick={() => setSelectedValue(value)}
-            key={value}
-            layout={!shouldReduceMotion}
-            transition={shouldReduceMotion ? { duration: 0 } : { type: 'spring', stiffness: 400, damping: 30 }}
-          >
-            {/* 图标 */}
-            {icon && <span className="flex-center shrink-0">{React.createElement(icon, { className: 'w-4 h-4' })}</span>}
-
-            {/* 文字标签 - 只在选中时显示 */}
-            <AnimatePresence initial={false} mode="wait">
-              {selected && label && (
-                <motion.span
-                  initial={shouldReduceMotion ? undefined : { width: 0, opacity: 0 }}
-                  animate={{ width: 'auto', opacity: 1 }}
-                  exit={shouldReduceMotion ? undefined : { width: 0, opacity: 0 }}
-                  transition={
-                    shouldReduceMotion
-                      ? { duration: 0 }
-                      : {
-                          width: { duration: 0.2, ease: 'easeInOut' },
-                          opacity: { duration: 0.15, ease: 'easeInOut' },
-                        }
-                  }
-                  className="overflow-hidden whitespace-nowrap"
-                >
-                  {label}
-                </motion.span>
+    <LazyMotionProvider>
+      <div
+        className={cn(
+          'flex w-fit cursor-pointer select-none rounded-sm bg-muted p-1 font-semibold text-xs backdrop-blur-lg',
+          className,
+        )}
+      >
+        {options.map((option) => {
+          if (!option) return null;
+          const { label, value, icon } = option;
+          const selected = selectedValue === value;
+          return (
+            <m.button
+              type="button"
+              className={cn(
+                'relative flex-center cursor-pointer gap-1.5 px-3 py-1 first:rounded-l-xs last:rounded-r-xs',
+                { 'text-primary-foreground': selected },
+                { 'opacity-50': !selected },
+                itemClass,
               )}
-            </AnimatePresence>
+              onClick={() => setSelectedValue(value)}
+              aria-label={label ?? String(value)}
+              aria-pressed={selected}
+              key={value}
+              layout={!shouldReduceMotion}
+              transition={shouldReduceMotion ? { duration: 0 } : { type: 'spring', stiffness: 400, damping: 30 }}
+            >
+              {/* 图标 */}
+              {icon && <span className="flex-center shrink-0">{React.createElement(icon, { className: 'w-4 h-4' })}</span>}
 
-            {/* 选中背景 */}
-            {selected && (
-              <motion.div
-                layoutId={`segmented_selected_bg_${id ?? 'default'}`}
-                className={cn('absolute inset-0 -z-10 rounded-sm bg-gradient-shoka-button', indicateClass)}
-                transition={shouldReduceMotion ? { duration: 0 } : { type: 'spring', stiffness: 400, damping: 30 }}
-                style={{ willChange: shouldReduceMotion ? 'auto' : 'transform' }}
-              />
-            )}
-          </motion.div>
-        );
-      })}
-    </div>
+              {/* 文字标签 - 只在选中时显示 */}
+              <AnimatePresence initial={false} mode="wait">
+                {selected && label && (
+                  <m.span
+                    layout={!shouldReduceMotion}
+                    initial={shouldReduceMotion ? false : { opacity: 0, scaleX: 0.8, x: -4 }}
+                    animate={{ opacity: 1, scaleX: 1, x: 0 }}
+                    exit={shouldReduceMotion ? { opacity: 1 } : { opacity: 0, scaleX: 0.8, x: -4 }}
+                    transition={
+                      shouldReduceMotion
+                        ? { duration: 0 }
+                        : {
+                            layout: { duration: 0.2, ease: 'easeInOut' },
+                            transform: { duration: 0.2, ease: 'easeInOut' },
+                            opacity: { duration: 0.15, ease: 'easeInOut' },
+                          }
+                    }
+                    className="origin-left whitespace-nowrap"
+                  >
+                    {label}
+                  </m.span>
+                )}
+              </AnimatePresence>
+
+              {/* 选中背景 */}
+              {selected && (
+                <m.div
+                  layoutId={`segmented_selected_bg_${id ?? 'default'}`}
+                  className={cn('absolute inset-0 -z-10 rounded-sm bg-gradient-shoka-button', indicateClass)}
+                  transition={shouldReduceMotion ? { duration: 0 } : { type: 'spring', stiffness: 400, damping: 30 }}
+                  style={{ willChange: shouldReduceMotion ? 'auto' : 'transform' }}
+                />
+              )}
+            </m.button>
+          );
+        })}
+      </div>
+    </LazyMotionProvider>
   );
 };
 

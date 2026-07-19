@@ -11,7 +11,7 @@ import { useControlledState } from '@hooks/useControlledState';
 import { useFloatingUI } from '@hooks/useFloatingUI';
 import type { Heading } from '@hooks/useHeadingTree';
 import { useTranslation } from '@hooks/useTranslation';
-import { AnimatePresence, motion } from 'motion/react';
+import { AnimatePresence, m } from 'motion/react';
 import type React from 'react';
 import { cloneElement } from 'react';
 import { cn } from '@/lib/utils';
@@ -79,7 +79,7 @@ export function MobileTOCDropdown({
         {isOpen && (
           <FloatingPortal>
             <FloatingFocusManager context={context} modal={false}>
-              <motion.div
+              <m.div
                 ref={refs.setFloating}
                 style={floatingStyles}
                 className="z-50 max-h-[60vh] w-72 overflow-auto rounded-2xl border border-border bg-background/80 p-3 backdrop-blur-md"
@@ -103,7 +103,7 @@ export function MobileTOCDropdown({
                     />
                   </div>
                 </nav>
-              </motion.div>
+              </m.div>
             </FloatingFocusManager>
           </FloatingPortal>
         )}

@@ -1,21 +1,21 @@
 # Deployment Adapters
 
-astro-koharu 支持自动检测部署平台并选择对应的适配器。
+astro-koharu 默认使用 Astro 的静态输出模式。`pnpm build` 会生成可由任意静态文件服务器托管的 `dist/` 目录，项目不会自动检测部署平台或选择 SSR adapter。
 
 ## 支持的平台
 
-| 平台              | 适配器            | 环境变量检测     |
-| ----------------- | ----------------- | ---------------- |
-| **Vercel**        | `@astrojs/vercel` | `VERCEL=1`       |
-| **Netlify**       | `@astrojs/netlify`| `NETLIFY=true`   |
-| **自托管/Docker** | `@astrojs/node`   | 其他情况（保底） |
+| 平台              | 部署方式                             | 发布内容 |
+| ----------------- | ------------------------------------ | -------- |
+| **Vercel**        | 静态站点                             | `dist/`  |
+| **Netlify**       | 静态站点                             | `dist/`  |
+| **自托管/Docker** | 静态文件服务器（项目默认使用 nginx） | `dist/`  |
 
 ## 部署说明
 
 ### Vercel
 
 1. 连接 GitHub 仓库到 Vercel
-2. 自动检测并使用 `@astrojs/vercel` 适配器
+2. 使用构建命令 `pnpm build`；Vercel 会发布 Astro 生成的静态站点
 3. 一键部署：[Deploy with Vercel](https://vercel.com/new/clone?repository-url=https://github.com/cosZone/astro-koharu)
 
 ### Netlify
@@ -23,17 +23,18 @@ astro-koharu 支持自动检测部署平台并选择对应的适配器。
 1. 连接 GitHub 仓库到 Netlify
 2. 构建命令：`pnpm build`
 3. 发布目录：`dist`
-4. 自动使用 `@astrojs/netlify` 适配器
 
-### 自托管（Node.js）
+### 自托管（静态服务器）
 
 ```bash
 # 构建
 pnpm build
 
-# 运行
-node dist/server/entry.mjs
+# 使用任意静态文件服务器发布 dist，例如本地预览
+pnpm preview
 ```
+
+生产环境可将 `dist/` 交给 nginx、Caddy 或其他静态文件服务器；默认构建不会生成 `dist/server/entry.mjs`。
 
 ### Docker 部署
 
@@ -137,22 +138,15 @@ ports:
 
 ## 本地测试
 
-测试特定平台适配器：
+构建并预览静态输出：
 
 ```bash
-# Vercel
-VERCEL=1 NODE_ENV=production pnpm build
-
-# Netlify
-NETLIFY=true NODE_ENV=production pnpm build
-
-# Node.js (默认)
-NODE_ENV=production pnpm build
+pnpm build
+pnpm preview
 ```
 
 ## 相关文档
 
-- [Astro 按需渲染](https://docs.astro.build/en/guides/on-demand-rendering/)
-- [Vercel 适配器](https://docs.astro.build/en/guides/integrations-guide/vercel/)
-- [Netlify 适配器](https://docs.astro.build/en/guides/integrations-guide/netlify/)
-- [Node 适配器](https://docs.astro.build/en/guides/integrations-guide/node/)
+- [Astro 静态部署](https://docs.astro.build/en/guides/deploy/)
+- [Vercel 部署](https://docs.astro.build/en/guides/deploy/vercel/)
+- [Netlify 部署](https://docs.astro.build/en/guides/deploy/netlify/)

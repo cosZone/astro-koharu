@@ -1146,7 +1146,7 @@ announcements:
 - 省略 `startDate` 表示立即生效，省略 `endDate` 表示永不过期
 - `publishDate` 用于时间线弹窗中的日期显示，省略时使用 `startDate`
 - 过期公告建议从配置中删除，保持配置简洁
-- 已读状态存储在 localStorage，key 为 `announcement-read-ids`
+- 已读状态存储在 localStorage，key 为 `announcement-read-ids:v1`（旧 key 会自动迁移）
 
 ### Markdown 增强
 

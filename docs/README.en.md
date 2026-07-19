@@ -34,7 +34,7 @@ You can provide [feedback](https://cos.featurebase.app/) and check the Roadmap h
 
 ## Deployment
 
-Supports automatic deployment on mainstream platforms including **Vercel** and **Netlify**. The adapter is automatically selected based on the environment; unrecognized platforms fall back to the Node.js adapter (suitable for Docker or self-hosting).
+Uses Astro's static output by default. **Vercel** and **Netlify** can publish the generated `dist/` directory directly; for self-hosting, serve `dist/` with a static server. The included Docker setup uses nginx.
 
 ### One-Click Deploy
 

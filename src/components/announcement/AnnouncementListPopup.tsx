@@ -5,6 +5,7 @@
  * Triggered from Footer entry point.
  */
 
+import { LazyMotionProvider } from '@components/common/LazyMotionProvider';
 import { animation, zIndex } from '@constants/design-tokens';
 import { useTranslation } from '@hooks/useTranslation';
 import { Icon } from '@iconify/react';
@@ -19,7 +20,7 @@ import {
   markAsRead,
   readAnnouncementIds,
 } from '@store/announcement';
-import { AnimatePresence, motion } from 'motion/react';
+import { AnimatePresence, m } from 'motion/react';
 import type { Announcement } from '@/types/announcement';
 import { getAnnouncementColor, getAnnouncementIcon } from './AnnouncementToaster';
 
@@ -145,90 +146,97 @@ export default function AnnouncementListPopup() {
   const hasUnread = unreadCount > 0;
 
   return (
-    <AnimatePresence>
-      {isOpen && (
-        <>
-          {/* Backdrop */}
-          <motion.div
-            className="fixed inset-0 bg-black/50 backdrop-blur-sm"
-            style={{ zIndex: zIndex.modalBackdrop }}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            onClick={closeAnnouncementList}
-          />
+    <LazyMotionProvider>
+      <AnimatePresence>
+        {isOpen && (
+          <>
+            {/* Backdrop */}
+            <m.div
+              className="fixed inset-0 bg-black/50 backdrop-blur-sm"
+              style={{ zIndex: zIndex.modalBackdrop }}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={closeAnnouncementList}
+            />
 
-          {/* Popup */}
-          <motion.div
-            className="fixed inset-x-3 top-1/2 mx-auto max-w-lg overflow-hidden rounded-xl bg-card shadow-2xl md:inset-x-4 md:rounded-2xl"
-            style={{ zIndex: zIndex.modal }}
-            initial={{ opacity: 0, y: '-45%', scale: 0.95 }}
-            animate={{ opacity: 1, y: '-50%', scale: 1 }}
-            exit={{ opacity: 0, y: '-45%', scale: 0.95 }}
-            transition={animation.spring.default}
-          >
-            {/* Header */}
-            <div className="flex items-center justify-between border-border border-b bg-linear-to-r from-primary/5 to-transparent p-3 md:p-4">
-              <div className="flex items-center gap-2 md:gap-3">
-                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10 md:h-10 md:w-10 md:rounded-xl">
-                  <Icon icon="ri:notification-3-line" className="h-4 w-4 text-primary md:h-5 md:w-5" />
+            {/* Popup */}
+            <m.div
+              className="fixed inset-x-3 top-1/2 mx-auto max-w-lg overflow-hidden rounded-xl bg-card shadow-2xl md:inset-x-4 md:rounded-2xl"
+              style={{ zIndex: zIndex.modal }}
+              initial={{ opacity: 0, y: '-45%', scale: 0.95 }}
+              animate={{ opacity: 1, y: '-50%', scale: 1 }}
+              exit={{ opacity: 0, y: '-45%', scale: 0.95 }}
+              transition={animation.spring.default}
+            >
+              {/* Header */}
+              <div className="flex items-center justify-between border-border border-b bg-linear-to-r from-primary/5 to-transparent p-3 md:p-4">
+                <div className="flex items-center gap-2 md:gap-3">
+                  <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10 md:h-10 md:w-10 md:rounded-xl">
+                    <Icon icon="ri:notification-3-line" className="h-4 w-4 text-primary md:h-5 md:w-5" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-sm md:text-base">{t('announcement.title')}</h3>
+                    <p className="text-[10px] text-muted-foreground md:text-xs">
+                      {t('announcement.count', { count: String(announcements.length) })}
+                      {hasUnread && (
+                        <span className="text-primary"> · {t('announcement.unreadCount', { count: String(unreadCount) })}</span>
+                      )}
+                    </p>
+                  </div>
                 </div>
-                <div>
-                  <h3 className="font-semibold text-sm md:text-base">{t('announcement.title')}</h3>
-                  <p className="text-[10px] text-muted-foreground md:text-xs">
-                    {t('announcement.count', { count: String(announcements.length) })}
-                    {hasUnread && (
-                      <span className="text-primary"> · {t('announcement.unreadCount', { count: String(unreadCount) })}</span>
-                    )}
-                  </p>
-                </div>
-              </div>
-              <div className="flex items-center gap-1.5 md:gap-2">
-                {hasUnread && (
+                <div className="flex items-center gap-1.5 md:gap-2">
+                  {hasUnread && (
+                    <button
+                      onClick={markAllAsRead}
+                      className="rounded-md bg-primary/10 px-2 py-1 text-[10px] text-primary transition-colors hover:bg-primary/20 md:rounded-lg md:px-3 md:py-1.5 md:text-xs"
+                      type="button"
+                    >
+                      {t('announcement.markAllRead')}
+                    </button>
+                  )}
                   <button
-                    onClick={markAllAsRead}
-                    className="rounded-md bg-primary/10 px-2 py-1 text-[10px] text-primary transition-colors hover:bg-primary/20 md:rounded-lg md:px-3 md:py-1.5 md:text-xs"
+                    onClick={closeAnnouncementList}
+                    className="rounded-md p-1.5 transition-colors hover:bg-black/5 md:rounded-lg md:p-2 dark:hover:bg-white/10"
+                    aria-label={t('common.close')}
                     type="button"
                   >
-                    {t('announcement.markAllRead')}
+                    <Icon icon="ri:close-line" className="h-4 w-4 md:h-5 md:w-5" />
                   </button>
-                )}
-                <button
-                  onClick={closeAnnouncementList}
-                  className="rounded-md p-1.5 transition-colors hover:bg-black/5 md:rounded-lg md:p-2 dark:hover:bg-white/10"
-                  aria-label={t('common.close')}
-                  type="button"
-                >
-                  <Icon icon="ri:close-line" className="h-4 w-4 md:h-5 md:w-5" />
-                </button>
+                </div>
               </div>
-            </div>
 
-            {/* Content */}
-            <div className="max-h-[60vh] overflow-y-auto p-3 md:p-4">
-              {announcements.length === 0 ? (
-                <div className="py-8 text-center text-muted-foreground md:py-12">
-                  <Icon icon="ri:notification-off-line" className="mx-auto mb-2 h-12 w-12 opacity-20 md:mb-3 md:h-16 md:w-16" />
-                  <p className="font-medium text-sm md:text-base">{t('announcement.empty')}</p>
-                  <p className="mt-1 text-xs opacity-70 md:text-sm">{t('announcement.emptyHint')}</p>
-                </div>
-              ) : (
-                <div>
-                  {announcements.map((announcement, index) => (
-                    <TimelineItem
-                      key={announcement.id}
-                      announcement={announcement}
-                      isRead={readIds.has(announcement.id)}
-                      isLast={index === announcements.length - 1}
-                      nextColor={index < announcements.length - 1 ? getAnnouncementColor(announcements[index + 1]) : undefined}
+              {/* Content */}
+              <div className="max-h-[60vh] overflow-y-auto p-3 md:p-4">
+                {announcements.length === 0 ? (
+                  <div className="py-8 text-center text-muted-foreground md:py-12">
+                    <Icon
+                      icon="ri:notification-off-line"
+                      className="mx-auto mb-2 h-12 w-12 opacity-20 md:mb-3 md:h-16 md:w-16"
                     />
-                  ))}
-                </div>
-              )}
-            </div>
-          </motion.div>
-        </>
-      )}
-    </AnimatePresence>
+                    <p className="font-medium text-sm md:text-base">{t('announcement.empty')}</p>
+                    <p className="mt-1 text-xs opacity-70 md:text-sm">{t('announcement.emptyHint')}</p>
+                  </div>
+                ) : (
+                  <div>
+                    {announcements.map((announcement, index) => (
+                      <TimelineItem
+                        key={announcement.id}
+                        announcement={announcement}
+                        isRead={readIds.has(announcement.id)}
+                        isLast={index === announcements.length - 1}
+                        nextColor={
+                          index < announcements.length - 1 ? getAnnouncementColor(announcements[index + 1]) : undefined
+                        }
+                      />
+                    ))}
+                  </div>
+                )}
+              </div>
+            </m.div>
+          </>
+        )}
+      </AnimatePresence>
+    </LazyMotionProvider>
   );
 }

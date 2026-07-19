@@ -6,6 +6,7 @@
  * and the unified $diagramFullscreenData store.
  */
 
+import { LazyMotionProvider } from '@components/common/LazyMotionProvider';
 import { CopyButton } from '@components/markdown/shared/CopyButton';
 import { MacToolbar } from '@components/markdown/shared/MacToolbar';
 import { FloatingFocusManager, FloatingPortal, useDismiss, useFloating, useInteractions, useRole } from '@floating-ui/react';
@@ -15,7 +16,7 @@ import { Icon } from '@iconify/react';
 import { cn } from '@lib/utils';
 import { useStore } from '@nanostores/react';
 import { $diagramFullscreenData, closeModal, type DiagramFullscreenData } from '@store/modal';
-import { AnimatePresence, motion } from 'motion/react';
+import { AnimatePresence, m } from 'motion/react';
 import { useEffect } from 'react';
 
 export default function DiagramFullscreen() {
@@ -48,57 +49,59 @@ export default function DiagramFullscreen() {
   if (!data) return null;
 
   return (
-    <FloatingPortal>
-      <AnimatePresence>
-        {isOpen && (
-          <motion.div
-            className="fixed inset-0 z-40"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.2 }}
-          >
-            <div className="fixed inset-0 bg-black/80 backdrop-blur-sm" />
-            <FloatingFocusManager context={context}>
-              <div className="fixed inset-0 z-50 grid place-items-center px-4">
-                <motion.div
-                  ref={refs.setFloating}
-                  className="relative flex h-[80vh] w-[90vw] max-w-6xl flex-col overflow-hidden overscroll-none rounded-xl bg-background shadow-2xl md:max-w-[90vw]"
-                  initial={{ opacity: 0, scale: 0.95 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.95 }}
-                  transition={{ duration: 0.2 }}
-                  {...getFloatingProps()}
-                >
-                  <DiagramToolbar data={data} zoomLevel={zoomLevel} onReset={reset} />
-                  <div
-                    ref={containerRef}
-                    className={cn(
-                      'flex flex-1 cursor-grab items-center justify-center overflow-hidden active:cursor-grabbing',
-                      data.diagramType === 'infographic' && 'infographic-container',
-                    )}
+    <LazyMotionProvider>
+      <FloatingPortal>
+        <AnimatePresence>
+          {isOpen && (
+            <m.div
+              className="fixed inset-0 z-40"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+            >
+              <div className="fixed inset-0 bg-black/80 backdrop-blur-sm" />
+              <FloatingFocusManager context={context}>
+                <div className="fixed inset-0 z-50 grid place-items-center px-4">
+                  <m.div
+                    ref={refs.setFloating}
+                    className="relative flex h-[80vh] w-[90vw] max-w-6xl flex-col overflow-hidden overscroll-none rounded-xl bg-background shadow-2xl md:max-w-[90vw]"
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.95 }}
+                    transition={{ duration: 0.2 }}
+                    {...getFloatingProps()}
                   >
+                    <DiagramToolbar data={data} zoomLevel={zoomLevel} onReset={reset} />
                     <div
+                      ref={containerRef}
                       className={cn(
-                        'flex origin-center items-center justify-center transition-transform duration-100',
-                        data.diagramType === 'mermaid' ? 'mermaid-svg-container' : 'infographic-svg-container',
+                        'flex flex-1 cursor-grab items-center justify-center overflow-hidden active:cursor-grabbing',
+                        data.diagramType === 'infographic' && 'infographic-container',
                       )}
-                      style={{
-                        transform: `translate(${state.translateX}px, ${state.translateY}px) scale(${state.scale})`,
-                        width: '100%',
-                        height: '100%',
-                      }}
-                      // biome-ignore lint/security/noDangerouslySetInnerHtml: SVG from mermaid/infographic render output
-                      dangerouslySetInnerHTML={{ __html: data.svg }}
-                    />
-                  </div>
-                </motion.div>
-              </div>
-            </FloatingFocusManager>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </FloatingPortal>
+                    >
+                      <div
+                        className={cn(
+                          'flex origin-center items-center justify-center transition-transform duration-100',
+                          data.diagramType === 'mermaid' ? 'mermaid-svg-container' : 'infographic-svg-container',
+                        )}
+                        style={{
+                          transform: `translate(${state.translateX}px, ${state.translateY}px) scale(${state.scale})`,
+                          width: '100%',
+                          height: '100%',
+                        }}
+                        // biome-ignore lint/security/noDangerouslySetInnerHtml: SVG from mermaid/infographic render output
+                        dangerouslySetInnerHTML={{ __html: data.svg }}
+                      />
+                    </div>
+                  </m.div>
+                </div>
+              </FloatingFocusManager>
+            </m.div>
+          )}
+        </AnimatePresence>
+      </FloatingPortal>
+    </LazyMotionProvider>
   );
 }
 

@@ -21,12 +21,13 @@
  * ```
  */
 
+import { LazyMotionProvider } from '@components/common/LazyMotionProvider';
 import { animation } from '@constants/design-tokens';
 import { cn } from '@lib/utils';
 import * as DialogPrimitive from '@radix-ui/react-dialog';
-import { AnimatePresence, motion, type Transition } from 'motion/react';
+import { AnimatePresence, m, type Transition } from 'motion/react';
 import type React from 'react';
-import { createContext, forwardRef, useCallback, useContext, useState } from 'react';
+import { createContext, forwardRef, useCallback, useContext, useMemo, useState } from 'react';
 
 // Context for animation state and open state
 interface DialogContextValue {
@@ -44,6 +45,7 @@ interface DialogProps extends DialogPrimitive.DialogProps {
 
 function Dialog({ children, open, onOpenChange, ...props }: DialogProps) {
   const [isAnimating, setIsAnimating] = useState(false);
+  const contextValue = useMemo(() => ({ isOpen: !!open, isAnimating, setIsAnimating }), [open, isAnimating]);
 
   const handleOpenChange = useCallback(
     (nextOpen: boolean) => {
@@ -54,11 +56,13 @@ function Dialog({ children, open, onOpenChange, ...props }: DialogProps) {
   );
 
   return (
-    <DialogContext.Provider value={{ isOpen: !!open, isAnimating, setIsAnimating }}>
-      <DialogPrimitive.Root open={open} onOpenChange={handleOpenChange} {...props}>
-        {children}
-      </DialogPrimitive.Root>
-    </DialogContext.Provider>
+    <LazyMotionProvider>
+      <DialogContext.Provider value={contextValue}>
+        <DialogPrimitive.Root open={open} onOpenChange={handleOpenChange} {...props}>
+          {children}
+        </DialogPrimitive.Root>
+      </DialogContext.Provider>
+    </LazyMotionProvider>
   );
 }
 
@@ -99,7 +103,7 @@ const DialogContent = forwardRef<React.ComponentRef<typeof DialogPrimitive.Conte
       <DialogPortal forceMount>
         <AnimatePresence mode="wait">
           {isOpen && (
-            <motion.div
+            <m.div
               key="dialog-overlay"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -109,14 +113,14 @@ const DialogContent = forwardRef<React.ComponentRef<typeof DialogPrimitive.Conte
               onAnimationComplete={() => context?.setIsAnimating(false)}
             >
               <DialogOverlay className={overlayClassName} data-dialog-layer="" />
-            </motion.div>
+            </m.div>
           )}
         </AnimatePresence>
 
         <AnimatePresence mode="wait">
           {isOpen && (
             <DialogPrimitive.Content ref={ref} asChild {...props}>
-              <motion.div
+              <m.div
                 key="dialog-content"
                 data-dialog-layer=""
                 className={cn(
@@ -152,7 +156,7 @@ const DialogContent = forwardRef<React.ComponentRef<typeof DialogPrimitive.Conte
                     </svg>
                   </DialogPrimitive.Close>
                 )}
-              </motion.div>
+              </m.div>
             </DialogPrimitive.Content>
           )}
         </AnimatePresence>

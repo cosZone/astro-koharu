@@ -171,6 +171,7 @@ color: "${formData.color || '#ffc0cb'}"`;
                       />
                     </div>
                     <input
+                      aria-label={t('friends.themeColor')}
                       type="text"
                       value={formData.color}
                       onChange={(e) => setFormData({ ...formData, color: e.target.value })}

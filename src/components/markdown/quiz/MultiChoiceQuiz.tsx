@@ -29,7 +29,12 @@ export function MultiChoiceQuiz({ quiz }: { quiz: ParsedQuiz }) {
     setRevealed(true);
   }, [selected.size, revealed]);
 
-  const correctIndices = new Set(quiz.options.map((o, i) => (o.isCorrect ? i : -1)).filter((i) => i >= 0));
+  const correctIndices = new Set(
+    quiz.options.reduce<number[]>((indices, option, index) => {
+      if (option.isCorrect) indices.push(index);
+      return indices;
+    }, []),
+  );
   const isAllCorrect = revealed && selected.size === correctIndices.size && [...selected].every((i) => correctIndices.has(i));
 
   return (
@@ -42,7 +47,7 @@ export function MultiChoiceQuiz({ quiz }: { quiz: ParsedQuiz }) {
       <fieldset className="space-y-2 border-none p-0" aria-label={t('quiz.quizOptions', { type: t('quiz.multi') })}>
         {quiz.options.map((option, index) => (
           <QuizOption
-            // biome-ignore lint/suspicious/noArrayIndexKey: Options are static
+            // biome-ignore lint/suspicious/noArrayIndexKey: Quiz options are static and may have duplicate HTML
             key={index}
             index={index}
             html={option.html}

@@ -103,7 +103,7 @@ export async function getSortedPosts(locale?: string): Promise<CollectionEntry<'
     });
 
     // 使用浅拷贝避免原地修改 Astro 内部缓存的数组
-    const sortedPosts = [...posts].sort((a: BlogPost, b: BlogPost) => {
+    const sortedPosts = posts.toSorted((a: BlogPost, b: BlogPost) => {
       return b.data.date.getTime() - a.data.date.getTime();
     });
 
@@ -356,6 +356,7 @@ export async function getNonFeaturedPosts(locale?: string): Promise<BlogPost[]> 
 /**
  * 获取非 Featured Series 文章，按置顶状态分组
  * @returns 置顶文章和非置顶的普通文章（互斥，不重叠）
+ * @deprecated Use `getHomePagePosts` when loading the home page sections together.
  */
 export async function getNonFeaturedPostsBySticky(locale?: string): Promise<{
   stickyPosts: BlogPost[];
@@ -380,6 +381,7 @@ export async function getNonFeaturedPostsBySticky(locale?: string): Promise<{
 /**
  * 获取所有 highlightOnHome=true 系列的最新文章
  * @returns 最新文章列表（每个系列一篇）
+ * @deprecated Use `getHomePagePosts` when loading the home page sections together.
  */
 export async function getHomeHighlightedPosts(locale?: string): Promise<BlogPost[]> {
   const highlightedSeries = getEnabledSeries().filter((series) => series.highlightOnHome !== false);

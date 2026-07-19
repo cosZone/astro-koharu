@@ -3,7 +3,7 @@ import { useStore } from '@nanostores/react';
 import { Canvas } from '@react-three/fiber';
 import { christmasEnabled } from '@store/christmas';
 import { throttle } from 'es-toolkit';
-import { type MotionValue, useMotionValue, useReducedMotion, useSpring } from 'motion/react';
+import { type MotionValue, useMotionValue, useMotionValueEvent, useReducedMotion, useSpring } from 'motion/react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { SnowParticles } from './SnowParticles';
 
@@ -184,19 +184,12 @@ function SnowParticlesWithParallax({
 }) {
   const parallaxRef = useRef({ x: 0, y: 0 });
 
-  // 订阅 spring 值的变化，存到 ref 中供 useFrame 使用
-  useEffect(() => {
-    const unsubX = smoothMouseX.on('change', (v) => {
-      parallaxRef.current.x = v * parallaxStrength;
-    });
-    const unsubY = smoothMouseY.on('change', (v) => {
-      parallaxRef.current.y = v * parallaxStrength;
-    });
-    return () => {
-      unsubX();
-      unsubY();
-    };
-  }, [smoothMouseX, smoothMouseY, parallaxStrength]);
+  useMotionValueEvent(smoothMouseX, 'change', (value) => {
+    parallaxRef.current.x = value * parallaxStrength;
+  });
+  useMotionValueEvent(smoothMouseY, 'change', (value) => {
+    parallaxRef.current.y = value * parallaxStrength;
+  });
 
   return (
     <SnowParticles

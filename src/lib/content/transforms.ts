@@ -121,11 +121,13 @@ export const toPostRefWithCategory = (post: BlogPost) => pickPost(post, POST_REF
 
 /**
  * 转换为卡片数据（卡片展示所需字段）
+ * @deprecated Use `pickPost(post, fields, locale)` to request only the needed fields.
  */
 export const toPostCardData = (post: BlogPost, locale: string = defaultLocale) => pickPost(post, POST_CARD_DATA_KEYS, locale);
 
 // 批量转换便捷函数
 export const toPostRefs = (posts: BlogPost[]) => pickPosts(posts, POST_REF_KEYS);
+/** @deprecated Use `pickPosts(posts, fields)` to request only the needed fields. */
 export const toPostRefsWithCategory = (posts: BlogPost[]) => pickPosts(posts, POST_REF_WITH_CATEGORY_KEYS);
 export const toPostCardDataList = (posts: BlogPost[], locale: string = defaultLocale) =>
   pickPosts(posts, POST_CARD_DATA_KEYS, locale);

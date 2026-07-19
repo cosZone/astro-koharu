@@ -1,8 +1,9 @@
+import { LazyMotionProvider } from '@components/common/LazyMotionProvider';
 import { microDampingPreset } from '@constants/anim/spring';
 import type { FriendLink } from '@constants/friends-config';
 import { useIsMounted } from '@hooks/useIsMounted';
 import { useStore } from '@nanostores/react';
-import { motion, useMotionTemplate, useMotionValue, useSpring, useTransform } from 'motion/react';
+import { m, useMotionTemplate, useMotionValue, useSpring, useTransform } from 'motion/react';
 import { type MouseEvent, useRef } from 'react';
 import { cn, normalizeHexColor } from '@/lib/utils';
 import { christmasEnabled } from '@/store/christmas';
@@ -76,78 +77,80 @@ export default function FriendCard({ friend, index }: FriendCardProps) {
   const avatarImage = friend.image || DEFAULT_AVATAR;
 
   return (
-    <motion.a
-      href={friend.url}
-      target="_blank"
-      ref={cardRef}
-      className={cn(
-        'friend-card group !no-underline hover:!no-underline relative block h-[200px] w-full cursor-pointer select-none transition-transform duration-300 ease-easeOut',
-        { 'z-5': isMounted && isChristmasEnabled },
-      )}
-      style={{ perspective: '1000px' }}
-      transition={{
-        duration: 0.5,
-        delay: index * 0.05,
-        ...microDampingPreset,
-      }}
-      onMouseMove={handleMouseMove}
-      onMouseLeave={handleMouseLeave}
-    >
-      <motion.div
-        className="relative h-full w-full rounded-2xl bg-white p-3 shadow-xl ring-1 ring-gray-900/5 dark:bg-gray-800 dark:ring-white/10"
-        style={{
-          transformStyle: 'preserve-3d',
-          rotateX,
-          rotateY,
+    <LazyMotionProvider>
+      <m.a
+        href={friend.url}
+        target="_blank"
+        ref={cardRef}
+        className={cn(
+          'friend-card group !no-underline hover:!no-underline relative block h-[200px] w-full cursor-pointer select-none transition-transform duration-300 ease-easeOut',
+          { 'z-5': isMounted && isChristmasEnabled },
+        )}
+        style={{ perspective: '1000px' }}
+        transition={{
+          duration: 0.5,
+          delay: index * 0.05,
+          ...microDampingPreset,
         }}
+        onMouseMove={handleMouseMove}
+        onMouseLeave={handleMouseLeave}
       >
-        {/* Inner Card Container */}
-        <div className="relative h-full w-full overflow-hidden rounded-xl bg-gray-50 dark:bg-gray-900">
-          {/* Background Image / Color */}
-          <div
-            className="absolute inset-0 h-16 w-full"
-            style={{ background: `linear-gradient(to bottom right, ${cardColor}, ${cardColor}80)` }}
-          />
+        <m.div
+          className="relative h-full w-full rounded-2xl bg-white p-3 shadow-xl ring-1 ring-gray-900/5 dark:bg-gray-800 dark:ring-white/10"
+          style={{
+            transformStyle: 'preserve-3d',
+            rotateX,
+            rotateY,
+          }}
+        >
+          {/* Inner Card Container */}
+          <div className="relative h-full w-full overflow-hidden rounded-xl bg-gray-50 dark:bg-gray-900">
+            {/* Background Image / Color */}
+            <div
+              className="absolute inset-0 h-16 w-full"
+              style={{ background: `linear-gradient(to bottom right, ${cardColor}, ${cardColor}80)` }}
+            />
 
-          {/* Avatar */}
-          <div className="absolute top-8 left-1/2 -translate-x-1/2">
-            <div className="relative h-14 w-14 overflow-hidden rounded-full border-4 border-white bg-white shadow-lg dark:border-gray-800 dark:bg-gray-800">
-              <img
-                src={avatarImage}
-                alt={friend.owner}
-                className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
-                loading="lazy"
-              />
+            {/* Avatar */}
+            <div className="absolute top-8 left-1/2 -translate-x-1/2">
+              <div className="relative h-14 w-14 overflow-hidden rounded-full border-4 border-white bg-white shadow-lg dark:border-gray-800 dark:bg-gray-800">
+                <img
+                  src={avatarImage}
+                  alt={friend.owner}
+                  className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
+                  loading="lazy"
+                />
+              </div>
+            </div>
+
+            {/* Content */}
+            <div className="mt-24 flex h-full flex-col px-2 pb-3 text-center">
+              <p
+                className="truncate font-bold text-gray-900 text-sm transition-colors group-hover:text-(--card-color) dark:text-white"
+                style={{ '--card-color': cardColor } as CSSCustomProperties}
+              >
+                {friend.owner}
+              </p>
+              <p className="mb-1 truncate font-medium text-[10px] text-gray-400 uppercase tracking-wider">{friend.site}</p>
+              <p className="line-clamp-2 text-[10px] text-gray-600 dark:text-gray-300">{friend.desc}</p>
             </div>
           </div>
 
-          {/* Content */}
-          <div className="mt-24 flex h-full flex-col px-2 pb-3 text-center">
-            <p
-              className="truncate font-bold text-gray-900 text-sm transition-colors group-hover:text-(--card-color) dark:text-white"
-              style={{ '--card-color': cardColor } as CSSCustomProperties}
-            >
-              {friend.owner}
-            </p>
-            <p className="mb-1 truncate font-medium text-[10px] text-gray-400 uppercase tracking-wider">{friend.site}</p>
-            <p className="line-clamp-2 text-[10px] text-gray-600 dark:text-gray-300">{friend.desc}</p>
-          </div>
-        </div>
+          {/* Spotlight Overlay */}
+          <m.div
+            className="pointer-events-none absolute inset-0 z-10 rounded-2xl opacity-0 transition-opacity duration-500 group-hover:opacity-100"
+            style={{
+              background: spotlight,
+            }}
+          />
 
-        {/* Spotlight Overlay */}
-        <motion.div
-          className="pointer-events-none absolute inset-0 z-10 rounded-2xl opacity-0 transition-opacity duration-500 group-hover:opacity-100"
-          style={{
-            background: spotlight,
-          }}
-        />
-
-        {/* Border Glow */}
-        <div
-          className="absolute inset-0 -z-10 rounded-2xl opacity-0 blur-xl transition-opacity duration-500 group-hover:opacity-60"
-          style={{ background: cardColor }}
-        />
-      </motion.div>
-    </motion.a>
+          {/* Border Glow */}
+          <div
+            className="absolute inset-0 -z-10 rounded-2xl opacity-0 blur-xl transition-opacity duration-500 group-hover:opacity-60"
+            style={{ background: cardColor }}
+          />
+        </m.div>
+      </m.a>
+    </LazyMotionProvider>
   );
 }

@@ -10,8 +10,8 @@
  */
 
 import { Icon } from '@iconify/react';
-import { useCallback, useEffect, useRef, useState } from 'react';
-import { renderMarkdown } from '@/lib/markdown-render';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { renderMarkdown, sanitizeMarkdownHtml } from '@/lib/markdown-render';
 import { enhancePreviewContent } from '@/lib/preview-enhancer';
 import { EmbedHydrator } from './EmbedHydrator';
 import '@/styles/preview.css';
@@ -25,43 +25,30 @@ interface MarkdownPreviewProps {
  * Image Lightbox Component
  */
 function ImageLightbox({ src, onClose }: { src: string; onClose: () => void }) {
-  // Handle escape key
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        onClose();
-      }
-    };
+  const dialogRef = useRef<HTMLDialogElement>(null);
 
-    window.addEventListener('keydown', handleKeyDown);
-    document.body.style.overflow = 'hidden';
+  useEffect(() => {
+    const dialog = dialogRef.current;
+    dialog?.showModal();
 
     return () => {
-      window.removeEventListener('keydown', handleKeyDown);
-      document.body.style.overflow = '';
+      if (dialog?.open) dialog.close();
     };
-  }, [onClose]);
+  }, []);
 
   return (
-    <div
-      className="preview-lightbox active"
-      onClick={onClose}
-      onKeyDown={(e) => e.key === 'Escape' && onClose()}
-      role="dialog"
-      aria-modal="true"
+    <dialog
+      ref={dialogRef}
+      className="preview-lightbox active m-0 h-auto max-h-none w-auto max-w-none border-0 p-0"
+      onPointerUp={(event) => event.target === event.currentTarget && onClose()}
+      onClose={onClose}
       aria-label="Image preview"
     >
       <button type="button" className="preview-lightbox-close" onClick={onClose} aria-label="Close">
         <Icon icon="ri:close-line" className="size-6" />
       </button>
-      <img
-        src={src}
-        alt="Preview"
-        className="preview-lightbox-img"
-        onClick={(e) => e.stopPropagation()}
-        onKeyDown={(e) => e.key === 'Enter' && onClose()}
-      />
-    </div>
+      <img src={src} alt="Preview" className="preview-lightbox-img" />
+    </dialog>
   );
 }
 
@@ -71,6 +58,7 @@ export function MarkdownPreview({ content }: MarkdownPreviewProps) {
   const [isLoading, setIsLoading] = useState(true);
   const [lightboxSrc, setLightboxSrc] = useState<string | null>(null);
   const [contentVersion, setContentVersion] = useState(0);
+  const safeHtml = useMemo(() => sanitizeMarkdownHtml(html), [html]);
 
   // Render markdown to HTML
   useEffect(() => {
@@ -104,21 +92,35 @@ export function MarkdownPreview({ content }: MarkdownPreviewProps) {
 
   // Enhance DOM after HTML is rendered
   useEffect(() => {
-    if (!containerRef.current || !html || isLoading) return;
+    if (!containerRef.current || !safeHtml || isLoading) return;
+    let cancelled = false;
+    const container = containerRef.current;
+
+    async function runEnhancement() {
+      try {
+        await enhancePreviewContent(container, {
+          onImageClick: (src) => {
+            if (!cancelled) setLightboxSrc(src);
+          },
+        });
+      } catch (error) {
+        console.error('Failed to enhance preview:', error);
+      } finally {
+        // Re-hydrate embeds even when an optional enhancement stage failed.
+        if (!cancelled) setContentVersion((version) => version + 1);
+      }
+    }
 
     // Small delay to ensure DOM is updated
-    const timeoutId = setTimeout(async () => {
-      if (containerRef.current) {
-        await enhancePreviewContent(containerRef.current, {
-          onImageClick: setLightboxSrc,
-        });
-        // Bump content version to trigger embed re-hydration
-        setContentVersion((v) => v + 1);
-      }
+    const timeoutId = setTimeout(() => {
+      void runEnhancement();
     }, 50);
 
-    return () => clearTimeout(timeoutId);
-  }, [html, isLoading]);
+    return () => {
+      cancelled = true;
+      clearTimeout(timeoutId);
+    };
+  }, [safeHtml, isLoading]);
 
   // Close lightbox handler
   const closeLightbox = useCallback(() => {
@@ -148,11 +150,11 @@ export function MarkdownPreview({ content }: MarkdownPreviewProps) {
         ref={containerRef}
         className="preview-content"
         // biome-ignore lint/security/noDangerouslySetInnerHtml: Markdown rendering requires innerHTML
-        dangerouslySetInnerHTML={{ __html: html }}
+        dangerouslySetInnerHTML={{ __html: safeHtml }}
       />
 
       {/* Hydrate embed placeholders */}
-      {!isLoading && html && <EmbedHydrator key={contentVersion} containerRef={containerRef} />}
+      {!isLoading && safeHtml && <EmbedHydrator key={contentVersion} containerRef={containerRef} />}
 
       {/* Image Lightbox */}
       {lightboxSrc && <ImageLightbox src={lightboxSrc} onClose={closeLightbox} />}

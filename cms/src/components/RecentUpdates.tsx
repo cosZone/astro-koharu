@@ -16,16 +16,16 @@ interface RecentUpdatesProps {
   onEdit?: (postId: string) => void;
 }
 
+function formatRelativeTime(dateString: string) {
+  try {
+    return formatDistanceToNow(new Date(dateString), { addSuffix: true, locale: zhCN });
+  } catch {
+    return dateString;
+  }
+}
+
 export function RecentUpdates({ posts, maxDisplay = 5, onEdit }: RecentUpdatesProps) {
   const displayPosts = posts.slice(0, maxDisplay);
-
-  const formatRelativeTime = (dateString: string) => {
-    try {
-      return formatDistanceToNow(new Date(dateString), { addSuffix: true, locale: zhCN });
-    } catch {
-      return dateString;
-    }
-  };
 
   return (
     <div className="rounded-lg border border-border bg-card p-4">

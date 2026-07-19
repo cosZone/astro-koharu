@@ -113,17 +113,23 @@ export function toggleModal(type: ModalType): void {
 }
 
 // Convenience functions for specific modals
+/** @deprecated Use `openModal('drawer')`. */
 export const openDrawer = () => openModal('drawer');
 export const closeDrawer = () => closeModal();
 export const toggleDrawer = () => toggleModal('drawer');
 
+/** @deprecated Use `openModal('search')`. */
 export const openSearch = () => openModal('search');
+/** @deprecated Use `closeModal()`. */
 export const closeSearch = () => closeModal();
+/** @deprecated Use `toggleModal('search')`. */
 export const toggleSearch = () => toggleModal('search');
 
 export const toggleSettings = () => toggleModal('settings');
 
+/** @deprecated Use `openModal('codeFullscreen', data)`. */
 export const openCodeFullscreen = (data: CodeBlockData) => openModal('codeFullscreen', data);
+/** @deprecated Use `closeModal()`. */
 export const closeCodeFullscreen = () => closeModal();
 
 /**

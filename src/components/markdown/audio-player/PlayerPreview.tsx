@@ -34,18 +34,14 @@ function useLrcText(lrcSource: string | undefined): string {
     }
 
     if (lrcSource.startsWith('http')) {
-      let cancelled = false;
-      fetch(lrcSource)
+      const controller = new AbortController();
+      fetch(lrcSource, { signal: controller.signal })
         .then((r) => r.text())
-        .then((t) => {
-          if (!cancelled) setText(t);
-        })
-        .catch(() => {
-          if (!cancelled) setText('');
+        .then(setText)
+        .catch((error: unknown) => {
+          if (!(error instanceof DOMException && error.name === 'AbortError')) setText('');
         });
-      return () => {
-        cancelled = true;
-      };
+      return () => controller.abort();
     }
 
     setText(lrcSource);
