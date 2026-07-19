@@ -29,6 +29,18 @@ interface AudioPlayerProps {
   element: HTMLElement;
 }
 
+async function resolveGroupsSequentially(
+  groups: AudioGroup[],
+  apiUrl: string | undefined,
+  index = 0,
+  resolved: MetingSong[][] = [],
+): Promise<MetingSong[][]> {
+  if (index >= groups.length) return resolved;
+
+  const songs = await resolvePlaylist(groups[index].list, apiUrl);
+  return resolveGroupsSequentially(groups, apiUrl, index + 1, [...resolved, songs]);
+}
+
 export function AudioPlayer({ element }: AudioPlayerProps) {
   const { t } = useTranslation();
   const dataSrc = element.dataset.src || '[]';
@@ -59,11 +71,8 @@ export function AudioPlayer({ element }: AudioPlayerProps) {
       setError(null);
 
       try {
-        const songsByGroup: MetingSong[][] = [];
         // Resolve groups sequentially to provide backpressure and avoid triggering Meting API rate limits.
-        for (const group of audioGroups) {
-          songsByGroup.push(await resolvePlaylist(group.list, apiUrl));
-        }
+        const songsByGroup = await resolveGroupsSequentially(audioGroups, apiUrl);
         const allTracks = songsByGroup.flat();
         let startIndex = 0;
         const resolvedGroups = audioGroups.map((group, index) => {
