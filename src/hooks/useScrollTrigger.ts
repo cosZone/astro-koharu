@@ -214,3 +214,25 @@ export function useScrollTrigger(options: UseScrollTriggerOptions = {}): ScrollT
 
   return useSyncExternalStore(store.subscribe, store.getSnapshot, store.getServerSnapshot);
 }
+
+/**
+ * Simple hook to get current scroll position
+ * @deprecated Use `useScrollTrigger({ skipFirstScroll: false }).scrollY`.
+ */
+export function useScrollY(): number {
+  const { scrollY } = useScrollTrigger({ skipFirstScroll: false });
+  return scrollY;
+}
+
+/**
+ * Hook to detect if scrolled past a threshold
+ * @deprecated Use `useScrollTrigger` when scroll state or direction is also needed.
+ */
+export function useScrolledPast(threshold: number, isPixels = true): boolean {
+  const { isBeyond } = useScrollTrigger({
+    triggerDistance: threshold,
+    isPixels,
+    skipFirstScroll: false,
+  });
+  return isBeyond;
+}

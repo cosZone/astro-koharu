@@ -124,6 +124,30 @@ export async function getPostById(id: string, locale?: string): Promise<Collecti
 }
 
 /**
+ * Get posts separated by sticky status
+ * @returns Object containing sticky and non-sticky posts, both sorted by date (newest first)
+ */
+export async function getPostsBySticky(locale?: string): Promise<{
+  stickyPosts: CollectionEntry<'blog'>[];
+  nonStickyPosts: CollectionEntry<'blog'>[];
+}> {
+  const posts = await getSortedPosts(locale);
+
+  const stickyPosts: CollectionEntry<'blog'>[] = [];
+  const nonStickyPosts: CollectionEntry<'blog'>[] = [];
+
+  for (const post of posts) {
+    if (post.data?.sticky) {
+      stickyPosts.push(post);
+    } else {
+      nonStickyPosts.push(post);
+    }
+  }
+
+  return { stickyPosts, nonStickyPosts };
+}
+
+/**
  * Get post count (excluding drafts in production)
  * Leverages getSortedPosts cache instead of a separate getCollection call.
  */
@@ -180,6 +204,30 @@ export function getPostLastCategory(post: BlogPost): { link: string; name: strin
   }
 
   return { link: '', name: '' };
+}
+
+/**
+ * Fisher-Yates 洗牌算法
+ * 相比 sort(() => Math.random() - 0.5)，能产生均匀分布的随机排列
+ */
+function shuffleArray<T>(array: T[]): T[] {
+  const result = [...array];
+  for (let i = result.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [result[i], result[j]] = [result[j], result[i]];
+  }
+  return result;
+}
+
+/**
+ * 获取随机文章
+ * @param count 文章数量
+ * @returns 随机文章列表
+ */
+export async function getRandomPosts(count: number = 10, locale?: string): Promise<BlogPost[]> {
+  const posts = await getSortedPosts(locale);
+  const shuffled = shuffleArray(posts);
+  return shuffled.slice(0, Math.min(count, posts.length));
 }
 
 /**
@@ -262,6 +310,28 @@ export function getEnabledSeries(): FeaturedSeriesItem[] {
 }
 
 /**
+ * 根据 slug 查找 Featured Series
+ * @param slug 系列 slug
+ * @returns 系列配置或 undefined
+ */
+export function getSeriesBySlug(slug: string): FeaturedSeriesItem | undefined {
+  const normalizedSlug = slug.trim().toLowerCase();
+  return siteConfig.featuredSeries.find((series) => series.slug.toLowerCase() === normalizedSlug && series.enabled !== false);
+}
+
+/**
+ * 获取某个 Featured Series 的所有文章
+ * @param slug 系列 slug
+ * @returns 文章列表（按日期排序，最新的在前）
+ */
+export async function getPostsBySeriesSlug(slug: string, locale?: string): Promise<BlogPost[]> {
+  const series = getSeriesBySlug(slug);
+  if (!series) return [];
+
+  return await getPostsByCategory(series.categoryName, locale);
+}
+
+/**
  * 获取所有 Featured Series 的分类名
  * @returns 分类名列表
  */
@@ -281,6 +351,50 @@ export async function getNonFeaturedPosts(locale?: string): Promise<BlogPost[]> 
 
   const allPosts = await getSortedPosts(locale);
   return allPosts.filter((post) => !categoryNames.some((catName) => isPostInCategory(post, catName)));
+}
+
+/**
+ * 获取非 Featured Series 文章，按置顶状态分组
+ * @returns 置顶文章和非置顶的普通文章（互斥，不重叠）
+ * @deprecated Use `getHomePagePosts` when loading the home page sections together.
+ */
+export async function getNonFeaturedPostsBySticky(locale?: string): Promise<{
+  stickyPosts: BlogPost[];
+  regularPosts: BlogPost[];
+}> {
+  const nonFeaturedPosts = await getNonFeaturedPosts(locale);
+
+  const stickyPosts: BlogPost[] = [];
+  const regularPosts: BlogPost[] = [];
+
+  for (const post of nonFeaturedPosts) {
+    if (post.data?.sticky) {
+      stickyPosts.push(post);
+    } else {
+      regularPosts.push(post);
+    }
+  }
+
+  return { stickyPosts, regularPosts };
+}
+
+/**
+ * 获取所有 highlightOnHome=true 系列的最新文章
+ * @returns 最新文章列表（每个系列一篇）
+ * @deprecated Use `getHomePagePosts` when loading the home page sections together.
+ */
+export async function getHomeHighlightedPosts(locale?: string): Promise<BlogPost[]> {
+  const highlightedSeries = getEnabledSeries().filter((series) => series.highlightOnHome !== false);
+
+  const posts: BlogPost[] = [];
+  for (const series of highlightedSeries) {
+    const seriesPosts = await getPostsByCategory(series.categoryName, locale);
+    if (seriesPosts[0]) {
+      posts.push(seriesPosts[0]);
+    }
+  }
+
+  return posts;
 }
 
 /**

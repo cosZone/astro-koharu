@@ -62,6 +62,14 @@ export function useIsTablet(): boolean {
   return useMediaQuery('(max-width: 992px)');
 }
 
+/**
+ * User prefers dark color scheme
+ * @deprecated Use `useMediaQuery('(prefers-color-scheme: dark)')` for custom media-query behavior.
+ */
+export function usePrefersColorSchemeDark(): boolean {
+  return useMediaQuery('(prefers-color-scheme: dark)');
+}
+
 /** User prefers reduced motion for accessibility */
 export function usePrefersReducedMotion(): boolean {
   return useMediaQuery('(prefers-reduced-motion: reduce)');

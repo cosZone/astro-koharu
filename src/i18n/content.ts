@@ -29,3 +29,13 @@ export function getContentSeriesField(locale: string, slug: string, field: strin
   if (!series) return undefined;
   return series[field as keyof typeof series];
 }
+
+/**
+ * Look up a translated featured category field (label, description) from the YAML content config.
+ * The `link` parameter matches the `link` field in featuredCategories config (e.g. 'life', 'note/front-end').
+ */
+export function getContentFeaturedCategoryField(locale: string, link: string, field: string): string | undefined {
+  const cat = config[locale]?.featuredCategories?.[link];
+  if (!cat) return undefined;
+  return cat[field as keyof typeof cat];
+}

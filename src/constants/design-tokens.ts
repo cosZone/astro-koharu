@@ -138,7 +138,7 @@ export const spacing = {
 /**
  * Named spacing shortcuts for common use cases
  */
-const spacingNames = {
+export const spacingNames = {
   xs: spacing[2], // 8px
   sm: spacing[3], // 12px
   md: spacing[4], // 16px
@@ -154,7 +154,7 @@ const spacingNames = {
  *
  * Font sizes, line heights, and letter spacing for consistent typography.
  */
-const typography = {
+export const typography = {
   fontSize: {
     xs: ['0.75rem', { lineHeight: '1rem', letterSpacing: '0.025em' }], // 12px
     sm: ['0.875rem', { lineHeight: '1.25rem', letterSpacing: '0.0125em' }], // 14px
@@ -336,7 +336,7 @@ export const animation = {
  *
  * Responsive design breakpoints (matches Tailwind defaults).
  */
-const breakpoints = {
+export const breakpoints = {
   sm: '640px',
   md: '768px',
   lg: '1024px',
@@ -358,6 +358,25 @@ export const zIndex = {
   modal: 1050,
   popover: 1060,
   tooltip: 1070,
+} as const;
+
+/**
+ * Color Palettes
+ *
+ * Multi-color arrays for gradients and backgrounds.
+ */
+export const gridBackground = {
+  light: ['#ed719a', '#FFACDE', '#FBD7ED', '#EEF1F0', '#DDDDDD', '#B4B4B4'],
+  dark: ['#212832', '#3F4659', '#8592A7', '#EEEFEA', '#212832', '#3F4659'],
+} as const;
+
+/**
+ * 3D Perspective Values
+ *
+ * For 3D transforms and card flip effects.
+ */
+export const perspective = {
+  card3d: '1000px',
 } as const;
 
 /**

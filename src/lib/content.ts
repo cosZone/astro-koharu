@@ -34,8 +34,10 @@ export {
   // Featured series functions
   getEnabledSeries,
   getFeaturedCategoryNames,
+  getHomeHighlightedPosts,
   getHomePagePosts,
   getNonFeaturedPosts,
+  getNonFeaturedPostsBySticky,
   getPostById,
   getPostCount,
   getPostDescription,
@@ -45,6 +47,10 @@ export {
   getPostReadingTime,
   getPostSummary,
   getPostsByCategory,
+  getPostsBySeriesSlug,
+  getPostsBySticky,
+  getRandomPosts,
+  getSeriesBySlug,
   getSeriesPosts,
   getSortedPosts,
 } from './content/posts';

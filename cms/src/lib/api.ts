@@ -7,6 +7,8 @@
 import { format, isValid, parse, parseISO } from 'date-fns';
 import type {
   BlogSchema,
+  CreatePostParams,
+  CreatePostResponse,
   ListPostsParams,
   ListPostsResponse,
   ReadPostResult,
@@ -175,6 +177,29 @@ export async function listPosts(params?: ListPostsParams): Promise<ListPostsResp
   if (!response.ok) {
     const errorData = await response.json().catch(() => ({}));
     throw new Error(errorData.error || `Failed to list posts: ${response.status}`);
+  }
+
+  return response.json();
+}
+
+/**
+ * Creates a new blog post
+ *
+ * @param params - Post creation parameters
+ * @returns The created post ID
+ */
+export async function createPost(params: CreatePostParams): Promise<CreatePostResponse> {
+  const response = await fetch('/api/cms/create', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(params),
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}));
+    throw new Error(errorData.error || `Failed to create post: ${response.status}`);
   }
 
   return response.json();
