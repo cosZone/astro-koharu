@@ -242,6 +242,26 @@ const keywords = keywordsOverride || siteConfig.keywords || [siteConfig.title];
       })();
     </script>
 
+    <noscript>
+      <style is:inline>
+        /* Long code blocks ship pre-collapsed; without JS the toolbar never hydrates, so force them open. */
+        html .prose .code-block-wrapper.code-collapsed > pre {
+          grid-template-rows: 1fr;
+          border-width: 1px;
+          border-radius: 0.75rem;
+          box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+        }
+        html .prose .code-block-wrapper.code-collapsed > pre > code {
+          overflow-x: auto;
+          overflow-y: visible;
+          padding-block: 1rem;
+        }
+        html .prose .code-block-wrapper.code-collapsed > .code-block-wrapper-toolbar-mount {
+          display: none;
+        }
+      </style>
+    </noscript>
+
     <!-- 子页面可通过 slot="head" 注入额外的 head 内容（如 JSON-LD） -->
     <slot name="head" />
 

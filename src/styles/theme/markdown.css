@@ -342,8 +342,8 @@
     display: block;
     padding: 1rem 1.5rem;
     overflow-x: auto;
-    /* Use em so code follows the reader font-size preference. */
-    font-size: 0.875em;
+    /* The parent pre already carries Typography's relative code scale. */
+    font-size: inherit;
     line-height: 1.7;
     /* 覆盖 Typography 默认值 */
     background-color: transparent;
@@ -378,6 +378,14 @@
   /* Reserve the toolbar row before the idle-hydrated controls mount. */
   .code-block-wrapper.code-collapsed > .code-block-wrapper-toolbar-mount {
     min-height: 2.625rem;
+  }
+
+  /* Toolbar-shaped skeleton until hydration fills the mount (mirrors MacToolbar chrome). */
+  .code-block-wrapper.code-collapsed > .code-block-wrapper-toolbar-mount:empty {
+    border: 1px solid hsl(var(--border));
+    border-radius: 0.75rem;
+    background-color: hsl(var(--muted) / 0.5);
+    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
   }
 
   .code-block-wrapper.code-collapsed .code-block-wrapper-toolbar-mount > div {

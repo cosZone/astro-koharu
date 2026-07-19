@@ -5,7 +5,6 @@
 
 import { CopyButton } from '@components/markdown/shared/CopyButton';
 import { MacToolbar } from '@components/markdown/shared/MacToolbar';
-import { COLLAPSE_LINE_THRESHOLD } from '@constants/code-block';
 import { useTranslation } from '@hooks/useTranslation';
 import { Icon } from '@iconify/react';
 import { extractCode, extractCodeClassName, extractCodeHTML, extractLanguage } from '@lib/content-enhancer-utils';
@@ -36,7 +35,8 @@ export function CodeBlockToolbar({ preElement, enableCopy = true, enableFullscre
     [preElement],
   );
 
-  const collapsible = useMemo(() => info.code.replace(/\n$/, '').split('\n').length > COLLAPSE_LINE_THRESHOLD, [info.code]);
+  // The build-time transformer owns the collapsibility decision; the wrapper class is its output.
+  const collapsible = useMemo(() => preElement.parentElement?.classList.contains('code-collapsible') ?? false, [preElement]);
   const [collapsed, setCollapsed] = useState(collapsible);
 
   useLayoutEffect(() => {
@@ -50,8 +50,6 @@ export function CodeBlockToolbar({ preElement, enableCopy = true, enableFullscre
   useEffect(() => {
     const wrapper = preElement.parentElement;
     if (!wrapper || !collapsible) return;
-    wrapper.classList.add('code-collapsible');
-
     const toolbar = wrapper.querySelector('.code-block-wrapper-toolbar-mount');
     const handleBarClick = (event: Event) => {
       // Buttons and title links keep their own behavior instead of toggling the block.
@@ -59,10 +57,7 @@ export function CodeBlockToolbar({ preElement, enableCopy = true, enableFullscre
       setCollapsed((prev) => !prev);
     };
     toolbar?.addEventListener('click', handleBarClick);
-    return () => {
-      wrapper.classList.remove('code-collapsible');
-      toolbar?.removeEventListener('click', handleBarClick);
-    };
+    return () => toolbar?.removeEventListener('click', handleBarClick);
   }, [preElement, collapsible]);
 
   const handleFullscreen = () => {

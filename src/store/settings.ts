@@ -7,6 +7,7 @@
  */
 
 import { atom } from 'nanostores';
+import { closeBgmPanel } from './bgm';
 import {
   FONT_PRESETS,
   type FontPreset,
@@ -133,6 +134,7 @@ export function setScrollProgressEnabled(enabled: boolean): void {
 export function setBgmWidgetEnabled(enabled: boolean): void {
   bgmWidgetEnabled.set(enabled);
   persist(STORAGE_KEYS.bgmWidget, String(enabled));
+  if (!enabled) closeBgmPanel();
 }
 
 export function setMasterMotionEnabled(enabled: boolean): void {
