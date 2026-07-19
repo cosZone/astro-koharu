@@ -1,6 +1,19 @@
 .prose {
-  /* override the max-width of the prose */
-  max-width: none;
+  /* Reader variables are set by src/store/settings.ts and the inline Layout.astro script. */
+  font-size: var(--reader-font-size, 1rem);
+  line-height: var(--reader-line-height, 1.8);
+
+  /* Preserve the original full-width layout until the reader chooses a custom measure.
+     JavaScript converts that measure to px so differently sized children share one width. */
+  width: 100%;
+  max-width: var(--reader-measure, none);
+  margin-inline: auto;
+
+  /* Progressive CJK typography enhancements. */
+  word-break: auto-phrase;
+  line-break: strict;
+  hanging-punctuation: first allow-end;
+  text-spacing-trim: space-start;
 
   a {
     @apply text-primary hover:text-blue no-underline transition-colors duration-300 hover:underline;
@@ -327,11 +340,60 @@
     display: block;
     padding: 1rem 1.5rem;
     overflow-x: auto;
-    font-size: 0.875rem;
+    /* The parent pre already carries Typography's relative code scale. */
+    font-size: inherit;
     line-height: 1.7;
     /* 覆盖 Typography 默认值 */
     background-color: transparent;
     color: inherit;
+  }
+
+  /* Collapsible code blocks; long blocks are wrapped in their initial state during highlighting. */
+
+  /* The code element needs min-height: 0 for the 0fr row to collapse. */
+  .code-block-wrapper > pre {
+    display: grid;
+    grid-template-rows: 1fr;
+  }
+
+  .code-block-wrapper > pre > code {
+    min-height: 0;
+  }
+
+  /* Remove the body chrome so the toolbar becomes the complete collapsed card. */
+  .code-block-wrapper.code-collapsed > pre {
+    grid-template-rows: 0fr;
+    border-width: 0;
+    box-shadow: none;
+  }
+
+  .code-block-wrapper.code-collapsed > pre > code {
+    overflow: hidden;
+    /* Padding contributes to min-content size and would keep the 0fr row open. */
+    padding-block: 0;
+  }
+
+  /* Reserve the toolbar row before the idle-hydrated controls mount. */
+  .code-block-wrapper.code-collapsed > .code-block-wrapper-toolbar-mount {
+    min-height: 2.625rem;
+  }
+
+  /* Toolbar-shaped skeleton until hydration fills the mount (mirrors MacToolbar chrome). */
+  .code-block-wrapper.code-collapsed > .code-block-wrapper-toolbar-mount:empty {
+    border: 1px solid hsl(var(--border));
+    border-radius: 0.75rem;
+    background-color: hsl(var(--muted) / 0.5);
+    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+  }
+
+  .code-block-wrapper.code-collapsed .code-block-wrapper-toolbar-mount > div {
+    border-bottom: 1px solid hsl(var(--border));
+    border-radius: 0.75rem;
+  }
+
+  /* Make the full toolbar a collapse toggle. */
+  .code-block-wrapper.code-collapsible .code-block-wrapper-toolbar-mount > div {
+    cursor: pointer;
   }
 
   /* 移除 pre code 的 Typography ::before/::after */
@@ -351,6 +413,13 @@
 
 .code-block-wrapper {
   margin-bottom: 1.25rem;
+}
+
+/* Animate the row only when the OS motion preference allows it. */
+@media (prefers-reduced-motion: no-preference) {
+  .prose .code-block-wrapper > pre {
+    transition: grid-template-rows 0.3s ease;
+  }
 }
 
 /* 如果第一个子节点就是标题 */
@@ -626,7 +695,7 @@
 .mermaid-source {
   padding: 1rem 1.5rem;
   overflow-x: auto;
-  font-size: 0.875rem;
+  font-size: 0.875em;
   line-height: 1.7;
   font-family: var(--font-mono);
   white-space: pre-wrap;
@@ -673,4 +742,31 @@
   content: attr(data-prompt) " ";
   color: hsl(var(--muted-foreground));
   user-select: none;
+}
+
+/* Reader font presets */
+
+/* The default rounded preset inherits the existing Han Chan and Gen Jyuu rules. */
+/* The system preset preserves Gen Jyuu on Japanese pages. */
+html[data-font-preset="system"]:not(:lang(ja)) .prose,
+html[data-font-preset="system"]:not(:lang(ja)) .prose :is(h1, h2, h3, h4, h5, h6) {
+  font-family:
+    -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans SC",
+    sans-serif;
+}
+
+html[data-font-preset="serif"] .prose,
+html[data-font-preset="serif"] .prose :is(h1, h2, h3, h4, h5, h6) {
+  font-family: "Songti SC", "Noto Serif CJK SC", "Noto Serif SC", "Source Han Serif SC", serif;
+}
+
+html[data-font-preset="wenkai"] .prose,
+html[data-font-preset="wenkai"] .prose :is(h1, h2, h3, h4, h5, h6) {
+  font-family: "LXGW WenKai", "LXGW WenKai Screen", "寒蝉全圆体", serif;
+}
+
+/* Reader text justification */
+
+html.reader-justify .prose {
+  text-align: justify;
 }

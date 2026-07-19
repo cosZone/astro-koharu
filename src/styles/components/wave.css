@@ -109,3 +109,22 @@
     transform: translate(85px, 0%);
   }
 }
+
+/* Settings Center controls */
+
+/* Hide cover waves when their individual preference is disabled. */
+html.wave-off .wave-wrap {
+  display: none;
+}
+
+/* The master motion preference preserves the wave shape but stops its animation. */
+html.motion-off .wave .parallax > use {
+  /* html.motion-off … outranks the .wave-wrap-nested source rule, so no !important needed. */
+  animation: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wave .parallax > use {
+    animation: none;
+  }
+}

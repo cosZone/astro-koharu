@@ -15,7 +15,8 @@ import { cn } from '@lib/utils';
 import { useStore } from '@nanostores/react';
 import { $bgmPanelOpen, toggleBgmPanel } from '@store/bgm';
 import { christmasEnabled, disableChristmasCompletely, enableChristmas, initChristmasState } from '@store/christmas';
-import { $isDrawerOpen } from '@store/modal';
+import { $isDrawerOpen, $isSettingsOpen, toggleSettings } from '@store/modal';
+import { bgmWidgetEnabled, initSettings } from '@store/settings';
 import { AnimatePresence, motion } from 'motion/react';
 import { useEffect, useState } from 'react';
 
@@ -27,9 +28,19 @@ interface FloatingButtonProps {
   className?: string;
   /** Optional data attribute for identifying BGM toggle button */
   dataBgmToggle?: boolean;
+  /** Optional data attribute for identifying settings toggle button */
+  dataSettingsToggle?: boolean;
 }
 
-function FloatingButton({ onClick, ariaLabel, title, children, className, dataBgmToggle }: FloatingButtonProps) {
+function FloatingButton({
+  onClick,
+  ariaLabel,
+  title,
+  children,
+  className,
+  dataBgmToggle,
+  dataSettingsToggle,
+}: FloatingButtonProps) {
   const isMounted = useIsMounted();
 
   return (
@@ -43,6 +54,7 @@ function FloatingButton({ onClick, ariaLabel, title, children, className, dataBg
       aria-label={ariaLabel}
       title={isMounted ? title : undefined}
       data-bgm-toggle={dataBgmToggle || undefined}
+      data-settings-toggle={dataSettingsToggle || undefined}
     >
       {children}
     </button>
@@ -55,10 +67,13 @@ export default function FloatingGroup() {
   const isDrawerOpen = useStore($isDrawerOpen);
   const isChristmasEnabled = useStore(christmasEnabled);
   const isBgmPanelOpen = useStore($bgmPanelOpen);
+  const isSettingsOpen = useStore($isSettingsOpen);
+  const isBgmWidgetEnabled = useStore(bgmWidgetEnabled);
 
-  // Initialize christmas state on mount
+  // Initialize christmas & settings state on mount
   useEffect(() => {
     initChristmasState();
+    initSettings();
   }, []);
 
   const scrollToTop = () => window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -102,11 +117,19 @@ export default function FloatingGroup() {
                 <Icon icon={isChristmasEnabled ? 'ri:snowy-fill' : 'ri:snowy-line'} className="h-5 w-5" />
               </FloatingButton>
             )}
-            {bgmConfig.enabled && bgmConfig.audio.length > 0 && (
+            {bgmConfig.enabled && bgmConfig.audio.length > 0 && isBgmWidgetEnabled && (
               <FloatingButton onClick={toggleBgmPanel} ariaLabel={t('floating.bgm')} title={t('floating.bgm')} dataBgmToggle>
                 <Icon icon={isBgmPanelOpen ? 'ri:music-2-fill' : 'ri:music-2-line'} className="h-5 w-5" />
               </FloatingButton>
             )}
+            <FloatingButton
+              onClick={toggleSettings}
+              ariaLabel={t('floating.settings')}
+              title={t('floating.settings')}
+              dataSettingsToggle
+            >
+              <Icon icon={isSettingsOpen ? 'ri:settings-3-fill' : 'ri:settings-3-line'} className="h-5 w-5" />
+            </FloatingButton>
             <FloatingButton onClick={scrollToTop} ariaLabel={t('floating.backToTop')} title={t('floating.backToTop')}>
               <Icon icon="ri:arrow-up-s-line" className="h-5 w-5" />
             </FloatingButton>

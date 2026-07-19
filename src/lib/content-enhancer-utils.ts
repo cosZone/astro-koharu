@@ -48,6 +48,11 @@ export function isInfographicBlock(preElement: HTMLElement): boolean {
  * Used by ContentEnhancer to create portal targets.
  */
 export function wrapElement(preElement: HTMLElement, wrapperClass: string): HTMLDivElement {
+  const existingWrapper = preElement.parentElement;
+  if (existingWrapper?.classList.contains(wrapperClass)) {
+    return existingWrapper as HTMLDivElement;
+  }
+
   const wrapper = document.createElement('div');
   wrapper.className = wrapperClass;
 

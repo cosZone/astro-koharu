@@ -123,6 +123,8 @@ export const uiStrings: UIStrings = {
   'code.wrapLines': '文字の折り返し',
   'code.viewSource': 'ソースを表示',
   'code.viewRendered': 'レンダリングされた表示',
+  'code.collapse': 'コードを折りたたむ',
+  'code.expand': 'コードを展開',
 
   // ── 図表 / インフォグラフィック ───────────────────────────────────
   'diagram.fullscreen': 'フルスクリーン',
@@ -197,6 +199,31 @@ export const uiStrings: UIStrings = {
   'floating.christmas': 'クリスマスエフェクトに切り替え',
   'floating.bgm': 'BGM',
   'floating.toggleToolbar': 'ツールバーを切り替え',
+  'floating.settings': '設定',
+
+  // ── Settings Panel ────────────────────────────────────────
+  'settings.title': '設定',
+  'settings.reader': '読書',
+  'settings.general': '一般',
+  'settings.closePanel': '設定パネルを閉じる',
+  'settings.fontPreset': 'フォントプリセット',
+  'settings.fontPreset.round': '丸ゴシック',
+  'settings.fontPreset.system': 'システム',
+  'settings.fontPreset.serif': 'セリフ',
+  'settings.fontPreset.wenkai': '文楷',
+  'settings.fontSize': '文字サイズ',
+  'settings.lineHeight': '行間',
+  'settings.measure': '行幅',
+  'settings.auto': '自動',
+  'settings.justify': '両端揃え',
+  'settings.scrollProgress': 'スクロール進捗バー',
+  'settings.christmas': 'クリスマスエフェクト',
+  'settings.bgmWidget': 'BGM ウィジェット',
+  'settings.masterMotion': 'アニメーションを減らす',
+  'settings.wave': 'カバーの波',
+  'settings.reset': 'デフォルトにリセット',
+  'settings.waveDisabledByMasterMotion': '「アニメーションを減らす」がオンの間は使用できません',
+  'settings.invalidNumber': '正の数を入力してください',
 
   // ── お知らせ ────────────────────────────────────────────
   'announcement.title': 'お知らせ',

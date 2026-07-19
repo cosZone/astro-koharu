@@ -24,9 +24,18 @@ import SearchPortal from '@components/layout/SearchPortal.astro';
 import CodeBlockFullscreen from '@components/markdown/CodeBlockFullscreen';
 import DiagramFullscreen from '@components/markdown/DiagramFullscreen';
 import ImageLightbox from '@components/markdown/ImageLightbox';
+import SettingsPanel from '@components/settings/SettingsPanel';
 import { Toaster } from '@components/ui/sonner';
 import { bgmConfig, christmasConfig, seoConfig, siteConfig } from '@constants/site-config';
 import { getOgImageUrl } from '@lib/seo/og-image';
+import {
+  FONT_PRESETS,
+  GENERAL_DEFAULTS,
+  READER_DEFAULTS,
+  STORAGE_KEYS,
+  WENKAI_STYLESHEET_HREF,
+  WENKAI_STYLESHEET_ID,
+} from '@store/settings-constants';
 import LoadingIndicator from 'astro-loading-indicator/component';
 import { SEO } from 'astro-seo';
 import { Tooltips } from 'astro-tooltips';
@@ -186,6 +195,81 @@ const keywords = keywordsOverride || siteConfig.keywords || [siteConfig.title];
         document.documentElement.classList.toggle('christmas', enabled);
       })();
     </script>
+
+    <script
+      is:inline
+      define:vars={{ STORAGE_KEYS, READER_DEFAULTS, GENERAL_DEFAULTS, FONT_PRESETS, WENKAI_STYLESHEET_ID, WENKAI_STYLESHEET_HREF }}
+    >
+      // Apply settings immediately to prevent a flash of default reader styles.
+      // Defaults and keys are injected from src/store/settings-constants.ts (single source of truth).
+      (function () {
+        function readPositiveNumber(key, fallback) {
+          var stored = parseFloat(localStorage.getItem(key));
+          return isFinite(stored) && stored > 0 ? stored : fallback;
+        }
+        function readOptionalPositiveNumber(key) {
+          var stored = parseFloat(localStorage.getItem(key));
+          return isFinite(stored) && stored > 0 ? stored : null;
+        }
+        function readBoolean(key, fallback) {
+          var stored = localStorage.getItem(key);
+          return stored === null ? fallback : stored === 'true';
+        }
+        function applySettings() {
+          var root = document.documentElement;
+          var stored = localStorage.getItem(STORAGE_KEYS.fontPreset);
+          var preset = FONT_PRESETS.indexOf(stored) !== -1 ? stored : READER_DEFAULTS.fontPreset;
+          root.setAttribute('data-font-preset', preset);
+          var fontSize = readPositiveNumber(STORAGE_KEYS.fontSize, READER_DEFAULTS.fontSize);
+          root.style.setProperty('--reader-font-size', fontSize + 'px');
+          root.style.setProperty('--reader-line-height', String(readPositiveNumber(STORAGE_KEYS.lineHeight, READER_DEFAULTS.lineHeight)));
+          var measure = readOptionalPositiveNumber(STORAGE_KEYS.measure);
+          if (measure === null) {
+            root.style.removeProperty('--reader-measure');
+          } else {
+            // Convert ch to px so headings and body text share one absolute content width.
+            root.style.setProperty('--reader-measure', measure * 0.5 * fontSize + 'px');
+          }
+          root.classList.toggle('reader-justify', readBoolean(STORAGE_KEYS.justify, READER_DEFAULTS.justify));
+          root.classList.toggle('motion-off', readBoolean(STORAGE_KEYS.masterMotion, GENERAL_DEFAULTS.masterMotion));
+          root.classList.toggle('wave-off', !readBoolean(STORAGE_KEYS.wave, GENERAL_DEFAULTS.wave));
+          // Load WenKai only when the matching preset is selected.
+          if (preset === 'wenkai' && !document.getElementById(WENKAI_STYLESHEET_ID)) {
+            var link = document.createElement('link');
+            link.id = WENKAI_STYLESHEET_ID;
+            link.rel = 'stylesheet';
+            link.href = WENKAI_STYLESHEET_HREF;
+            document.head.appendChild(link);
+          }
+        }
+
+        // Apply before the first frame.
+        applySettings();
+
+        // Reapply before Astro renders the swapped page.
+        document.addEventListener('astro:after-swap', applySettings);
+      })();
+    </script>
+
+    <noscript>
+      <style is:inline>
+        /* Long code blocks ship pre-collapsed; without JS the toolbar never hydrates, so force them open. */
+        html .prose .code-block-wrapper.code-collapsed > pre {
+          grid-template-rows: 1fr;
+          border-width: 1px;
+          border-radius: 0.75rem;
+          box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+        }
+        html .prose .code-block-wrapper.code-collapsed > pre > code {
+          overflow-x: auto;
+          overflow-y: visible;
+          padding-block: 1rem;
+        }
+        html .prose .code-block-wrapper.code-collapsed > .code-block-wrapper-toolbar-mount {
+          display: none;
+        }
+      </style>
+    </noscript>
 
     <!-- 子页面可通过 slot="head" 注入额外的 head 内容（如 JSON-LD） -->
     <slot name="head" />
@@ -353,6 +437,7 @@ const keywords = keywordsOverride || siteConfig.keywords || [siteConfig.title];
         </div>
       )}
       <FloatingGroup client:only="react" />
+      <SettingsPanel client:idle />
       <MobileDrawer type={siderType} post={post} />
       <SearchDialog client:idle />
       <SearchPortal />

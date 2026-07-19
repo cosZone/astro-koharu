@@ -1,3 +1,5 @@
+import { useStore } from '@nanostores/react';
+import { masterMotionEnabled, scrollProgressEnabled } from '@store/settings';
 import { motion, useReducedMotion, useScroll, useSpring } from 'motion/react';
 
 interface ScrollProgressProps {
@@ -6,6 +8,9 @@ interface ScrollProgressProps {
 
 export function ScrollProgress({ className }: ScrollProgressProps) {
   const shouldReduceMotion = useReducedMotion();
+  // Keep the progress indicator static when either reduced-motion preference is active.
+  const enabled = useStore(scrollProgressEnabled);
+  const masterMotion = useStore(masterMotionEnabled);
 
   // 监听页面滚动进度
   const { scrollYProgress } = useScroll();
@@ -18,7 +23,9 @@ export function ScrollProgress({ className }: ScrollProgressProps) {
   });
 
   // 如果用户偏好减少动画，则直接使用滚动进度值，不使用 spring
-  const scaleX = shouldReduceMotion ? scrollYProgress : springProgress;
+  const scaleX = shouldReduceMotion || masterMotion ? scrollYProgress : springProgress;
+
+  if (!enabled) return null;
 
   return (
     <div className={className}>

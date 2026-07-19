@@ -123,6 +123,8 @@ export const uiStrings: UIStrings = {
   'code.wrapLines': 'Word wrap',
   'code.viewSource': 'View source',
   'code.viewRendered': 'View rendered',
+  'code.collapse': 'Collapse code',
+  'code.expand': 'Expand code',
 
   // ── Diagram / Infographic ───────────────────────────────────
   'diagram.fullscreen': 'Full screen',
@@ -197,6 +199,31 @@ export const uiStrings: UIStrings = {
   'floating.christmas': 'Toggle Christmas effects',
   'floating.bgm': 'Background music',
   'floating.toggleToolbar': 'Toggle toolbar',
+  'floating.settings': 'Settings',
+
+  // ── Settings Panel ────────────────────────────────────────
+  'settings.title': 'Settings',
+  'settings.reader': 'Reading',
+  'settings.general': 'General',
+  'settings.closePanel': 'Close settings panel',
+  'settings.fontPreset': 'Font preset',
+  'settings.fontPreset.round': 'Rounded',
+  'settings.fontPreset.system': 'System',
+  'settings.fontPreset.serif': 'Serif',
+  'settings.fontPreset.wenkai': 'WenKai',
+  'settings.fontSize': 'Font size',
+  'settings.lineHeight': 'Line height',
+  'settings.measure': 'Measure',
+  'settings.auto': 'Auto',
+  'settings.justify': 'Justify',
+  'settings.scrollProgress': 'Scroll progress bar',
+  'settings.christmas': 'Christmas effects',
+  'settings.bgmWidget': 'BGM widget',
+  'settings.masterMotion': 'Reduce motion',
+  'settings.wave': 'Cover waves',
+  'settings.reset': 'Reset to default',
+  'settings.waveDisabledByMasterMotion': 'Unavailable while "Reduce motion" is on',
+  'settings.invalidNumber': 'Enter a positive number',
 
   // ── Announcement ────────────────────────────────────────────
   'announcement.title': 'Announcements',
