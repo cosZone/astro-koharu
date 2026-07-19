@@ -352,8 +352,9 @@ export function UpdateApp({
                   <Text bold color="magenta">
                     更新内容:
                   </Text>
-                  {extractReleaseSummary(releaseInfo.body).map((line) => (
-                    <Text key={line} dimColor>
+                  {extractReleaseSummary(releaseInfo.body).map((line, index) => (
+                    // biome-ignore lint/suspicious/noArrayIndexKey: Release summary lines are static and may repeat
+                    <Text key={index} dimColor>
                       {'  '}
                       {line}
                     </Text>

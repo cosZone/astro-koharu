@@ -47,7 +47,8 @@ export function MultiChoiceQuiz({ quiz }: { quiz: ParsedQuiz }) {
       <fieldset className="space-y-2 border-none p-0" aria-label={t('quiz.quizOptions', { type: t('quiz.multi') })}>
         {quiz.options.map((option, index) => (
           <QuizOption
-            key={option.html}
+            // biome-ignore lint/suspicious/noArrayIndexKey: Quiz options are static and may have duplicate HTML
+            key={index}
             index={index}
             html={option.html}
             isCorrect={option.isCorrect}

@@ -53,7 +53,7 @@ export const VideoPlaylist = memo(function VideoPlaylist({
           const isCurrent = index === currentIndex;
           return (
             <button
-              key={`${track.url}-${track.name}-${track.author ?? ''}`}
+              key={`${track.url}-${index}`}
               type="button"
               className={cn('audio-player-song-item', isCurrent && 'current')}
               onClick={(e) => handleClick(e, index)}
