@@ -11,6 +11,7 @@
 /* Ensure tweet theme matches site theme */
 .react-tweet-theme {
   @apply m-0 border;
+  --tweet-border: 1px solid hsl(var(--border));
 }
 .react-tweet-theme:hover {
   @apply border-primary/50;
@@ -18,13 +19,11 @@
 
 [data-theme="dark"] .react-tweet-theme {
   --tweet-bg-color: hsl(var(--card));
-  --tweet-border: hsl(var(--border));
   --tweet-bg-color-hover: hsl(var(--card) / 0.8);
 }
 
 [data-theme="light"] .react-tweet-theme {
   --tweet-bg-color: hsl(var(--card));
-  --tweet-border: hsl(var(--border));
   --tweet-bg-color-hover: hsl(var(--card) / 0.8);
 }
 
