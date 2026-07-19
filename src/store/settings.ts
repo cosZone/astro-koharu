@@ -6,6 +6,7 @@
  * data attributes, and classes. Defaults and keys live in ./settings-constants.
  */
 
+import { quoteCssString } from '@lib/css-string';
 import { atom } from 'nanostores';
 import { closeBgmPanel } from './bgm';
 import {
@@ -68,7 +69,7 @@ function applyReaderPreferences(): void {
   const fontFamily = readerFontFamily.get();
   if (fontFamily) {
     root.dataset.readerFont = 'local';
-    root.style.setProperty('--reader-font-family', `"${fontFamily.replaceAll('\\', '\\\\').replaceAll('"', '\\"')}"`);
+    root.style.setProperty('--reader-font-family', quoteCssString(fontFamily));
   } else {
     delete root.dataset.readerFont;
     root.style.removeProperty('--reader-font-family');
@@ -209,13 +210,15 @@ function readBoolean(key: string, fallback: boolean): boolean {
 export function initSettings(): void {
   if (typeof window === 'undefined') return;
 
+  const storedFontFamily = localStorage.getItem(STORAGE_KEYS.fontFamily)?.trim();
+  const fontFamily = storedFontFamily ? storedFontFamily.slice(0, READER_FONT_FAMILY_MAX_LENGTH) : null;
+  readerFontFamily.set(fontFamily);
+
   const storedPreset = localStorage.getItem(STORAGE_KEYS.fontPreset);
   if (storedPreset && FONT_PRESETS.includes(storedPreset as FontPreset)) {
     readerFontPreset.set(storedPreset as FontPreset);
-    if (storedPreset === 'wenkai') loadWenkaiFont();
+    if (storedPreset === 'wenkai' && !fontFamily) loadWenkaiFont();
   }
-  const storedFontFamily = localStorage.getItem(STORAGE_KEYS.fontFamily)?.trim();
-  readerFontFamily.set(storedFontFamily ? storedFontFamily.slice(0, READER_FONT_FAMILY_MAX_LENGTH) : null);
   readerFontSize.set(readPositiveNumber(STORAGE_KEYS.fontSize, READER_DEFAULTS.fontSize));
   readerLineHeight.set(readPositiveNumber(STORAGE_KEYS.lineHeight, READER_DEFAULTS.lineHeight));
   readerMeasure.set(readOptionalPositiveNumber(STORAGE_KEYS.measure));

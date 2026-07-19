@@ -32,6 +32,7 @@ import {
   FONT_PRESETS,
   GENERAL_DEFAULTS,
   READER_DEFAULTS,
+  READER_FONT_FAMILY_MAX_LENGTH,
   STORAGE_KEYS,
   WENKAI_STYLESHEET_HREF,
   WENKAI_STYLESHEET_ID,
@@ -198,7 +199,7 @@ const keywords = keywordsOverride || siteConfig.keywords || [siteConfig.title];
 
     <script
       is:inline
-      define:vars={{ STORAGE_KEYS, READER_DEFAULTS, GENERAL_DEFAULTS, FONT_PRESETS, WENKAI_STYLESHEET_ID, WENKAI_STYLESHEET_HREF }}
+      define:vars={{ STORAGE_KEYS, READER_DEFAULTS, READER_FONT_FAMILY_MAX_LENGTH, GENERAL_DEFAULTS, FONT_PRESETS, WENKAI_STYLESHEET_ID, WENKAI_STYLESHEET_HREF }}
     >
       // Apply settings immediately to prevent a flash of default reader styles.
       // Defaults and keys are injected from src/store/settings-constants.ts (single source of truth).
@@ -216,14 +217,29 @@ const keywords = keywordsOverride || siteConfig.keywords || [siteConfig.title];
           return stored === null ? fallback : stored === 'true';
         }
         function quoteFontFamily(family) {
-          return '"' + family.replaceAll('\\', '\\\\').replaceAll('"', '\\"') + '"';
+          var serialized = '"';
+          for (var character of family) {
+            var codePoint = character.codePointAt(0);
+            if (codePoint === 0) {
+              serialized += '\uFFFD';
+            } else if ((codePoint >= 0x01 && codePoint <= 0x1f) || codePoint === 0x7f) {
+              serialized += '\\' + codePoint.toString(16) + ' ';
+            } else if (character === '"' || character === '\\') {
+              serialized += '\\' + character;
+            } else {
+              serialized += character;
+            }
+          }
+          return serialized + '"';
         }
         function applySettings() {
           var root = document.documentElement;
           var stored = localStorage.getItem(STORAGE_KEYS.fontPreset);
           var preset = FONT_PRESETS.indexOf(stored) !== -1 ? stored : READER_DEFAULTS.fontPreset;
           root.setAttribute('data-font-preset', preset);
-          var fontFamily = (localStorage.getItem(STORAGE_KEYS.fontFamily) || '').trim().slice(0, 128);
+          var fontFamily = (localStorage.getItem(STORAGE_KEYS.fontFamily) || '')
+            .trim()
+            .slice(0, READER_FONT_FAMILY_MAX_LENGTH);
           if (fontFamily) {
             root.setAttribute('data-reader-font', 'local');
             root.style.setProperty('--reader-font-family', quoteFontFamily(fontFamily));
@@ -245,7 +261,7 @@ const keywords = keywordsOverride || siteConfig.keywords || [siteConfig.title];
           root.classList.toggle('motion-off', readBoolean(STORAGE_KEYS.masterMotion, GENERAL_DEFAULTS.masterMotion));
           root.classList.toggle('wave-off', !readBoolean(STORAGE_KEYS.wave, GENERAL_DEFAULTS.wave));
           // Load WenKai only when the matching preset is selected.
-          if (preset === 'wenkai' && !document.getElementById(WENKAI_STYLESHEET_ID)) {
+          if (preset === 'wenkai' && !fontFamily && !document.getElementById(WENKAI_STYLESHEET_ID)) {
             var link = document.createElement('link');
             link.id = WENKAI_STYLESHEET_ID;
             link.rel = 'stylesheet';

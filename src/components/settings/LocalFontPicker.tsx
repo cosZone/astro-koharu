@@ -3,6 +3,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { Input } from '@components/ui/input';
 import { useTranslation } from '@hooks/useTranslation';
 import { Icon } from '@iconify/react';
+import { quoteCssString } from '@lib/css-string';
 import { cn } from '@lib/utils';
 import { READER_FONT_FAMILY_MAX_LENGTH } from '@store/settings-constants';
 import { useVirtualizer } from '@tanstack/react-virtual';
@@ -32,7 +33,7 @@ function supportsLocalFontAccess(): boolean {
 }
 
 function toCssFontFamily(family: string): string {
-  return `"${family.replaceAll('\\', '\\\\').replaceAll('"', '\\"')}", sans-serif`;
+  return `${quoteCssString(family)}, sans-serif`;
 }
 
 function getUniqueFamilies(fonts: LocalFontData[], locale: string): string[] {
