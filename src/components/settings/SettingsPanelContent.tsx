@@ -7,6 +7,7 @@
  * the first-paint bundle until the panel is first opened.
  */
 
+import { LazyMotionProvider } from '@components/common/LazyMotionProvider';
 import { Switch } from '@components/ui/switch';
 import { microReboundPreset } from '@constants/anim/spring';
 import { FloatingFocusManager, useDismiss, useFloating, useInteractions, useRole } from '@floating-ui/react';
@@ -41,7 +42,7 @@ import {
   waveEnabled,
 } from '@store/settings';
 import { READER_CUSTOM_MEASURE } from '@store/settings-constants';
-import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
+import { AnimatePresence, m, useReducedMotion } from 'motion/react';
 import { lazy, type MouseEvent, Suspense, useEffect, useRef, useState } from 'react';
 import { NumberField } from './NumberField';
 import { isSettingVisible, SETTINGS_REGISTRY, type SettingItem, type SettingSection } from './registry';
@@ -159,7 +160,7 @@ export default function SettingsPanelContent() {
                   )}
                 >
                   {active && (
-                    <motion.span
+                    <m.span
                       layoutId="settings-font-preset-pill"
                       className="absolute inset-0 rounded-md bg-primary"
                       transition={shouldReduceMotion ? { duration: 0 } : microReboundPreset}
@@ -203,131 +204,133 @@ export default function SettingsPanelContent() {
   const items = SETTINGS_REGISTRY.filter((item) => item.section === section && isSettingVisible(item));
 
   return (
-    <AnimatePresence>
-      {open && (
-        <FloatingFocusManager key="settings-panel" context={context} modal={false}>
-          <motion.div
-            ref={refs.setFloating}
-            {...getFloatingProps()}
-            className="fixed right-16 bottom-20 z-40 w-[320px] max-w-[calc(100vw-5rem)]"
-            initial={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, y: 20, scale: 0.95 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, y: 20, scale: 0.95 }}
-            transition={shouldReduceMotion ? { duration: 0.15 } : microReboundPreset}
-          >
-            <div className="flex h-[calc(100dvh-6rem)] max-h-96 flex-col overflow-hidden rounded-2xl border border-border bg-popover p-4 text-popover-foreground shadow-xl">
-              {/* Header */}
-              <div className="mb-3 flex items-center justify-between">
-                <h2 className="font-semibold text-sm">{t('settings.title')}</h2>
-                <button
-                  type="button"
-                  className="relative rounded-full p-1 text-muted-foreground transition-[background-color,color,transform] after:absolute after:-inset-2 after:rounded-full after:content-[''] hover:bg-accent hover:text-foreground active:scale-[0.96]"
-                  onClick={closeModal}
-                  aria-label={t('settings.closePanel')}
-                >
-                  <Icon icon="ri:close-line" className="h-4 w-4" />
-                </button>
-              </div>
-
-              {/* Section tabs */}
-              <div className="mb-3 flex gap-1 rounded-lg bg-muted p-1">
-                {SECTIONS.map((key) => {
-                  const active = section === key;
-                  return (
-                    <button
-                      key={key}
-                      type="button"
-                      onClick={() => setSection(key)}
-                      className={cn(
-                        'relative flex-1 rounded-md px-3 py-1 font-medium text-xs transition-colors',
-                        active ? 'text-foreground' : 'text-muted-foreground hover:text-foreground',
-                      )}
-                    >
-                      {active && (
-                        <motion.span
-                          layoutId="settings-section-pill"
-                          className="absolute inset-0 rounded-md bg-background shadow-sm"
-                          transition={shouldReduceMotion ? { duration: 0 } : microReboundPreset}
-                        />
-                      )}
-                      <span className="relative">{t(key === 'reader' ? 'settings.reader' : 'settings.general')}</span>
-                    </button>
-                  );
-                })}
-              </div>
-
-              {/* Setting items */}
-              <div className="min-h-0 flex-1">
-                <AnimatePresence mode="wait" initial={false}>
-                  <motion.div
-                    key={section}
-                    className="h-full overflow-y-auto overscroll-contain"
-                    initial={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, y: 6 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, y: -4 }}
-                    transition={{ duration: 0.15, ease: 'easeOut' }}
+    <LazyMotionProvider>
+      <AnimatePresence>
+        {open && (
+          <FloatingFocusManager key="settings-panel" context={context} modal={false}>
+            <m.div
+              ref={refs.setFloating}
+              {...getFloatingProps()}
+              className="fixed right-16 bottom-20 z-40 w-[320px] max-w-[calc(100vw-5rem)]"
+              initial={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, y: 20, scale: 0.95 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, y: 20, scale: 0.95 }}
+              transition={shouldReduceMotion ? { duration: 0.15 } : microReboundPreset}
+            >
+              <div className="flex h-[calc(100dvh-6rem)] max-h-96 flex-col overflow-hidden rounded-2xl border border-border bg-popover p-4 text-popover-foreground shadow-xl">
+                {/* Header */}
+                <div className="mb-3 flex items-center justify-between">
+                  <h2 className="font-semibold text-sm">{t('settings.title')}</h2>
+                  <button
+                    type="button"
+                    className="relative rounded-full p-1 text-muted-foreground transition-[background-color,color,transform] after:absolute after:-inset-2 after:rounded-full after:content-[''] hover:bg-accent hover:text-foreground active:scale-[0.96]"
+                    onClick={closeModal}
+                    aria-label={t('settings.closePanel')}
                   >
-                    <div className="flex flex-col divide-y divide-border">
-                      {items.map((item) => {
-                        const disabled = Boolean(item.disabledByMasterMotion && masterMotion);
-                        return (
-                          <div key={item.key} className="py-2.5 first:pt-1 last:pb-1">
-                            <div className="flex items-center justify-between gap-3">
-                              <span className={cn('text-sm', disabled && 'opacity-50')}>{t(item.i18nKey)}</span>
-                              {item.type !== 'segmented' && renderControl(item)}
-                            </div>
-                            {item.type === 'segmented' && <div className="mt-2">{renderControl(item)}</div>}
-                            {item.key === 'fontPreset' && fontFamily && (
-                              <button
-                                type="button"
-                                onClick={openFontPicker}
-                                onPointerEnter={preloadLocalFontPicker}
-                                onPointerDown={preloadLocalFontPicker}
-                                onFocus={preloadLocalFontPicker}
-                                className="mt-2 flex w-full items-center gap-2 rounded-md border border-input px-2.5 py-1.5 text-left text-xs transition-colors hover:bg-accent"
-                                aria-label={t('settings.localFont.change')}
-                              >
-                                <Icon icon="ri:font-family" className="size-4 shrink-0 text-primary" />
-                                <span className="min-w-0 flex-1 truncate">{fontFamily}</span>
-                                <Icon icon="ri:arrow-right-s-line" className="size-4 shrink-0 text-muted-foreground" />
-                              </button>
-                            )}
-                            {disabled && (
-                              <p className="mt-1 text-muted-foreground text-xs">{t('settings.waveDisabledByMasterMotion')}</p>
-                            )}
-                          </div>
-                        );
-                      })}
-                    </div>
+                    <Icon icon="ri:close-line" className="h-4 w-4" />
+                  </button>
+                </div>
 
-                    {/* Reader section: reset */}
-                    {section === 'reader' && (
+                {/* Section tabs */}
+                <div className="mb-3 flex gap-1 rounded-lg bg-muted p-1">
+                  {SECTIONS.map((key) => {
+                    const active = section === key;
+                    return (
                       <button
+                        key={key}
                         type="button"
-                        onClick={resetReaderPreferences}
-                        className="mt-3 w-full rounded-md border border-input py-1.5 text-muted-foreground text-xs transition-[background-color,color,transform] hover:bg-accent hover:text-foreground active:scale-[0.96]"
+                        onClick={() => setSection(key)}
+                        className={cn(
+                          'relative flex-1 rounded-md px-3 py-1 font-medium text-xs transition-colors',
+                          active ? 'text-foreground' : 'text-muted-foreground hover:text-foreground',
+                        )}
                       >
-                        {t('settings.reset')}
+                        {active && (
+                          <m.span
+                            layoutId="settings-section-pill"
+                            className="absolute inset-0 rounded-md bg-background shadow-sm"
+                            transition={shouldReduceMotion ? { duration: 0 } : microReboundPreset}
+                          />
+                        )}
+                        <span className="relative">{t(key === 'reader' ? 'settings.reader' : 'settings.general')}</span>
                       </button>
-                    )}
-                  </motion.div>
-                </AnimatePresence>
+                    );
+                  })}
+                </div>
+
+                {/* Setting items */}
+                <div className="min-h-0 flex-1">
+                  <AnimatePresence mode="wait" initial={false}>
+                    <m.div
+                      key={section}
+                      className="h-full overflow-y-auto overscroll-contain"
+                      initial={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, y: 6 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, y: -4 }}
+                      transition={{ duration: 0.15, ease: 'easeOut' }}
+                    >
+                      <div className="flex flex-col divide-y divide-border">
+                        {items.map((item) => {
+                          const disabled = Boolean(item.disabledByMasterMotion && masterMotion);
+                          return (
+                            <div key={item.key} className="py-2.5 first:pt-1 last:pb-1">
+                              <div className="flex items-center justify-between gap-3">
+                                <span className={cn('text-sm', disabled && 'opacity-50')}>{t(item.i18nKey)}</span>
+                                {item.type !== 'segmented' && renderControl(item)}
+                              </div>
+                              {item.type === 'segmented' && <div className="mt-2">{renderControl(item)}</div>}
+                              {item.key === 'fontPreset' && fontFamily && (
+                                <button
+                                  type="button"
+                                  onClick={openFontPicker}
+                                  onPointerEnter={preloadLocalFontPicker}
+                                  onPointerDown={preloadLocalFontPicker}
+                                  onFocus={preloadLocalFontPicker}
+                                  className="mt-2 flex w-full items-center gap-2 rounded-md border border-input px-2.5 py-1.5 text-left text-xs transition-colors hover:bg-accent"
+                                  aria-label={t('settings.localFont.change')}
+                                >
+                                  <Icon icon="ri:font-family" className="size-4 shrink-0 text-primary" />
+                                  <span className="min-w-0 flex-1 truncate">{fontFamily}</span>
+                                  <Icon icon="ri:arrow-right-s-line" className="size-4 shrink-0 text-muted-foreground" />
+                                </button>
+                              )}
+                              {disabled && (
+                                <p className="mt-1 text-muted-foreground text-xs">{t('settings.waveDisabledByMasterMotion')}</p>
+                              )}
+                            </div>
+                          );
+                        })}
+                      </div>
+
+                      {/* Reader section: reset */}
+                      {section === 'reader' && (
+                        <button
+                          type="button"
+                          onClick={resetReaderPreferences}
+                          className="mt-3 w-full rounded-md border border-input py-1.5 text-muted-foreground text-xs transition-[background-color,color,transform] hover:bg-accent hover:text-foreground active:scale-[0.96]"
+                        >
+                          {t('settings.reset')}
+                        </button>
+                      )}
+                    </m.div>
+                  </AnimatePresence>
+                </div>
               </div>
-            </div>
-          </motion.div>
-        </FloatingFocusManager>
-      )}
-      {fontPickerLoaded && (
-        <Suspense key="local-font-picker" fallback={null}>
-          <LocalFontPicker
-            open={fontPickerOpen}
-            currentFont={fontFamily}
-            returnFocusRef={fontPickerTriggerRef}
-            onOpenChange={setFontPickerOpen}
-            onSelect={setLocalFontFamily}
-          />
-        </Suspense>
-      )}
-    </AnimatePresence>
+            </m.div>
+          </FloatingFocusManager>
+        )}
+        {fontPickerLoaded && (
+          <Suspense key="local-font-picker" fallback={null}>
+            <LocalFontPicker
+              open={fontPickerOpen}
+              currentFont={fontFamily}
+              returnFocusRef={fontPickerTriggerRef}
+              onOpenChange={setFontPickerOpen}
+              onSelect={setLocalFontFamily}
+            />
+          </Suspense>
+        )}
+      </AnimatePresence>
+    </LazyMotionProvider>
   );
 }

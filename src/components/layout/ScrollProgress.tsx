@@ -1,6 +1,7 @@
+import { LazyMotionProvider } from '@components/common/LazyMotionProvider';
 import { useStore } from '@nanostores/react';
 import { masterMotionEnabled, scrollProgressEnabled } from '@store/settings';
-import { motion, useReducedMotion, useScroll, useSpring } from 'motion/react';
+import { m, useReducedMotion, useScroll, useSpring } from 'motion/react';
 
 interface ScrollProgressProps {
   className?: string;
@@ -28,8 +29,10 @@ export function ScrollProgress({ className }: ScrollProgressProps) {
   if (!enabled) return null;
 
   return (
-    <div className={className}>
-      <motion.div className="h-1 origin-left rounded-full bg-primary" style={{ scaleX }} />
-    </div>
+    <LazyMotionProvider>
+      <div className={className}>
+        <m.div className="h-1 origin-left rounded-full bg-primary" style={{ scaleX }} />
+      </div>
+    </LazyMotionProvider>
   );
 }
