@@ -24,7 +24,7 @@
 import { animation } from '@constants/design-tokens';
 import { cn } from '@lib/utils';
 import * as DialogPrimitive from '@radix-ui/react-dialog';
-import { AnimatePresence, motion } from 'motion/react';
+import { AnimatePresence, motion, type Transition } from 'motion/react';
 import type React from 'react';
 import { createContext, forwardRef, useCallback, useContext, useState } from 'react';
 
@@ -87,10 +87,11 @@ interface DialogContentProps extends React.ComponentPropsWithoutRef<typeof Dialo
   showClose?: boolean;
   overlayClassName?: string;
   closeLabel?: string;
+  contentTransition?: Transition;
 }
 
 const DialogContent = forwardRef<React.ComponentRef<typeof DialogPrimitive.Content>, DialogContentProps>(
-  ({ className, children, showClose = true, overlayClassName, closeLabel = 'Close', ...props }, ref) => {
+  ({ className, children, showClose = true, overlayClassName, closeLabel = 'Close', contentTransition, ...props }, ref) => {
     const context = useContext(DialogContext);
     const isOpen = context?.isOpen ?? false;
 
@@ -126,7 +127,7 @@ const DialogContent = forwardRef<React.ComponentRef<typeof DialogPrimitive.Conte
                 initial={{ opacity: 0, scale: 0.95, x: '-50%', y: '-48%' }}
                 animate={{ opacity: 1, scale: 1, x: '-50%', y: '-50%' }}
                 exit={{ opacity: 0, scale: 0.95, x: '-50%', y: '-48%' }}
-                transition={animation.spring.default}
+                transition={contentTransition ?? animation.spring.default}
               >
                 {children}
                 {showClose && (

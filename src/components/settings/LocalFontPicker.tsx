@@ -127,6 +127,7 @@ export default function LocalFontPicker({ open, currentFont, returnFocusRef, onO
         className="w-[calc(100%-2rem)] max-w-xl gap-0 overflow-hidden p-0"
         overlayClassName="bg-black/60 backdrop-blur-xs"
         closeLabel={t('common.close')}
+        contentTransition={{ duration: 0.12, ease: 'easeOut' }}
         onCloseAutoFocus={(event) => {
           event.preventDefault();
           returnFocusRef.current?.focus();

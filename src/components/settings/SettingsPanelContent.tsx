@@ -47,7 +47,13 @@ import { NumberField } from './NumberField';
 import { isSettingVisible, SETTINGS_REGISTRY, type SettingItem, type SettingSection } from './registry';
 
 const SECTIONS: SettingSection[] = ['reader', 'general'];
-const LocalFontPicker = lazy(() => import('./LocalFontPicker'));
+const loadLocalFontPicker = () => import('./LocalFontPicker');
+
+function preloadLocalFontPicker() {
+  void loadLocalFontPicker();
+}
+
+const LocalFontPicker = lazy(loadLocalFontPicker);
 
 export default function SettingsPanelContent() {
   const { t } = useTranslation();
@@ -72,6 +78,7 @@ export default function SettingsPanelContent() {
 
   const openFontPicker = (event: MouseEvent<HTMLButtonElement>) => {
     fontPickerTriggerRef.current = event.currentTarget;
+    preloadLocalFontPicker();
     setFontPickerLoaded(true);
     setFontPickerOpen(true);
   };
@@ -142,6 +149,9 @@ export default function SettingsPanelContent() {
                   key={option.value}
                   type="button"
                   onClick={(event) => (localOption ? openFontPicker(event) : setFontPreset(option.value as FontPreset))}
+                  onPointerEnter={localOption ? preloadLocalFontPicker : undefined}
+                  onPointerDown={localOption ? preloadLocalFontPicker : undefined}
+                  onFocus={localOption ? preloadLocalFontPicker : undefined}
                   aria-pressed={active}
                   className={cn(
                     'relative rounded-md px-2.5 py-1 text-xs transition-colors',
@@ -271,6 +281,9 @@ export default function SettingsPanelContent() {
                               <button
                                 type="button"
                                 onClick={openFontPicker}
+                                onPointerEnter={preloadLocalFontPicker}
+                                onPointerDown={preloadLocalFontPicker}
+                                onFocus={preloadLocalFontPicker}
                                 className="mt-2 flex w-full items-center gap-2 rounded-md border border-input px-2.5 py-1.5 text-left text-xs transition-colors hover:bg-accent"
                                 aria-label={t('settings.localFont.change')}
                               >
