@@ -9,7 +9,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useTranslation } from '@hooks/useTranslation';
 import { Icon } from '@iconify/react';
 import { cn } from '@lib/utils';
-import { useEffect, useRef } from 'react';
+import { useEffect, useEffectEvent, useRef } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
@@ -48,8 +48,10 @@ export function NumberField({ label, value, step, unit, onApply }: NumberFieldPr
   });
 
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const valueRef = useRef(value);
-  valueRef.current = value;
+  const applyWatchedValue = useEffectEvent((next: number) => {
+    if (next === value) return;
+    debounceRef.current = setTimeout(() => onApply(next), APPLY_DEBOUNCE);
+  });
 
   // Synchronize external changes from the stepper or reset action.
   useEffect(() => {
@@ -69,17 +71,16 @@ export function NumberField({ label, value, step, unit, onApply }: NumberFieldPr
         debounceRef.current = null;
       }
       if (typeof next !== 'number' || !Number.isFinite(next) || next <= 0) return;
-      if (next === valueRef.current) return;
-      debounceRef.current = setTimeout(() => onApply(next), APPLY_DEBOUNCE);
+      applyWatchedValue(next);
     });
     return () => {
       subscription.unsubscribe();
       if (debounceRef.current) clearTimeout(debounceRef.current);
     };
-  }, [watch, onApply]);
+  }, [watch]);
 
   const stepBy = (direction: 1 | -1) => {
-    const next = round(valueRef.current + direction * step);
+    const next = round(value + direction * step);
     if (next <= 0) return;
     if (debounceRef.current) {
       clearTimeout(debounceRef.current);

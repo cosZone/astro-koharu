@@ -1,7 +1,7 @@
 /**
  * Settings Center popover body.
  *
- * This is the single container for reader and general preferences; see CONTEXT.md.
+ * This is the single container for reader and general preferences.
  * Controls render from the declarative registry and the modal store owns visibility.
  * Lazy-loaded by SettingsPanel so its floating-ui / react-hook-form / zod deps stay out of
  * the first-paint bundle until the panel is first opened.
