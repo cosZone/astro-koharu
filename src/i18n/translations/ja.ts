@@ -214,6 +214,7 @@ export const uiStrings: UIStrings = {
   'settings.fontSize': '文字サイズ',
   'settings.lineHeight': '行間',
   'settings.measure': '行幅',
+  'settings.auto': '自動',
   'settings.justify': '両端揃え',
   'settings.scrollProgress': 'スクロール進捗バー',
   'settings.christmas': 'クリスマスエフェクト',

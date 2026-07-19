@@ -24,7 +24,7 @@ export type { FontPreset };
 export const readerFontPreset = atom<FontPreset>(READER_DEFAULTS.fontPreset);
 export const readerFontSize = atom<number>(READER_DEFAULTS.fontSize);
 export const readerLineHeight = atom<number>(READER_DEFAULTS.lineHeight);
-export const readerMeasure = atom<number>(READER_DEFAULTS.measure);
+export const readerMeasure = atom<number | null>(READER_DEFAULTS.measure);
 export const readerJustify = atom<boolean>(READER_DEFAULTS.justify);
 
 // General preferences
@@ -55,8 +55,13 @@ function applyReaderPreferences(): void {
   const fontSize = readerFontSize.get();
   root.style.setProperty('--reader-font-size', `${fontSize}px`);
   root.style.setProperty('--reader-line-height', String(readerLineHeight.get()));
-  // Convert ch to px so headings and body text share one absolute content width.
-  root.style.setProperty('--reader-measure', `${readerMeasure.get() * 0.5 * fontSize}px`);
+  const measure = readerMeasure.get();
+  if (measure === null) {
+    root.style.removeProperty('--reader-measure');
+  } else {
+    // Convert ch to px so headings and body text share one absolute content width.
+    root.style.setProperty('--reader-measure', `${measure * 0.5 * fontSize}px`);
+  }
   root.dataset.fontPreset = readerFontPreset.get();
   root.classList.toggle('reader-justify', readerJustify.get());
 }
@@ -100,7 +105,13 @@ export function setLineHeight(multiple: number): void {
   applyReaderPreferences();
 }
 
-export function setMeasure(ch: number): void {
+export function setMeasure(ch: number | null): void {
+  if (ch === null) {
+    readerMeasure.set(null);
+    if (typeof localStorage !== 'undefined') localStorage.removeItem(STORAGE_KEYS.measure);
+    applyReaderPreferences();
+    return;
+  }
   if (!Number.isFinite(ch) || ch <= 0) return;
   readerMeasure.set(ch);
   persist(STORAGE_KEYS.measure, String(ch));
@@ -156,6 +167,11 @@ function readPositiveNumber(key: string, fallback: number): number {
   return Number.isFinite(stored) && stored > 0 ? stored : fallback;
 }
 
+function readOptionalPositiveNumber(key: string): number | null {
+  const stored = Number.parseFloat(localStorage.getItem(key) ?? '');
+  return Number.isFinite(stored) && stored > 0 ? stored : null;
+}
+
 function readBoolean(key: string, fallback: boolean): boolean {
   const stored = localStorage.getItem(key);
   return stored === null ? fallback : stored === 'true';
@@ -174,7 +190,7 @@ export function initSettings(): void {
   }
   readerFontSize.set(readPositiveNumber(STORAGE_KEYS.fontSize, READER_DEFAULTS.fontSize));
   readerLineHeight.set(readPositiveNumber(STORAGE_KEYS.lineHeight, READER_DEFAULTS.lineHeight));
-  readerMeasure.set(readPositiveNumber(STORAGE_KEYS.measure, READER_DEFAULTS.measure));
+  readerMeasure.set(readOptionalPositiveNumber(STORAGE_KEYS.measure));
   readerJustify.set(readBoolean(STORAGE_KEYS.justify, READER_DEFAULTS.justify));
 
   scrollProgressEnabled.set(readBoolean(STORAGE_KEYS.scrollProgress, GENERAL_DEFAULTS.scrollProgress));

@@ -207,6 +207,10 @@ const keywords = keywordsOverride || siteConfig.keywords || [siteConfig.title];
           var stored = parseFloat(localStorage.getItem(key));
           return isFinite(stored) && stored > 0 ? stored : fallback;
         }
+        function readOptionalPositiveNumber(key) {
+          var stored = parseFloat(localStorage.getItem(key));
+          return isFinite(stored) && stored > 0 ? stored : null;
+        }
         function readBoolean(key, fallback) {
           var stored = localStorage.getItem(key);
           return stored === null ? fallback : stored === 'true';
@@ -219,8 +223,13 @@ const keywords = keywordsOverride || siteConfig.keywords || [siteConfig.title];
           var fontSize = readPositiveNumber(STORAGE_KEYS.fontSize, READER_DEFAULTS.fontSize);
           root.style.setProperty('--reader-font-size', fontSize + 'px');
           root.style.setProperty('--reader-line-height', String(readPositiveNumber(STORAGE_KEYS.lineHeight, READER_DEFAULTS.lineHeight)));
-          // Convert ch to px so headings and body text share one absolute content width.
-          root.style.setProperty('--reader-measure', readPositiveNumber(STORAGE_KEYS.measure, READER_DEFAULTS.measure) * 0.5 * fontSize + 'px');
+          var measure = readOptionalPositiveNumber(STORAGE_KEYS.measure);
+          if (measure === null) {
+            root.style.removeProperty('--reader-measure');
+          } else {
+            // Convert ch to px so headings and body text share one absolute content width.
+            root.style.setProperty('--reader-measure', measure * 0.5 * fontSize + 'px');
+          }
           root.classList.toggle('reader-justify', readBoolean(STORAGE_KEYS.justify, READER_DEFAULTS.justify));
           root.classList.toggle('motion-off', readBoolean(STORAGE_KEYS.masterMotion, GENERAL_DEFAULTS.masterMotion));
           root.classList.toggle('wave-off', !readBoolean(STORAGE_KEYS.wave, GENERAL_DEFAULTS.wave));

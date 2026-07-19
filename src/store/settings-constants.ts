@@ -13,9 +13,12 @@ export const READER_DEFAULTS = {
   fontPreset: 'round' as FontPreset,
   fontSize: 16,
   lineHeight: 1.8,
-  measure: 65,
+  measure: null as number | null,
   justify: false,
 };
+
+/** Starting point when the user leaves automatic width through the stepper. */
+export const READER_CUSTOM_MEASURE = 65;
 
 export const GENERAL_DEFAULTS = {
   scrollProgress: true,

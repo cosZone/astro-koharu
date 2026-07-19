@@ -38,6 +38,7 @@ import {
   setWaveEnabled,
   waveEnabled,
 } from '@store/settings';
+import { READER_CUSTOM_MEASURE } from '@store/settings-constants';
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
 import { useEffect, useState } from 'react';
 import { NumberField } from './NumberField';
@@ -71,10 +72,21 @@ export default function SettingsPanelContent() {
     wave: { checked: wave, onChange: setWaveEnabled },
   };
 
-  const numberBindings: Record<string, { value: number; onApply: (value: number) => void }> = {
-    fontSize: { value: fontSize, onApply: setFontSize },
-    lineHeight: { value: lineHeight, onApply: setLineHeight },
-    measure: { value: measure, onApply: setMeasure },
+  const numberBindings: Record<
+    string,
+    {
+      value: number | null;
+      onApply: (value: number | null) => void;
+      emptyValue?: { label: string; fallback: number };
+    }
+  > = {
+    fontSize: { value: fontSize, onApply: (value) => value !== null && setFontSize(value) },
+    lineHeight: { value: lineHeight, onApply: (value) => value !== null && setLineHeight(value) },
+    measure: {
+      value: measure,
+      onApply: setMeasure,
+      emptyValue: { label: t('settings.auto'), fallback: READER_CUSTOM_MEASURE },
+    },
   };
 
   // Open on Reading for pages with prose content and General everywhere else.
@@ -136,6 +148,7 @@ export default function SettingsPanelContent() {
             value={binding.value}
             step={item.step ?? 1}
             unit={item.unit}
+            emptyValue={binding.emptyValue}
             onApply={binding.onApply}
           />
         );

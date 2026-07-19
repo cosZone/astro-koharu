@@ -213,6 +213,7 @@ export const uiStrings = {
   'settings.fontSize': '字号',
   'settings.lineHeight': '行距',
   'settings.measure': '行宽',
+  'settings.auto': '自动',
   'settings.justify': '两端对齐',
   'settings.scrollProgress': '滚动进度条',
   'settings.christmas': '圣诞特效',
