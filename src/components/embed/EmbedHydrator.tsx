@@ -12,6 +12,7 @@ import TweetEmbed from './TweetEmbed';
 interface TweetPlaceholder {
   element: Element;
   tweetId: string;
+  sourceUrl: string;
 }
 
 export function EmbedHydrator() {
@@ -25,11 +26,12 @@ export function EmbedHydrator() {
     tweetEmbeds.forEach((element) => {
       const tweetId = element.getAttribute('data-tweet-id');
       if (!tweetId) return;
+      const sourceUrl = element.getAttribute('data-url') || `https://x.com/i/status/${tweetId}`;
 
       // Check if already hydrated
       if (element.getAttribute('data-hydrated') === 'true') return;
 
-      placeholders.push({ element, tweetId });
+      placeholders.push({ element, sourceUrl, tweetId });
 
       // Mark as hydrated
       element.setAttribute('data-hydrated', 'true');
@@ -41,10 +43,12 @@ export function EmbedHydrator() {
   // Render tweets using portals instead of creating new roots
   return (
     <>
-      {tweetPlaceholders.map(({ element, tweetId }) =>
+      {tweetPlaceholders.map(({ element, sourceUrl, tweetId }) =>
         createPortal(
-          <ErrorBoundary fallbackRender={(props) => <ErrorFallback {...props} title="TweetEmbed Error" />}>
-            <TweetEmbed tweetId={tweetId} />
+          <ErrorBoundary
+            fallbackRender={(props) => <ErrorFallback {...props} title="TweetEmbed Error" sourceUrl={sourceUrl} />}
+          >
+            <TweetEmbed sourceUrl={sourceUrl} tweetId={tweetId} />
           </ErrorBoundary>,
           element,
         ),

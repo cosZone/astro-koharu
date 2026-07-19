@@ -35,7 +35,7 @@
     "react-dom": "^19.2.1",
     "react-error-boundary": "^5.0.0",
     "react-hook-form": "^7.71.1",
-    "react-tweet": "^3.3.0",
+    "react-tweet": "^3.3.1",
     "shiki": "^3.4.2",
     "sonner": "^2.0.7",
     "tailwind-merge": "^2.6.0",

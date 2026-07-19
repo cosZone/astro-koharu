@@ -446,9 +446,10 @@ export function remarkLinkEmbed(options: RemarkLinkEmbedOptions = {}) {
     // Second pass: fetch OG data in parallel for better performance
     const fetchPromises = nodesToReplace.map(async ({ url, type, tweetId, codepen }) => {
       if (type === 'tweet' && enableTweetEmbed && tweetId) {
+        const safeUrl = sanitizeUrl(url);
         return {
           type: 'html' as const,
-          value: `<div data-tweet-embed data-tweet-id="${tweetId}"></div>`,
+          value: `<div data-tweet-embed data-tweet-id="${tweetId}" data-url="${safeUrl}"></div>`,
         };
       } else if (type === 'codepen' && enableCodePenEmbed && codepen) {
         const html = generateCodePenEmbedHTML(codepen.user, codepen.penId, url);

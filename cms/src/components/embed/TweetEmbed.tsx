@@ -9,9 +9,10 @@ import { Tweet } from 'react-tweet';
 
 interface TweetEmbedProps {
   tweetId: string;
+  sourceUrl: string;
 }
 
-export function TweetEmbed({ tweetId }: TweetEmbedProps) {
+export function TweetEmbed({ sourceUrl, tweetId }: TweetEmbedProps) {
   const [mounted, setMounted] = useState(false);
   const [isDark, setIsDark] = useState(true);
 
@@ -57,7 +58,25 @@ export function TweetEmbed({ tweetId }: TweetEmbedProps) {
 
   return (
     <div className="not-prose my-4 flex justify-center" data-theme={theme}>
-      <Tweet id={tweetId} />
+      <Tweet
+        id={tweetId}
+        components={{
+          TweetNotFound: () => (
+            <div className="w-full max-w-[550px] rounded-xl border border-border bg-card p-5 text-center">
+              <p className="m-0 font-medium text-foreground">Tweet unavailable</p>
+              <a
+                href={sourceUrl}
+                target="_blank"
+                className="mt-2 block truncate text-primary text-sm hover:underline"
+                rel="noopener noreferrer"
+                title={sourceUrl}
+              >
+                {sourceUrl}
+              </a>
+            </div>
+          ),
+        }}
+      />
     </div>
   );
 }

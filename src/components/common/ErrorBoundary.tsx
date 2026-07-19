@@ -3,7 +3,7 @@
 import type { ComponentProps, FC, PropsWithChildren, ReactNode } from 'react';
 import { ErrorBoundary as ErrorBoundaryLib, type FallbackProps } from 'react-error-boundary';
 import { HiChat } from 'react-icons/hi';
-import { RiRefreshLine } from 'react-icons/ri';
+import { RiExternalLinkLine, RiRefreshLine } from 'react-icons/ri';
 import { Button } from '../ui/button';
 
 export interface ErrorFallbackProps extends FallbackProps {
@@ -13,6 +13,8 @@ export interface ErrorFallbackProps extends FallbackProps {
   showDetails?: boolean;
   /** Custom action buttons */
   actions?: ReactNode;
+  /** Original content URL associated with the failed component */
+  sourceUrl?: string;
 }
 
 /**
@@ -24,6 +26,7 @@ export const ErrorFallback: FC<ErrorFallbackProps> = ({
   title = 'Oops, something went wrong!',
   showDetails = import.meta.env.DEV,
   actions,
+  sourceUrl,
 }) => {
   return (
     <div className="flex w-full flex-col items-center gap-4 rounded-lg border border-red-200 bg-red-50 p-6 dark:border-red-900/50 dark:bg-red-950/20">
@@ -45,6 +48,20 @@ export const ErrorFallback: FC<ErrorFallbackProps> = ({
             <pre className="mt-2 max-h-32 overflow-auto whitespace-pre-wrap text-xs opacity-70">{error.stack}</pre>
           )}
         </div>
+      )}
+
+      {sourceUrl && (
+        <a
+          href={sourceUrl}
+          target="_blank"
+          className="flex max-w-full items-center gap-2 rounded-md border border-red-200/80 bg-background/60 px-3 py-2 text-red-700 text-sm transition-colors hover:border-red-300 hover:bg-background dark:border-red-900/60 dark:text-red-300 dark:hover:border-red-800"
+          rel="noopener noreferrer"
+          title={sourceUrl}
+        >
+          <RiExternalLinkLine className="size-4 shrink-0" />
+          <span className="shrink-0 font-medium">Original link:</span>
+          <span className="truncate">{sourceUrl}</span>
+        </a>
       )}
 
       <div className="flex flex-wrap items-center justify-center gap-3">
