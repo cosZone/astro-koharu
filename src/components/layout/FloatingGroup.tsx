@@ -32,6 +32,22 @@ interface FloatingButtonProps {
   dataSettingsToggle?: boolean;
 }
 
+function scrollToTop() {
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function scrollToBottom() {
+  window.scrollTo({ top: document.documentElement.scrollHeight, behavior: 'smooth' });
+}
+
+function toggleChristmas() {
+  if (christmasEnabled.get()) {
+    disableChristmasCompletely();
+  } else {
+    enableChristmas();
+  }
+}
+
 function FloatingButton({
   onClick,
   ariaLabel,
@@ -75,18 +91,6 @@ export default function FloatingGroup() {
     initChristmasState();
     initSettings();
   }, []);
-
-  const scrollToTop = () => window.scrollTo({ top: 0, behavior: 'smooth' });
-
-  const scrollToBottom = () => window.scrollTo({ top: document.documentElement.scrollHeight, behavior: 'smooth' });
-
-  const toggleChristmas = () => {
-    if (christmasEnabled.get()) {
-      disableChristmasCompletely();
-    } else {
-      enableChristmas();
-    }
-  };
 
   const toggleExpand = () => setIsExpanded((prev) => !prev);
 

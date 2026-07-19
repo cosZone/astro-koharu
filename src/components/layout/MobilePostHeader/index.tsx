@@ -31,6 +31,18 @@ interface MobilePostHeaderProps {
 // Scroll offset for detecting active heading
 const SCROLL_OFFSET_TOP = 80;
 
+function Logo({ logoElement, logoText, logoSrc }: Pick<MobilePostHeaderProps, 'logoElement' | 'logoText' | 'logoSrc'>) {
+  return (
+    <a href="/" className="flex items-center gap-1">
+      {logoElement === 'svg' && logoSrc ? (
+        <img src={logoSrc} alt={siteConfig?.alternate ?? siteConfig?.name} className="h-8" height={32} />
+      ) : (
+        <span className="logo-text">{logoText}</span>
+      )}
+    </a>
+  );
+}
+
 export function MobilePostHeader({
   isPostPage,
   logoElement,
@@ -66,20 +78,9 @@ export function MobilePostHeader({
   // Handle heading click in TOC dropdown
   const handleHeadingClick = useHeadingClickHandler({ headings, setExpandedIds });
 
-  // Logo component
-  const Logo = () => (
-    <a href="/" className="flex items-center gap-1">
-      {logoElement === 'svg' && logoSrc ? (
-        <img src={logoSrc} alt={siteConfig?.alternate ?? siteConfig?.name} className="h-8" height={32} />
-      ) : (
-        <span className="logo-text">{logoText}</span>
-      )}
-    </a>
-  );
-
   // If not mobile or not a post page, always show logo
   if (!isMobile) {
-    return <Logo />;
+    return <Logo logoElement={logoElement} logoText={logoText} logoSrc={logoSrc} />;
   }
 
   return (
@@ -125,7 +126,7 @@ export function MobilePostHeader({
             exit={{ opacity: 0 }}
             transition={shouldReduceMotion ? { duration: 0 } : animation.spring.gentle}
           >
-            <Logo />
+            <Logo logoElement={logoElement} logoText={logoText} logoSrc={logoSrc} />
           </motion.div>
         )}
       </AnimatePresence>

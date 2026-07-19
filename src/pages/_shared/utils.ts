@@ -16,5 +16,5 @@ import { defaultLocale, localeList } from '@/i18n/config';
  * Default locale pages are served by the root-level files without prefix.
  */
 export function getLocaleStaticPaths() {
-  return localeList.filter((l) => l !== defaultLocale).map((lang) => ({ params: { lang } }));
+  return localeList.flatMap((lang) => (lang !== defaultLocale ? [{ params: { lang } }] : []));
 }

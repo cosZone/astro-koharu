@@ -10,6 +10,10 @@ import { useCallback, useEffect, useRef } from 'react';
 import { getStoredVolume } from '../store/player';
 import { useMediaPlayer } from './useMediaPlayer';
 
+function getTrackUrl(track: MetingSong): string {
+  return track.url;
+}
+
 export function useAudioPlayer(tracks: MetingSong[]) {
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
@@ -30,7 +34,7 @@ export function useAudioPlayer(tracks: MetingSong[]) {
 
   return useMediaPlayer({
     tracks,
-    getUrl: (track) => track.url,
+    getUrl: getTrackUrl,
     getElement,
   });
 }

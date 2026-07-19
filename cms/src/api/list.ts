@@ -18,22 +18,24 @@ import type { DashboardStats, ListPostsResponse, PostListItem } from '@/types';
  * Recursively reads all markdown files from a directory
  */
 async function getAllMarkdownFiles(dir: string, baseDir: string = dir): Promise<string[]> {
-  const files: string[] = [];
   const entries = await fs.readdir(dir, { withFileTypes: true });
 
-  for (const entry of entries) {
-    const fullPath = path.join(dir, entry.name);
-    if (entry.isDirectory()) {
-      const subFiles = await getAllMarkdownFiles(fullPath, baseDir);
-      files.push(...subFiles);
-    } else if (entry.isFile() && (entry.name.endsWith('.md') || entry.name.endsWith('.mdx'))) {
-      // Get relative path from base content dir
-      const relativePath = path.relative(baseDir, fullPath);
-      files.push(relativePath);
-    }
-  }
+  const filesByEntry = await Promise.all(
+    entries.map(async (entry) => {
+      const fullPath = path.join(dir, entry.name);
+      if (entry.isDirectory()) {
+        return getAllMarkdownFiles(fullPath, baseDir);
+      }
+      if (entry.isFile() && (entry.name.endsWith('.md') || entry.name.endsWith('.mdx'))) {
+        // Get relative path from base content dir
+        const relativePath = path.relative(baseDir, fullPath);
+        return [relativePath];
+      }
+      return [];
+    }),
+  );
 
-  return files;
+  return filesByEntry.flat();
 }
 
 /**
@@ -231,8 +233,8 @@ function calculateStats(posts: PostListItem[]): DashboardStats {
     .sort((a, b) => b.count - a.count);
 
   // Recent posts: sort by updated/date descending
-  const recentPosts = [...posts]
-    .sort((a, b) => {
+  const recentPosts = posts
+    .toSorted((a, b) => {
       const dateA = new Date(a.updated || a.date).getTime();
       const dateB = new Date(b.updated || b.date).getTime();
       return dateB - dateA;

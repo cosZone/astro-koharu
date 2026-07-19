@@ -32,8 +32,7 @@ export function SingleChoiceQuiz({ quiz }: { quiz: ParsedQuiz }) {
       <fieldset className="space-y-2 border-none p-0" aria-label={t('quiz.quizOptions', { type: t('quiz.single') })}>
         {quiz.options.map((option, index) => (
           <QuizOption
-            // biome-ignore lint/suspicious/noArrayIndexKey: Options are static
-            key={index}
+            key={option.html}
             index={index}
             html={option.html}
             isCorrect={option.isCorrect}

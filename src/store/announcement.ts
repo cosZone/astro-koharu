@@ -10,7 +10,8 @@ import { announcements } from '@constants/announcements';
 import { atom, computed } from 'nanostores';
 import type { Announcement } from '@/types/announcement';
 
-const STORAGE_KEY = 'announcement-read-ids';
+const STORAGE_KEY = 'announcement-read-ids:v1';
+const LEGACY_STORAGE_KEY = 'announcement-read-ids';
 
 /**
  * Set of read announcement IDs (persisted to localStorage)
@@ -72,10 +73,12 @@ function loadReadIds(): void {
   if (typeof window === 'undefined') return;
 
   try {
-    const stored = localStorage.getItem(STORAGE_KEY);
+    const stored = localStorage.getItem(STORAGE_KEY) ?? localStorage.getItem(LEGACY_STORAGE_KEY);
     if (stored) {
       const ids = JSON.parse(stored) as string[];
       readAnnouncementIds.set(new Set(ids));
+      localStorage.setItem(STORAGE_KEY, stored);
+      localStorage.removeItem(LEGACY_STORAGE_KEY);
     }
   } catch (e) {
     console.warn('[Announcement] Failed to parse stored read IDs', e);

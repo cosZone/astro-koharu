@@ -7,7 +7,7 @@
  */
 
 import { useStore } from '@nanostores/react';
-import { useCallback, useEffect, useId, useRef, useState } from 'react';
+import { useCallback, useEffect, useId, useLayoutEffect, useRef, useState } from 'react';
 import { createPlaybackTimeStore, type PlaybackTimeStore } from '../lib/playback-time-store';
 import {
   $activePlayerId,
@@ -45,11 +45,8 @@ export function useMediaPlayer<T>({ tracks, getUrl, getElement }: UseMediaPlayer
   const [boundElement, setBoundElement] = useState<HTMLMediaElement | null>(null);
 
   const tracksRef = useRef(tracks);
-  tracksRef.current = tracks;
   const getUrlRef = useRef(getUrl);
-  getUrlRef.current = getUrl;
   const getElementRef = useRef(getElement);
-  getElementRef.current = getElement;
   const loadAndPlayRef = useRef<(index: number) => void>(() => {});
   const [timeStore] = useState(() => createPlaybackTimeStore());
 
@@ -63,7 +60,6 @@ export function useMediaPlayer<T>({ tracks, getUrl, getElement }: UseMediaPlayer
     muted: false,
   });
   const stateRef = useRef(state);
-  stateRef.current = state;
 
   const loadAndPlay = useCallback(
     (index: number) => {
@@ -78,7 +74,17 @@ export function useMediaPlayer<T>({ tracks, getUrl, getElement }: UseMediaPlayer
     },
     [playerId, timeStore],
   );
-  loadAndPlayRef.current = loadAndPlay;
+
+  useLayoutEffect(() => {
+    tracksRef.current = tracks;
+    getUrlRef.current = getUrl;
+    getElementRef.current = getElement;
+  }, [tracks, getUrl, getElement]);
+
+  useLayoutEffect(() => {
+    stateRef.current = state;
+    loadAndPlayRef.current = loadAndPlay;
+  }, [state, loadAndPlay]);
 
   // Poll for the media element becoming available (handles video ref timing).
   // Once resolved, setBoundElement triggers the event-binding effect below.

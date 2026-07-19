@@ -10,22 +10,24 @@ import type { VideoTrack } from '../components/markdown/video-player/utils';
 import { getStoredVolume } from '../store/player';
 import { useMediaPlayer } from './useMediaPlayer';
 
+function getTrackUrl(track: VideoTrack): string {
+  return track.url;
+}
+
 export function useVideoPlayer(tracks: VideoTrack[], videoRef: RefObject<HTMLVideoElement | null>) {
   // Set initial volume on the video element
-  // biome-ignore lint/correctness/useExhaustiveDependencies: ref.current is stable, not a reactive dependency
   useEffect(() => {
     const video = videoRef.current;
     if (video) {
       video.volume = getStoredVolume();
     }
-  }, []);
+  }, [videoRef]);
 
-  // biome-ignore lint/correctness/useExhaustiveDependencies: ref container is stable, callback intentionally always reads latest .current
-  const getElement = useCallback(() => videoRef.current, []);
+  const getElement = useCallback(() => videoRef.current, [videoRef]);
 
   return useMediaPlayer({
     tracks,
-    getUrl: (track) => track.url,
+    getUrl: getTrackUrl,
     getElement,
   });
 }

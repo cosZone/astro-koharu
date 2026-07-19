@@ -214,24 +214,3 @@ export function useScrollTrigger(options: UseScrollTriggerOptions = {}): ScrollT
 
   return useSyncExternalStore(store.subscribe, store.getSnapshot, store.getServerSnapshot);
 }
-
-/**
- * Simple hook to get current scroll position
- * Uses same optimized pattern as useScrollTrigger
- */
-export function useScrollY(): number {
-  const { scrollY } = useScrollTrigger({ skipFirstScroll: false });
-  return scrollY;
-}
-
-/**
- * Hook to detect if scrolled past a threshold
- */
-export function useScrolledPast(threshold: number, isPixels = true): boolean {
-  const { isBeyond } = useScrollTrigger({
-    triggerDistance: threshold,
-    isPixels,
-    skipFirstScroll: false,
-  });
-  return isBeyond;
-}

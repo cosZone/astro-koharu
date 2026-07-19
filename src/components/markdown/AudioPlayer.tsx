@@ -59,19 +59,19 @@ export function AudioPlayer({ element }: AudioPlayerProps) {
       setError(null);
 
       try {
-        const allTracks: MetingSong[] = [];
-        const resolvedGroups: PlaylistGroup[] = [];
-
-        for (const group of audioGroups) {
-          const startIndex = allTracks.length;
-          const songs = await resolvePlaylist(group.list, apiUrl);
-          allTracks.push(...songs);
-          resolvedGroups.push({
+        const songsByGroup = await Promise.all(audioGroups.map((group) => resolvePlaylist(group.list, apiUrl)));
+        const allTracks = songsByGroup.flat();
+        let startIndex = 0;
+        const resolvedGroups = audioGroups.map((group, index) => {
+          const songs = songsByGroup[index];
+          const resolvedGroup = {
             title: group.title,
             startIndex,
             count: songs.length,
-          });
-        }
+          };
+          startIndex += songs.length;
+          return resolvedGroup;
+        });
 
         if (!cancelled) {
           setTracks(allTracks);

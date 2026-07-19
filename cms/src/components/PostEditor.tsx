@@ -10,7 +10,7 @@ import { useCreateBlockNote } from '@blocknote/react';
 import { BlockNoteView } from '@blocknote/shadcn';
 import '@blocknote/shadcn/style.css';
 import { Icon } from '@iconify/react';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { type KeyboardEvent as ReactKeyboardEvent, useCallback, useEffect, useRef, useState } from 'react';
 import { ErrorBoundary, type FallbackProps } from 'react-error-boundary';
 import { toast } from 'sonner';
 import { CategoryMappingDialog } from '@/components/CategoryMappingDialog';
@@ -105,7 +105,14 @@ async function markdownToBlocks(editor: ReturnType<typeof useCreateBlockNote>, m
 type SidebarTab = 'frontmatter' | 'toc' | 'preview';
 
 const SIDEBAR_WIDTH_KEY = 'cms-sidebar-width';
+const SIDEBAR_MIN_WIDTH = 240;
 const SIDEBAR_DEFAULT_WIDTH = 320;
+const SIDEBAR_MAX_WIDTH = 640;
+const SIDEBAR_KEYBOARD_STEP = 16;
+
+function clampSidebarWidth(width: number): number {
+  return Math.min(SIDEBAR_MAX_WIDTH, Math.max(SIDEBAR_MIN_WIDTH, width));
+}
 
 export function PostEditor({ postId, onClose, onSaved }: PostEditorProps) {
   const [isLoading, setIsLoading] = useState(true);
@@ -118,7 +125,8 @@ export function PostEditor({ postId, onClose, onSaved }: PostEditorProps) {
   // Sidebar resize state
   const [sidebarWidth, setSidebarWidth] = useState(() => {
     const saved = localStorage.getItem(SIDEBAR_WIDTH_KEY);
-    return saved ? Number(saved) : SIDEBAR_DEFAULT_WIDTH;
+    const savedWidth = saved ? Number(saved) : SIDEBAR_DEFAULT_WIDTH;
+    return Number.isFinite(savedWidth) ? clampSidebarWidth(savedWidth) : SIDEBAR_DEFAULT_WIDTH;
   });
   const [isResizing, setIsResizing] = useState(false);
 
@@ -278,7 +286,7 @@ export function PostEditor({ postId, onClose, onSaved }: PostEditorProps) {
 
     const handleMouseMove = (e: MouseEvent) => {
       const newWidth = window.innerWidth - e.clientX;
-      setSidebarWidth(newWidth);
+      setSidebarWidth(clampSidebarWidth(newWidth));
     };
 
     const handleMouseUp = () => {
@@ -301,6 +309,24 @@ export function PostEditor({ postId, onClose, onSaved }: PostEditorProps) {
       document.body.style.cursor = '';
     };
   }, [isResizing, sidebarWidth]);
+
+  const handleSidebarResizeKeyDown = useCallback(
+    (event: ReactKeyboardEvent<HTMLHRElement>) => {
+      let nextWidth: number | null = null;
+
+      if (event.key === 'ArrowLeft') nextWidth = sidebarWidth + SIDEBAR_KEYBOARD_STEP;
+      if (event.key === 'ArrowRight') nextWidth = sidebarWidth - SIDEBAR_KEYBOARD_STEP;
+      if (event.key === 'Home') nextWidth = SIDEBAR_MIN_WIDTH;
+      if (event.key === 'End') nextWidth = SIDEBAR_MAX_WIDTH;
+      if (nextWidth === null) return;
+
+      event.preventDefault();
+      const clampedWidth = clampSidebarWidth(nextWidth);
+      setSidebarWidth(clampedWidth);
+      localStorage.setItem(SIDEBAR_WIDTH_KEY, String(clampedWidth));
+    },
+    [sidebarWidth],
+  );
 
   // Warn about unsaved changes
   useEffect(() => {
@@ -474,12 +500,16 @@ export function PostEditor({ postId, onClose, onSaved }: PostEditorProps) {
             tabIndex={0}
             aria-orientation="vertical"
             aria-label="Resize sidebar"
+            aria-valuemin={SIDEBAR_MIN_WIDTH}
+            aria-valuemax={SIDEBAR_MAX_WIDTH}
             aria-valuenow={sidebarWidth}
+            aria-valuetext={`${sidebarWidth} pixels`}
             className={cn(
               'h-full w-1 shrink-0 cursor-col-resize border-none transition-colors hover:bg-primary/50',
               isResizing && 'bg-primary',
             )}
-            onMouseDown={() => setIsResizing(true)}
+            onMouseDownCapture={() => setIsResizing(true)}
+            onKeyDownCapture={handleSidebarResizeKeyDown}
           />
         )}
 

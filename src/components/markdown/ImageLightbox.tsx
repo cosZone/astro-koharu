@@ -14,7 +14,7 @@ import { Icon } from '@iconify/react';
 import { useStore } from '@nanostores/react';
 import { $imageLightboxData, closeModal, type ImageLightboxData, navigateImage, openModal } from '@store/modal';
 import { AnimatePresence, motion } from 'motion/react';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 
 export default function ImageLightbox() {
   const { t } = useTranslation();
@@ -27,7 +27,10 @@ export default function ImageLightbox() {
 
   // Use a ref so the outsidePress callback always reads the latest scale
   const scaleRef = useRef(state.scale);
-  scaleRef.current = state.scale;
+
+  useLayoutEffect(() => {
+    scaleRef.current = state.scale;
+  }, [state.scale]);
 
   const handleResetAll = useCallback(() => {
     reset();

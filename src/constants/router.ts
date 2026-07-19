@@ -42,15 +42,6 @@ export const RESERVED_ROUTES = new Set([
 ]);
 
 /**
- * Get the URL path for a featured series
- * @param slug - The series slug (e.g., 'weekly')
- * @returns The full path (e.g., '/weekly')
- */
-export function getSeriesPath(slug: string): string {
-  return `/${slug}`;
-}
-
-/**
  * Check if a slug is reserved (conflicts with existing routes)
  * @param slug - The slug to check
  * @returns true if the slug is reserved

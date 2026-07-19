@@ -3,7 +3,7 @@
  */
 
 import { categoryMap } from '@constants/category';
-import { getContentCategoryName, getContentFeaturedCategoryField, getContentSeriesField } from '@/i18n/content';
+import { getContentSeriesField } from '@/i18n/content';
 import type { Locale } from '@/i18n/types';
 import { encodeSlug } from '../route';
 import { memoize } from './cache';
@@ -184,20 +184,4 @@ export function getParentCategory(category: Category | null, categories: Categor
 export function translateSeriesField(slug: string, field: string, fallback: string | undefined, locale: Locale): string {
   if (!fallback) return '';
   return getContentSeriesField(locale, slug, field) ?? fallback;
-}
-
-/**
- * Translate a featured category field (label, description) based on locale.
- *
- * The `link` parameter matches the `link` field in featuredCategories config
- * (e.g. 'life', 'note/front-end').
- */
-export function translateFeaturedCategoryField(
-  link: string,
-  field: string,
-  fallback: string | undefined,
-  locale: Locale,
-): string {
-  if (!fallback) return '';
-  return getContentFeaturedCategoryField(locale, link, field) ?? fallback;
 }

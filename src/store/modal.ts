@@ -113,18 +113,10 @@ export function toggleModal(type: ModalType): void {
 }
 
 // Convenience functions for specific modals
-export const openDrawer = () => openModal('drawer');
 export const closeDrawer = () => closeModal();
 export const toggleDrawer = () => toggleModal('drawer');
 
-export const openSearch = () => openModal('search');
-export const closeSearch = () => closeModal();
-export const toggleSearch = () => toggleModal('search');
-
 export const toggleSettings = () => toggleModal('settings');
-
-export const openCodeFullscreen = (data: CodeBlockData) => openModal('codeFullscreen', data);
-export const closeCodeFullscreen = () => closeModal();
 
 /**
  * Navigate between images in the lightbox without re-triggering scroll lock.

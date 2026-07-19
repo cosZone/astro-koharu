@@ -49,7 +49,8 @@ export const Segmented = <T extends string | number = string | number>({
         const { label, value, icon } = option;
         const selected = selectedValue === value;
         return (
-          <motion.div
+          <motion.button
+            type="button"
             className={cn(
               'relative flex-center cursor-pointer gap-1.5 px-3 py-1 first:rounded-l-xs last:rounded-r-xs',
               { 'text-primary-foreground': selected },
@@ -57,6 +58,8 @@ export const Segmented = <T extends string | number = string | number>({
               itemClass,
             )}
             onClick={() => setSelectedValue(value)}
+            aria-label={label ?? String(value)}
+            aria-pressed={selected}
             key={value}
             layout={!shouldReduceMotion}
             transition={shouldReduceMotion ? { duration: 0 } : { type: 'spring', stiffness: 400, damping: 30 }}
@@ -95,7 +98,7 @@ export const Segmented = <T extends string | number = string | number>({
                 style={{ willChange: shouldReduceMotion ? 'auto' : 'transform' }}
               />
             )}
-          </motion.div>
+          </motion.button>
         );
       })}
     </div>

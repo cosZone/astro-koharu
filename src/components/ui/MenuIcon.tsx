@@ -67,15 +67,11 @@ interface MenuIconProps {
 const MenuIcon = ({ className, id }: MenuIconProps) => {
   const isOpen = useStore($isDrawerOpen);
 
-  const handleToggle = () => {
-    toggleDrawer();
-  };
-
   return (
     <div className={cn('flex-center', className)} id={id} style={{ viewTransitionName: 'home-menu-icon' }}>
       <button
         className="size-10 flex-center cursor-pointer select-none rounded-full bg-white/20 text-shoka"
-        onClick={handleToggle}
+        onClick={toggleDrawer}
         aria-label={isOpen ? '关闭菜单' : '打开菜单'}
         aria-expanded={isOpen}
         type="button"

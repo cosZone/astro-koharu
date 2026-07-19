@@ -373,5 +373,5 @@ export const configuredSeriesSlugs = new Set(siteConfig.featuredSeries.map((seri
 
 /** Only enabled series slugs (lowercase) */
 export const enabledSeriesSlugs = new Set(
-  siteConfig.featuredSeries.filter((series) => series.enabled !== false).map((series) => series.slug.toLowerCase()),
+  siteConfig.featuredSeries.flatMap((series) => (series.enabled !== false ? [series.slug.toLowerCase()] : [])),
 );

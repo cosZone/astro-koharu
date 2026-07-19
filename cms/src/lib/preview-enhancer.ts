@@ -155,7 +155,7 @@ async function getMermaid(): Promise<typeof mermaidType> {
     mermaidInstance.initialize({
       startOnLoad: false,
       theme: 'dark',
-      securityLevel: 'loose',
+      securityLevel: 'strict',
     });
   }
   return mermaidInstance;
@@ -193,6 +193,7 @@ function createMermaidToolbar(): string {
  */
 async function renderMermaidDiagrams(container: HTMLElement): Promise<void> {
   const wrappers = container.querySelectorAll('.code-block-wrapper');
+  const candidates: Array<{ element: HTMLElement; code: string }> = [];
 
   for (const wrapper of wrappers) {
     const el = wrapper as HTMLElement;
@@ -203,48 +204,55 @@ async function renderMermaidDiagrams(container: HTMLElement): Promise<void> {
 
     const code = extractCodeContent(el);
     if (!code.trim()) continue;
-
-    try {
-      const mermaid = await getMermaid();
-      const id = `mermaid-preview-${++mermaidIdCounter}`;
-
-      const { svg } = await mermaid.render(id, code);
-
-      // Create new structure
-      const mermaidWrapper = document.createElement('div');
-      mermaidWrapper.className = 'preview-mermaid-wrapper';
-      mermaidWrapper.innerHTML = createMermaidToolbar();
-
-      const diagramContainer = document.createElement('div');
-      diagramContainer.className = 'preview-mermaid-diagram';
-      diagramContainer.innerHTML = svg;
-      mermaidWrapper.appendChild(diagramContainer);
-
-      // Replace original wrapper
-      el.replaceWith(mermaidWrapper);
-
-      // Bind copy button
-      const copyBtn = mermaidWrapper.querySelector('.preview-code-copy');
-      if (copyBtn) {
-        const originalSvg = copyBtn.innerHTML;
-        copyBtn.addEventListener('click', async () => {
-          const success = await copyToClipboard(code);
-          if (success) {
-            copyBtn.classList.add('copied');
-            copyBtn.innerHTML = createCheckmarkSvg();
-            setTimeout(() => {
-              copyBtn.classList.remove('copied');
-              copyBtn.innerHTML = originalSvg;
-            }, 2000);
-          }
-        });
-      }
-    } catch (error) {
-      console.error('Failed to render mermaid:', error);
-      // Keep original code block on error
-      el.dataset.mermaidEnhanced = 'true';
-    }
+    candidates.push({ element: el, code });
   }
+
+  if (candidates.length === 0) return;
+  const mermaid = await getMermaid();
+
+  await Promise.all(
+    candidates.map(async ({ element: el, code }) => {
+      try {
+        const id = `mermaid-preview-${++mermaidIdCounter}`;
+
+        const { svg } = await mermaid.render(id, code);
+
+        // Create new structure
+        const mermaidWrapper = document.createElement('div');
+        mermaidWrapper.className = 'preview-mermaid-wrapper';
+        mermaidWrapper.innerHTML = createMermaidToolbar();
+
+        const diagramContainer = document.createElement('div');
+        diagramContainer.className = 'preview-mermaid-diagram';
+        diagramContainer.innerHTML = svg;
+        mermaidWrapper.appendChild(diagramContainer);
+
+        // Replace original wrapper
+        el.replaceWith(mermaidWrapper);
+
+        // Bind copy button
+        const copyBtn = mermaidWrapper.querySelector('.preview-code-copy');
+        if (copyBtn) {
+          const originalSvg = copyBtn.innerHTML;
+          copyBtn.addEventListener('click', async () => {
+            const success = await copyToClipboard(code);
+            if (success) {
+              copyBtn.classList.add('copied');
+              copyBtn.innerHTML = createCheckmarkSvg();
+              setTimeout(() => {
+                copyBtn.classList.remove('copied');
+                copyBtn.innerHTML = originalSvg;
+              }, 2000);
+            }
+          });
+        }
+      } catch (error) {
+        console.error('Failed to render mermaid:', error);
+        // Keep original code block on error
+        el.dataset.mermaidEnhanced = 'true';
+      }
+    }),
+  );
 }
 
 /**
@@ -279,6 +287,7 @@ function createInfographicToolbar(): string {
  */
 async function renderInfographics(container: HTMLElement): Promise<void> {
   const wrappers = container.querySelectorAll('.code-block-wrapper');
+  const candidates: Array<{ element: HTMLElement; code: string }> = [];
 
   for (const wrapper of wrappers) {
     const el = wrapper as HTMLElement;
@@ -286,10 +295,14 @@ async function renderInfographics(container: HTMLElement): Promise<void> {
 
     if (!code.trim().startsWith('infographic ')) continue;
     if (el.dataset.infographicEnhanced === 'true') continue;
+    candidates.push({ element: el, code });
+  }
 
+  if (candidates.length === 0) return;
+  const { Infographic } = await import('@antv/infographic');
+
+  for (const { element: el, code } of candidates) {
     try {
-      const { Infographic } = await import('@antv/infographic');
-
       // Create new structure
       const infographicWrapper = document.createElement('div');
       infographicWrapper.className = 'preview-infographic-wrapper';

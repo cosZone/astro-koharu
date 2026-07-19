@@ -25,16 +25,14 @@ export { useIsMounted } from './useIsMounted';
 // Keyboard shortcuts
 export { type KeyboardShortcutOptions, type ModifierKey, useEscapeKey, useKeyboardShortcut } from './useKeyboardShortcut';
 // Media query hooks
-export { useIsMobile, useIsTablet, useMediaQuery, usePrefersColorSchemeDark, usePrefersReducedMotion } from './useMediaQuery';
+export { useIsMobile, useIsTablet, useMediaQuery, usePrefersReducedMotion } from './useMediaQuery';
 // Timer management
 export { useRetimer } from './useRetimer';
 // Scroll state hooks
 export {
   type ScrollTriggerState,
   type UseScrollTriggerOptions,
-  useScrolledPast,
   useScrollTrigger,
-  useScrollY,
 } from './useScrollTrigger';
 // Search keyboard navigation
 export { useSearchKeyboardNav } from './useSearchKeyboardNav';

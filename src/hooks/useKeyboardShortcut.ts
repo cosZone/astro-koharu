@@ -21,7 +21,7 @@
  * ```
  */
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useEffectEvent } from 'react';
 
 export type ModifierKey = 'ctrl' | 'meta' | 'shift' | 'alt';
 
@@ -78,7 +78,10 @@ function isMac(): boolean {
 /**
  * Check if event matches the shortcut
  */
-function matchesShortcut(event: KeyboardEvent, options: KeyboardShortcutOptions): boolean {
+function matchesShortcut(
+  event: KeyboardEvent,
+  options: Pick<KeyboardShortcutOptions, 'key' | 'modifiers' | 'ignoreInputs'>,
+): boolean {
   const { key, modifiers = [], ignoreInputs = true } = options;
 
   // Check if focus is in input element
@@ -125,33 +128,34 @@ function matchesShortcut(event: KeyboardEvent, options: KeyboardShortcutOptions)
 /**
  * Single keyboard shortcut hook
  */
-export function useKeyboardShortcut(options: KeyboardShortcutOptions): void {
-  const { handler, enabled = true, preventDefault = true, stopPropagation = false } = options;
-
-  // Use ref to always have latest handler without re-subscribing
-  const handlerRef = useRef(handler);
-  handlerRef.current = handler;
-
-  const optionsRef = useRef(options);
-  optionsRef.current = options;
+export function useKeyboardShortcut({
+  key,
+  modifiers,
+  handler,
+  enabled = true,
+  preventDefault = true,
+  stopPropagation = false,
+  ignoreInputs = true,
+}: KeyboardShortcutOptions): void {
+  const onKeyDown = useEffectEvent((event: KeyboardEvent) => {
+    if (matchesShortcut(event, { key, modifiers, ignoreInputs })) {
+      if (preventDefault) event.preventDefault();
+      if (stopPropagation) event.stopPropagation();
+      handler(event);
+    }
+  });
 
   useEffect(() => {
     if (!enabled || typeof window === 'undefined') return;
 
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (matchesShortcut(event, optionsRef.current)) {
-        if (preventDefault) event.preventDefault();
-        if (stopPropagation) event.stopPropagation();
-        handlerRef.current(event);
-      }
-    };
+    const handleKeyDown = (event: KeyboardEvent) => onKeyDown(event);
 
     window.addEventListener('keydown', handleKeyDown);
 
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
     };
-  }, [enabled, preventDefault, stopPropagation]);
+  }, [enabled]);
 }
 
 /**

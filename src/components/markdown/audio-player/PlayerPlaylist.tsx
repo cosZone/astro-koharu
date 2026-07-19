@@ -72,7 +72,7 @@ export const PlayerPlaylist = memo(function PlayerPlaylist({
         <div className="audio-player-tabs" role="tablist">
           {groups.map((g, i) => (
             <button
-              key={g.title || i}
+              key={g.title ?? g.startIndex}
               type="button"
               role="tab"
               aria-selected={i === activeTab}

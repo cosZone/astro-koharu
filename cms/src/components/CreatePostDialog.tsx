@@ -6,7 +6,7 @@
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Icon } from '@iconify/react';
-import { useCallback, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
@@ -41,6 +41,7 @@ function CustomCategoryChip({
       <span className="font-medium text-primary">{category.name}</span>
       {isEditing ? (
         <input
+          aria-label={`Slug for ${category.name}`}
           type="text"
           value={category.slug}
           onChange={(e) => onSlugChange(e.target.value)}
@@ -58,7 +59,12 @@ function CustomCategoryChip({
           ({category.slug})
         </button>
       )}
-      <button type="button" onClick={onRemove} className="ml-1 text-muted-foreground hover:text-destructive">
+      <button
+        type="button"
+        onClick={onRemove}
+        className="ml-1 text-muted-foreground hover:text-destructive"
+        aria-label={`Remove ${category.name}`}
+      >
         <Icon icon="ri:close-line" className="size-3.5" />
       </button>
     </div>
@@ -68,6 +74,7 @@ function CustomCategoryChip({
 export function CreatePostDialog({ open, onOpenChange, existingCategories, onSuccess }: CreatePostDialogProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+  const selectedCategorySet = useMemo(() => new Set(selectedCategories), [selectedCategories]);
   const [newCategoryInput, setNewCategoryInput] = useState('');
 
   const {
@@ -220,6 +227,7 @@ export function CreatePostDialog({ open, onOpenChange, existingCategories, onSuc
                         type="button"
                         onClick={() => toggleCategory(cat)}
                         className="text-muted-foreground hover:text-destructive"
+                        aria-label={`Remove ${cat}`}
                       >
                         <Icon icon="ri:close-line" className="size-3.5" />
                       </button>
@@ -238,7 +246,7 @@ export function CreatePostDialog({ open, onOpenChange, existingCategories, onSuc
                   onClick={() => toggleCategory(cat)}
                   className={cn(
                     'rounded-full px-3 py-1 text-sm transition-colors',
-                    selectedCategories.includes(cat) ? 'bg-primary text-primary-foreground' : 'bg-muted hover:bg-muted/80',
+                    selectedCategorySet.has(cat) ? 'bg-primary text-primary-foreground' : 'bg-muted hover:bg-muted/80',
                   )}
                 >
                   {cat}

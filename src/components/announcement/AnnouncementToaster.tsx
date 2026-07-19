@@ -142,7 +142,9 @@ export default function AnnouncementToaster() {
       timers.push(timer);
     }
 
-    return () => timers.forEach(clearTimeout);
+    return () => {
+      for (const timer of timers) clearTimeout(timer);
+    };
   }, [initialized, unread]);
 
   // Dismiss all toasts when user clicks outside

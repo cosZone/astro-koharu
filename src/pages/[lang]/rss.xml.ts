@@ -8,7 +8,7 @@ import type { BlogPost } from 'types/blog';
 import { defaultLocale, getHtmlLang, localeList, localizedPath } from '@/i18n';
 
 export function getStaticPaths() {
-  return localeList.filter((l) => l !== defaultLocale).map((lang) => ({ params: { lang } }));
+  return localeList.flatMap((lang) => (lang !== defaultLocale ? [{ params: { lang } }] : []));
 }
 
 export async function GET(context: APIContext) {

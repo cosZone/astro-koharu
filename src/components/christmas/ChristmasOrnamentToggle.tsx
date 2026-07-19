@@ -3,7 +3,7 @@ import { cn } from '@lib/utils';
 import { useStore } from '@nanostores/react';
 import { christmasEnabled, disableChristmas, ornamentHidden, toggleChristmas } from '@store/christmas';
 import { AnimatePresence, motion, useMotionValue, useReducedMotion, useTransform } from 'motion/react';
-import { useState } from 'react';
+import { type KeyboardEvent, useState } from 'react';
 
 /** Minimum drag distance to trigger toggle action */
 const TOGGLE_TRIGGER_DISTANCE = 40;
@@ -11,6 +11,17 @@ const TOGGLE_TRIGGER_DISTANCE = 40;
 const MAX_DRAG_DISTANCE = 110;
 const ORNAMENT_SIZE = 72;
 const STRING_HEIGHT = 80;
+
+function handleClick() {
+  toggleChristmas();
+}
+
+function handleKeyDown(event: KeyboardEvent) {
+  if (event.key === 'Enter' || event.key === ' ') {
+    event.preventDefault();
+    toggleChristmas();
+  }
+}
 
 function TopDecoration() {
   return (
@@ -184,15 +195,6 @@ export function ChristmasOrnamentToggle() {
       } else {
         toggleChristmas();
       }
-    }
-  };
-
-  const handleClick = () => toggleChristmas();
-
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' || e.key === ' ') {
-      e.preventDefault();
-      toggleChristmas();
     }
   };
 

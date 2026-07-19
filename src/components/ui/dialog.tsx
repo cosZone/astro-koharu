@@ -26,7 +26,7 @@ import { cn } from '@lib/utils';
 import * as DialogPrimitive from '@radix-ui/react-dialog';
 import { AnimatePresence, motion, type Transition } from 'motion/react';
 import type React from 'react';
-import { createContext, forwardRef, useCallback, useContext, useState } from 'react';
+import { createContext, forwardRef, useCallback, useContext, useMemo, useState } from 'react';
 
 // Context for animation state and open state
 interface DialogContextValue {
@@ -44,6 +44,7 @@ interface DialogProps extends DialogPrimitive.DialogProps {
 
 function Dialog({ children, open, onOpenChange, ...props }: DialogProps) {
   const [isAnimating, setIsAnimating] = useState(false);
+  const contextValue = useMemo(() => ({ isOpen: !!open, isAnimating, setIsAnimating }), [open, isAnimating]);
 
   const handleOpenChange = useCallback(
     (nextOpen: boolean) => {
@@ -54,7 +55,7 @@ function Dialog({ children, open, onOpenChange, ...props }: DialogProps) {
   );
 
   return (
-    <DialogContext.Provider value={{ isOpen: !!open, isAnimating, setIsAnimating }}>
+    <DialogContext.Provider value={contextValue}>
       <DialogPrimitive.Root open={open} onOpenChange={handleOpenChange} {...props}>
         {children}
       </DialogPrimitive.Root>

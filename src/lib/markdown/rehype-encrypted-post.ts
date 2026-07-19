@@ -14,7 +14,7 @@
 import type { Root } from 'hast';
 import { toHtml } from 'hast-util-to-html';
 import type { VFile } from 'vfile';
-import { encryptContent } from '../crypto';
+import { encryptContent } from '../crypto/encrypt';
 
 interface AstroFrontmatter {
   password?: string;

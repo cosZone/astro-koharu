@@ -41,9 +41,9 @@ export default function FooterAnnouncementEntry() {
       <AnimatePresence>
         {isMounted && count > 0 && (
           <motion.span
-            initial={{ scale: 0 }}
-            animate={{ scale: 1 }}
-            exit={{ scale: 0 }}
+            initial={{ scale: 0.95, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            exit={{ scale: 0.95, opacity: 0 }}
             className={cn(
               'absolute -top-1 -right-2',
               'flex items-center justify-center',

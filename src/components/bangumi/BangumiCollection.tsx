@@ -26,6 +26,16 @@ const FILTER_OPTIONS: Array<{ key: BangumiCollectionType | 'all'; labelKey: Tran
   { key: 5, labelKey: 'bangumi.dropped' },
 ];
 
+function getVisiblePages(totalPages: number, currentPage: number): number[] {
+  const pages: number[] = [];
+  for (let page = 1; page <= totalPages; page += 1) {
+    if (totalPages <= 7 || page === 1 || page === totalPages || Math.abs(page - currentPage) <= 2) {
+      pages.push(page);
+    }
+  }
+  return pages;
+}
+
 interface BangumiCollectionProps {
   userId: string;
 }
@@ -42,11 +52,17 @@ export function BangumiCollection({ userId }: BangumiCollectionProps) {
   const springTransition = shouldReduceMotion ? { duration: 0 } : { type: 'spring' as const, stiffness: 400, damping: 30 };
 
   const tabs = useMemo(() => {
-    return SUBJECT_TYPE_KEYS.filter((key) => data[key].length > 0).map((key) => ({
-      key,
-      label: t(TAB_LABEL_KEYS[key]),
-      count: data[key].length,
-    }));
+    return SUBJECT_TYPE_KEYS.flatMap((key) =>
+      data[key].length > 0
+        ? [
+            {
+              key,
+              label: t(TAB_LABEL_KEYS[key]),
+              count: data[key].length,
+            },
+          ]
+        : [],
+    );
   }, [data, t]);
 
   const tabItems = data[activeTab];
@@ -66,6 +82,7 @@ export function BangumiCollection({ userId }: BangumiCollectionProps) {
 
   const totalPages = Math.ceil(filteredItems.length / ITEMS_PER_PAGE);
   const pageItems = filteredItems.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);
+  const visiblePages = getVisiblePages(totalPages, currentPage);
 
   function handleTabChange(key: SubjectTypeKey) {
     setActiveTab(key);
@@ -211,34 +228,28 @@ export function BangumiCollection({ userId }: BangumiCollectionProps) {
             <Icon icon="ri:arrow-left-s-line" className="size-4" />
           </button>
           <div className="flex gap-1">
-            {Array.from({ length: totalPages }, (_, i) => i + 1)
-              .filter((page) => {
-                if (totalPages <= 7) return true;
-                if (page === 1 || page === totalPages) return true;
-                return Math.abs(page - currentPage) <= 2;
-              })
-              .map((page, idx, arr) => {
-                const prev = arr[idx - 1];
-                const showEllipsis = prev !== undefined && page - prev > 1;
-                return (
-                  <span key={page} className="flex items-center">
-                    {showEllipsis && <span className="px-1 text-muted-foreground">…</span>}
-                    <button
-                      type="button"
-                      onClick={() => setCurrentPage(page)}
-                      aria-current={currentPage === page ? 'page' : undefined}
-                      className={cn(
-                        'min-w-[2rem] rounded-md px-2 py-1.5 text-sm transition-colors',
-                        currentPage === page
-                          ? 'bg-primary text-primary-foreground'
-                          : 'bg-muted text-muted-foreground hover:bg-muted/80',
-                      )}
-                    >
-                      {page}
-                    </button>
-                  </span>
-                );
-              })}
+            {visiblePages.map((page, index) => {
+              const previousPage = visiblePages[index - 1];
+              const showEllipsis = previousPage !== undefined && page - previousPage > 1;
+              return (
+                <span key={page} className="flex items-center">
+                  {showEllipsis && <span className="px-1 text-muted-foreground">…</span>}
+                  <button
+                    type="button"
+                    onClick={() => setCurrentPage(page)}
+                    aria-current={currentPage === page ? 'page' : undefined}
+                    className={cn(
+                      'min-w-[2rem] rounded-md px-2 py-1.5 text-sm transition-colors',
+                      currentPage === page
+                        ? 'bg-primary text-primary-foreground'
+                        : 'bg-muted text-muted-foreground hover:bg-muted/80',
+                    )}
+                  >
+                    {page}
+                  </button>
+                </span>
+              );
+            })}
           </div>
           <button
             type="button"
