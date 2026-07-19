@@ -42,7 +42,7 @@ import {
 } from '@store/settings';
 import { READER_CUSTOM_MEASURE } from '@store/settings-constants';
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
-import { lazy, Suspense, useEffect, useState } from 'react';
+import { lazy, type MouseEvent, Suspense, useEffect, useRef, useState } from 'react';
 import { NumberField } from './NumberField';
 import { isSettingVisible, SETTINGS_REGISTRY, type SettingItem, type SettingSection } from './registry';
 
@@ -68,8 +68,10 @@ export default function SettingsPanelContent() {
   const isChristmasEnabled = useStore(christmasEnabled);
   const [fontPickerLoaded, setFontPickerLoaded] = useState(false);
   const [fontPickerOpen, setFontPickerOpen] = useState(false);
+  const fontPickerTriggerRef = useRef<HTMLButtonElement>(null);
 
-  const openFontPicker = () => {
+  const openFontPicker = (event: MouseEvent<HTMLButtonElement>) => {
+    fontPickerTriggerRef.current = event.currentTarget;
     setFontPickerLoaded(true);
     setFontPickerOpen(true);
   };
@@ -118,8 +120,8 @@ export default function SettingsPanelContent() {
     outsidePressEvent: 'mousedown',
     // Exclude the settings toggle button in FloatingGroup to prevent toggle/dismiss race
     outsidePress: (event) => {
-      const target = event.target as HTMLElement;
-      return !target.closest('[data-settings-toggle]');
+      const target = event.target;
+      return !(target instanceof Element && target.closest('[data-settings-toggle], [data-dialog-layer]'));
     },
   });
   const role = useRole(context, { role: 'dialog' });
@@ -139,7 +141,7 @@ export default function SettingsPanelContent() {
                 <button
                   key={option.value}
                   type="button"
-                  onClick={() => (localOption ? openFontPicker() : setFontPreset(option.value as FontPreset))}
+                  onClick={(event) => (localOption ? openFontPicker(event) : setFontPreset(option.value as FontPreset))}
                   aria-pressed={active}
                   className={cn(
                     'relative rounded-md px-2.5 py-1 text-xs transition-colors',
@@ -307,6 +309,7 @@ export default function SettingsPanelContent() {
           <LocalFontPicker
             open={fontPickerOpen}
             currentFont={fontFamily}
+            returnFocusRef={fontPickerTriggerRef}
             onOpenChange={setFontPickerOpen}
             onSelect={setLocalFontFamily}
           />

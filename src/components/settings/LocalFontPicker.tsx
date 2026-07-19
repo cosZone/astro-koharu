@@ -6,7 +6,7 @@ import { Icon } from '@iconify/react';
 import { cn } from '@lib/utils';
 import { READER_FONT_FAMILY_MAX_LENGTH } from '@store/settings-constants';
 import { useVirtualizer } from '@tanstack/react-virtual';
-import { type FormEvent, useDeferredValue, useEffect, useMemo, useRef, useState } from 'react';
+import { type FormEvent, type RefObject, useDeferredValue, useEffect, useMemo, useRef, useState } from 'react';
 
 interface LocalFontData {
   family: string;
@@ -22,6 +22,7 @@ type FailureReason = 'unsupported' | 'denied' | 'error';
 interface LocalFontPickerProps {
   open: boolean;
   currentFont: string | null;
+  returnFocusRef: RefObject<HTMLButtonElement | null>;
   onOpenChange: (open: boolean) => void;
   onSelect: (fontFamily: string) => void;
 }
@@ -43,7 +44,7 @@ function getUniqueFamilies(fonts: LocalFontData[], locale: string): string[] {
   return [...families].sort(new Intl.Collator(locale, { numeric: true, sensitivity: 'base' }).compare);
 }
 
-export default function LocalFontPicker({ open, currentFont, onOpenChange, onSelect }: LocalFontPickerProps) {
+export default function LocalFontPicker({ open, currentFont, returnFocusRef, onOpenChange, onSelect }: LocalFontPickerProps) {
   const { t, locale } = useTranslation();
   const localFontAccessSupported = supportsLocalFontAccess();
   const [view, setView] = useState<PickerView>(localFontAccessSupported ? 'intro' : 'manual');
@@ -124,6 +125,11 @@ export default function LocalFontPicker({ open, currentFont, onOpenChange, onSel
       <DialogContent
         className="w-[calc(100%-2rem)] max-w-xl gap-0 overflow-hidden p-0"
         overlayClassName="bg-black/60 backdrop-blur-xs"
+        closeLabel={t('common.close')}
+        onCloseAutoFocus={(event) => {
+          event.preventDefault();
+          returnFocusRef.current?.focus();
+        }}
       >
         <DialogHeader className="border-border border-b px-5 py-4 pr-14 text-left">
           <DialogTitle>{t('settings.localFont.title')}</DialogTitle>
