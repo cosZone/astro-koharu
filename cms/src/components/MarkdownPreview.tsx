@@ -93,19 +93,33 @@ export function MarkdownPreview({ content }: MarkdownPreviewProps) {
   // Enhance DOM after HTML is rendered
   useEffect(() => {
     if (!containerRef.current || !safeHtml || isLoading) return;
+    let cancelled = false;
+    const container = containerRef.current;
+
+    async function runEnhancement() {
+      try {
+        await enhancePreviewContent(container, {
+          onImageClick: (src) => {
+            if (!cancelled) setLightboxSrc(src);
+          },
+        });
+      } catch (error) {
+        console.error('Failed to enhance preview:', error);
+      } finally {
+        // Re-hydrate embeds even when an optional enhancement stage failed.
+        if (!cancelled) setContentVersion((version) => version + 1);
+      }
+    }
 
     // Small delay to ensure DOM is updated
-    const timeoutId = setTimeout(async () => {
-      if (containerRef.current) {
-        await enhancePreviewContent(containerRef.current, {
-          onImageClick: setLightboxSrc,
-        });
-        // Bump content version to trigger embed re-hydration
-        setContentVersion((v) => v + 1);
-      }
+    const timeoutId = setTimeout(() => {
+      void runEnhancement();
     }, 50);
 
-    return () => clearTimeout(timeoutId);
+    return () => {
+      cancelled = true;
+      clearTimeout(timeoutId);
+    };
   }, [safeHtml, isLoading]);
 
   // Close lightbox handler

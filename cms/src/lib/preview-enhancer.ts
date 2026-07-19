@@ -151,12 +151,13 @@ function enhanceCodeBlocks(container: HTMLElement): void {
 async function getMermaid(): Promise<typeof mermaidType> {
   if (!mermaidInstance) {
     const mod = await import('mermaid');
-    mermaidInstance = mod.default;
-    mermaidInstance.initialize({
+    const instance = mod.default;
+    instance.initialize({
       startOnLoad: false,
       theme: 'dark',
       securityLevel: 'strict',
     });
+    mermaidInstance = instance;
   }
   return mermaidInstance;
 }
@@ -312,8 +313,8 @@ async function renderInfographics(container: HTMLElement): Promise<void> {
       chartContainer.className = 'preview-infographic-chart';
       infographicWrapper.appendChild(chartContainer);
 
-      // Replace original wrapper
-      el.replaceWith(infographicWrapper);
+      // Keep the source block in place until rendering succeeds so a failed lazy chunk or render stays recoverable.
+      el.insertAdjacentElement('afterend', infographicWrapper);
 
       // Render infographic
       const infographic = new Infographic({
@@ -324,6 +325,8 @@ async function renderInfographics(container: HTMLElement): Promise<void> {
       });
 
       infographic.render(code);
+      if (!chartContainer.firstElementChild) throw new Error('Infographic produced no output');
+      el.remove();
 
       // Bind copy button
       const copyBtn = infographicWrapper.querySelector('.preview-code-copy');
@@ -343,6 +346,8 @@ async function renderInfographics(container: HTMLElement): Promise<void> {
       }
     } catch (error) {
       console.error('Failed to render infographic:', error);
+      const attemptedWrapper = el.nextElementSibling;
+      if (attemptedWrapper?.classList.contains('preview-infographic-wrapper')) attemptedWrapper.remove();
       el.dataset.infographicEnhanced = 'true';
     }
   }
@@ -384,10 +389,18 @@ export async function enhancePreviewContent(
   enhanceCodeBlocks(container);
 
   // 2. Render mermaid diagrams
-  await renderMermaidDiagrams(container);
+  try {
+    await renderMermaidDiagrams(container);
+  } catch (error) {
+    console.error('Failed to initialize mermaid:', error);
+  }
 
   // 3. Render infographic charts
-  await renderInfographics(container);
+  try {
+    await renderInfographics(container);
+  } catch (error) {
+    console.error('Failed to initialize infographic:', error);
+  }
 
   // 4. Enhance images with lightbox
   enhanceImages(container, options?.onImageClick);

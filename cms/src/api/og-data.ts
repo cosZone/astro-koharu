@@ -67,15 +67,28 @@ const NON_PUBLIC_IPV4_RANGES: ReadonlyArray<readonly [network: number, prefixLen
   [0xf0000000, 4], // Reserved and limited broadcast
 ];
 
-// Initialize metascraper with plugins
-const scraper = metascraper([
-  metascraperDescription(),
-  metascraperImage(),
-  metascraperLogo(),
-  metascraperTitle(),
-  metascraperUrl(),
-  metascraperLogoFavicon(),
-]);
+interface FaviconResolution {
+  url: string;
+}
+
+type SafeFaviconResolver = (
+  faviconUrl: string,
+  contentTypes?: string[],
+  gotOptions?: unknown,
+) => Promise<FaviconResolution | undefined>;
+
+interface SafeFaviconOptions {
+  favicon: boolean;
+  google: boolean;
+  rootFavicon: boolean;
+  resolveFaviconUrl: SafeFaviconResolver;
+}
+
+// The package only reads `response.url`, but its declaration unnecessarily requires a full got Response.
+// Keep the adapter narrow so the resolver can validate declared icons without performing a second request.
+const createSafeFaviconRules = metascraperLogoFavicon as unknown as (
+  options: SafeFaviconOptions,
+) => ReturnType<typeof metascraperLogoFavicon>;
 
 function parseIPv4(address: string): number | null {
   const parts = address.split('.');
@@ -186,6 +199,35 @@ async function validatePublicUrl(value: string | URL, signal: AbortSignal): Prom
   }
 
   return { url: parsed, addresses };
+}
+
+function createSafeFaviconResolver(signal: AbortSignal): SafeFaviconResolver {
+  return async (faviconUrl) => {
+    try {
+      const validated = await validatePublicUrl(faviconUrl, signal);
+      return { url: validated.url.href };
+    } catch {
+      // A page-controlled favicon must not fail otherwise valid metadata extraction.
+      if (signal.aborted) signal.throwIfAborted();
+      return undefined;
+    }
+  };
+}
+
+function createScraper(signal: AbortSignal) {
+  return metascraper([
+    metascraperDescription(),
+    metascraperImage(),
+    metascraperLogo(),
+    metascraperTitle(),
+    metascraperUrl(),
+    createSafeFaviconRules({
+      favicon: false,
+      google: false,
+      rootFavicon: false,
+      resolveFaviconUrl: createSafeFaviconResolver(signal),
+    }),
+  ]);
 }
 
 function createPinnedDispatcher(addresses: LookupAddress[]): Agent {
@@ -317,7 +359,7 @@ async function fetchOGData(url: string): Promise<OGData> {
     }
 
     const html = await response.text();
-    const metadata = await scraper({ html, url });
+    const metadata = await createScraper(controller.signal)({ html, url });
 
     return {
       originUrl: url,
