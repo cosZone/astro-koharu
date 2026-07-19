@@ -41,7 +41,10 @@ export function EmbedHydrator({ containerRef }: EmbedHydratorProps) {
         id: `tweet-${i}`,
         type: 'tweet',
         element,
-        data: { tweetId: element.dataset.tweetId || '' },
+        data: {
+          tweetId: element.dataset.tweetId || '',
+          url: element.dataset.url || '',
+        },
       });
     });
 
