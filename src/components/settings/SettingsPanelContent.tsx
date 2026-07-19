@@ -121,22 +121,30 @@ export default function SettingsPanelContent() {
       case 'segmented':
         return (
           <div className="flex flex-wrap gap-1">
-            {item.options?.map((option) => (
-              <button
-                key={option.value}
-                type="button"
-                onClick={() => setFontPreset(option.value as FontPreset)}
-                aria-pressed={fontPreset === option.value}
-                className={cn(
-                  'rounded-md px-2.5 py-1 text-xs transition-colors',
-                  fontPreset === option.value
-                    ? 'bg-primary text-primary-foreground'
-                    : 'bg-muted text-muted-foreground hover:bg-accent hover:text-foreground',
-                )}
-              >
-                {t(option.i18nKey)}
-              </button>
-            ))}
+            {item.options?.map((option) => {
+              const active = fontPreset === option.value;
+              return (
+                <button
+                  key={option.value}
+                  type="button"
+                  onClick={() => setFontPreset(option.value as FontPreset)}
+                  aria-pressed={active}
+                  className={cn(
+                    'relative rounded-md px-2.5 py-1 text-xs transition-colors',
+                    active ? 'text-primary-foreground' : 'bg-muted text-muted-foreground hover:bg-accent hover:text-foreground',
+                  )}
+                >
+                  {active && (
+                    <motion.span
+                      layoutId="settings-font-preset-pill"
+                      className="absolute inset-0 rounded-md bg-primary"
+                      transition={shouldReduceMotion ? { duration: 0 } : microReboundPreset}
+                    />
+                  )}
+                  <span className="relative">{t(option.i18nKey)}</span>
+                </button>
+              );
+            })}
           </div>
         );
       case 'number': {
@@ -183,13 +191,13 @@ export default function SettingsPanelContent() {
             exit={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, y: 20, scale: 0.95 }}
             transition={shouldReduceMotion ? { duration: 0.15 } : microReboundPreset}
           >
-            <div className="max-h-[calc(100dvh-6rem)] overflow-y-auto overscroll-contain rounded-2xl border border-border bg-popover p-4 text-popover-foreground shadow-xl">
+            <div className="flex h-[calc(100dvh-6rem)] max-h-96 flex-col overflow-hidden rounded-2xl border border-border bg-popover p-4 text-popover-foreground shadow-xl">
               {/* Header */}
               <div className="mb-3 flex items-center justify-between">
                 <h2 className="font-semibold text-sm">{t('settings.title')}</h2>
                 <button
                   type="button"
-                  className="rounded-full p-1 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+                  className="relative rounded-full p-1 text-muted-foreground transition-[background-color,color,transform] after:absolute after:-inset-2 after:rounded-full after:content-[''] hover:bg-accent hover:text-foreground active:scale-[0.96]"
                   onClick={closeModal}
                   aria-label={t('settings.closePanel')}
                 >
@@ -199,52 +207,73 @@ export default function SettingsPanelContent() {
 
               {/* Section tabs */}
               <div className="mb-3 flex gap-1 rounded-lg bg-muted p-1">
-                {SECTIONS.map((key) => (
-                  <button
-                    key={key}
-                    type="button"
-                    onClick={() => setSection(key)}
-                    className={cn(
-                      'flex-1 rounded-md px-3 py-1 font-medium text-xs transition-colors',
-                      section === key
-                        ? 'bg-background text-foreground shadow-sm'
-                        : 'text-muted-foreground hover:text-foreground',
-                    )}
-                  >
-                    {t(key === 'reader' ? 'settings.reader' : 'settings.general')}
-                  </button>
-                ))}
-              </div>
-
-              {/* Setting items */}
-              <div className="flex flex-col divide-y divide-border">
-                {items.map((item) => {
-                  const disabled = Boolean(item.disabledByMasterMotion && masterMotion);
+                {SECTIONS.map((key) => {
+                  const active = section === key;
                   return (
-                    <div key={item.key} className="py-2.5 first:pt-1 last:pb-1">
-                      <div className="flex items-center justify-between gap-3">
-                        <span className={cn('text-sm', disabled && 'opacity-50')}>{t(item.i18nKey)}</span>
-                        {item.type !== 'segmented' && renderControl(item)}
-                      </div>
-                      {item.type === 'segmented' && <div className="mt-2">{renderControl(item)}</div>}
-                      {disabled && (
-                        <p className="mt-1 text-muted-foreground text-xs">{t('settings.waveDisabledByMasterMotion')}</p>
+                    <button
+                      key={key}
+                      type="button"
+                      onClick={() => setSection(key)}
+                      className={cn(
+                        'relative flex-1 rounded-md px-3 py-1 font-medium text-xs transition-colors',
+                        active ? 'text-foreground' : 'text-muted-foreground hover:text-foreground',
                       )}
-                    </div>
+                    >
+                      {active && (
+                        <motion.span
+                          layoutId="settings-section-pill"
+                          className="absolute inset-0 rounded-md bg-background shadow-sm"
+                          transition={shouldReduceMotion ? { duration: 0 } : microReboundPreset}
+                        />
+                      )}
+                      <span className="relative">{t(key === 'reader' ? 'settings.reader' : 'settings.general')}</span>
+                    </button>
                   );
                 })}
               </div>
 
-              {/* Reader section: reset */}
-              {section === 'reader' && (
-                <button
-                  type="button"
-                  onClick={resetReaderPreferences}
-                  className="mt-3 w-full rounded-md border border-input py-1.5 text-muted-foreground text-xs transition-colors hover:bg-accent hover:text-foreground"
-                >
-                  {t('settings.reset')}
-                </button>
-              )}
+              {/* Setting items */}
+              <div className="min-h-0 flex-1">
+                <AnimatePresence mode="wait" initial={false}>
+                  <motion.div
+                    key={section}
+                    className="h-full overflow-y-auto overscroll-contain"
+                    initial={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, y: 6 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, y: -4 }}
+                    transition={{ duration: 0.15, ease: 'easeOut' }}
+                  >
+                    <div className="flex flex-col divide-y divide-border">
+                      {items.map((item) => {
+                        const disabled = Boolean(item.disabledByMasterMotion && masterMotion);
+                        return (
+                          <div key={item.key} className="py-2.5 first:pt-1 last:pb-1">
+                            <div className="flex items-center justify-between gap-3">
+                              <span className={cn('text-sm', disabled && 'opacity-50')}>{t(item.i18nKey)}</span>
+                              {item.type !== 'segmented' && renderControl(item)}
+                            </div>
+                            {item.type === 'segmented' && <div className="mt-2">{renderControl(item)}</div>}
+                            {disabled && (
+                              <p className="mt-1 text-muted-foreground text-xs">{t('settings.waveDisabledByMasterMotion')}</p>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+
+                    {/* Reader section: reset */}
+                    {section === 'reader' && (
+                      <button
+                        type="button"
+                        onClick={resetReaderPreferences}
+                        className="mt-3 w-full rounded-md border border-input py-1.5 text-muted-foreground text-xs transition-[background-color,color,transform] hover:bg-accent hover:text-foreground active:scale-[0.96]"
+                      >
+                        {t('settings.reset')}
+                      </button>
+                    )}
+                  </motion.div>
+                </AnimatePresence>
+              </div>
             </div>
           </motion.div>
         </FloatingFocusManager>
