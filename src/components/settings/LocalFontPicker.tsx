@@ -26,6 +26,10 @@ interface LocalFontPickerProps {
   onSelect: (fontFamily: string) => void;
 }
 
+function supportsLocalFontAccess(): boolean {
+  return typeof window !== 'undefined' && typeof (window as LocalFontWindow).queryLocalFonts === 'function';
+}
+
 function toCssFontFamily(family: string): string {
   return `"${family.replaceAll('\\', '\\\\').replaceAll('"', '\\"')}", sans-serif`;
 }
@@ -41,8 +45,9 @@ function getUniqueFamilies(fonts: LocalFontData[], locale: string): string[] {
 
 export default function LocalFontPicker({ open, currentFont, onOpenChange, onSelect }: LocalFontPickerProps) {
   const { t, locale } = useTranslation();
-  const [view, setView] = useState<PickerView>('intro');
-  const [failureReason, setFailureReason] = useState<FailureReason | null>(null);
+  const localFontAccessSupported = supportsLocalFontAccess();
+  const [view, setView] = useState<PickerView>(localFontAccessSupported ? 'intro' : 'manual');
+  const [failureReason, setFailureReason] = useState<FailureReason | null>(localFontAccessSupported ? null : 'unsupported');
   const [families, setFamilies] = useState<string[]>([]);
   const [search, setSearch] = useState('');
   const [manualFont, setManualFont] = useState(currentFont ?? '');
@@ -57,10 +62,13 @@ export default function LocalFontPicker({ open, currentFont, onOpenChange, onSel
       setView('fonts');
       return;
     }
-    if (!('queryLocalFonts' in window)) {
+    if (!supportsLocalFontAccess()) {
       setFailureReason('unsupported');
       setView('manual');
+      return;
     }
+    setFailureReason(null);
+    setView('intro');
   }, [currentFont, families.length, open]);
 
   const filteredFamilies = useMemo(() => {
@@ -135,10 +143,10 @@ export default function LocalFontPicker({ open, currentFont, onOpenChange, onSel
         )}
 
         {view === 'loading' && (
-          <div className="flex min-h-64 flex-col items-center justify-center gap-3 text-muted-foreground">
+          <output aria-live="polite" className="flex min-h-64 flex-col items-center justify-center gap-3 text-muted-foreground">
             <Icon icon="ri:loader-4-line" className="size-6 animate-spin" />
             <p className="text-sm">{t('settings.localFont.loading')}</p>
-          </div>
+          </output>
         )}
 
         {view === 'fonts' && (
