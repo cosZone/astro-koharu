@@ -20,6 +20,9 @@ export const READER_DEFAULTS = {
 /** Starting point when the user leaves automatic width through the stepper. */
 export const READER_CUSTOM_MEASURE = 65;
 
+/** Prevent malformed localStorage values from creating oversized inline styles. */
+export const READER_FONT_FAMILY_MAX_LENGTH = 128;
+
 export const GENERAL_DEFAULTS = {
   scrollProgress: true,
   bgmWidget: true,
@@ -29,6 +32,7 @@ export const GENERAL_DEFAULTS = {
 
 export const STORAGE_KEYS = {
   fontPreset: 'reader-font-preset',
+  fontFamily: 'reader-font-family',
   fontSize: 'reader-font-size',
   lineHeight: 'reader-line-height',
   measure: 'reader-measure',

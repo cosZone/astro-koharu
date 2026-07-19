@@ -65,40 +65,55 @@ export function CodeBlockToolbar({ preElement, enableCopy = true, enableFullscre
   };
 
   return (
-    <MacToolbar
-      language={info.language}
-      title={info.title}
-      url={info.url}
-      linkText={info.linkText}
-      onFullscreen={enableFullscreen ? handleFullscreen : undefined}
-    >
-      {collapsible && (
+    <>
+      <MacToolbar
+        language={info.language}
+        title={info.title}
+        url={info.url}
+        linkText={info.linkText}
+        onFullscreen={enableFullscreen ? handleFullscreen : undefined}
+      >
+        {collapsible && (
+          <button
+            type="button"
+            onClick={() => setCollapsed((prev) => !prev)}
+            className="flex h-8 w-8 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground active:scale-95"
+            aria-label={collapsed ? t('code.expand') : t('code.collapse')}
+            aria-expanded={!collapsed}
+            title={collapsed ? t('code.expand') : t('code.collapse')}
+          >
+            <Icon
+              icon="ri:arrow-down-s-line"
+              className={cn('size-4 transition-transform duration-200', !collapsed && 'rotate-180')}
+            />
+          </button>
+        )}
+        {enableFullscreen && (
+          <button
+            type="button"
+            onClick={handleFullscreen}
+            className="flex h-8 w-8 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground active:scale-95"
+            aria-label={t('code.fullscreen')}
+            title={t('code.fullscreen')}
+          >
+            <Icon icon="ri:fullscreen-line" className="size-4" />
+          </button>
+        )}
+        {enableCopy && <CopyButton text={info.code} />}
+      </MacToolbar>
+      {collapsible && collapsed && (
         <button
           type="button"
-          onClick={() => setCollapsed((prev) => !prev)}
-          className="flex h-8 w-8 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground active:scale-95"
-          aria-label={collapsed ? t('code.expand') : t('code.collapse')}
-          aria-expanded={!collapsed}
-          title={collapsed ? t('code.expand') : t('code.collapse')}
+          className="code-block-expand-overlay"
+          onClick={() => setCollapsed(false)}
+          aria-label={t('code.expand')}
+          title={t('code.expand')}
         >
-          <Icon
-            icon="ri:arrow-down-s-line"
-            className={cn('size-4 transition-transform duration-200', !collapsed && 'rotate-180')}
-          />
+          <span className="code-block-expand-overlay-icon">
+            <Icon icon="ri:arrow-down-s-line" className="size-5" />
+          </span>
         </button>
       )}
-      {enableFullscreen && (
-        <button
-          type="button"
-          onClick={handleFullscreen}
-          className="flex h-8 w-8 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground active:scale-95"
-          aria-label={t('code.fullscreen')}
-          title={t('code.fullscreen')}
-        >
-          <Icon icon="ri:fullscreen-line" className="size-4" />
-        </button>
-      )}
-      {enableCopy && <CopyButton text={info.code} />}
-    </MacToolbar>
+    </>
   );
 }
