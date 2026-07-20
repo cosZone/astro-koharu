@@ -1,4 +1,5 @@
 import fs from 'node:fs';
+import os from 'node:os';
 import path from 'node:path';
 
 import {
@@ -219,18 +220,78 @@ function assertManifestMatchesArchive(manifest: ValidatedBackupManifest, rawEntr
   }
 }
 
+function validateBackupArchiveContents(archivePath: string, diagnosticPath = archivePath): ValidatedBackupArchive {
+  const entries = tarList(archivePath);
+  const rawManifest = tarExtractManifest(archivePath);
+  if (!rawManifest) {
+    throw new Error(`备份缺少 manifest.json: ${diagnosticPath}`);
+  }
+
+  const { manifest, items } = parseBackupManifest(rawManifest, diagnosticPath);
+  assertManifestMatchesArchive(manifest, entries, diagnosticPath);
+  return { path: archivePath, manifest, items };
+}
+
+function createPrivateArchiveSnapshot(filePath: string): { path: string; sourcePath: string; cleanup: () => void } {
+  const resolved = validateBackupPath(filePath);
+  const snapshotDir = fs.mkdtempSync(path.join(os.tmpdir(), 'astro-koharu-backup-snapshot-'));
+  const snapshotPath = path.join(snapshotDir, 'archive.tar.gz');
+  let sourceHandle: number | null = null;
+  let snapshotHandle: number | null = null;
+
+  try {
+    fs.chmodSync(snapshotDir, 0o700);
+    sourceHandle = fs.openSync(resolved, fs.constants.O_RDONLY | (fs.constants.O_NOFOLLOW ?? 0));
+    if (!fs.fstatSync(sourceHandle).isFile()) {
+      throw new Error(`无效的备份文件: ${filePath}`);
+    }
+
+    snapshotHandle = fs.openSync(snapshotPath, 'wx', 0o600);
+    const buffer = Buffer.allocUnsafe(1024 * 1024);
+    let bytesRead = fs.readSync(sourceHandle, buffer, 0, buffer.length, null);
+    while (bytesRead > 0) {
+      let bytesWritten = 0;
+      while (bytesWritten < bytesRead) {
+        bytesWritten += fs.writeSync(snapshotHandle, buffer, bytesWritten, bytesRead - bytesWritten);
+      }
+      bytesRead = fs.readSync(sourceHandle, buffer, 0, buffer.length, null);
+    }
+    fs.fsyncSync(snapshotHandle);
+    fs.closeSync(snapshotHandle);
+    snapshotHandle = null;
+    fs.chmodSync(snapshotPath, 0o400);
+
+    return {
+      path: snapshotPath,
+      sourcePath: resolved,
+      cleanup: () => fs.rmSync(snapshotDir, { recursive: true, force: true }),
+    };
+  } catch (error) {
+    fs.rmSync(snapshotDir, { recursive: true, force: true });
+    throw error;
+  } finally {
+    if (snapshotHandle !== null) fs.closeSync(snapshotHandle);
+    if (sourceHandle !== null) fs.closeSync(sourceHandle);
+  }
+}
+
+/** Validate and use one private archive snapshot so later extraction cannot observe a replaced source file. */
+export function withValidatedBackupArchiveSnapshot<T>(
+  filePath: string,
+  consumeSnapshot: (archive: ValidatedBackupArchive) => T,
+): T {
+  const snapshot = createPrivateArchiveSnapshot(filePath);
+  try {
+    return consumeSnapshot(validateBackupArchiveContents(snapshot.path, snapshot.sourcePath));
+  } finally {
+    snapshot.cleanup();
+  }
+}
+
 /** Validate the archive path and its complete manifest/archive contract. */
 export function validateBackupArchive(filePath: string): ValidatedBackupArchive {
   const resolved = validateBackupPath(filePath);
-  const entries = tarList(resolved);
-  const rawManifest = tarExtractManifest(resolved);
-  if (!rawManifest) {
-    throw new Error(`备份缺少 manifest.json: ${filePath}`);
-  }
-
-  const { manifest, items } = parseBackupManifest(rawManifest, resolved);
-  assertManifestMatchesArchive(manifest, entries, resolved);
-  return { path: resolved, manifest, items };
+  return validateBackupArchiveContents(resolved);
 }
 
 /**

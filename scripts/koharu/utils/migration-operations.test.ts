@@ -168,6 +168,25 @@ test('legacy slug fields preserve their pre-migration public URLs', () => {
   }
 });
 
+test('frontmatter block scalars may contain indented delimiter text', () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'koharu-migrate-block-scalar-'));
+  try {
+    const configPath = writeSiteConfig(root, true);
+    const contentDir = path.join(root, 'src/content/blog');
+    const preferredFile = writePost(contentDir, 'preferred.md', 'link: kept\nslug: |\n  ignored\n  ---\n');
+    const transliteratedFile = writePost(contentDir, 'transliterated.md', 'slug: |\n  中\n  ---\n');
+
+    const plan = runContentMigration({ contentDir, siteConfigPath: configPath });
+
+    assert.deepEqual(plan.errors, []);
+    assert.equal(matter(fs.readFileSync(preferredFile, 'utf8')).data.link, 'kept');
+    assert.equal(Object.hasOwn(matter(fs.readFileSync(preferredFile, 'utf8')).data, 'slug'), false);
+    assert.equal(matter(fs.readFileSync(transliteratedFile, 'utf8')).data.link, 'zhong');
+  } finally {
+    fs.rmSync(root, { recursive: true, force: true });
+  }
+});
+
 test('content migration ignores underscore paths and their duplicate links', () => {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'koharu-migrate-hidden-content-'));
   try {
@@ -313,7 +332,75 @@ test('apply rejects new content files added after planning', () => {
   }
 });
 
-test('apply rolls back every attempted write when a later write fails', (context) => {
+test('apply rechecks content immediately before installing an atomic write', (context) => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'koharu-migrate-immediate-race-'));
+  try {
+    const configPath = writeSiteConfig(root);
+    const contentDir = path.join(root, 'src/content/blog');
+    const pendingFile = writePost(contentDir, 'pending.md', '');
+    const plan = planContentMigration({ contentDir, siteConfigPath: configPath });
+    const writeFileSync = fs.writeFileSync.bind(fs);
+    const concurrent = fs.readFileSync(pendingFile, 'utf8').replace('title: test', 'title: concurrently edited');
+    let injected = false;
+
+    context.mock.method(
+      fs,
+      'writeFileSync',
+      (filePath: fs.PathOrFileDescriptor, data: string | NodeJS.ArrayBufferView, options?: fs.WriteFileOptions) => {
+        writeFileSync(filePath, data, options);
+        if (!injected && typeof filePath === 'number' && data === plan.changes[0]?.updated) {
+          injected = true;
+          fs.writeFileSync(pendingFile, concurrent);
+        }
+      },
+    );
+
+    assert.throws(() => applyContentMigration(plan), /在写入前发生变化/);
+    assert.equal(injected, true);
+    assert.equal(fs.readFileSync(pendingFile, 'utf8'), concurrent);
+    assert.equal(
+      fs.readdirSync(contentDir).some((entry) => entry.includes('.koharu-migrate-')),
+      false,
+    );
+  } finally {
+    fs.rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test('atomic migration writes preserve the source file mode', () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'koharu-migrate-file-mode-'));
+  try {
+    const configPath = writeSiteConfig(root);
+    const contentDir = path.join(root, 'src/content/blog');
+    const pendingFile = writePost(contentDir, 'pending.md', '');
+    fs.chmodSync(pendingFile, 0o640);
+
+    runContentMigration({ contentDir, siteConfigPath: configPath });
+
+    assert.equal(fs.statSync(pendingFile).mode & 0o777, 0o640);
+  } finally {
+    fs.rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test('atomic migration supports source names near the filesystem component limit', () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'koharu-migrate-long-name-'));
+  try {
+    const configPath = writeSiteConfig(root);
+    const contentDir = path.join(root, 'src/content/blog');
+    const longName = `${'a'.repeat(240)}.md`;
+    const pendingFile = writePost(contentDir, longName, '');
+
+    const plan = runContentMigration({ contentDir, siteConfigPath: configPath });
+
+    assert.deepEqual(plan.errors, []);
+    assert.equal(matter(fs.readFileSync(pendingFile, 'utf8')).data.link, longName.slice(0, -3));
+  } finally {
+    fs.rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test('apply rolls back every installed atomic write when a later write fails', (context) => {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'koharu-migrate-write-rollback-'));
   try {
     const configPath = writeSiteConfig(root);
@@ -325,31 +412,29 @@ test('apply rolls back every attempted write when a later write fails', (context
     ];
     const originals = new Map(files.map((file) => [file, fs.readFileSync(file, 'utf8')]));
     const plan = planContentMigration({ contentDir, siteConfigPath: configPath });
-    const writeFileSync = fs.writeFileSync.bind(fs);
+    const renameSync = fs.renameSync.bind(fs);
     let updatedWrites = 0;
     const rollbackPaths: string[] = [];
 
-    context.mock.method(
-      fs,
-      'writeFileSync',
-      (filePath: fs.PathOrFileDescriptor, data: string | NodeJS.ArrayBufferView, options?: fs.WriteFileOptions) => {
-        if (plan.changes.some((change) => change.sourcePath === filePath && change.updated === data)) {
-          updatedWrites++;
-          if (updatedWrites === 2) throw new Error('injected second write failure');
-        }
-        if (plan.changes.some((change) => change.sourcePath === filePath && change.original === data)) {
-          rollbackPaths.push(String(filePath));
-        }
-        writeFileSync(filePath, data, options);
-      },
-    );
+    context.mock.method(fs, 'renameSync', (oldPath: fs.PathLike, newPath: fs.PathLike) => {
+      const change = plan.changes.find((candidate) => candidate.sourcePath === String(newPath));
+      const data = change ? fs.readFileSync(oldPath, 'utf8') : null;
+      if (change && data === change.updated) {
+        updatedWrites++;
+        if (updatedWrites === 2) throw new Error('injected second write failure');
+      }
+      if (change && data === change.original) {
+        rollbackPaths.push(String(newPath));
+      }
+      renameSync(oldPath, newPath);
+    });
 
     assert.throws(() => applyContentMigration(plan), /injected second write failure/);
     assert.equal(updatedWrites, 2);
     assert.deepEqual(
       rollbackPaths,
       plan.changes
-        .slice(0, 2)
+        .slice(0, 1)
         .toReversed()
         .map((change) => change.sourcePath),
     );
@@ -367,25 +452,23 @@ test('apply reports both write and rollback failures', (context) => {
     writePost(contentDir, 'first.md', '');
     writePost(contentDir, 'second.md', '');
     const plan = planContentMigration({ contentDir, siteConfigPath: configPath });
-    const writeFileSync = fs.writeFileSync.bind(fs);
+    const renameSync = fs.renameSync.bind(fs);
     let updatedWrites = 0;
     let rollbackWrites = 0;
 
-    context.mock.method(
-      fs,
-      'writeFileSync',
-      (filePath: fs.PathOrFileDescriptor, data: string | NodeJS.ArrayBufferView, options?: fs.WriteFileOptions) => {
-        if (plan.changes.some((change) => change.sourcePath === filePath && change.updated === data)) {
-          updatedWrites++;
-          if (updatedWrites === 2) throw new Error('injected write failure');
-        }
-        if (plan.changes.some((change) => change.sourcePath === filePath && change.original === data)) {
-          rollbackWrites++;
-          if (rollbackWrites === 1) throw new Error('injected rollback failure');
-        }
-        writeFileSync(filePath, data, options);
-      },
-    );
+    context.mock.method(fs, 'renameSync', (oldPath: fs.PathLike, newPath: fs.PathLike) => {
+      const change = plan.changes.find((candidate) => candidate.sourcePath === String(newPath));
+      const data = change ? fs.readFileSync(oldPath, 'utf8') : null;
+      if (change && data === change.updated) {
+        updatedWrites++;
+        if (updatedWrites === 2) throw new Error('injected write failure');
+      }
+      if (change && data === change.original) {
+        rollbackWrites++;
+        if (rollbackWrites === 1) throw new Error('injected rollback failure');
+      }
+      renameSync(oldPath, newPath);
+    });
 
     assert.throws(
       () => applyContentMigration(plan),

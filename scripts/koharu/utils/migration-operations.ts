@@ -1,3 +1,4 @@
+import { randomBytes } from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
 
@@ -134,7 +135,7 @@ function getFrontmatterLines(raw: string): FrontmatterLines | null {
   const lines = raw.split(/\r?\n/);
   if (lines[0] !== '---') return null;
 
-  const endIndex = lines.findIndex((line, index) => index > 0 && line.trim() === '---');
+  const endIndex = lines.findIndex((line, index) => index > 0 && line === '---');
   if (endIndex === -1) return null;
   return { lines, endIndex, eol };
 }
@@ -415,6 +416,58 @@ export function planContentMigration(options: ContentMigrationOptions = {}): Con
   return { scannedFiles: snapshot.files.length, unchangedFiles, changes, errors, snapshot };
 }
 
+interface RegularFileState {
+  content: string;
+  device: number;
+  inode: number;
+  mode: number;
+}
+
+function readRegularFileState(filePath: string): RegularFileState {
+  const handle = fs.openSync(filePath, fs.constants.O_RDONLY | (fs.constants.O_NOFOLLOW ?? 0));
+  try {
+    const stat = fs.fstatSync(handle);
+    if (!stat.isFile()) throw new Error(`${displayPath(filePath)} 不再是普通文件，请重新运行迁移`);
+    return {
+      content: fs.readFileSync(handle, 'utf8'),
+      device: stat.dev,
+      inode: stat.ino,
+      mode: stat.mode & 0o7777,
+    };
+  } finally {
+    fs.closeSync(handle);
+  }
+}
+
+function writeFileAtomically(filePath: string, expected: string, replacement: string): void {
+  const initial = readRegularFileState(filePath);
+  if (initial.content !== expected) {
+    throw new Error(`${displayPath(filePath)} 在扫描后发生变化，请重新运行迁移`);
+  }
+
+  const tempPath = path.join(path.dirname(filePath), `.koharu-migrate-${process.pid}-${randomBytes(6).toString('hex')}.tmp`);
+  let tempHandle: number | null = null;
+
+  try {
+    tempHandle = fs.openSync(tempPath, 'wx', initial.mode);
+    fs.writeFileSync(tempHandle, replacement, 'utf8');
+    fs.fchmodSync(tempHandle, initial.mode);
+    fs.fsyncSync(tempHandle);
+    fs.closeSync(tempHandle);
+    tempHandle = null;
+
+    const current = readRegularFileState(filePath);
+    if (current.content !== expected || current.device !== initial.device || current.inode !== initial.inode) {
+      throw new Error(`${displayPath(filePath)} 在写入前发生变化，请重新运行迁移`);
+    }
+
+    fs.renameSync(tempPath, filePath);
+  } finally {
+    if (tempHandle !== null) fs.closeSync(tempHandle);
+    fs.rmSync(tempPath, { force: true });
+  }
+}
+
 /** Apply a previously validated plan. All source files are rechecked before the first write. */
 export function applyContentMigration(plan: ContentMigrationPlan): void {
   if (plan.errors.length > 0) {
@@ -441,17 +494,17 @@ export function applyContentMigration(plan: ContentMigrationPlan): void {
       throw new Error(`${displayPath(currentFile.sourcePath)} 在扫描后发生变化，请重新运行迁移`);
     }
   }
-  const attemptedChanges: ContentMigrationChange[] = [];
+  const appliedChanges: ContentMigrationChange[] = [];
   try {
     for (const change of plan.changes) {
-      attemptedChanges.push(change);
-      fs.writeFileSync(change.sourcePath, change.updated);
+      writeFileAtomically(change.sourcePath, change.original, change.updated);
+      appliedChanges.push(change);
     }
   } catch (writeError) {
     const rollbackErrors: Error[] = [];
-    for (const change of attemptedChanges.toReversed()) {
+    for (const change of appliedChanges.toReversed()) {
       try {
-        fs.writeFileSync(change.sourcePath, change.original);
+        writeFileAtomically(change.sourcePath, change.updated, change.original);
       } catch (rollbackError) {
         const message = rollbackError instanceof Error ? rollbackError.message : String(rollbackError);
         rollbackErrors.push(new Error(`${change.file}: ${message}`));

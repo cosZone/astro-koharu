@@ -5,7 +5,7 @@ import path from 'node:path';
 import { type BackupItem, PROJECT_ROOT } from '../constants';
 import { type ContentMigrationPlan, runContentMigration } from './migration-operations';
 import { tarExtract } from './tar';
-import { type ValidatedBackupArchive, validateBackupArchive } from './validation';
+import { type ValidatedBackupArchive, withValidatedBackupArchiveSnapshot } from './validation';
 
 /** 还原预览项 */
 export interface RestorePreviewItem {
@@ -279,18 +279,24 @@ function previewRestoredContentMigration(tempDir: string, projectRoot: string): 
   return runContentMigration({ contentDir: projectedContent, siteConfigPath: projectedConfig, dryRun: true });
 }
 
+function extractValidatedBackupSnapshot(backupPath: string, tempDir: string): ValidatedBackupArchive {
+  return withValidatedBackupArchiveSnapshot(backupPath, (validated) => {
+    tarExtract(validated.path, tempDir);
+    return { ...validated, path: path.resolve(backupPath) };
+  });
+}
+
 /**
  * 获取还原预览（不修改文件）
  * @param backupPath 备份文件路径
  * @returns Preview of the files to restore and delete, plus the content migration plan.
  */
 export function getRestorePreview(backupPath: string, options: RestoreOptions = {}): RestorePreview {
-  const validated = validateBackupArchive(backupPath);
   const projectRoot = path.resolve(options.projectRoot ?? PROJECT_ROOT);
   const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'astro-koharu-restore-preview-'));
 
   try {
-    tarExtract(validated.path, tempDir);
+    const validated = extractValidatedBackupSnapshot(backupPath, tempDir);
     const items: RestorePreviewItem[] = [];
 
     for (const item of getPresentRestoreItems(validated)) {
@@ -319,18 +325,13 @@ export function getRestorePreview(backupPath: string, options: RestoreOptions = 
  * @returns 已还原的文件列表（目标路径）
  */
 export function restoreBackup(backupPath: string, options: RestoreOptions = {}): RestoreOutput {
-  // 验证备份文件
-  const validated = validateBackupArchive(backupPath);
   const projectRoot = path.resolve(options.projectRoot ?? PROJECT_ROOT);
-
-  // 创建临时目录
   const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'astro-koharu-restore-'));
   let transactionDir: string | null = null;
   let preserveTransaction = false;
 
   try {
-    // 解压到临时目录
-    tarExtract(validated.path, tempDir);
+    const validated = extractValidatedBackupSnapshot(backupPath, tempDir);
 
     const restoreItems: RestoreItemPaths[] = getPresentRestoreItems(validated).flatMap((item) => {
       const srcPath = path.join(tempDir, item.dest);
@@ -372,7 +373,6 @@ export function restoreBackup(backupPath: string, options: RestoreOptions = {}):
     preserveTransaction = error instanceof RestoreRollbackError && error.preserveTransaction;
     throw error;
   } finally {
-    // 清理临时目录
     fs.rmSync(tempDir, { recursive: true, force: true });
     if (transactionDir && !preserveTransaction) {
       fs.rmSync(transactionDir, { recursive: true, force: true });

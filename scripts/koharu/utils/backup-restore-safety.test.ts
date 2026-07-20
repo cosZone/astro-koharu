@@ -8,8 +8,8 @@ import { BACKUP_DIR, BACKUP_ITEMS, BACKUP_SCHEMA_VERSION, MANIFEST_NAME } from '
 import { getBackupList, getRestorableBackupList } from './backup';
 import { validateBackupSource } from './backup-operations';
 import { getRestorePreview, restoreBackup } from './restore-operations';
-import { tarCreate } from './tar';
-import { validateBackupArchive } from './validation';
+import { tarCreate, tarExtract } from './tar';
+import { validateBackupArchive, withValidatedBackupArchiveSnapshot } from './validation';
 
 function createArchive(stage: string): string {
   fs.mkdirSync(BACKUP_DIR, { recursive: true });
@@ -74,6 +74,44 @@ test('backup archives are private and historical v1 manifests remain valid', () 
   } finally {
     fs.rmSync(stage, { recursive: true, force: true });
     if (archive) fs.rmSync(archive, { force: true });
+  }
+});
+
+test('validation and extraction use one private immutable archive snapshot', () => {
+  const originalStage = fs.mkdtempSync(path.join(os.tmpdir(), 'koharu-backup-snapshot-original-'));
+  const replacementStage = fs.mkdtempSync(path.join(os.tmpdir(), 'koharu-backup-snapshot-replacement-'));
+  const extractDir = fs.mkdtempSync(path.join(os.tmpdir(), 'koharu-backup-snapshot-extract-'));
+  let originalArchive = '';
+  let replacementArchive = '';
+  let snapshotPath = '';
+
+  try {
+    fs.writeFileSync(path.join(originalStage, 'env'), 'original');
+    writeBasicManifest(originalStage, ['env']);
+    originalArchive = createArchive(originalStage);
+
+    fs.writeFileSync(path.join(replacementStage, 'env'), 'replacement');
+    writeBasicManifest(replacementStage, ['env']);
+    replacementArchive = createArchive(replacementStage);
+
+    withValidatedBackupArchiveSnapshot(originalArchive, (validated) => {
+      snapshotPath = validated.path;
+      assert.notEqual(snapshotPath, originalArchive);
+      assert.equal(fs.statSync(snapshotPath).mode & 0o777, 0o400);
+
+      fs.copyFileSync(replacementArchive, originalArchive);
+      tarExtract(validated.path, extractDir);
+      assert.equal(fs.readFileSync(path.join(extractDir, 'env'), 'utf8'), 'original');
+    });
+
+    assert.equal(fs.existsSync(snapshotPath), false);
+    assert.equal(fs.existsSync(path.dirname(snapshotPath)), false);
+  } finally {
+    fs.rmSync(originalStage, { recursive: true, force: true });
+    fs.rmSync(replacementStage, { recursive: true, force: true });
+    fs.rmSync(extractDir, { recursive: true, force: true });
+    if (originalArchive) fs.rmSync(originalArchive, { force: true });
+    if (replacementArchive) fs.rmSync(replacementArchive, { force: true });
   }
 });
 

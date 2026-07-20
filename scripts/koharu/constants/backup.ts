@@ -133,6 +133,3 @@ const LEGACY_BACKUP_ITEM_ALIASES: BackupItem[] = [
 export const BACKUP_ITEM_BY_DESTINATION = new Map(
   [...BACKUP_ITEMS, ...LEGACY_BACKUP_ITEM_ALIASES].map((item) => [item.dest, item]),
 );
-
-/** 还原文件映射（自动从 BACKUP_ITEMS 生成：备份路径 -> 项目路径） */
-export const RESTORE_MAP: Record<string, string> = Object.fromEntries(BACKUP_ITEMS.map((item) => [item.dest, item.src]));
