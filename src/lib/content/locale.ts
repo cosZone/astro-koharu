@@ -1,7 +1,7 @@
 /**
  * Content locale utilities
  *
- * Detects locale from content collection slugs and provides
+ * Detects locale from content collection IDs and provides
  * locale-aware filtering with fallback support.
  */
 
@@ -17,10 +17,10 @@ export interface SlugLocaleInfo {
 }
 
 /**
- * Extract locale info from a content collection slug.
+ * Extract locale info from a content collection ID.
  *
- * Convention: default-locale files live at root (slug = "tools/getting-started"),
- * translations live under `<locale>/` (slug = "en/tools/getting-started").
+ * Convention: default-locale files live at root (ID = "tools/getting-started"),
+ * translations live under `<locale>/` (ID = "en/tools/getting-started").
  *
  * Uses `allKnownLocales` (including disabled locales) to detect directory prefixes,
  * so posts in disabled locale directories are correctly excluded by filterPostsByLocale.
@@ -52,7 +52,7 @@ export function getSlugLocaleInfo(slug: string): SlugLocaleInfo {
  * Get the locale of a blog post.
  */
 export function getPostLocale(post: BlogPost): string {
-  return getSlugLocaleInfo(post.slug).locale;
+  return getSlugLocaleInfo(post.id).locale;
 }
 
 /**
@@ -61,7 +61,7 @@ export function getPostLocale(post: BlogPost): string {
  * When slug transliteration is enabled, non-ASCII slugs are converted to romanized form.
  */
 export function getPostSlug(post: BlogPost): string {
-  return post.data.link ?? transliterateSlug(getSlugLocaleInfo(post.slug).localeFreeSlug);
+  return post.data.link ?? transliterateSlug(getSlugLocaleInfo(post.id).localeFreeSlug);
 }
 
 /**

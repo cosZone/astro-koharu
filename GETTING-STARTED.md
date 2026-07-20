@@ -6,7 +6,7 @@
 
 确保你的电脑已安装：
 
-- **Node.js** 18.0 或更高版本
+- **Node.js** 22.12.0 或更高版本
 - **pnpm** 包管理器
 
 如果没有安装 pnpm，运行：
@@ -280,6 +280,7 @@ pnpm koharu generate all          # 生成全部
 | `pnpm koharu backup`        | 备份博客内容（--full 完整备份）    |
 | `pnpm koharu restore`       | 从备份恢复（--latest 还原最新）    |
 | `pnpm koharu update`        | 更新主题（--check, --clean, --rebase 等）|
+| `pnpm koharu migrate`       | 迁移历史文章链接（--dry-run 预览） |
 | `pnpm koharu generate`      | 生成内容资产                       |
 | `pnpm koharu clean`         | 清理旧备份（--keep N 保留 N 个）   |
 | `pnpm koharu list`          | 查看所有备份                       |
@@ -338,6 +339,19 @@ pnpm koharu update --tag v2.1.0
 6. 合并更新（根据所选模式）
 7. 安装依赖
 
+升级到包含 Astro 6 的版本后，建议运行一次内容迁移。命令会先创建基础备份，且可重复执行：
+
+```bash
+# 先检查需要修改的文章
+pnpm koharu migrate --dry-run
+
+# 自动备份并执行迁移
+pnpm koharu migrate
+```
+
+已有 `link` 不会被改写；历史 `slug` 会转换为 `link`；缺少两者的文章会按原文件路径补充稳定链接。重复链接或无法安全处理的
+frontmatter 会阻止整个迁移，避免只改一半。使用 `pnpm koharu restore` 还原旧备份时会自动执行同一迁移。
+
 如果遇到合并冲突，CLI 会显示冲突文件列表并提供解决指引。用户内容的冲突会被自动解决（保留本地版本）。
 
 ### 手动更新
@@ -360,7 +374,10 @@ git merge upstream/main
 # 5. 解决可能的冲突，然后安装依赖
 pnpm install
 
-# 6. 测试是否正常
+# 6. 迁移历史文章链接（可先加 --dry-run 预览）
+pnpm koharu migrate
+
+# 7. 测试是否正常
 pnpm dev
 ```
 

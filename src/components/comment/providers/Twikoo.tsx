@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { commentConfig } from '@/constants/site-config';
+import { useTranslation } from '@/hooks/useTranslation';
 import { getHtmlLang, getLocaleFromUrl } from '@/i18n/utils';
 import 'twikoo/dist/twikoo.css';
 import '@/styles/components/twikoo.css';
@@ -34,41 +35,63 @@ function TwikooSkeleton() {
 }
 
 export default function Twikoo() {
+  const { t } = useTranslation();
   const containerRef = useRef<HTMLDivElement>(null);
-  const [loading, setLoading] = useState(true);
+  const [status, setStatus] = useState<'loading' | 'ready' | 'error'>('loading');
 
   useEffect(() => {
     if (!config || !containerRef.current) return;
+    let active = true;
 
     const initTwikoo = async () => {
       if (!containerRef.current) return;
-      setLoading(true);
+      setStatus('loading');
       // Clear container to avoid duplicate init (Twikoo has no destroy/update API)
       containerRef.current.innerHTML = '';
       const locale = getLocaleFromUrl(window.location.pathname);
-      // Dynamic import: twikoo is a UMD bundle (~500KB) with no type definitions,
-      // and accesses `document` at module load time — lazy loading is the cleanest approach
-      const { init } = await import('twikoo/dist/twikoo.nocss.js');
-      if (!containerRef.current) return;
-      await init({
-        envId: config.envId,
-        el: containerRef.current,
-        region: config.region,
-        path: config.path ?? window.location.pathname,
-        lang: config.lang ?? getHtmlLang(locale),
-      });
-      setLoading(false);
+      try {
+        // Dynamic import: twikoo is a UMD bundle (~500KB) with no type definitions,
+        // and accesses `document` at module load time — lazy loading is the cleanest approach
+        const { init } = await import('twikoo/dist/twikoo.nocss.js');
+        if (!containerRef.current) return;
+        await init({
+          envId: config.envId,
+          el: containerRef.current,
+          region: config.region,
+          path: config.path ?? window.location.pathname,
+          lang: config.lang ?? getHtmlLang(locale),
+        });
+        if (active) setStatus('ready');
+      } catch (error) {
+        console.error('[Twikoo] Failed to initialize:', error);
+        if (active) setStatus('error');
+      }
     };
 
-    initTwikoo();
+    void initTwikoo();
+    return () => {
+      active = false;
+    };
   }, []);
 
   if (!config) return null;
 
   return (
     <div className="px-4">
-      {loading && <TwikooSkeleton />}
-      <div ref={containerRef} id="tcomment" className={loading ? 'hidden' : undefined} />
+      {status === 'loading' && <TwikooSkeleton />}
+      {status === 'error' && (
+        <div className="flex flex-col items-center gap-3 rounded-lg border border-border p-6 text-center">
+          <p className="text-muted-foreground text-sm">{t('comment.error')}</p>
+          <button
+            type="button"
+            className="rounded-md bg-primary px-4 py-2 text-primary-foreground text-sm transition-opacity hover:opacity-90"
+            onClick={() => window.location.reload()}
+          >
+            {t('comment.retry')}
+          </button>
+        </div>
+      )}
+      <div ref={containerRef} id="tcomment" className={status === 'ready' ? undefined : 'hidden'} />
     </div>
   );
 }

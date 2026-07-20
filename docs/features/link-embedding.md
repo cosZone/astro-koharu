@@ -253,5 +253,5 @@ export const defaultContentConfig: ContentConfig = {
 - **remark**: Markdown 处理
 - **unist-util-visit**: AST 遍历
 - **React 19**: Tweet 组件渲染
-- **Astro 5**: 框架集成
+- **Astro 6**: 框架集成
 - **静态站点生成 (SSG)**: 链接预览在构建时生成

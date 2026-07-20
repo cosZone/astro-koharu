@@ -51,13 +51,13 @@ for (const key of Object.keys(summaries as SummariesData)) {
 export function getPostDescription(post: BlogPost, locale: string = defaultLocale, maxLength: number = 150): string {
   if (post.data.description) return post.data.description;
   if (post.data.password) return t(locale, 'encrypted.post.description');
-  return extractTextFromMarkdown(post.body, maxLength);
+  return extractTextFromMarkdown(post.body ?? '', maxLength);
 }
 
 /**
- * 获取文章的 AI 摘要
- * @param slug 文章 slug（通常是 post.data.link 或 post.slug）
- * @returns AI 摘要文本，如果不存在则返回 null
+ * Get the AI-generated summary for a post.
+ * @param slug Public post slug, usually derived from post.data.link or post.id.
+ * @returns The generated summary, or null when none exists.
  */
 export function getPostSummary(slug: string): string | null {
   const data = summaries as SummariesData;
@@ -87,7 +87,7 @@ export function getPostDescriptionWithSummary(post: BlogPost, locale: string = d
   if (post.data.password) {
     return t(locale, 'encrypted.post.description');
   }
-  return getPostSummary(getPostSlug(post)) || extractTextFromMarkdown(post.body, maxLength);
+  return getPostSummary(getPostSlug(post)) || extractTextFromMarkdown(post.body ?? '', maxLength);
 }
 
 /**

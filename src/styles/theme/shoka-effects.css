@@ -78,6 +78,17 @@ spoiler-span:not(:defined) {
   background-color: hsl(0 0% 80%);
 }
 
+spoiler-span:not(:defined)[data-fallback-ready="true"] {
+  cursor: pointer;
+}
+
+spoiler-span:not(:defined)[data-fallback-revealed="true"] {
+  background-color: transparent;
+  color: inherit;
+  cursor: default;
+  user-select: text;
+}
+
 /* --- Spoiler blur variant (!!text!!{.blur}) --- */
 .spoiler.blur {
   background-color: transparent;

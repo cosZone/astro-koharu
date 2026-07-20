@@ -1,0 +1,19 @@
+diff --git a/dist/content/loaders/glob.js b/dist/content/loaders/glob.js
+index 944770deced12649f9bece436816f942c4a40fdc..662e72c793b698e8905281c580ad46b46ee581d5 100644
+--- a/dist/content/loaders/glob.js
++++ b/dist/content/loaders/glob.js
+@@ -232,7 +232,13 @@ function glob(globOptions) {
+         return;
+       }
+       watcher.add(filePath);
+-      const matchesGlob = (entry) => !entry.startsWith("../") && picomatch.isMatch(entry, globOptions.pattern);
++      const matchesGlob = (entry) => {
++        if (entry.startsWith("../")) return false;
++        const patterns = Array.isArray(globOptions.pattern) ? globOptions.pattern : [globOptions.pattern];
++        const includes = patterns.filter((pattern) => !pattern.startsWith("!"));
++        const excludes = patterns.filter((pattern) => pattern.startsWith("!")).map((pattern) => pattern.slice(1));
++        return (includes.length === 0 || picomatch.isMatch(entry, includes)) && !picomatch.isMatch(entry, excludes);
++      };
+       const basePath = fileURLToPath(baseDir);
+       async function onChange(changedPath) {
+         const entry = posixRelative(basePath, changedPath);

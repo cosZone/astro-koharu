@@ -1,5 +1,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
+import { unified } from '@astrojs/markdown-remark';
 import react from '@astrojs/react';
 import sitemap from '@astrojs/sitemap';
 import yaml from '@rollup/plugin-yaml';
@@ -176,10 +177,11 @@ export default defineConfig({
   site: yamlConfig.site.url,
   compressHTML: true,
   markdown: {
-    // Enable GitHub Flavored Markdown
-    gfm: true,
-    remarkPlugins,
-    rehypePlugins,
+    processor: unified({
+      gfm: true,
+      remarkPlugins,
+      rehypePlugins,
+    }),
     syntaxHighlight: {
       type: 'shiki',
       excludeLangs: ['mermaid'],
@@ -229,11 +231,18 @@ export default defineConfig({
       sourcemap: isAnalyze,
     },
     plugins: [yaml(), conditionalSnowfall(), svgr(), tailwindcss()],
-    ssr: {
+    resolve: {
       noExternal: ['react-tweet'],
     },
     optimizeDeps: {
-      include: ['@antv/infographic'],
+      include: [
+        '@antv/infographic',
+        '@floating-ui/react',
+        '@hookform/resolvers/zod',
+        '@tanstack/react-virtual',
+        'react-hook-form',
+        'zod',
+      ],
     },
   },
   // Only enable Astro i18n routing when multiple locales are configured.
@@ -244,7 +253,6 @@ export default defineConfig({
       locales: i18nLocales,
       routing: {
         prefixDefaultLocale: false,
-        redirectToDefaultLocale: true,
       },
     },
   }),

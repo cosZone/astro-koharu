@@ -15,7 +15,17 @@ export { AUTO_EXIT_DELAY, BACKUP_DIR, PROJECT_ROOT } from './constants';
 
 // Hooks
 export { usePressAnyKey, useRetimer } from './hooks';
-export type { BackupInfo, BackupOutput, BackupResult, DeleteResult, ParsedArgs, RestorePreviewItem } from './utils';
+export type {
+  BackupInfo,
+  BackupOutput,
+  BackupResult,
+  DeleteResult,
+  ParsedArgs,
+  RestoreOptions,
+  RestoreOutput,
+  RestorePreview,
+  RestorePreviewItem,
+} from './utils';
 // Common utilities
 // Backup operations
 // Restore operations
@@ -24,6 +34,7 @@ export {
   deleteBackups,
   formatSize,
   getBackupList,
+  getRestorableBackupList,
   getRestorePreview,
   getVersion,
   parseArgs,
@@ -32,3 +43,4 @@ export {
   tarExtractManifest,
   validateBackupFilePath,
 } from './utils';
+export type { ContentMigrationPlan } from './utils/migration-operations';

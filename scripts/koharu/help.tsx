@@ -32,6 +32,7 @@ export function HelpApp({ showReturnHint = false, onComplete }: HelpAppProps) {
         <Text> pnpm koharu backup 备份博客内容和配置</Text>
         <Text> pnpm koharu restore 从备份恢复</Text>
         <Text> pnpm koharu generate 生成内容资产</Text>
+        <Text> pnpm koharu migrate 一键迁移历史文章数据</Text>
         <Text> pnpm koharu clean 清理旧备份</Text>
         <Text> pnpm koharu list 查看所有备份</Text>
       </Box>
@@ -61,6 +62,12 @@ export function HelpApp({ showReturnHint = false, onComplete }: HelpAppProps) {
         <Text> pnpm koharu generate all 生成全部</Text>
         <Text> --model {'<name>'} 指定 LLM 模型</Text>
         <Text> --force 强制重新生成</Text>
+      </Box>
+
+      <Box flexDirection="column" marginBottom={1}>
+        <Text bold>迁移选项:</Text>
+        <Text> --dry-run 仅扫描并预览迁移内容</Text>
+        <Text> --force 跳过确认提示（仍会自动备份）</Text>
       </Box>
 
       <Box flexDirection="column" marginBottom={1}>

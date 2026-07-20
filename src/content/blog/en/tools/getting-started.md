@@ -16,7 +16,7 @@ Welcome to the astro-koharu blog theme!
 
 ## About This Theme
 
-astro-koharu is a modern blog system built on Astro 5.x, inspired by the Hexo Shoka theme. Key features include:
+astro-koharu is a modern blog system built on Astro 6.x, inspired by the Hexo Shoka theme. Key features include:
 
 - **High Performance** - Static site generation with Astro, lightning-fast loading
 - **Elegant Design** - Anime-inspired aesthetic with pink and blue color scheme

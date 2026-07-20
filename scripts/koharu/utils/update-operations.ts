@@ -377,10 +377,13 @@ function removeDeletedUpstreamFiles(targetRef: string): void {
  */
 export function cleanRestore(backupPath: string, preCleanSha?: string): string[] {
   try {
-    const restored = restoreBackup(backupPath);
+    const { restoredFiles, migration } = restoreBackup(backupPath);
+    if (migration && migration.errors.length > 0) {
+      throw new Error(`有 ${migration.errors.length} 篇历史文章无法自动迁移，请先运行 pnpm koharu migrate --dry-run`);
+    }
     git('add -A');
     git('commit --amend --no-edit');
-    return restored;
+    return restoredFiles;
   } catch (error) {
     // 还原失败，回滚到合并前的状态以保护用户数据
     if (preCleanSha) {

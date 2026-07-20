@@ -1,4 +1,5 @@
 ---
+link: note/encrypted-post-demo
 title: 加密文章演示
 date: 2026-02-17
 password: demo

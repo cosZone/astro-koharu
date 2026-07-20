@@ -58,6 +58,8 @@ docker compose --env-file ./.env -f docker/docker-compose.yml up -d --build
 
 ### ローカル開発
 
+開始する前に、Node.js 22.12.0 以降と pnpm 9.15.1 をインストールしてください。
+
 1. プロジェクトをクローン
 
 ```bash
@@ -79,7 +81,7 @@ pnpm dev
 
 ## 機能
 
-- Astro 5.x ベースの静的サイト生成、優れたパフォーマンス
+- Astro 6.x ベースの静的サイト生成、優れたパフォーマンス
 - エレガントなダーク/ライトテーマ切り替え
 - Pagefind によるサーバーレス全文検索
 - **切り替え可能なコメントシステム**：Waline（推奨）、Giscus、Remark42、Twikoo に対応 — 設定ファイルでワンクリック切り替え、テーマ自動追従
@@ -118,6 +120,7 @@ pnpm koharu new          # 新規コンテンツ作成（投稿/フレンドリ�
 pnpm koharu backup       # ブログコンテンツと設定のバックアップ
 pnpm koharu restore      # バックアップからリストア
 pnpm koharu update       # テーマの更新
+pnpm koharu migrate      # 履歴記事データをワンステップで移行
 pnpm koharu generate     # コンテンツアセット生成（LQIP、類似度、AI 要約）
 pnpm koharu clean        # 古いバックアップの削除
 pnpm koharu list         # すべてのバックアップを一覧表示
@@ -167,6 +170,19 @@ pnpm koharu restore --latest
 # リストア対象ファイルのプレビュー（ドライラン）
 pnpm koharu restore --dry-run
 ```
+
+### 履歴コンテンツの移行
+
+Astro 6 へのアップグレード後、または古いバックアップのリストア後に、移行内容を確認して実行できます：
+
+```bash
+pnpm koharu migrate --dry-run
+pnpm koharu migrate
+```
+
+実行前に基本バックアップを自動作成し、既存の `link` を保持したまま、旧 `slug` を安全に `link` へ変換します。
+両方がない記事には安定したリンクを追加します。何度実行しても安全で、重複リンクや安全に処理できない frontmatter が
+見つかった場合はファイルを変更せず停止します。Koharu CLI で古いバックアップをリストアした場合も同じ移行が自動実行されます。
 
 ### テーマの更新
 

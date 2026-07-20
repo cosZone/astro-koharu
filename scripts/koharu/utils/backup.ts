@@ -4,6 +4,7 @@ import path from 'node:path';
 import { BACKUP_DIR, BACKUP_FILE_EXTENSION } from '../constants';
 import { formatSize } from './format';
 import { tarExtractManifest } from './tar';
+import { validateBackupArchive } from './validation';
 
 /**
  * 备份信息接口
@@ -50,27 +51,27 @@ export function getBackupList(): BackupInfo[] {
     const filePath = path.join(BACKUP_DIR, name);
     const stats = fs.statSync(filePath);
 
-    // 尝试读取 manifest
     let type = 'unknown';
     let timestamp = '';
     try {
-      const manifest = tarExtractManifest(filePath);
-      if (manifest) {
-        const parsed = parseBackupManifest(manifest);
-        type = parsed.type;
-        timestamp = parsed.timestamp;
-      }
+      const rawManifest = tarExtractManifest(filePath);
+      if (rawManifest) ({ type, timestamp } = parseBackupManifest(rawManifest));
     } catch {
-      // ignore
+      // Invalid archives remain visible to the cleanup command.
     }
 
-    return {
-      name,
-      path: filePath,
-      size: stats.size,
-      sizeFormatted: formatSize(stats.size),
-      type,
-      timestamp,
-    };
+    return { name, path: filePath, size: stats.size, sizeFormatted: formatSize(stats.size), type, timestamp };
+  });
+}
+
+/** Return only archives that are safe to offer in the restore picker. */
+export function getRestorableBackupList(): BackupInfo[] {
+  return getBackupList().filter((backup) => {
+    try {
+      validateBackupArchive(backup.path);
+      return true;
+    } catch {
+      return false;
+    }
   });
 }
