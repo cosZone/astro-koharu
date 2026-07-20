@@ -135,7 +135,7 @@ function getFrontmatterLines(raw: string): FrontmatterLines | null {
   const lines = raw.split(/\r?\n/);
   if (lines[0] !== '---') return null;
 
-  const endIndex = lines.findIndex((line, index) => index > 0 && line === '---');
+  const endIndex = lines.findIndex((line, index) => index > 0 && /^---[\t ]*$/.test(line));
   if (endIndex === -1) return null;
   return { lines, endIndex, eol };
 }

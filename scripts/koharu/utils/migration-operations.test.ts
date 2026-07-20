@@ -187,6 +187,27 @@ test('frontmatter block scalars may contain indented delimiter text', () => {
   }
 });
 
+test('frontmatter delimiters allow trailing whitespace but must start in column zero', () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'koharu-migrate-frontmatter-delimiter-'));
+  try {
+    const configPath = writeSiteConfig(root, true);
+    const contentDir = path.join(root, 'src/content/blog');
+    const filePath = path.join(contentDir, 'trailing-space.md');
+    fs.mkdirSync(contentDir, { recursive: true });
+    fs.writeFileSync(filePath, '---\nslug: |\n  中\n  ---\ntitle: test\ndate: 2026-01-01\n---   \nbody\n');
+
+    const plan = runContentMigration({ contentDir, siteConfigPath: configPath });
+    const migrated = fs.readFileSync(filePath, 'utf8');
+
+    assert.deepEqual(plan.errors, []);
+    assert.equal(matter(migrated).data.link, 'zhong');
+    assert.equal(Object.hasOwn(matter(migrated).data, 'slug'), false);
+    assert.match(migrated, /\n--- {3}\nbody\n$/);
+  } finally {
+    fs.rmSync(root, { recursive: true, force: true });
+  }
+});
+
 test('content migration ignores underscore paths and their duplicate links', () => {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'koharu-migrate-hidden-content-'));
   try {
