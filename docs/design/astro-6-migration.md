@@ -110,7 +110,7 @@ flowchart LR
   I --> L[locale detection]
   I --> S[derived public post slug]
   O[frontmatter link override] --> S
-  S --> U[/locale?/post/public-slug]
+  S --> U["/locale?/post/public-slug"]
 ```
 
 - 只把 `BlogPost` 上的 legacy `post.slug` 改为 `post.id`。
