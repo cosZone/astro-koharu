@@ -67,6 +67,7 @@ koharu - astro-koharu CLI
 
 迁移选项:
   --dry-run                仅扫描并预览迁移内容
+  --check                  仅扫描，需要迁移时返回非零状态
   --force                  跳过确认提示（仍会自动备份）
 
 通用选项:
@@ -206,7 +207,13 @@ function KoharuApp() {
       )}
 
       {mode === 'migrate' && (
-        <MigrateApp dryRun={args.dryRun} force={args.force} showReturnHint={fromMenu} onComplete={handleComplete} />
+        <MigrateApp
+          check={args.check}
+          dryRun={args.dryRun}
+          force={args.force}
+          showReturnHint={fromMenu}
+          onComplete={handleComplete}
+        />
       )}
 
       {mode === 'new' && (

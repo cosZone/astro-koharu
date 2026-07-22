@@ -173,7 +173,8 @@ pnpm koharu restore --dry-run
 
 ### Migrating Legacy Content
 
-After upgrading to Astro 6 or restoring an old backup, preview and run the content migration:
+After upgrading to Astro 6 or restoring an old backup, migrate post links before running `pnpm dev` or `pnpm build`.
+When upgrading from an older release, wait for the old `pnpm koharu update` process to exit completely, then run:
 
 ```bash
 pnpm koharu migrate --dry-run
@@ -184,6 +185,7 @@ The command creates a basic backup first, preserves existing `link` values, safe
 `link`, and adds a stable link when both fields are missing. It is idempotent and stops without modifying files when it
 finds duplicate links or unsafe frontmatter. Restoring an old backup through the Koharu CLI runs the same migration
 automatically.
+`pnpm dev` and `pnpm build` also run a read-only check first, stopping with these instructions when migration is pending.
 
 ### Updating the Theme
 

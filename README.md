@@ -173,7 +173,8 @@ pnpm koharu restore --dry-run
 
 ### 历史内容迁移
 
-升级到 Astro 6 或还原旧备份后，可以先预览再一键迁移文章链接：
+升级到 Astro 6 或还原旧备份后，必须在运行 `pnpm dev` 或 `pnpm build` 前迁移文章链接。从旧版升级时，
+请先等 `pnpm koharu update` 进程完全退出，再执行：
 
 ```bash
 pnpm koharu migrate --dry-run
@@ -182,6 +183,7 @@ pnpm koharu migrate
 
 迁移会先自动创建基础备份，保留已有 `link`，将旧 `slug` 安全转换为 `link`，并为缺少两者的文章补充稳定链接。
 脚本可重复执行；发现重复链接或无法安全处理的 frontmatter 时会停止且不修改文件。通过 Koharu CLI 还原旧备份时会自动执行同一迁移。
+`pnpm dev` 和 `pnpm build` 也会先执行只读检查，在内容尚未迁移时停止并显示修复命令。
 
 ### 更新主题
 

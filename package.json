@@ -7,14 +7,14 @@
     "node": ">=22.12.0"
   },
   "scripts": {
-    "dev": "astro dev",
+    "dev": "pnpm koharu migrate --check && astro dev",
     "generate:lqips": "npx tsx src/scripts/generateLqips.ts",
     "generate:similarities": "npx tsx src/scripts/generateSimilarities.ts",
     "generate:similarities:gpu": "npx tsx src/scripts/generateSimilarities.ts --device gpu",
     "generate:summaries": "npx tsx src/scripts/generateSummaries.ts",
     "generate:summaries:force": "npx tsx src/scripts/generateSummaries.ts --force",
     "generate:all": "npm run generate:lqips && npm run generate:summaries && npm run generate:similarities",
-    "build": "astro build",
+    "build": "pnpm koharu migrate --check && astro build",
     "preview": "astro preview",
     "astro": "astro",
     "check": "astro check",

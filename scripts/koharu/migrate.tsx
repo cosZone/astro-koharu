@@ -10,6 +10,7 @@ import { applyContentMigration, type ContentMigrationPlan, planContentMigration 
 type MigrationStatus = 'confirming' | 'backing-up' | 'migrating' | 'done' | 'error' | 'cancelled';
 
 interface MigrateAppProps {
+  check?: boolean;
   dryRun?: boolean;
   force?: boolean;
   showReturnHint?: boolean;
@@ -22,10 +23,16 @@ const ACTION_LABELS = {
   'remove-slug': '移除冗余 slug',
 } as const;
 
-export function MigrateApp({ dryRun = false, force = false, showReturnHint = false, onComplete }: MigrateAppProps) {
+export function MigrateApp({
+  check = false,
+  dryRun = false,
+  force = false,
+  showReturnHint = false,
+  onComplete,
+}: MigrateAppProps) {
   const [plan, setPlan] = useState<ContentMigrationPlan>(() => planContentMigration());
   const [status, setStatus] = useState<MigrationStatus>(() =>
-    dryRun || plan.changes.length === 0 || plan.errors.length > 0 ? 'done' : 'confirming',
+    check || dryRun || plan.changes.length === 0 || plan.errors.length > 0 ? 'done' : 'confirming',
   );
   const [backupFile, setBackupFile] = useState('');
   const [error, setError] = useState('');
@@ -61,14 +68,14 @@ export function MigrateApp({ dryRun = false, force = false, showReturnHint = fal
     if (status === 'done' || status === 'error' || status === 'cancelled') finishLater();
   }, [finishLater, status]);
 
-  // In non-interactive CLI runs (`pnpm koharu migrate [--dry-run]`), surface failures
-  // through the exit code so scripts and CI can detect them. The interactive menu never fails the process.
+  // In non-interactive CLI runs, surface failures through the exit code so scripts and CI can detect them.
+  // Check mode also fails when safe migrations are pending. The interactive menu never fails the process.
   useEffect(() => {
     if (showReturnHint) return;
-    if (status === 'error' || (status === 'done' && plan.errors.length > 0)) {
+    if (status === 'error' || (status === 'done' && (plan.errors.length > 0 || (check && plan.changes.length > 0)))) {
       process.exitCode = 1;
     }
-  }, [plan.errors.length, showReturnHint, status]);
+  }, [check, plan.changes.length, plan.errors.length, showReturnHint, status]);
 
   useEffect(() => {
     if (force && status === 'confirming') runMigration();
@@ -122,12 +129,30 @@ export function MigrateApp({ dryRun = false, force = false, showReturnHint = fal
             </Box>
           )}
 
-          {status === 'done' && plan.errors.length === 0 && (
+          {status === 'done' && plan.errors.length === 0 && !check && (
             <Box flexDirection="column" marginTop={1}>
               <Text bold color="green">
                 {dryRun ? '预览完成，未修改文件' : plan.changes.length === 0 ? '无需迁移' : '迁移完成'}
               </Text>
               {backupFile && <Text dimColor>备份文件: {backupFile}</Text>}
+            </Box>
+          )}
+
+          {status === 'done' && check && (
+            <Box flexDirection="column" marginTop={1}>
+              {plan.errors.length === 0 && plan.changes.length === 0 ? (
+                <Text bold color="green">
+                  内容迁移检查通过
+                </Text>
+              ) : (
+                <>
+                  <Text bold color="red">
+                    内容尚未完成迁移，已阻止启动或构建
+                  </Text>
+                  <Text color="yellow">{'  '}先预览: pnpm koharu migrate --dry-run</Text>
+                  <Text color="yellow">{'  '}再执行: pnpm koharu migrate</Text>
+                </>
+              )}
             </Box>
           )}
         </Box>
