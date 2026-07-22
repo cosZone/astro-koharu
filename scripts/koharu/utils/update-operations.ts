@@ -1,6 +1,7 @@
 import { execSync, spawn } from 'node:child_process';
+import fs from 'node:fs';
 import { BACKUP_ITEMS } from '../constants/backup';
-import { PROJECT_ROOT } from '../constants/paths';
+import { PACKAGE_JSON_PATH, PROJECT_ROOT } from '../constants/paths';
 import {
   type CommitInfo,
   GITHUB_REPO,
@@ -14,6 +15,38 @@ import {
 } from '../constants/update';
 import { restoreBackup } from './restore-operations';
 import { getVersion } from './version';
+
+export interface PackageManagerInstallCommand {
+  command: string;
+  args: string[];
+}
+
+function parsePackageManager(packageManager: unknown): string {
+  if (typeof packageManager !== 'string' || !/^pnpm@\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?$/.test(packageManager)) {
+    throw new Error('package.json 必须声明精确的 packageManager，例如 pnpm@10.28.2');
+  }
+
+  return packageManager;
+}
+
+/** Build an install command that cannot fall back to the caller's older pnpm binary. */
+export function getPackageManagerInstallCommand(
+  packageManager: unknown,
+  fallbackPackageManager?: unknown,
+): PackageManagerInstallCommand {
+  const exactPackageManager = parsePackageManager(packageManager === undefined ? fallbackPackageManager : packageManager);
+
+  return {
+    command: process.platform === 'win32' ? 'npx.cmd' : 'npx',
+    args: ['--yes', exactPackageManager, 'install'],
+  };
+}
+
+/** Read the pnpm pin before an update can replace package.json with a legacy version. */
+export function readProjectPackageManager(): string {
+  const packageJson = JSON.parse(fs.readFileSync(PACKAGE_JSON_PATH, 'utf8')) as { packageManager?: unknown };
+  return parsePackageManager(packageJson.packageManager);
+}
 
 /**
  * 执行 Git 命令
@@ -377,10 +410,11 @@ function removeDeletedUpstreamFiles(targetRef: string): void {
  */
 export function cleanRestore(backupPath: string, preCleanSha?: string): string[] {
   try {
-    const restored = restoreBackup(backupPath);
+    // restoreBackup throws when content migration fails, so a returned result is always fully migrated.
+    const { restoredFiles } = restoreBackup(backupPath);
     git('add -A');
     git('commit --amend --no-edit');
-    return restored;
+    return restoredFiles;
   } catch (error) {
     // 还原失败，回滚到合并前的状态以保护用户数据
     if (preCleanSha) {
@@ -581,11 +615,23 @@ export function abortRebase(): boolean {
 /**
  * 安装依赖（异步）
  */
-export function installDeps(onOutput?: (data: string) => void): Promise<{ success: boolean; error?: string }> {
+export function installDeps(
+  fallbackPackageManager: unknown,
+  onOutput?: (data: string) => void,
+): Promise<{ success: boolean; error?: string }> {
   return new Promise((resolve) => {
-    const child = spawn('pnpm', ['install'], {
+    let installCommand: PackageManagerInstallCommand;
+    try {
+      const packageJson = JSON.parse(fs.readFileSync(PACKAGE_JSON_PATH, 'utf8')) as { packageManager?: unknown };
+      installCommand = getPackageManagerInstallCommand(packageJson.packageManager, fallbackPackageManager);
+    } catch (error) {
+      resolve({ success: false, error: error instanceof Error ? error.message : String(error) });
+      return;
+    }
+
+    const child = spawn(installCommand.command, installCommand.args, {
       cwd: PROJECT_ROOT,
-      shell: true,
+      shell: false,
     });
 
     let stderr = '';

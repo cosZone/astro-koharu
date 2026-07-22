@@ -15,18 +15,19 @@ astro-koharu 的内容系统基于 **Astro Content Collections**，这是 Astro 
 Content Collections 是 Astro 管理内容的官方方式，它将 Markdown/MDX 文件组织成可查询的集合：
 
 ```plain
-src/content/
-├── config.ts          # Schema 定义
-└── blog/              # blog 集合
-    ├── life/
-    │   └── post1.md
-    ├── note/
-    │   ├── front-end/
-    │   │   └── react-learning.md
-    │   └── algorithm/
-    │       └── sorting.md
-    └── weekly/
-        └── issue-01.md
+src/
+├── content.config.ts  # Schema 与 loader 定义
+└── content/
+    └── blog/          # blog 集合
+        ├── life/
+        │   └── post1.md
+        ├── note/
+        │   ├── front-end/
+        │   │   └── react-learning.md
+        │   └── algorithm/
+        │       └── sorting.md
+        └── weekly/
+            └── issue-01.md
 ```
 
 ### 核心优势
@@ -40,13 +41,16 @@ src/content/
 
 ## Schema 定义
 
-### 配置文件 `src/content/config.ts`
+### 配置文件 `src/content.config.ts`
 
 ```typescript
-import type { BlogSchema } from 'types/blog';
-import { defineCollection, z } from 'astro:content';
+import { defineCollection } from 'astro:content';
+import { glob } from 'astro/loaders';
+import { z } from 'astro/zod';
+import type { BlogSchema, BlogSchemaInput } from 'types/blog';
 
 const blogCollection = defineCollection({
+  loader: glob({ pattern: '**/[^_]*.{md,mdx}', base: './src/content/blog' }),
   schema: z.object({
     // 必填字段
     title: z.string(),              // 文章标题
@@ -68,7 +72,7 @@ const blogCollection = defineCollection({
       .array(z.string())                    // 格式1: ['工具']
       .or(z.array(z.array(z.string())))     // 格式2: [['笔记', '前端', 'React']]
       .optional(),
-  }) satisfies z.ZodType<BlogSchema>,
+  }) satisfies z.ZodType<BlogSchema, BlogSchemaInput>,
 });
 
 export const collections = {
@@ -470,8 +474,9 @@ export async function getAdjacentSeriesPosts(currentPost: BlogPost): Promise<{
     return { prevPost: null, nextPost: null };
   }
 
+  const currentSlug = getPostSlug(currentPost);
   const currentIndex = seriesPosts.findIndex(
-    (post) => post.slug === currentPost.slug
+    (post) => getPostSlug(post) === currentSlug
   );
 
   if (currentIndex === -1) {
@@ -587,7 +592,7 @@ date: 2024-02-20
                               ▼
 ┌─────────────────────────────────────────────────────────────┐
 │                    Schema 验证                              │
-│   src/content/config.ts → z.object({...})                  │
+│   src/content.config.ts → glob loader + z.object({...})    │
 └─────────────────────────────────────────────────────────────┘
                               │
                               ▼
@@ -643,7 +648,7 @@ date: 2024-02-20
 
 | 文件                            | 说明                |
 | ------------------------------- | ------------------- |
-| `src/content/config.ts`         | Schema 定义         |
+| `src/content.config.ts`         | Loader 与 Schema 定义 |
 | `src/content/blog/`             | 博客文章目录        |
 | `src/lib/content/posts.ts`      | 文章查询函数        |
 | `src/lib/content/categories.ts` | 分类处理函数        |

@@ -44,26 +44,23 @@ src/pages/
 ---
 // src/pages/post/[...slug].astro
 
-import { getSortedPosts } from '@lib/content';
+import { render } from 'astro:content';
+import { getPostById, getPostSlug, getSortedPosts } from '@lib/content';
 
 // getStaticPaths：告诉 Astro 需要生成哪些页面
 export async function getStaticPaths() {
   const postCollections = await getSortedPosts();
 
-  return postCollections.map((post) => {
-    // 优先使用自定义 link，否则使用文件 slug
-    const link = post.data?.link ?? post.slug;
-
-    return {
-      params: { slug: link }, // URL 参数
-      props: { post }, // 传递给页面的数据
-    };
-  });
+  return postCollections.map((post) => ({
+    params: { slug: getPostSlug(post) },
+    props: { postId: post.id },
+  }));
 }
 
-// 从 props 获取文章数据
-const { post } = Astro.props;
-const { Content } = await post.render(); // 渲染 Markdown 内容
+const { postId } = Astro.props;
+const post = await getPostById(postId);
+if (!post) throw new Error(`Post not found: ${postId}`);
+const { Content } = await render(post);
 ---
 
 <Layout title={post.data.title}>
@@ -295,7 +292,7 @@ export async function GET(context: APIContext) {
         title: post.data.title,
         pubDate: post.data.date,
         description: post.data?.description ?? generateTextSummary(post.rendered?.html),
-        link: `/post/${post.data.link ?? post.slug}`,
+        link: `/post/${getPostSlug(post)}`,
         content: getSanitizeHtml(post.rendered?.html ?? ''),
       }))
       .slice(0, 20),

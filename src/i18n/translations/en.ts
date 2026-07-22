@@ -351,6 +351,9 @@ export const uiStrings: UIStrings = {
   // ── Embed ─────────────────────────────────────────────────
   'embed.loadingTweet': 'Loading Tweet',
 
+  // ── Content ───────────────────────────────────────────────
+  'content.revealSpoiler': 'Reveal spoiler',
+
   // ── Search Shortcut ───────────────────────────────────────
   'search.searchShortcut': 'Search ({shortcut})',
 
@@ -364,6 +367,8 @@ export const uiStrings: UIStrings = {
 
   // ── Comment ────────────────────────────────────────────────
   'comment.prompt': 'If you enjoyed this, leave a comment~',
+  'comment.error': 'Failed to load comments. Reload the page to try again.',
+  'comment.retry': 'Reload',
 
   // ── Bangumi ───────────────────────────────────────────────
   'bangumi.title': 'Bangumi',

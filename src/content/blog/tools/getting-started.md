@@ -16,7 +16,7 @@ sticky: true
 
 ## 关于这个主题
 
-astro-koharu 是一个基于 Astro 5.x 构建的现代化博客系统，设计灵感来自 Hexo 的 Shoka 主题。它具有以下特点：
+astro-koharu 是一个基于 Astro 6.x 构建的现代化博客系统，设计灵感来自 Hexo 的 Shoka 主题。它具有以下特点：
 
 - **性能优异** - 基于 Astro 静态站点生成，加载速度快
 - **优雅设计** - 萌系/二次元风格，粉蓝配色

@@ -15,18 +15,18 @@ import { useCallback } from 'react';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 
 interface EditButtonProps {
-  /** Post ID from Astro Content Collections (e.g., 'note/front-end/theme.md') */
-  postId: string;
+  /** Source file path relative to the configured content directory (e.g., 'note/front-end/theme.md') */
+  postRelativePath: string;
 }
 
 /**
- * Build the full file path from project path, content path, and post ID
+ * Build the full file path from the project path, configured content path, and Astro Content Layer source path.
  */
-function getFullFilePath(localProjectPath: string, contentRelativePath: string, postId: string): string {
-  // Normalize paths: remove trailing slashes
+function getFullFilePath(localProjectPath: string, contentRelativePath: string, postRelativePath: string): string {
   const projectPath = localProjectPath.replace(/\/+$/, '');
-  const contentPath = contentRelativePath.replace(/^\/+|\/+$/g, '');
-  return `${projectPath}/${contentPath}/${postId}`;
+  const contentPath = contentRelativePath.replaceAll('\\', '/').replace(/^\/+|\/+$/g, '');
+  const sourcePath = postRelativePath.replaceAll('\\', '/').replace(/^\/+/, '');
+  return `${projectPath}/${contentPath}/${sourcePath}`;
 }
 
 /**
@@ -44,7 +44,7 @@ function openInEditor(editor: EditorConfig, filePath: string): void {
   window.open(url, '_self');
 }
 
-export default function EditButton({ postId }: EditButtonProps) {
+export default function EditButton({ postRelativePath }: EditButtonProps) {
   const isMounted = useIsMounted();
 
   const { editors, localProjectPath, contentRelativePath = 'src/content/blog' } = devConfig;
@@ -57,10 +57,10 @@ export default function EditButton({ postId }: EditButtonProps) {
         return;
       }
 
-      const filePath = getFullFilePath(localProjectPath, contentRelativePath, postId);
+      const filePath = getFullFilePath(localProjectPath, contentRelativePath, postRelativePath);
       openInEditor(editor, filePath);
     },
-    [localProjectPath, contentRelativePath, postId],
+    [localProjectPath, contentRelativePath, postRelativePath],
   );
 
   // Don't render if not mounted or no editors configured

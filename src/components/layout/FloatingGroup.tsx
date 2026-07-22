@@ -8,6 +8,7 @@
  */
 
 import { LazyMotionProvider } from '@components/common/LazyMotionProvider';
+import { preloadSettingsPanel } from '@components/settings/SettingsPanel';
 import { bgmConfig, christmasConfig } from '@constants/site-config';
 import { useIsMounted } from '@hooks/useIsMounted';
 import { useTranslation } from '@hooks/useTranslation';
@@ -31,6 +32,8 @@ interface FloatingButtonProps {
   dataBgmToggle?: boolean;
   /** Optional data attribute for identifying settings toggle button */
   dataSettingsToggle?: boolean;
+  /** Optional preload callback for controls that reveal lazy UI. */
+  onIntent?: () => void;
 }
 
 function scrollToTop() {
@@ -57,6 +60,7 @@ function FloatingButton({
   className,
   dataBgmToggle,
   dataSettingsToggle,
+  onIntent,
 }: FloatingButtonProps) {
   const isMounted = useIsMounted();
 
@@ -64,6 +68,9 @@ function FloatingButton({
     <button
       type="button"
       onClick={onClick}
+      onPointerEnter={onIntent}
+      onPointerDown={onIntent}
+      onFocus={onIntent}
       className={cn(
         'rounded-full bg-background/80 p-2 opacity-80 shadow-lg backdrop-blur-sm transition-all duration-200 hover:bg-background hover:opacity-100',
         className,
@@ -133,6 +140,7 @@ export default function FloatingGroup() {
                 ariaLabel={t('floating.settings')}
                 title={t('floating.settings')}
                 dataSettingsToggle
+                onIntent={preloadSettingsPanel}
               >
                 <Icon icon={isSettingsOpen ? 'ri:settings-3-fill' : 'ri:settings-3-line'} className="h-5 w-5" />
               </FloatingButton>

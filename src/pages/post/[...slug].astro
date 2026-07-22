@@ -1,4 +1,5 @@
 ---
+import { render } from 'astro:content';
 import CustomContent from '@components/common/CustomContent.astro';
 import HomeSider from '@components/layout/HomeSider.astro';
 import SummaryPanel, { type SummarySource } from '@components/post/SummaryPanel';
@@ -44,12 +45,17 @@ const locale = getLocaleFromUrl(Astro.url.pathname);
 const post =
   (await getPostById(postId, locale)) ?? (locale !== defaultLocale ? await getPostById(postId, defaultLocale) : undefined);
 if (!post) throw new Error(`Post not found: ${postId}`);
+const normalizedPostFilePath = post.filePath?.replaceAll('\\', '/');
+const contentRoot = 'src/content/blog/';
+const postRelativePath = normalizedPostFilePath?.startsWith(contentRoot)
+  ? normalizedPostFilePath.slice(contentRoot.length)
+  : undefined;
 const isFallback = getPostLocale(post) !== locale;
 // For fallback pages (showing default-locale content under /en/), canonical should point to the original
 const canonicalUrl = isFallback
   ? new URL(localizedPath(`/post/${encodeSlug(getPostSlug(post))}`, defaultLocale), Astro.site).href
   : undefined;
-const { Content } = await post.render();
+const { Content } = await render(post);
 const { title, categories = [], tags = [], date, math: postMath, keywords: postKeywords = [] } = post?.data ?? {};
 // KaTeX CSS: only load when global enableMath is on AND post hasn't opted out.
 // When enableMath is false globally, rehype-katex is not in the pipeline, so no math is rendered.
@@ -143,7 +149,7 @@ if (post.data.description) {
     summarySource = 'ai';
   } else {
     // 降级到自动提取
-    summaryText = extractTextFromMarkdown(post.body, 200);
+    summaryText = extractTextFromMarkdown(post.body ?? '', 200);
     summarySource = 'auto';
   }
 }
@@ -190,7 +196,11 @@ if (post.data.description) {
             ))
           }
         </div>
-        {import.meta.env.DEV && <EditButton client:only="react" postId={postId} />}
+        {
+          import.meta.env.DEV && postRelativePath && (
+            <EditButton client:only="react" postRelativePath={postRelativePath} />
+          )
+        }
       </nav>
       {isFallback && (
         <div class="flex items-center gap-2 rounded-lg border border-amber-500/20 bg-amber-500/10 px-4 py-3 text-sm text-amber-700 dark:text-amber-400">

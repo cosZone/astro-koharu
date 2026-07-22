@@ -58,6 +58,8 @@ docker compose --env-file ./.env -f docker/docker-compose.yml up -d --build
 
 ### Local Development
 
+Before you begin, install Node.js 22.12.0 or later and pnpm 10.28.2.
+
 1. Clone the project
 
 ```bash
@@ -79,7 +81,7 @@ pnpm dev
 
 ## Features
 
-- Built on Astro 5.x with static site generation and excellent performance
+- Built on Astro 6.x with static site generation and excellent performance
 - Elegant dark/light theme toggle
 - Serverless full-site search powered by Pagefind
 - **Swappable comment systems**: Supports Waline (recommended), Giscus, Remark42, and Twikoo — one-click switch in config, theme auto-follows
@@ -118,6 +120,7 @@ pnpm koharu new          # Create new content (post/friend link)
 pnpm koharu backup       # Backup blog content and config
 pnpm koharu restore      # Restore from backup
 pnpm koharu update       # Update theme
+pnpm koharu migrate      # Migrate legacy post data in one step
 pnpm koharu generate     # Generate content assets (LQIP, similarity, AI summaries)
 pnpm koharu clean        # Clean old backups
 pnpm koharu list         # List all backups
@@ -167,6 +170,22 @@ pnpm koharu restore --latest
 # Preview files to be restored (dry run)
 pnpm koharu restore --dry-run
 ```
+
+### Migrating Legacy Content
+
+After upgrading to Astro 6 or restoring an old backup, migrate post links before running `pnpm dev` or `pnpm build`.
+When upgrading from an older release, wait for the old `pnpm koharu update` process to exit completely, then run:
+
+```bash
+pnpm koharu migrate --dry-run
+pnpm koharu migrate
+```
+
+The command creates a basic backup first, preserves existing `link` values, safely converts legacy `slug` fields to
+`link`, and adds a stable link when both fields are missing. It is idempotent and stops without modifying files when it
+finds duplicate links or unsafe frontmatter. Restoring an old backup through the Koharu CLI runs the same migration
+automatically.
+`pnpm dev` and `pnpm build` also run a read-only check first, stopping with these instructions when migration is pending.
 
 ### Updating the Theme
 

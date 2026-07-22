@@ -349,6 +349,9 @@ export const uiStrings = {
   // ── Embed ─────────────────────────────────────────────────
   'embed.loadingTweet': '正在加载 Tweet',
 
+  // ── Content ───────────────────────────────────────────────
+  'content.revealSpoiler': '点击显示隐藏内容',
+
   // ── Search Shortcut ───────────────────────────────────────
   'search.searchShortcut': '搜索 ({shortcut})',
 
@@ -362,6 +365,8 @@ export const uiStrings = {
 
   // ── Comment ────────────────────────────────────────────────
   'comment.prompt': '喜欢的话，留下你的评论吧～',
+  'comment.error': '评论加载失败，请刷新页面重试',
+  'comment.retry': '刷新重试',
 
   // ── Bangumi ───────────────────────────────────────────────
   'bangumi.title': '追番',

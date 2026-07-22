@@ -8,6 +8,7 @@ import { CycleSelect as Select } from './koharu/components';
 import { GenerateApp } from './koharu/generate.js';
 import { HelpApp } from './koharu/help.js';
 import { ListApp } from './koharu/list.js';
+import { MigrateApp } from './koharu/migrate.js';
 import { NewApp } from './koharu/new.js';
 import { RestoreApp } from './koharu/restore.js';
 import { BACKUP_DIR, getBackupList, parseArgs } from './koharu/shared.js';
@@ -28,6 +29,7 @@ koharu - astro-koharu CLI
   pnpm koharu clean        清理旧备份
   pnpm koharu list         查看所有备份
   pnpm koharu generate     生成内容资产
+  pnpm koharu migrate      一键迁移历史文章数据
   pnpm koharu new          新建内容
 
 备份选项:
@@ -63,13 +65,18 @@ koharu - astro-koharu CLI
   pnpm koharu new post              新建博客文章
   pnpm koharu new friend            新建友情链接
 
+迁移选项:
+  --dry-run                仅扫描并预览迁移内容
+  --check                  仅扫描，需要迁移时返回非零状态
+  --force                  跳过确认提示（仍会自动备份）
+
 通用选项:
   --help, -h               显示帮助信息
 `);
   process.exit(0);
 }
 
-type AppMode = 'menu' | 'backup' | 'restore' | 'update' | 'clean' | 'list' | 'help' | 'generate' | 'new';
+type AppMode = 'menu' | 'backup' | 'restore' | 'update' | 'clean' | 'list' | 'help' | 'generate' | 'migrate' | 'new';
 
 function KoharuApp() {
   const { exit } = useApp();
@@ -84,6 +91,7 @@ function KoharuApp() {
     if (args.command === 'list') return 'list';
     if (args.command === 'help') return 'help';
     if (args.command === 'generate') return 'generate';
+    if (args.command === 'migrate') return 'migrate';
     if (args.command === 'new') return 'new';
     return 'menu';
   });
@@ -145,6 +153,7 @@ function KoharuApp() {
               { label: '还原 - 从备份恢复', value: 'restore' },
               { label: '更新 - 更新主题', value: 'update' },
               { label: '生成 - 生成内容资产 (LQIP, 相似度, 摘要)', value: 'generate' },
+              { label: '迁移 - 兼容历史文章与旧备份', value: 'migrate' },
               { label: '清理 - 清理旧备份', value: 'clean' },
               { label: '列表 - 查看所有备份', value: 'list' },
               { label: '帮助 - 查看命令用法', value: 'help' },
@@ -191,6 +200,16 @@ function KoharuApp() {
         <GenerateApp
           initialType={args.generateType || undefined}
           initialModel={args.model || undefined}
+          force={args.force}
+          showReturnHint={fromMenu}
+          onComplete={handleComplete}
+        />
+      )}
+
+      {mode === 'migrate' && (
+        <MigrateApp
+          check={args.check}
+          dryRun={args.dryRun}
           force={args.force}
           showReturnHint={fromMenu}
           onComplete={handleComplete}

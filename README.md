@@ -58,6 +58,8 @@ docker compose --env-file ./.env -f docker/docker-compose.yml up -d --build
 
 ### 本地开发
 
+开始前请确保已安装 Node.js 22.12.0 或更高版本，以及 pnpm 10.28.2。
+
 1. 克隆项目到本地
 
 ```bash
@@ -79,7 +81,7 @@ pnpm dev
 
 ## 功能特性
 
-- 基于 Astro 5.x，静态站点生成，性能优异
+- 基于 Astro 6.x，静态站点生成，性能优异
 - 优雅的深色/浅色主题切换
 - 基于 Pagefind 的无后端全站搜索
 - **可更换评论系统**：支持 Waline（推荐）、Giscus、Remark42、Twikoo 四种评论组件，配置文件一键切换，主题自动跟随
@@ -118,6 +120,7 @@ pnpm koharu new          # 新建内容（文章/友链）
 pnpm koharu backup       # 备份博客内容和配置
 pnpm koharu restore      # 从备份恢复
 pnpm koharu update       # 更新主题
+pnpm koharu migrate      # 一键迁移历史文章数据
 pnpm koharu generate     # 生成内容资产 (LQIP, 相似度, AI 摘要)
 pnpm koharu clean        # 清理旧备份
 pnpm koharu list         # 查看所有备份
@@ -167,6 +170,20 @@ pnpm koharu restore --latest
 # 预览将要还原的文件（不实际还原）
 pnpm koharu restore --dry-run
 ```
+
+### 历史内容迁移
+
+升级到 Astro 6 或还原旧备份后，必须在运行 `pnpm dev` 或 `pnpm build` 前迁移文章链接。从旧版升级时，
+请先等 `pnpm koharu update` 进程完全退出，再执行：
+
+```bash
+pnpm koharu migrate --dry-run
+pnpm koharu migrate
+```
+
+迁移会先自动创建基础备份，保留已有 `link`，将旧 `slug` 安全转换为 `link`，并为缺少两者的文章补充稳定链接。
+脚本可重复执行；发现重复链接或无法安全处理的 frontmatter 时会停止且不修改文件。通过 Koharu CLI 还原旧备份时会自动执行同一迁移。
+`pnpm dev` 和 `pnpm build` 也会先执行只读检查，在内容尚未迁移时停止并显示修复命令。
 
 ### 更新主题
 

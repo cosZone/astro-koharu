@@ -1,5 +1,8 @@
-import { defineCollection, z } from 'astro:content';
+import { defineCollection } from 'astro:content';
+import { BLOG_CONTENT_GLOB_PATTERN } from '@lib/content/glob';
 import { parseDateInSiteTimezone, reinterpretUtcAsTimezone } from '@lib/date';
+import { glob } from 'astro/loaders';
+import { z } from 'astro/zod';
 import type { BlogSchema, BlogSchemaInput } from 'types/blog';
 
 /**
@@ -25,6 +28,7 @@ const dateInSiteTimezone = z
   });
 
 const blogCollection = defineCollection({
+  loader: glob({ pattern: BLOG_CONTENT_GLOB_PATTERN, base: './src/content/blog' }),
   schema: z.object({
     title: z.string(),
     description: z.string().optional(),
@@ -33,7 +37,7 @@ const blogCollection = defineCollection({
     updated: dateInSiteTimezone.optional(),
     cover: z.string().optional(),
     tags: z.array(z.string()).optional(),
-    // 兼容老 Hexo 博客
+    // Preserve compatibility with posts migrated from Hexo.
     subtitle: z.string().optional(),
     catalog: z.boolean().optional().default(true),
     categories: z
@@ -42,9 +46,9 @@ const blogCollection = defineCollection({
       .optional(),
     sticky: z.boolean().optional(),
     draft: z.boolean().optional(),
-    // 目录编号控制
+    // Allow posts to opt out of numbered table-of-contents headings.
     tocNumbering: z.boolean().optional().default(true),
-    // 排除 AI 摘要生成
+    // Allow posts to opt out of AI-generated summaries.
     excludeFromSummary: z.boolean().optional(),
     // Shoka features per-post toggle
     math: z.boolean().optional(),
@@ -52,7 +56,7 @@ const blogCollection = defineCollection({
     password: z.string().optional(),
     /** Keywords for SEO */
     keywords: z.array(z.string()).optional(),
-  }) satisfies z.ZodType<BlogSchema, z.ZodTypeDef, BlogSchemaInput>,
+  }) satisfies z.ZodType<BlogSchema, BlogSchemaInput>,
 });
 
 export const collections = {

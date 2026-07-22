@@ -74,9 +74,8 @@ function tryTranslate(locale: Locale, key: string, params?: TranslationParams): 
  * If not (or for default locale URLs without prefix), return defaultLocale.
  *
  * Note: URLs with the default locale prefix (e.g., '/zh/post/hello') are treated
- * as defaultLocale — the prefix is ignored. This works with Astro's
- * `redirectToDefaultLocale: true` which redirects `/zh/` → `/`. No static pages
- * are generated for the default locale prefix, so such URLs would 404 anyway.
+ * as defaultLocale by this parser, but the static site does not generate routes
+ * with that prefix, so direct requests to those URLs return 404.
  *
  * @example
  * ```ts

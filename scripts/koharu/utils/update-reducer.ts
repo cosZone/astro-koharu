@@ -28,7 +28,7 @@ export function updateReducer(state: UpdateState, action: UpdateAction): UpdateS
         return { ...state, status: 'dirty-warning', gitStatus, branchWarning };
       }
 
-      return { ...state, status: 'fetching', gitStatus, branchWarning };
+      return { ...state, status: 'fetching', gitStatus, packageManager: action.packageManager, branchWarning };
     }
 
     case 'fetching': {
@@ -128,6 +128,7 @@ export function createInitialState(options: UpdateOptions): UpdateState {
   return {
     status: 'checking',
     gitStatus: null,
+    packageManager: '',
     updateInfo: null,
     mergeResult: null,
     backupFile: '',

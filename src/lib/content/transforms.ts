@@ -11,9 +11,9 @@ import { getPostLocale, getPostSlug } from './locale';
 import { getPostDescriptionWithSummary, getPostLastCategory, getPostReadingTime } from './posts';
 
 /**
- * BlogPost 可提取的字段映射
- * - 直接字段：从 post.slug 或 post.data.xxx 直接取
- * - 计算字段：需要调用函数计算
+ * Fields that can be extracted from BlogPost.
+ * - Direct fields come from post.id or post.data.
+ * - Computed fields require a helper function.
  */
 export type PostFieldMap = {
   // 直接字段

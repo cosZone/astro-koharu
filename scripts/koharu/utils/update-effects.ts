@@ -13,6 +13,7 @@ import {
   installDeps,
   listRecentTags,
   mergeUpstream,
+  readProjectPackageManager,
   tagExists,
 } from './update-operations';
 
@@ -33,6 +34,7 @@ export const statusEffects: Partial<Record<UpdateStatus, EffectFn>> = {
       }
 
       const gitStatus = checkGitStatus();
+      const packageManager = readProjectPackageManager();
       const { checkOnly } = state.options;
 
       // 确保 upstream remote 存在
@@ -57,7 +59,7 @@ export const statusEffects: Partial<Record<UpdateStatus, EffectFn>> = {
         return undefined;
       }
 
-      dispatch({ type: 'GIT_CHECKED', payload: gitStatus });
+      dispatch({ type: 'GIT_CHECKED', payload: gitStatus, packageManager });
     } catch (err) {
       dispatch({ type: 'ERROR', error: err instanceof Error ? err.message : String(err) });
     }
@@ -156,10 +158,10 @@ export const statusEffects: Partial<Record<UpdateStatus, EffectFn>> = {
     };
   },
 
-  installing: (_state, dispatch) => {
+  installing: (state, dispatch) => {
     let cancelled = false;
 
-    installDeps()
+    installDeps(state.packageManager)
       .then((result) => {
         if (cancelled) return;
         if (!result.success) {

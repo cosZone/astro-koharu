@@ -5,6 +5,7 @@ import type { ContentConfig } from '@constants/content-config';
 import { defaultContentConfig } from '@constants/content-config';
 import type { AstroComponentFactory } from 'astro/runtime/server/index.js';
 import { christmasConfig } from '@/constants/site-config';
+import { getLocaleFromUrl, t } from '@/i18n';
 
 interface Props {
   Content?: AstroComponentFactory;
@@ -13,11 +14,13 @@ interface Props {
 
 const { Content, config = {} } = Astro.props;
 const finalConfig = { ...defaultContentConfig, ...config };
+const spoilerRevealLabel = t(getLocaleFromUrl(Astro.url.pathname), 'content.revealSpoiler');
 ---
 
 <div
   class:list={['custom-content', { 'relative z-5': christmasConfig.enabled && christmasConfig.features.snowfall }]}
   data-config={JSON.stringify(finalConfig)}
+  data-spoiler-reveal-label={spoilerRevealLabel}
 >
   {Content ? <Content /> : <slot />}
 </div>
@@ -40,23 +43,63 @@ const finalConfig = { ...defaultContentConfig, ...config };
   import { enhanceImages } from '@lib/image-enhancer';
   import { enhanceLinkPreviews } from '@lib/link-preview-enhancer';
 
-  let spoilerJsLoaded = false;
+  let spoilerJsPromise: Promise<unknown> | null = null;
+
+  function installSpoilerFallback(contentContainer: Element) {
+    contentContainer.querySelectorAll<HTMLElement>('spoiler-span:not(:defined)').forEach((spoiler) => {
+      if (spoiler.dataset.fallbackReady === 'true') return;
+
+      spoiler.dataset.fallbackReady = 'true';
+      spoiler.setAttribute('role', 'button');
+      spoiler.setAttribute('tabindex', '0');
+      spoiler.setAttribute('aria-label', contentContainer.getAttribute('data-spoiler-reveal-label') ?? 'Reveal spoiler');
+
+      function reveal() {
+        if (spoiler.dataset.fallbackRevealed === 'true') return;
+        spoiler.dataset.fallbackRevealed = 'true';
+        spoiler.removeAttribute('role');
+        spoiler.removeAttribute('tabindex');
+        spoiler.removeAttribute('aria-label');
+        spoiler.removeAttribute('aria-pressed');
+        spoiler.removeEventListener('click', reveal);
+        spoiler.removeEventListener('keydown', handleKeydown);
+      }
+
+      function handleKeydown(event: KeyboardEvent) {
+        if (event.key !== 'Enter' && event.key !== ' ') return;
+        event.preventDefault();
+        reveal();
+      }
+
+      spoiler.addEventListener('click', reveal);
+      spoiler.addEventListener('keydown', handleKeydown);
+    });
+  }
+
+  function loadSpoilerJs(contentContainer: Element) {
+    if (!contentContainer.querySelector('spoiler-span') || customElements.get('spoiler-span')) return;
+
+    if (!spoilerJsPromise) {
+      spoilerJsPromise = import('spoilerjs/spoiler-span').catch((error) => {
+        spoilerJsPromise = null;
+        console.error('[content] Failed to load spoilerjs:', error);
+        const activeContentContainer = document.querySelector('.custom-content');
+        if (activeContentContainer) installSpoilerFallback(activeContentContainer);
+      });
+    }
+  }
 
   // Content enhancement script - handles non-React enhancements
   function enhanceContent() {
     const contentContainer = document.querySelector('.custom-content');
     if (!contentContainer) return;
 
+    // Keep this outside the general enhancement guard so a transient module-load
+    // failure can retry without registering the other handlers again.
+    loadSpoilerJs(contentContainer);
+
     // Avoid re-enhancing
     if (contentContainer.getAttribute('data-enhanced') === 'true') return;
-
-    // Dynamically load spoilerjs when <spoiler-span> elements are present
-    if (!spoilerJsLoaded && contentContainer.querySelector('spoiler-span')) {
-      spoilerJsLoaded = true;
-      import('spoilerjs/spoiler-span').catch(() => {
-        spoilerJsLoaded = false;
-      });
-    }
 
     // Get configuration from data attribute
     const configData = contentContainer.getAttribute('data-config');

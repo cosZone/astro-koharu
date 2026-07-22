@@ -6,7 +6,8 @@ import { CycleSelect as Select } from './components';
 import {
   AUTO_EXIT_DELAY,
   type BackupInfo,
-  getBackupList,
+  type ContentMigrationPlan,
+  getRestorableBackupList,
   getRestorePreview,
   type RestorePreviewItem,
   restoreBackup,
@@ -36,10 +37,16 @@ export function RestoreApp({
   const [status, setStatus] = useState<RestoreStatus>(initialBackupFile ? 'confirming' : 'selecting');
   const [selectedBackup, setSelectedBackup] = useState<string>(initialBackupFile || '');
   const [restoredFiles, setRestoredFiles] = useState<(RestorePreviewItem | string)[]>([]);
+  const [migration, setMigration] = useState<ContentMigrationPlan | null>(null);
   const [error, setError] = useState<string>('');
-  const [manifest, setManifest] = useState<{ type?: string; version?: string; timestamp?: string } | null>(null);
+  const [manifest, setManifest] = useState<{
+    type?: string;
+    version?: string;
+    timestamp?: string;
+    schemaVersion?: number;
+  } | null>(null);
 
-  const [backups] = useState<BackupInfo[]>(() => getBackupList());
+  const [backups] = useState<BackupInfo[]>(() => getRestorableBackupList());
   const retimer = useRetimer();
 
   useEffect(() => {
@@ -59,7 +66,8 @@ export function RestoreApp({
   const runDryRun = useCallback(() => {
     try {
       const previewFiles = getRestorePreview(selectedBackup);
-      setRestoredFiles(previewFiles);
+      setRestoredFiles(previewFiles.items);
+      setMigration(previewFiles.migration);
       setStatus('done');
       if (!showReturnHint) {
         retimer(setTimeout(() => onComplete?.(), AUTO_EXIT_DELAY));
@@ -76,8 +84,9 @@ export function RestoreApp({
   const runRestore = useCallback(() => {
     try {
       setStatus('restoring');
-      const restored = restoreBackup(selectedBackup);
-      setRestoredFiles(restored);
+      const output = restoreBackup(selectedBackup);
+      setRestoredFiles(output.restoredFiles);
+      setMigration(output.migration);
       setStatus('done');
       if (!showReturnHint) {
         retimer(setTimeout(() => onComplete?.(), AUTO_EXIT_DELAY));
@@ -93,9 +102,17 @@ export function RestoreApp({
 
   useEffect(() => {
     if (force && selectedBackup && status === 'confirming') {
-      runRestore();
+      if (dryRun) runDryRun();
+      else runRestore();
     }
-  }, [selectedBackup, status, runRestore, force]);
+  }, [dryRun, force, runDryRun, runRestore, selectedBackup, status]);
+
+  useEffect(() => {
+    if (showReturnHint) return;
+    if (status === 'error' || (status === 'done' && migration && migration.errors.length > 0)) {
+      process.exitCode = 1;
+    }
+  }, [migration, showReturnHint, status]);
 
   function handleSelect(value: string) {
     if (value === 'cancel') {
@@ -196,11 +213,31 @@ export function RestoreApp({
             const filePath = isPreviewItem ? item.path : item;
             const fileCount = isPreviewItem ? item.fileCount : 0;
             return (
-              <Text key={filePath}>
-                <Text color="green">{'  '}+ </Text>
-                <Text>{filePath}</Text>
-                {isPreviewItem && fileCount > 1 && <Text dimColor> ({fileCount} 文件)</Text>}
-              </Text>
+              <Box key={filePath} flexDirection="column">
+                <Text>
+                  <Text color="green">{'  '}+ </Text>
+                  <Text>{filePath}</Text>
+                  {isPreviewItem && fileCount > 1 && <Text dimColor> ({fileCount} 文件)</Text>}
+                </Text>
+                {isPreviewItem && item.deletedFiles.length > 0 && (
+                  <Box flexDirection="column">
+                    <Text color="red">
+                      {'  '}- 将先删除 {item.deletedFiles.length} 个现有文件
+                    </Text>
+                    {item.deletedFiles.slice(0, 10).map((deletedFile) => (
+                      <Text key={deletedFile} color="red" dimColor>
+                        {'    '}
+                        {deletedFile}
+                      </Text>
+                    ))}
+                    {item.deletedFiles.length > 10 && (
+                      <Text color="red" dimColor>
+                        {'    '}... 还有 {item.deletedFiles.length - 10} 个
+                      </Text>
+                    )}
+                  </Box>
+                )}
+              </Box>
             );
           })}
           <Box marginTop={1}>
@@ -208,6 +245,41 @@ export function RestoreApp({
               {dryRun ? '将' : '已'}还原: <Text color="green">{restoredFiles.length}</Text> 项
             </Text>
           </Box>
+          {!dryRun && migration && migration.changes.length > 0 && migration.errors.length === 0 && (
+            <Box marginTop={1}>
+              <Text color="green">已自动迁移 {migration.changes.length} 篇历史文章的稳定链接</Text>
+            </Box>
+          )}
+          {!dryRun && migration && migration.errors.length > 0 && (
+            <Box flexDirection="column" marginTop={1}>
+              <Text color="red" bold>
+                有 {migration.errors.length} 篇文章无法自动迁移
+              </Text>
+              {migration.errors.slice(0, 5).map((issue) => (
+                <Text key={`${issue.file}:${issue.message}`} color="red">
+                  {'  '}- {issue.file}: {issue.message}
+                </Text>
+              ))}
+              <Text color="yellow">修正后运行: pnpm koharu migrate</Text>
+            </Box>
+          )}
+          {dryRun && migration && migration.changes.length > 0 && migration.errors.length === 0 && (
+            <Box marginTop={1}>
+              <Text color="yellow">还原后将自动迁移 {migration.changes.length} 篇历史文章的稳定链接</Text>
+            </Box>
+          )}
+          {dryRun && migration && migration.errors.length > 0 && (
+            <Box flexDirection="column" marginTop={1}>
+              <Text color="red" bold>
+                预览发现 {migration.errors.length} 个内容迁移问题
+              </Text>
+              {migration.errors.slice(0, 5).map((issue) => (
+                <Text key={`${issue.file}:${issue.message}`} color="red">
+                  {'  '}- {issue.file}: {issue.message}
+                </Text>
+              ))}
+            </Box>
+          )}
           {dryRun && (
             <Box marginTop={1}>
               <Text color="yellow">这是预览模式，没有文件被修改</Text>
@@ -215,6 +287,9 @@ export function RestoreApp({
           )}
           {!dryRun && (
             <Box flexDirection="column" marginTop={1}>
+              {manifest?.type === 'basic' && (
+                <Text color="yellow">基础备份不含生成资产；文章有变化时请运行 pnpm koharu generate all</Text>
+              )}
               <Text dimColor>后续步骤:</Text>
               <Text dimColor>{'  '}1. pnpm install # 安装依赖</Text>
               <Text dimColor>{'  '}2. pnpm build # 构建项目</Text>

@@ -352,6 +352,9 @@ export const uiStrings: UIStrings = {
   // ── 埋め込み ─────────────────────────────────────────────────
   'embed.loadingTweet': 'ポストを読み込み中',
 
+  // ── Content ───────────────────────────────────────────────
+  'content.revealSpoiler': '隠された内容を表示',
+
   // ── 検索ショートカット ───────────────────────────────────────
   'search.searchShortcut': '検索 ({shortcut})',
 
@@ -365,6 +368,8 @@ export const uiStrings: UIStrings = {
 
   // ── コメント ────────────────────────────────────────────────
   'comment.prompt': '気に入ったならばコメントを残してくださいね～',
+  'comment.error': 'コメントの読み込みに失敗しました。ページを再読み込みしてください。',
+  'comment.retry': '再読み込み',
 
   // ── Bangumi (Bangumiは日本語で提供されてないのでざっくりとした内容にしています) ──────
   'bangumi.title': 'オタ活の記録',

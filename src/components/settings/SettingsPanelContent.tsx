@@ -3,8 +3,7 @@
  *
  * This is the single container for reader and general preferences.
  * Controls render from the declarative registry and the modal store owns visibility.
- * Lazy-loaded by SettingsPanel so its floating-ui / react-hook-form / zod deps stay out of
- * the first-paint bundle until the panel is first opened.
+ * Lazy-loaded by SettingsPanel so heavy form and positioning dependencies stay out of the all-page shell.
  */
 
 import { LazyMotionProvider } from '@components/common/LazyMotionProvider';
@@ -50,7 +49,7 @@ import { isSettingVisible, SETTINGS_REGISTRY, type SettingItem, type SettingSect
 const SECTIONS: SettingSection[] = ['reader', 'general'];
 const loadLocalFontPicker = () => import('./LocalFontPicker');
 
-function preloadLocalFontPicker() {
+function preloadLocalFontPicker(): void {
   void loadLocalFontPicker();
 }
 

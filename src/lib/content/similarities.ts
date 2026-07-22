@@ -50,7 +50,7 @@ const _hasSimilarityData = similarityLowerMap.size > 0;
 
 /**
  * Get related post slugs for a given post
- * @param currentSlug Current post's slug (from post.data.link or post.slug)
+ * @param currentSlug Current post's slug (from post.data.link or post.id)
  * @param count Number of related posts to return
  * @returns Array of similar post data with similarity scores
  */

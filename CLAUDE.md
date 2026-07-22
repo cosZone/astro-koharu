@@ -51,7 +51,7 @@ astro-koharu is an Astro-based blog rebuilt from Hexo, inspired by the Shoka the
 
 ## Development Commands
 
-Package manager: **pnpm** (`pnpm@9.15.1`)
+Package manager: **pnpm** (`pnpm@10.28.2`)
 
 ```bash
 # Development
@@ -70,6 +70,7 @@ pnpm koharu              # Interactive menu
 pnpm koharu backup       # Backup blog content and config (--full for complete backup)
 pnpm koharu restore      # Restore from backup (--latest, --dry-run, --force)
 pnpm koharu update       # Update theme from upstream (--check, --skip-backup, --force, --rebase, --clean)
+pnpm koharu migrate      # Migrate legacy post links (--dry-run, --force; automatically backs up before writes)
 pnpm koharu generate     # Generate content assets (interactive menu)
 pnpm koharu generate lqips        # Generate LQIP image placeholders
 pnpm koharu generate similarities # Generate semantic similarity vectors
@@ -84,7 +85,7 @@ pnpm koharu list         # List all backups
 ## Architecture
 
 ### Tech Stack
-- **Framework**: Astro 5.x with React integration
+- **Framework**: Astro 6.x with React integration
 - **Styling**: Tailwind CSS 4.x with plugins
 - **Content**: Astro Content Collections (`src/content/blog/`)
 - **i18n**: Custom translation system (`src/i18n/`) with Astro i18n routing

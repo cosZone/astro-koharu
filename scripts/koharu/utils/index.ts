@@ -2,7 +2,7 @@
 export { type ParsedArgs, parseArgs } from './args';
 
 // Backup utilities
-export { type BackupInfo, getBackupList, parseBackupManifest } from './backup';
+export { type BackupInfo, getBackupList, getRestorableBackupList, parseBackupManifest } from './backup';
 
 // Backup operations
 export { type BackupOutput, type BackupResult, runBackup } from './backup-operations';
@@ -36,7 +36,14 @@ export {
   postExists,
 } from './new-operations';
 // Restore operations
-export { getRestorePreview, type RestorePreviewItem, restoreBackup } from './restore-operations';
+export {
+  getRestorePreview,
+  type RestoreOptions,
+  type RestoreOutput,
+  type RestorePreview,
+  type RestorePreviewItem,
+  restoreBackup,
+} from './restore-operations';
 // Tar utilities
 export { tarCreate, tarExtract, tarExtractManifest, tarList } from './tar';
 // Update state machine
@@ -61,6 +68,7 @@ export {
   isPathWithinBackupDir,
   isPathWithinDir,
   isValidBackupFile,
+  validateBackupArchive,
   validateBackupFilePath,
   validatePathInBackupDir,
 } from './validation';

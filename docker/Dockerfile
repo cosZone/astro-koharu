@@ -11,11 +11,11 @@
 FROM node:22-alpine AS builder
 WORKDIR /app
 
-# Install pnpm
-RUN corepack enable && corepack prepare pnpm@9.15.1 --activate
+# Install the pnpm version used to generate the lockfile
+RUN corepack enable && corepack prepare pnpm@10.28.2 --activate
 
-# Copy package files first (for Docker layer caching)
-COPY package.json pnpm-lock.yaml ./
+# Copy dependency metadata first (for Docker layer caching)
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 
 # Install dependencies (include dev deps for build)
 RUN pnpm install --frozen-lockfile --prod=false
