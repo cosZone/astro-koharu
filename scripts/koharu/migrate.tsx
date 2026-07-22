@@ -61,6 +61,15 @@ export function MigrateApp({ dryRun = false, force = false, showReturnHint = fal
     if (status === 'done' || status === 'error' || status === 'cancelled') finishLater();
   }, [finishLater, status]);
 
+  // In non-interactive CLI runs (`pnpm koharu migrate [--dry-run]`), surface failures
+  // through the exit code so scripts and CI can detect them. The interactive menu never fails the process.
+  useEffect(() => {
+    if (showReturnHint) return;
+    if (status === 'error' || (status === 'done' && plan.errors.length > 0)) {
+      process.exitCode = 1;
+    }
+  }, [plan.errors.length, showReturnHint, status]);
+
   useEffect(() => {
     if (force && status === 'confirming') runMigration();
   }, [force, runMigration, status]);
