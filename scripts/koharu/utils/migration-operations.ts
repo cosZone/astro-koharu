@@ -208,6 +208,24 @@ function addLinkField(raw: string, link: string): string | null {
   return frontmatter.lines.join(frontmatter.eol);
 }
 
+/**
+ * Verify a line-level rewrite by parsing the result with the same YAML engine.
+ *
+ * The field editors above locate `slug` by line, but a multi-line flow scalar
+ * (e.g. `slug: "a\n  b"`) spans lines they do not track, so a naive rewrite would
+ * leave the trailing lines behind and corrupt the frontmatter. Reading the result
+ * back catches that: the migrated document must parse, expose `link` as the target
+ * value, and no longer carry a `slug` field.
+ */
+function isMigratedFrontmatterValid(updated: string, expectedLink: string): boolean {
+  try {
+    const data = matter(updated).data as Record<string, unknown>;
+    return data.link === expectedLink && !Object.hasOwn(data, 'slug');
+  } catch {
+    return false;
+  }
+}
+
 function displayPath(filePath: string): string {
   const relativePath = path.relative(PROJECT_ROOT, filePath);
   return relativePath.startsWith('..') ? filePath : relativePath;
@@ -399,6 +417,10 @@ export function planContentMigration(options: ContentMigrationOptions = {}): Con
     }
     if (updated === null) {
       errors.push({ file, message: '无法安全定位顶层 slug 字段，请手动迁移为 link' });
+      continue;
+    }
+    if (!isMigratedFrontmatterValid(updated, targetLink)) {
+      errors.push({ file, message: '无法安全改写 slug 字段（可能是多行标量），请手动迁移为 link' });
       continue;
     }
 

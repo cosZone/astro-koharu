@@ -187,6 +187,31 @@ test('frontmatter block scalars may contain indented delimiter text', () => {
   }
 });
 
+test('multi-line flow scalar slug fails safely instead of corrupting frontmatter', () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'koharu-migrate-flow-scalar-'));
+  try {
+    const configPath = writeSiteConfig(root, true);
+    const contentDir = path.join(root, 'src/content/blog');
+    // A double-quoted scalar spanning two lines: the line-level editors track
+    // only block scalars (| / >), so a naive rewrite would strip the first line
+    // and leave the trailing line behind, breaking the YAML.
+    const renameFile = writePost(contentDir, 'rename.md', 'slug: "中文\n  路径"\n');
+    const removeFile = writePost(contentDir, 'remove.md', 'link: kept\nslug: "中文\n  路径"\n');
+    const renameOriginal = fs.readFileSync(renameFile, 'utf8');
+    const removeOriginal = fs.readFileSync(removeFile, 'utf8');
+
+    const plan = runContentMigration({ contentDir, siteConfigPath: configPath });
+
+    assert.equal(plan.changes.length, 0);
+    assert.equal(plan.errors.length, 2);
+    for (const issue of plan.errors) assert.match(issue.message, /无法安全改写 slug 字段/);
+    assert.equal(fs.readFileSync(renameFile, 'utf8'), renameOriginal);
+    assert.equal(fs.readFileSync(removeFile, 'utf8'), removeOriginal);
+  } finally {
+    fs.rmSync(root, { recursive: true, force: true });
+  }
+});
+
 test('frontmatter delimiters allow trailing whitespace but must start in column zero', () => {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'koharu-migrate-frontmatter-delimiter-'));
   try {
