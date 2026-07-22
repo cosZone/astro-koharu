@@ -3,6 +3,7 @@ title: 从 Astro 5 到 Astro 6：astro-koharu 的一次完整迁移实录
 link: astro-6-migration
 catalog: true
 date: 2026-07-20 03:50:03
+updated: 2026-07-23 00:30:12
 description: 记录 astro-koharu 从 Astro 5.16.6 升级到 6.4.8 的完整过程，并解决历史文章、旧备份与下游仓库的一键迁移问题。
 tags:
   - Astro
@@ -30,15 +31,22 @@ HTML 没有悄悄改变；一份长期使用的下游仓库也能通过同一套
 
 [Astro 6 升级指南](https://docs.astro.build/en/guides/upgrade-to/v6/)要求 Node.js 22.12+，并伴随 Zod 4、
 Shiki 4 及 Vite 7 构建管线的变化。迁移时 npm 的 `astro@latest` 已经进入 7.x，因此不能无版本约束地运行升级命令。
-本次把目标明确写成 `^6.4.8`，并把 Node 边界落到 `package.json`：
+本次把 Astro 精确锁定在 `6.4.8`，同时把 Node 边界和 pnpm 版本落到 `package.json`：
 
 ```json
 {
+  "packageManager": "pnpm@10.28.2",
   "engines": {
     "node": ">=22.12.0"
+  },
+  "dependencies": {
+    "astro": "6.4.8"
   }
 }
 ```
+
+精确版本不只是为了重现本次构建。Koharu 的新版更新流程也会读取 `packageManager`，并用声明的
+pnpm 精确版本安装依赖，避免更新到新 lockfile 后又意外回落到调用者机器上的旧 pnpm。
 
 迁移前先保存了一组可比较的基线：
 
@@ -178,6 +186,20 @@ pnpm koharu migrate --dry-run
 pnpm koharu migrate
 ```
 
+对从旧版 astro-koharu 升级的用户，实际入口仍然是更新前已经存在的旧 CLI。完整顺序是：
+
+```bash
+# 先由旧 CLI 完成备份、拉取、合并和依赖安装
+pnpm koharu update
+
+# 等上面的进程完全退出，再使用更新后的 CLI
+pnpm koharu migrate --dry-run
+pnpm koharu migrate
+```
+
+这个边界很重要：正在运行的 `update` 进程加载的仍是升级前的代码，不能假设它已经拥有更新后才出现的
+`migrate` 子命令。等旧进程退出后重新调用 CLI，才能确保执行的是新版迁移逻辑。
+
 迁移策略不是“所有文章都加一个新字段”，而是按已有数据选择最小改动：
 
 | 文章现状 | 迁移动作 | URL 结果 |
@@ -193,8 +215,14 @@ pnpm koharu migrate
 - 扫描覆盖所有 `.md` 与 `.mdx`，不是只处理模板当前使用的目录层级；
 - 修改是针对顶层字段的局部编辑，不重新序列化整份 YAML，避免无意义地重排用户 frontmatter；
 - 任何解析错误、空链接或同语言 URL 冲突都会在写入前让整批迁移停止；
-- 正式写入前会再次确认所有源文件与扫描时完全相同，避免用户并行编辑导致计划过期；
+- 博客内容只接受普通文件，遇到符号链接会直接阻止，避免跟随到内容目录外部；
+- 正式写入前会再次确认全部源文件、站点配置和文件集合与扫描时完全相同，避免用户并行编辑导致计划过期；
+- 单文件通过同目录临时文件和原子 rename 写入，保留原权限；后续写入失败时，已安装的变更会按逆序回滚；
 - 执行前自动创建基础备份；再次运行 dry-run 应得到 0 项变更，幂等性本身也是验收条件。
+
+为了防止用户跳过这一步，`pnpm dev` 和 `pnpm build` 现在都会先运行 `pnpm koharu migrate --check`。
+这个模式只读扫描，不会自动改文章；发现待迁移项或无法安全处理的 frontmatter 时会以非零状态退出，
+在 Astro 启动或构建前给出 dry-run 和正式迁移指引。
 
 多语言配对尤其不能只看文件名。假设默认语言文章已经把 `note/old-name` 定制为 `my-stable-url`，而英文对应文章没有
 `link`。如果英文文章机械地使用自身路径，它会与默认语言失去同一公开 slug。因此，非默认语言文章会优先跟随默认语言文章的
@@ -222,6 +250,10 @@ pnpm koharu migrate
 新备份 manifest 增加 `schemaVersion: 2`，但缺少该字段的历史归档仍按 v1 读取。对“独立 Markdown 页面为空”的情况，
 备份也会保留空目录标记，让恢复器能区分“用户当时确实没有独立页面”和“这类数据根本不在旧归档中”。前者应该清掉现有
 Markdown 页面，后者则不应贸然删除任何东西。
+
+恢复前不只检查扩展名和 `manifest.json`。CLI 会校验备份路径、manifest schema、声明的恢复项与归档实际内容，
+拒绝符号链接、未声明条目和文件/目录类型不匹配。校验和解压使用同一份只读私有快照，避免原归档在两步之间被替换。
+解压后也不会立即覆盖用户目录：恢复器会先在项目内准备候选快照、运行内容迁移，全部通过后再事务性切换；中途提交失败则回滚已切换的目标。
 
 只要恢复项包含博客内容，恢复器就会紧接着执行同一套内容迁移。升级流程若发现无法自动处理的冲突，会中止 clean update 并
 进入原有回滚路径，而不是带着半迁移内容继续构建。基础备份恢复后，CLI 还会明确提示运行：
@@ -340,11 +372,13 @@ Astro 5 基线里 `/zh/` 和 `/zh/post/*` 本来就是 404，并没有真实重�
 | 测试场景 | 关键断言 |
 |---|---|
 | 混合 `link` / `slug` / 空字段及多语言对应文章 | URL 保留，译文复用稳定链接，第二次运行无变更 |
-| 同语言两篇文章使用相同链接 | 所有文件都不写入，而不是改到一半才失败 |
+| 重复链接、危险 frontmatter、符号链接和并发改动 | 整批不写入，已开始的原子写入可回滚 |
+| 缺失或不一致的 manifest、恶意归档条目和恢复提交失败 | 预览前拒绝非法归档，事务提交失败时恢复旧目标 |
 | 把旧归档恢复到已有新模板内容的目录 | 旧快照精确替换、恢复后自动迁移，同时保留新版 Astro 路由与配置 |
+| 跨版本更新、新版 `--check` 与 pnpm 版本锁定 | 命令行参数不串命令，依赖安装只使用明确的 pnpm 版本 |
 
-这三组用例通过 Node 内置 test runner 执行，放在 `pnpm test:migrate` 中。它们验证的是数据不变式，而不是 CLI 文案，因此
-即使以后替换终端 UI，迁移的核心契约仍然有保护。
+这些分支由 Node 内置 test runner 执行，统一放在 `pnpm test:migrate` 中；当前共 42 个测试。
+它们验证的是数据不变式、归档边界和进程退出契约，而不是 CLI 文案，因此即使以后替换终端 UI，迁移的核心行为仍然有保护。
 
 ### 最后用真实下游仓库做完整恢复
 
@@ -406,8 +440,10 @@ Rust compiler 和 queued rendering 看似只需要一行配置，所以额外做
 11. 用至少一份真实下游备份做临时恢复、check 和生产构建；
 12. 最后才评估实验能力，并保证实验依赖不进入生产 lockfile。
 
-astro-koharu 用户可以先运行 `pnpm koharu migrate --dry-run` 查看计划，再用 `pnpm koharu migrate` 自动备份并执行。
-已有 `link` 会保留，旧 `slug` 会转换为 `link`，旧备份通过 Koharu CLI 恢复后也会自动执行同一迁移。
+astro-koharu 用户从旧版升级时，先运行 `pnpm koharu update` 并等进程完全退出，再用
+`pnpm koharu migrate --dry-run` 查看计划，最后运行 `pnpm koharu migrate` 自动备份并执行。已有 `link` 会保留，
+旧 `slug` 会转换为 `link`，旧备份通过 Koharu CLI 恢复后也会自动执行同一迁移。如果忘记手动迁移，
+`pnpm dev` 和 `pnpm build` 的只读检查会阻止旧内容进入 Astro 6 管线，但不会替用户改写文章。
 
 ## 总结
 
