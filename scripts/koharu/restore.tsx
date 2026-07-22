@@ -107,6 +107,13 @@ export function RestoreApp({
     }
   }, [dryRun, force, runDryRun, runRestore, selectedBackup, status]);
 
+  useEffect(() => {
+    if (showReturnHint) return;
+    if (status === 'error' || (status === 'done' && migration && migration.errors.length > 0)) {
+      process.exitCode = 1;
+    }
+  }, [migration, showReturnHint, status]);
+
   function handleSelect(value: string) {
     if (value === 'cancel') {
       onComplete?.();

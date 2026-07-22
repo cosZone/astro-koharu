@@ -2,6 +2,7 @@
   "name": "astro-koharu",
   "type": "module",
   "version": "4.2.1",
+  "packageManager": "pnpm@10.28.2",
   "engines": {
     "node": ">=22.12.0"
   },
@@ -32,7 +33,7 @@
     "save-slugs": "npx tsx scripts/save-slugs.ts",
     "test:migrate": "tsx --test scripts/koharu/utils/*.test.ts",
     "cms": "cd cms && pnpm dev",
-    "cms:install": "cd cms && pnpm install",
+    "cms:install": "pnpm --dir cms install --ignore-workspace",
     "docker:up": "docker compose --env-file ./.env -f docker/docker-compose.yml up -d --build",
     "docker:down": "docker compose -f docker/docker-compose.yml down",
     "docker:logs": "docker compose -f docker/docker-compose.yml logs -f",

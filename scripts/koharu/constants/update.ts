@@ -114,6 +114,8 @@ export interface UpdateOptions {
 export interface UpdateState {
   status: UpdateStatus;
   gitStatus: GitStatusInfo | null;
+  /** 更新开始时从当前 package.json 捕获的精确 pnpm 版本 */
+  packageManager: string;
   updateInfo: UpdateInfo | null;
   mergeResult: MergeResult | null;
   backupFile: string;
@@ -129,7 +131,7 @@ export interface UpdateState {
 
 /** 状态机 Action */
 export type UpdateAction =
-  | { type: 'GIT_CHECKED'; payload: GitStatusInfo }
+  | { type: 'GIT_CHECKED'; payload: GitStatusInfo; packageManager: string }
   | { type: 'FETCHED'; payload: UpdateInfo; needsMigration?: boolean }
   | { type: 'BACKUP_CONFIRM' }
   | { type: 'BACKUP_SKIP' }

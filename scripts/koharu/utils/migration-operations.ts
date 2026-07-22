@@ -326,10 +326,11 @@ export function planContentMigration(options: ContentMigrationOptions = {}): Con
   const errors: ContentMigrationIssue[] = [...snapshot.errors];
   const publicLinks = new Map<string, string[]>();
   const counterpartLinks = new Map<string, Set<string>>();
+  const defaultLocaleLinks = new Map<string, string>();
   let unchangedFiles = 0;
 
-  // Reuse an existing translation's stable link when a counterpart is
-  // missing both link and slug. This keeps locale fallback pairing intact.
+  // Non-default locales may reuse a counterpart's stable link to preserve
+  // locale fallback pairing. The default locale's path remains authoritative.
   for (const { sourcePath: filePath, original } of snapshot.files) {
     const relativePath = path.relative(contentDir, filePath).replaceAll(path.sep, '/');
     try {
@@ -337,9 +338,12 @@ export function planContentMigration(options: ContentMigrationOptions = {}): Con
       const link = typeof data.link === 'string' && data.link.trim() ? data.link : null;
       const slug = typeof data.slug === 'string' && data.slug.trim() ? data.slug : null;
       const existingLink = link ?? (slug ? normalizeLegacySlug(slug, localeConfig) : null);
+      const pathLink = getPathLink(relativePath, localeConfig);
+      if (getContentLocale(relativePath, localeConfig) === localeConfig.defaultLocale) {
+        defaultLocaleLinks.set(pathLink, existingLink ?? pathLink);
+      }
       if (!existingLink) continue;
 
-      const pathLink = getPathLink(relativePath, localeConfig);
       const candidates = counterpartLinks.get(pathLink) ?? new Set<string>();
       candidates.add(existingLink);
       counterpartLinks.set(pathLink, candidates);
@@ -387,7 +391,10 @@ export function planContentMigration(options: ContentMigrationOptions = {}): Con
       action = 'rename-slug';
     } else if (!link) {
       const pathLink = getPathLink(relativePath, localeConfig);
-      const counterpartCandidates = counterpartLinks.get(pathLink);
+      const locale = getContentLocale(relativePath, localeConfig);
+      const defaultLocaleLink = locale === localeConfig.defaultLocale ? undefined : defaultLocaleLinks.get(pathLink);
+      const counterpartCandidates =
+        locale !== localeConfig.defaultLocale && defaultLocaleLink === undefined ? counterpartLinks.get(pathLink) : undefined;
       if (counterpartCandidates && counterpartCandidates.size > 1) {
         errors.push({
           file,
@@ -395,7 +402,7 @@ export function planContentMigration(options: ContentMigrationOptions = {}): Con
         });
         continue;
       }
-      targetLink = counterpartCandidates?.values().next().value ?? pathLink;
+      targetLink = defaultLocaleLink ?? counterpartCandidates?.values().next().value ?? pathLink;
       updated = addLinkField(raw, targetLink);
       action = 'add-link';
     }

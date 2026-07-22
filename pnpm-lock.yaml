@@ -4,11 +4,6 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
-patchedDependencies:
-  astro@6.4.8:
-    hash: 5ae601154c7da304fbe0748df4462628324147bad60b4f03c2610c73e7a0c6f7
-    path: patches/astro@6.4.8.patch
-
 importers:
 
   .:
@@ -93,22 +88,22 @@ importers:
         version: 3.8.0(typescript@5.9.3)
       '@yeskunall/astro-umami':
         specifier: 0.0.9
-        version: 0.0.9(astro@6.4.8(patch_hash=5ae601154c7da304fbe0748df4462628324147bad60b4f03c2610c73e7a0c6f7)(@netlify/blobs@10.5.0)(@types/node@24.10.1)(@vercel/functions@2.2.13)(jiti@2.6.1)(lightningcss@1.30.2)(rollup@4.53.3)(terser@5.37.0)(tsx@4.21.0)(yaml@2.8.2))
+        version: 0.0.9(astro@6.4.8(@netlify/blobs@10.5.0)(@types/node@24.10.1)(@vercel/functions@2.2.13)(jiti@2.6.1)(lightningcss@1.30.2)(rollup@4.53.3)(terser@5.37.0)(tsx@4.21.0)(yaml@2.8.2))
       astro:
         specifier: 6.4.8
-        version: 6.4.8(patch_hash=5ae601154c7da304fbe0748df4462628324147bad60b4f03c2610c73e7a0c6f7)(@netlify/blobs@10.5.0)(@types/node@24.10.1)(@vercel/functions@2.2.13)(jiti@2.6.1)(lightningcss@1.30.2)(rollup@4.53.3)(terser@5.37.0)(tsx@4.21.0)(yaml@2.8.2)
+        version: 6.4.8(@netlify/blobs@10.5.0)(@types/node@24.10.1)(@vercel/functions@2.2.13)(jiti@2.6.1)(lightningcss@1.30.2)(rollup@4.53.3)(terser@5.37.0)(tsx@4.21.0)(yaml@2.8.2)
       astro-icon:
         specifier: ^1.1.5
         version: 1.1.5
       astro-loading-indicator:
         specifier: ^0.9.0
-        version: 0.9.0(astro@6.4.8(patch_hash=5ae601154c7da304fbe0748df4462628324147bad60b4f03c2610c73e7a0c6f7)(@netlify/blobs@10.5.0)(@types/node@24.10.1)(@vercel/functions@2.2.13)(jiti@2.6.1)(lightningcss@1.30.2)(rollup@4.53.3)(terser@5.37.0)(tsx@4.21.0)(yaml@2.8.2))
+        version: 0.9.0(astro@6.4.8(@netlify/blobs@10.5.0)(@types/node@24.10.1)(@vercel/functions@2.2.13)(jiti@2.6.1)(lightningcss@1.30.2)(rollup@4.53.3)(terser@5.37.0)(tsx@4.21.0)(yaml@2.8.2))
       astro-mermaid:
         specifier: ^2.1.0
-        version: 2.1.0(astro@6.4.8(patch_hash=5ae601154c7da304fbe0748df4462628324147bad60b4f03c2610c73e7a0c6f7)(@netlify/blobs@10.5.0)(@types/node@24.10.1)(@vercel/functions@2.2.13)(jiti@2.6.1)(lightningcss@1.30.2)(rollup@4.53.3)(terser@5.37.0)(tsx@4.21.0)(yaml@2.8.2))(mermaid@11.12.2)
+        version: 2.1.0(astro@6.4.8(@netlify/blobs@10.5.0)(@types/node@24.10.1)(@vercel/functions@2.2.13)(jiti@2.6.1)(lightningcss@1.30.2)(rollup@4.53.3)(terser@5.37.0)(tsx@4.21.0)(yaml@2.8.2))(mermaid@11.12.2)
       astro-pagefind:
         specifier: ^1.8.6
-        version: 1.8.6(astro@6.4.8(patch_hash=5ae601154c7da304fbe0748df4462628324147bad60b4f03c2610c73e7a0c6f7)(@netlify/blobs@10.5.0)(@types/node@24.10.1)(@vercel/functions@2.2.13)(jiti@2.6.1)(lightningcss@1.30.2)(rollup@4.53.3)(terser@5.37.0)(tsx@4.21.0)(yaml@2.8.2))
+        version: 1.8.6(astro@6.4.8(@netlify/blobs@10.5.0)(@types/node@24.10.1)(@vercel/functions@2.2.13)(jiti@2.6.1)(lightningcss@1.30.2)(rollup@4.53.3)(terser@5.37.0)(tsx@4.21.0)(yaml@2.8.2))
       astro-robots-txt:
         specifier: ^1.0.0
         version: 1.0.0
@@ -11317,9 +11312,9 @@ snapshots:
 
   '@xsai/shared@0.4.0-beta.10': {}
 
-  '@yeskunall/astro-umami@0.0.9(astro@6.4.8(patch_hash=5ae601154c7da304fbe0748df4462628324147bad60b4f03c2610c73e7a0c6f7)(@netlify/blobs@10.5.0)(@types/node@24.10.1)(@vercel/functions@2.2.13)(jiti@2.6.1)(lightningcss@1.30.2)(rollup@4.53.3)(terser@5.37.0)(tsx@4.21.0)(yaml@2.8.2))':
+  '@yeskunall/astro-umami@0.0.9(astro@6.4.8(@netlify/blobs@10.5.0)(@types/node@24.10.1)(@vercel/functions@2.2.13)(jiti@2.6.1)(lightningcss@1.30.2)(rollup@4.53.3)(terser@5.37.0)(tsx@4.21.0)(yaml@2.8.2))':
     dependencies:
-      astro: 6.4.8(patch_hash=5ae601154c7da304fbe0748df4462628324147bad60b4f03c2610c73e7a0c6f7)(@netlify/blobs@10.5.0)(@types/node@24.10.1)(@vercel/functions@2.2.13)(jiti@2.6.1)(lightningcss@1.30.2)(rollup@4.53.3)(terser@5.37.0)(tsx@4.21.0)(yaml@2.8.2)
+      astro: 6.4.8(@netlify/blobs@10.5.0)(@types/node@24.10.1)(@vercel/functions@2.2.13)(jiti@2.6.1)(lightningcss@1.30.2)(rollup@4.53.3)(terser@5.37.0)(tsx@4.21.0)(yaml@2.8.2)
 
   abbrev@3.0.1: {}
 
@@ -11475,22 +11470,22 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  astro-loading-indicator@0.9.0(astro@6.4.8(patch_hash=5ae601154c7da304fbe0748df4462628324147bad60b4f03c2610c73e7a0c6f7)(@netlify/blobs@10.5.0)(@types/node@24.10.1)(@vercel/functions@2.2.13)(jiti@2.6.1)(lightningcss@1.30.2)(rollup@4.53.3)(terser@5.37.0)(tsx@4.21.0)(yaml@2.8.2)):
+  astro-loading-indicator@0.9.0(astro@6.4.8(@netlify/blobs@10.5.0)(@types/node@24.10.1)(@vercel/functions@2.2.13)(jiti@2.6.1)(lightningcss@1.30.2)(rollup@4.53.3)(terser@5.37.0)(tsx@4.21.0)(yaml@2.8.2)):
     dependencies:
-      astro: 6.4.8(patch_hash=5ae601154c7da304fbe0748df4462628324147bad60b4f03c2610c73e7a0c6f7)(@netlify/blobs@10.5.0)(@types/node@24.10.1)(@vercel/functions@2.2.13)(jiti@2.6.1)(lightningcss@1.30.2)(rollup@4.53.3)(terser@5.37.0)(tsx@4.21.0)(yaml@2.8.2)
+      astro: 6.4.8(@netlify/blobs@10.5.0)(@types/node@24.10.1)(@vercel/functions@2.2.13)(jiti@2.6.1)(lightningcss@1.30.2)(rollup@4.53.3)(terser@5.37.0)(tsx@4.21.0)(yaml@2.8.2)
 
-  astro-mermaid@2.1.0(astro@6.4.8(patch_hash=5ae601154c7da304fbe0748df4462628324147bad60b4f03c2610c73e7a0c6f7)(@netlify/blobs@10.5.0)(@types/node@24.10.1)(@vercel/functions@2.2.13)(jiti@2.6.1)(lightningcss@1.30.2)(rollup@4.53.3)(terser@5.37.0)(tsx@4.21.0)(yaml@2.8.2))(mermaid@11.12.2):
+  astro-mermaid@2.1.0(astro@6.4.8(@netlify/blobs@10.5.0)(@types/node@24.10.1)(@vercel/functions@2.2.13)(jiti@2.6.1)(lightningcss@1.30.2)(rollup@4.53.3)(terser@5.37.0)(tsx@4.21.0)(yaml@2.8.2))(mermaid@11.12.2):
     dependencies:
-      astro: 6.4.8(patch_hash=5ae601154c7da304fbe0748df4462628324147bad60b4f03c2610c73e7a0c6f7)(@netlify/blobs@10.5.0)(@types/node@24.10.1)(@vercel/functions@2.2.13)(jiti@2.6.1)(lightningcss@1.30.2)(rollup@4.53.3)(terser@5.37.0)(tsx@4.21.0)(yaml@2.8.2)
+      astro: 6.4.8(@netlify/blobs@10.5.0)(@types/node@24.10.1)(@vercel/functions@2.2.13)(jiti@2.6.1)(lightningcss@1.30.2)(rollup@4.53.3)(terser@5.37.0)(tsx@4.21.0)(yaml@2.8.2)
       import-meta-resolve: 4.2.0
       mdast-util-to-string: 4.0.0
       mermaid: 11.12.2
       unist-util-visit: 5.0.0
 
-  astro-pagefind@1.8.6(astro@6.4.8(patch_hash=5ae601154c7da304fbe0748df4462628324147bad60b4f03c2610c73e7a0c6f7)(@netlify/blobs@10.5.0)(@types/node@24.10.1)(@vercel/functions@2.2.13)(jiti@2.6.1)(lightningcss@1.30.2)(rollup@4.53.3)(terser@5.37.0)(tsx@4.21.0)(yaml@2.8.2)):
+  astro-pagefind@1.8.6(astro@6.4.8(@netlify/blobs@10.5.0)(@types/node@24.10.1)(@vercel/functions@2.2.13)(jiti@2.6.1)(lightningcss@1.30.2)(rollup@4.53.3)(terser@5.37.0)(tsx@4.21.0)(yaml@2.8.2)):
     dependencies:
       '@pagefind/default-ui': 1.5.2
-      astro: 6.4.8(patch_hash=5ae601154c7da304fbe0748df4462628324147bad60b4f03c2610c73e7a0c6f7)(@netlify/blobs@10.5.0)(@types/node@24.10.1)(@vercel/functions@2.2.13)(jiti@2.6.1)(lightningcss@1.30.2)(rollup@4.53.3)(terser@5.37.0)(tsx@4.21.0)(yaml@2.8.2)
+      astro: 6.4.8(@netlify/blobs@10.5.0)(@types/node@24.10.1)(@vercel/functions@2.2.13)(jiti@2.6.1)(lightningcss@1.30.2)(rollup@4.53.3)(terser@5.37.0)(tsx@4.21.0)(yaml@2.8.2)
       pagefind: 1.5.2
       sirv: 3.0.2
 
@@ -11511,7 +11506,7 @@ snapshots:
     dependencies:
       tippy.js: 6.3.7
 
-  astro@6.4.8(patch_hash=5ae601154c7da304fbe0748df4462628324147bad60b4f03c2610c73e7a0c6f7)(@netlify/blobs@10.5.0)(@types/node@24.10.1)(@vercel/functions@2.2.13)(jiti@2.6.1)(lightningcss@1.30.2)(rollup@4.53.3)(terser@5.37.0)(tsx@4.21.0)(yaml@2.8.2):
+  astro@6.4.8(@netlify/blobs@10.5.0)(@types/node@24.10.1)(@vercel/functions@2.2.13)(jiti@2.6.1)(lightningcss@1.30.2)(rollup@4.53.3)(terser@5.37.0)(tsx@4.21.0)(yaml@2.8.2):
     dependencies:
       '@astrojs/compiler': 4.0.0
       '@astrojs/internal-helpers': 0.10.0

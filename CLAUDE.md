@@ -51,7 +51,7 @@ astro-koharu is an Astro-based blog rebuilt from Hexo, inspired by the Shoka the
 
 ## Development Commands
 
-Package manager: **pnpm** (`pnpm@9.15.1`)
+Package manager: **pnpm** (`pnpm@10.28.2`)
 
 ```bash
 # Development

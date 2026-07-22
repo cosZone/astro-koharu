@@ -58,7 +58,7 @@ docker compose --env-file ./.env -f docker/docker-compose.yml up -d --build
 
 ### 本地开发
 
-开始前请确保已安装 Node.js 22.12.0 或更高版本，以及 pnpm 9.15.1。
+开始前请确保已安装 Node.js 22.12.0 或更高版本，以及 pnpm 10.28.2。
 
 1. 克隆项目到本地
 

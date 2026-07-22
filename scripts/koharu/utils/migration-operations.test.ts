@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { spawnSync } from 'node:child_process';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
@@ -8,7 +9,7 @@ import { globSync } from 'glob';
 import matter from 'gray-matter';
 
 import { BLOG_CONTENT_GLOB_PATTERN, isBlogContentFile } from '../../../src/lib/content/glob';
-import { BACKUP_DIR, BACKUP_ITEMS, BACKUP_SCHEMA_VERSION, MANIFEST_NAME } from '../constants';
+import { BACKUP_DIR, BACKUP_ITEMS, BACKUP_SCHEMA_VERSION, MANIFEST_NAME, PROJECT_ROOT } from '../constants';
 import { applyContentMigration, planContentMigration, runContentMigration } from './migration-operations';
 import { getRestorePreview, restoreBackup } from './restore-operations';
 import { tarCreate } from './tar';
@@ -99,6 +100,51 @@ test('content migration preserves URLs and is idempotent', () => {
     assert.match(fs.readFileSync(path.join(contentDir, 'note/legacy.md'), 'utf8'), /^---\nlink: old\/public-url\n/);
     assert.doesNotMatch(fs.readFileSync(path.join(contentDir, 'note/both.md'), 'utf8'), /^slug:/m);
     assert.match(fs.readFileSync(path.join(contentDir, 'note/中文.md'), 'utf8'), /^---\nlink: 'note\/中文'\n/);
+  } finally {
+    fs.rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test('default-locale path stays authoritative when a translation has a custom link', () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'koharu-migrate-default-path-'));
+  try {
+    const configPath = writeSiteConfig(root);
+    const contentDir = path.join(root, 'src/content/blog');
+    const defaultFile = writePost(contentDir, 'note/foo.md', '');
+    writePost(contentDir, 'en/note/foo.md', 'link: translated-custom\n');
+
+    const plan = runContentMigration({ contentDir, siteConfigPath: configPath });
+
+    assert.deepEqual(plan.errors, []);
+    assert.equal(plan.changes.length, 1);
+    assert.equal(plan.changes[0]?.sourcePath, defaultFile);
+    assert.equal(plan.changes[0]?.link, 'note/foo');
+    assert.equal(matter(fs.readFileSync(defaultFile, 'utf8')).data.link, 'note/foo');
+  } finally {
+    fs.rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test('translations without links follow the default-locale path instead of another translation custom link', () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'koharu-migrate-translation-path-'));
+  try {
+    const configPath = writeSiteConfig(root);
+    const contentDir = path.join(root, 'src/content/blog');
+    const defaultFile = writePost(contentDir, 'note/foo.md', '');
+    writePost(contentDir, 'en/note/foo.md', 'link: translated-custom\n');
+    const untranslatedFile = writePost(contentDir, 'pt-BR/note/foo.md', '');
+
+    const plan = runContentMigration({ contentDir, siteConfigPath: configPath });
+
+    assert.deepEqual(plan.errors, []);
+    assert.deepEqual(
+      new Map(plan.changes.map(({ sourcePath, link }) => [sourcePath, link])),
+      new Map([
+        [defaultFile, 'note/foo'],
+        [untranslatedFile, 'note/foo'],
+      ]),
+    );
+    assert.equal(matter(fs.readFileSync(untranslatedFile, 'utf8')).data.link, 'note/foo');
   } finally {
     fs.rmSync(root, { recursive: true, force: true });
   }
@@ -583,6 +629,30 @@ test('restore replaces user snapshots and migrates restored content', () => {
     assert.equal(fs.readFileSync(path.join(root, 'config/new-theme.yaml'), 'utf8'), 'keep: true\n');
   } finally {
     fs.rmSync(root, { recursive: true, force: true });
+    fs.rmSync(stage, { recursive: true, force: true });
+    fs.rmSync(archive, { force: true });
+  }
+});
+
+test('non-interactive restore previews fail when restored content cannot migrate', () => {
+  const stage = fs.mkdtempSync(path.join(os.tmpdir(), 'koharu-restore-preview-error-stage-'));
+  const archive = path.join(BACKUP_DIR, `backup-preview-error-${process.pid}-${Date.now()}.tar.gz`);
+
+  try {
+    writePost(path.join(stage, 'content/blog'), 'first.md', 'link: duplicate\n');
+    writePost(path.join(stage, 'content/blog'), 'second.md', 'link: duplicate\n');
+    writeBackupManifest(stage, ['content/blog']);
+    fs.mkdirSync(BACKUP_DIR, { recursive: true });
+    tarCreate(archive, stage);
+
+    const result = spawnSync('pnpm', ['exec', 'tsx', 'scripts/koharu.tsx', 'restore', archive, '--dry-run', '--force'], {
+      cwd: PROJECT_ROOT,
+      encoding: 'utf8',
+      timeout: 10_000,
+    });
+
+    assert.equal(result.status, 1, result.stderr || result.stdout);
+  } finally {
     fs.rmSync(stage, { recursive: true, force: true });
     fs.rmSync(archive, { force: true });
   }

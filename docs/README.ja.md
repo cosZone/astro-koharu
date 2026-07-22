@@ -58,7 +58,7 @@ docker compose --env-file ./.env -f docker/docker-compose.yml up -d --build
 
 ### ローカル開発
 
-開始する前に、Node.js 22.12.0 以降と pnpm 9.15.1 をインストールしてください。
+開始する前に、Node.js 22.12.0 以降と pnpm 10.28.2 をインストールしてください。
 
 1. プロジェクトをクローン
 
