@@ -348,6 +348,8 @@ export const uiStrings = {
 
   // ── Embed ─────────────────────────────────────────────────
   'embed.loadingTweet': '正在加载 Tweet',
+
+  // ── Content ───────────────────────────────────────────────
   'content.revealSpoiler': '点击显示隐藏内容',
 
   // ── Search Shortcut ───────────────────────────────────────

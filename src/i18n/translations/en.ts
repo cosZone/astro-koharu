@@ -350,6 +350,8 @@ export const uiStrings: UIStrings = {
 
   // ── Embed ─────────────────────────────────────────────────
   'embed.loadingTweet': 'Loading Tweet',
+
+  // ── Content ───────────────────────────────────────────────
   'content.revealSpoiler': 'Reveal spoiler',
 
   // ── Search Shortcut ───────────────────────────────────────

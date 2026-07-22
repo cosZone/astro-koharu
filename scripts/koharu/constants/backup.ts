@@ -1,34 +1,34 @@
-/** 备份类型 */
+/** Backup type. */
 export type BackupType = 'full' | 'basic';
 
-/** Manifest 应用名称 */
+/** Manifest application name. */
 export const MANIFEST_NAME = 'astro-koharu-backup';
 
 /** Backup schema version; archives without this field are treated as v1. */
 export const BACKUP_SCHEMA_VERSION = 2;
 
-/** 备份文件扩展名 */
+/** Backup file extension. */
 export const BACKUP_FILE_EXTENSION = '.tar.gz';
 
-/** 备份项配置 */
+/** Backup item configuration. */
 export interface BackupItem {
-  /** 源路径（相对于项目根目录） */
+  /** Source path relative to the project root. */
   src: string;
-  /** 备份内目标路径 */
+  /** Destination path inside the archive. */
   dest: string;
-  /** 显示标签 */
+  /** Display label. */
   label: string;
-  /** 是否为必需项（basic 模式包含） */
+  /** Whether the item is required (included in basic mode). */
   required: boolean;
   /** Expected archive entry type. */
   kind: 'directory' | 'file';
-  /** 目录模式下，仅备份匹配此模式的文件（如 '*.md'） */
+  /** In directory mode, back up only files matching this pattern (e.g. '*.md'). */
   pattern?: string;
   /** Remove the destination before restore to avoid mixing snapshots with new sample content. */
   replaceOnRestore?: boolean;
 }
 
-/** 备份项目列表 */
+/** Backup item list. */
 export const BACKUP_ITEMS: BackupItem[] = [
   {
     src: 'src/content/blog',

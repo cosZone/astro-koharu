@@ -377,10 +377,8 @@ function removeDeletedUpstreamFiles(targetRef: string): void {
  */
 export function cleanRestore(backupPath: string, preCleanSha?: string): string[] {
   try {
-    const { restoredFiles, migration } = restoreBackup(backupPath);
-    if (migration && migration.errors.length > 0) {
-      throw new Error(`有 ${migration.errors.length} 篇历史文章无法自动迁移，请先运行 pnpm koharu migrate --dry-run`);
-    }
+    // restoreBackup throws when content migration fails, so a returned result is always fully migrated.
+    const { restoredFiles } = restoreBackup(backupPath);
     git('add -A');
     git('commit --amend --no-edit');
     return restoredFiles;

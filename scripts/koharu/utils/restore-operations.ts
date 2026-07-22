@@ -287,8 +287,8 @@ function extractValidatedBackupSnapshot(backupPath: string, tempDir: string): Va
 }
 
 /**
- * 获取还原预览（不修改文件）
- * @param backupPath 备份文件路径
+ * Preview a restore without modifying any files.
+ * @param backupPath Backup archive path.
  * @returns Preview of the files to restore and delete, plus the content migration plan.
  */
 export function getRestorePreview(backupPath: string, options: RestoreOptions = {}): RestorePreview {
@@ -320,9 +320,9 @@ export function getRestorePreview(backupPath: string, options: RestoreOptions = 
 }
 
 /**
- * 执行还原操作
- * @param backupPath 备份文件路径
- * @returns 已还原的文件列表（目标路径）
+ * Restore a backup archive transactionally.
+ * @param backupPath Backup archive path.
+ * @returns The restored target paths and the content migration plan that ran.
  */
 export function restoreBackup(backupPath: string, options: RestoreOptions = {}): RestoreOutput {
   const projectRoot = path.resolve(options.projectRoot ?? PROJECT_ROOT);
