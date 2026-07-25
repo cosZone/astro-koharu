@@ -181,7 +181,49 @@ export interface RouterItem {
   nameKey?: string;
   path?: string;
   icon?: string;
+  /** Build-time feature placeholder. The item is replaced or removed before rendering. */
+  feature?: 'moments';
+  /** Keep this link on its canonical path instead of adding a locale prefix. */
+  localeIndependent?: boolean;
   children?: RouterItem[];
+}
+
+// =============================================================================
+// Moments Archive
+// =============================================================================
+
+export interface MomentsChannelConfig {
+  /** Stable suite channel UUID used to match the public channel response. */
+  id: string;
+  /** Stable public URL segment. Falls back to Telegram username, then the suite UUID. */
+  slug?: string;
+  /** Blog-only display title override. */
+  title?: string;
+  /** Prefer this channel on the global moments index. At most one channel may be primary. */
+  primary?: boolean;
+  /** Hide this channel from every public moments surface without stopping suite collection. */
+  hidden?: boolean;
+  /** Channel-specific Open Graph image. */
+  ogImage?: string;
+  /** Explicit legacy URL segments that redirect to the canonical channel slug. */
+  aliases?: string[];
+}
+
+export interface MomentsConfig {
+  /** Opt-in switch. Defaults to false. */
+  enabled?: boolean;
+  /** Canonical route prefix without leading/trailing slashes. Defaults to `moments`. */
+  path?: string;
+  /** Page and navigation title. Defaults to `碎碎念`. */
+  title?: string;
+  /** Page and feed description. */
+  description?: string;
+  /** Global moments Open Graph image. */
+  ogImage?: string;
+  /** Explicit legacy route prefixes that redirect to `path`. */
+  pathAliases?: string[];
+  /** Optional channel overrides. Unconfigured public channels are appended. */
+  channels?: MomentsChannelConfig[];
 }
 
 // =============================================================================
@@ -595,6 +637,8 @@ export interface SiteYamlConfig {
   announcements?: AnnouncementConfig[];
   defaultCoverList?: string[];
   content?: ContentConfig;
+  /** Optional dynamic moments archive backed by koharu-suite. */
+  moments?: MomentsConfig;
   navigation?: RouterItem[];
   comment?: CommentConfig;
   analytics?: AnalyticsConfig;

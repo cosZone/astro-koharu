@@ -1,0 +1,103 @@
+---
+interface Props {
+  html: string;
+  collapsible?: boolean;
+  emptyLabel: string;
+  expandLabel: string;
+  collapseLabel: string;
+}
+
+const { html, collapsible = true, emptyLabel, expandLabel, collapseLabel } = Astro.props;
+---
+
+<moments-message-body
+  class="block"
+  data-collapsible-requested={collapsible ? 'true' : 'false'}
+  data-expand-label={expandLabel}
+  data-collapse-label={collapseLabel}
+>
+  <div class="moments-message-content prose max-w-none break-words" data-message-content>
+    {html ? <div set:html={html} /> : <p class="text-muted-foreground m-0 italic">{emptyLabel}</p>}
+  </div>
+  <div class="moments-message-fade pointer-events-none" aria-hidden="true"></div>
+  <button
+    type="button"
+    class="moments-message-toggle text-primary hover:text-blue focus-visible:ring-primary mt-2 hidden rounded-md px-1 py-1 text-sm font-medium transition-colors focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none"
+    aria-expanded="true"
+    data-message-toggle
+  >
+    {expandLabel}
+  </button>
+</moments-message-body>
+
+<script>
+  const COLLAPSED_HEIGHT = 384;
+
+  class MomentsMessageBody extends HTMLElement {
+    connectedCallback() {
+      if (this.dataset.initialized === 'true') return;
+      this.dataset.initialized = 'true';
+
+      if (this.dataset.collapsibleRequested !== 'true') return;
+      const content = this.querySelector<HTMLElement>('[data-message-content]');
+      const toggle = this.querySelector<HTMLButtonElement>('[data-message-toggle]');
+      if (!content || !toggle) return;
+
+      const update = () => {
+        if (content.scrollHeight <= COLLAPSED_HEIGHT + 8) return;
+        this.dataset.collapsible = 'true';
+        this.dataset.expanded = 'false';
+        toggle.classList.remove('hidden');
+        toggle.setAttribute('aria-expanded', 'false');
+        toggle.textContent = this.dataset.expandLabel ?? '';
+      };
+
+      requestAnimationFrame(update);
+      document.fonts?.ready.then(update).catch(() => undefined);
+
+      toggle.addEventListener('click', () => {
+        const expanded = this.dataset.expanded === 'true';
+        this.dataset.expanded = expanded ? 'false' : 'true';
+        toggle.setAttribute('aria-expanded', String(!expanded));
+        toggle.textContent = expanded ? (this.dataset.expandLabel ?? '') : (this.dataset.collapseLabel ?? '');
+      });
+    }
+  }
+
+  if (!customElements.get('moments-message-body')) {
+    customElements.define('moments-message-body', MomentsMessageBody);
+  }
+</script>
+
+<style>
+  moments-message-body {
+    position: relative;
+  }
+
+  moments-message-body[data-collapsible='true'][data-expanded='false'] .moments-message-content {
+    max-height: 24rem;
+    overflow: hidden;
+  }
+
+  .moments-message-fade {
+    display: none;
+  }
+
+  moments-message-body[data-collapsible='true'][data-expanded='false'] .moments-message-fade {
+    position: absolute;
+    right: 0;
+    bottom: 2.75rem;
+    left: 0;
+    display: block;
+    height: 5rem;
+    background: linear-gradient(to bottom, transparent, hsl(var(--card)));
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .moments-message-toggle {
+      transition:
+        color 180ms ease,
+        background-color 180ms ease;
+    }
+  }
+</style>

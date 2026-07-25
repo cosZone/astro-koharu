@@ -56,6 +56,9 @@ To run Compose manually from the repository root:
 docker compose --env-file ./.env -f docker/docker-compose.yml up -d --build
 ```
 
+When Moments is enabled, use `pnpm docker:up:dynamic` instead. The feature is off by default; see the
+[Moments guide](./features/moments.en.md) and [deployment architecture](./overview/11-deployment-adapters.md).
+
 ### Local Development
 
 Before you begin, install Node.js 22.20.0 or later and pnpm 10.28.2.
@@ -92,6 +95,7 @@ pnpm dev
 - [Toggleable] Multi-series article support (weekly digest, book notes, etc. with custom URL slugs)
   > **Note**: featuredSeries is designed for categories with many articles, separating them from the homepage main list to avoid clutter. Only the latest article in a series is highlighted on the homepage; the rest are accessed through the series' dedicated page, while still appearing normally in archive, category, and tag pages.
 - [Toggleable] **Bangumi Page**: Integrates [Bangumi API](https://bgm.tv) to display anime/book/music/game collections with category tabs, status filters, and pagination — data fetched in real-time
+- [Toggleable] **Moments archive**: Reads public channel messages from koharu-suite with channel/detail pages, search, cursor pagination, and branded RSS. The default static deployment remains unchanged; see the [Moments guide](./features/moments.en.md)
 - **Standalone page system**: Create `.md` files under `src/pages/` to add custom pages (about, playlists, etc.) with custom cover titles and comment toggles
 - Responsive design
 - Draft and pinned post support

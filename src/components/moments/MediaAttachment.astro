@@ -1,0 +1,141 @@
+---
+import { Icon } from 'astro-icon/components';
+import { formatMomentFileSize, type MomentMediaViewModel } from './types';
+
+interface Labels {
+  processing: string;
+  unavailable: string;
+  image: string;
+  video: string;
+  audio: string;
+  document: string;
+  openDocument: string;
+  viewSource: string;
+}
+
+interface Props {
+  media: MomentMediaViewModel;
+  sourceUrl?: string | null;
+  labels: Labels;
+}
+
+const { media, sourceUrl, labels } = Astro.props;
+const fileSize = formatMomentFileSize(media.fileSize);
+const mediaLabel =
+  labels[
+    media.kind === 'image' || media.kind === 'video' || media.kind === 'audio' || media.kind === 'document'
+      ? media.kind
+      : 'document'
+  ];
+const displayName = media.fileName || mediaLabel;
+const imageUrl = media.thumbnailUrl || media.originalUrl;
+const fallbackHidden =
+  media.cacheStatus === 'pending' || (media.cacheStatus === 'ready' && Boolean(imageUrl || media.originalUrl));
+---
+
+<moments-media class="bg-muted/25 relative block min-w-0 overflow-hidden rounded-xl border border-border" data-media-kind={media.kind}>
+  {
+    media.cacheStatus === 'pending' ? (
+      <div class="text-muted-foreground flex min-h-32 flex-col items-center justify-center gap-2 p-5 text-center text-sm" role="status">
+        <Icon name="ri:loader-4-line" class="size-6" aria-hidden="true" />
+        <span>{labels.processing}</span>
+        <span class="text-xs">{displayName}</span>
+      </div>
+    ) : media.cacheStatus === 'ready' && media.kind === 'image' && imageUrl ? (
+      <button
+        type="button"
+        class="group relative block h-full min-h-32 w-full cursor-zoom-in focus-visible:outline-2 focus-visible:outline-offset-[-3px] focus-visible:outline-primary"
+        data-media-visual
+        data-media-image
+        data-original-src={media.originalUrl || imageUrl}
+        data-alt={media.alt || displayName}
+        aria-label={`${labels.image}: ${media.alt || displayName}`}
+      >
+        <img
+          src={imageUrl}
+          alt={media.alt || displayName}
+          class="h-full max-h-[36rem] w-full object-contain transition-opacity group-hover:opacity-90"
+          loading="lazy"
+          decoding="async"
+          data-media-asset
+        />
+        <Icon
+          name="ri:fullscreen-line"
+          class="absolute right-2 bottom-2 size-8 rounded-full bg-black/55 p-1.5 text-white opacity-0 transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100"
+          aria-hidden="true"
+        />
+      </button>
+    ) : media.cacheStatus === 'ready' && (media.kind === 'video' || media.kind === 'animation') && media.originalUrl ? (
+      <video
+        src={media.originalUrl}
+        poster={media.thumbnailUrl || undefined}
+        controls
+        playsinline
+        preload="metadata"
+        class="max-h-[36rem] w-full bg-black object-contain"
+        aria-label={media.alt || displayName}
+        data-media-visual
+        data-media-asset
+      />
+    ) : media.cacheStatus === 'ready' && media.kind === 'audio' && media.originalUrl ? (
+      <div class="flex min-h-24 items-center gap-3 p-4" data-media-visual>
+        <Icon name="ri:music-2-line" class="text-primary size-8 shrink-0" aria-hidden="true" />
+        <div class="min-w-0 grow">
+          <p class="truncate text-sm font-medium">{displayName}</p>
+          {fileSize && <p class="text-muted-foreground text-xs">{fileSize}</p>}
+          <audio src={media.originalUrl} controls preload="none" class="mt-2 h-10 w-full" aria-label={displayName} data-media-asset />
+        </div>
+      </div>
+    ) : media.cacheStatus === 'ready' && media.originalUrl ? (
+      <a
+        href={media.originalUrl}
+        target="_blank"
+        rel="noopener noreferrer"
+        class="hover:text-primary flex min-h-24 items-center gap-3 p-4 transition-colors focus-visible:outline-2 focus-visible:outline-offset-[-3px] focus-visible:outline-primary"
+        data-media-asset
+      >
+        <Icon name="ri:file-line" class="text-primary size-8 shrink-0" aria-hidden="true" />
+        <span class="min-w-0 grow">
+          <span class="block truncate text-sm font-medium">{displayName}</span>
+          <span class="text-muted-foreground block text-xs">{[media.mimeType, fileSize].filter(Boolean).join(' · ')}</span>
+        </span>
+        <span class="text-xs font-medium">{labels.openDocument}</span>
+      </a>
+    ) : null
+  }
+
+  <div
+    class:list={[
+      'text-muted-foreground min-h-24 flex-col items-center justify-center gap-1 p-4 text-center text-sm',
+      fallbackHidden ? 'hidden' : 'flex',
+    ]}
+    data-media-fallback
+    role="status"
+  >
+    <Icon name="ri:file-warning-line" class="size-7" aria-hidden="true" />
+    <span>{labels.unavailable}</span>
+    <span class="max-w-full truncate text-xs">{displayName}{fileSize ? ` · ${fileSize}` : ''}</span>
+    {sourceUrl && (
+      <a href={sourceUrl} target="_blank" rel="noopener noreferrer" class="text-primary hover:text-blue mt-1 underline-offset-4 hover:underline">
+        {labels.viewSource}
+      </a>
+    )}
+  </div>
+</moments-media>
+
+<script>
+  class MomentsMedia extends HTMLElement {
+    connectedCallback() {
+      if (this.dataset.initialized === 'true') return;
+      this.dataset.initialized = 'true';
+      this.querySelectorAll<HTMLElement>('[data-media-asset]').forEach((asset) => {
+        asset.addEventListener('error', () => {
+          (asset.closest<HTMLElement>('[data-media-visual]') ?? asset).classList.add('hidden');
+          this.querySelector<HTMLElement>('[data-media-fallback]')?.classList.replace('hidden', 'flex');
+        });
+      });
+    }
+  }
+
+  if (!customElements.get('moments-media')) customElements.define('moments-media', MomentsMedia);
+</script>

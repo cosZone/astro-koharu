@@ -10,6 +10,20 @@ interface Props {
   /** Override canonical URL (e.g., for fallback pages pointing to default-locale version) */
   canonical?: string;
   keywords?: string[];
+  /** Page-specific Open Graph values. Relative images are resolved against Astro.site. */
+  openGraph?: {
+    title?: string;
+    description?: string;
+    image?: string;
+    type?: 'website' | 'article';
+    url?: string;
+  };
+  /** Robots directive for dynamic or otherwise non-indexable pages. */
+  robots?: string;
+  /** Alternate RSS feeds. Omit to keep the site's default RSS link. */
+  rssFeeds?: Array<{ href: string; title: string }>;
+  /** Disable locale hreflang links for a canonical route that is not duplicated per locale. */
+  includeLocaleAlternates?: boolean;
 }
 
 import { ClientRouter } from 'astro:transitions';
@@ -61,6 +75,10 @@ const {
   post,
   canonical: canonicalOverride,
   keywords: keywordsOverride,
+  openGraph: openGraphOverride,
+  robots,
+  rssFeeds: rssFeedsOverride,
+  includeLocaleAlternates = true,
 } = Astro.props;
 
 // TODO: siderType should be custom in router file, not in layout
@@ -73,16 +91,26 @@ const htmlLang = getHtmlLang(locale);
 const isPostPage = stripLocaleFromPath(Astro.url.pathname).startsWith('/post/');
 
 // OGP image: use post cover if available, otherwise use default from config, fallback to avatar
-const ogImage = getOgImageUrl(post?.data.cover, Astro.site);
+const defaultOgImage = getOgImageUrl(post?.data.cover, Astro.site);
+const resolveAbsoluteUrl = (value: string | undefined) => (value ? new URL(value, Astro.site).href : undefined);
+const ogImage = resolveAbsoluteUrl(openGraphOverride?.image) ?? defaultOgImage;
 
 // Pre-compute i18n URLs for <head> links
-const rssHref = new URL(localizedPath('/rss.xml', locale), Astro.site).href;
+const rssFeeds = rssFeedsOverride ?? [
+  {
+    href: new URL(localizedPath('/rss.xml', locale), Astro.site).href,
+    title: siteConfig.title,
+  },
+];
 const hreflangLinks = localeList.map((loc) => ({
   lang: getHtmlLang(loc),
   href: new URL(getAlternateUrl(Astro.url.pathname, loc), Astro.site).href,
 }));
 const xDefaultHref = new URL(getAlternateUrl(Astro.url.pathname, defaultLocale), Astro.site).href;
 const canonicalHref = canonicalOverride ?? Astro.url.href;
+const openGraphTitle = openGraphOverride?.title ?? title;
+const openGraphDescription = openGraphOverride?.description ?? description;
+const openGraphUrl = resolveAbsoluteUrl(openGraphOverride?.url) ?? canonicalHref;
 
 const keywords = keywordsOverride || siteConfig.keywords || [siteConfig.title];
 ---
@@ -119,20 +147,20 @@ const keywords = keywordsOverride || siteConfig.keywords || [siteConfig.title];
       canonical={canonicalHref}
       openGraph={{
         basic: {
-          title: title,
-          type: 'website',
+          title: openGraphTitle,
+          type: openGraphOverride?.type ?? 'website',
           image: ogImage || '',
-          url: Astro.url.href,
+          url: openGraphUrl,
         },
         optional: {
           siteName: siteConfig.name,
-          description: description,
+          description: openGraphDescription,
         },
       }}
       twitter={{
         card: ogImage ? 'summary_large_image' : 'summary',
-        title: title,
-        description: description,
+        title: openGraphTitle,
+        description: openGraphDescription,
         ...(ogImage && { image: ogImage }),
       }}
       extend={{
@@ -141,13 +169,16 @@ const keywords = keywordsOverride || siteConfig.keywords || [siteConfig.title];
     />
     {/* astro-seo 暂不支持管理 keywords */}
     <meta name="keywords" content={keywords.join(', ')} />
+    {robots && <meta name="robots" content={robots} />}
 
-    <link rel="alternate" type="application/rss+xml" title={siteConfig.title} href={rssHref} />
+    {rssFeeds.map((feed) => (
+      <link rel="alternate" type="application/rss+xml" title={feed.title} href={feed.href} />
+    ))}
     {/* hreflang alternate links for SEO — only output when multiple locales are configured */}
-    {isI18nEnabled && hreflangLinks.map(({ lang, href }) => (
+    {includeLocaleAlternates && isI18nEnabled && hreflangLinks.map(({ lang, href }) => (
       <link rel="alternate" hreflang={lang} href={href} />
     ))}
-    {isI18nEnabled && <link rel="alternate" hreflang="x-default" href={xDefaultHref} />}
+    {includeLocaleAlternates && isI18nEnabled && <link rel="alternate" hreflang="x-default" href={xDefaultHref} />}
 
     <script is:inline>
       // 主题系统 - 立即执行以防止 FOUC（无样式内容闪烁）

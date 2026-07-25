@@ -17,6 +17,8 @@ export type {
   FriendLink,
   FriendsConfig,
   FriendsIntro,
+  MomentsChannelConfig,
+  MomentsConfig,
   RouterItem,
   SiteBasicConfig,
   SiteYamlConfig,

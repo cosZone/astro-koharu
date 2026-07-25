@@ -112,7 +112,7 @@ const Navigator = memo(function Navigator({ currentPath, locale = defaultLocale 
             return <DropdownNav key={item.path ?? item.name} item={item} currentPath={currentPath} locale={locale} />;
           }
           if (!item.path || !displayName) return null;
-          const localizedUrl = localizedPath(item.path, locale);
+          const localizedUrl = item.localeIndependent ? item.path : localizedPath(item.path, locale);
           return (
             <ButtonLink key={item.path} url={localizedUrl} label={displayName} isActive={item.path === strippedPath}>
               {item.icon && <NavIcon name={item.icon} />}

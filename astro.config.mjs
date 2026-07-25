@@ -1,11 +1,12 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { unified } from '@astrojs/markdown-remark';
+import node from '@astrojs/node';
 import react from '@astrojs/react';
 import sitemap from '@astrojs/sitemap';
 import yaml from '@rollup/plugin-yaml';
 import tailwindcss from '@tailwindcss/vite';
-import { defineConfig } from 'astro/config';
+import { defineConfig, memoryCache } from 'astro/config';
 import icon from 'astro-icon';
 import mermaid from 'astro-mermaid';
 import pagefind from 'astro-pagefind';
@@ -19,6 +20,9 @@ import Sonda from 'sonda/vite';
 import { loadEnv } from 'vite';
 import svgr from 'vite-plugin-svgr';
 import YAML from 'yaml';
+import { RESERVED_ROUTES } from './src/constants/router.ts';
+import { momentsRoutes } from './src/features/moments/integration/momentsRoutes.ts';
+import { normalizeMomentsConfig } from './src/lib/config/moments.ts';
 import { rehypeEncryptedBlock } from './src/lib/markdown/rehype-encrypted-block.ts';
 import { rehypeEncryptedPost } from './src/lib/markdown/rehype-encrypted-post.ts';
 import { rehypeImagePlaceholder } from './src/lib/markdown/rehype-image-placeholder.ts';
@@ -44,7 +48,8 @@ const yamlConfig = loadConfigForAstro();
 
 // Bundle analysis mode: ANALYZE=true pnpm build
 // Use loadEnv to read .env file (astro.config.mjs runs before Vite loads .env)
-const { ANALYZE } = loadEnv(process.env.NODE_ENV || 'production', process.cwd(), '');
+const env = loadEnv(process.env.NODE_ENV || 'production', process.cwd(), '');
+const { ANALYZE } = env;
 const isAnalyze = ANALYZE === 'true';
 // Get robots.txt config from YAML
 const robotsConfig = yamlConfig.seo?.robots;
@@ -54,6 +59,50 @@ const i18nYaml = yamlConfig.i18n;
 const i18nDefaultLocale = i18nYaml?.defaultLocale ?? 'zh';
 const i18nLocales = (i18nYaml?.locales ?? [{ code: 'zh' }]).map((l) => l.code);
 const hasMultipleLocales = i18nLocales.length > 1;
+const enabledI18nLocales = (i18nYaml?.locales ?? [{ code: 'zh' }])
+  .filter((locale) => locale.enabled !== false)
+  .map((locale) => locale.code);
+
+const rawFeaturedSeries = Array.isArray(yamlConfig.featuredSeries)
+  ? yamlConfig.featuredSeries
+  : yamlConfig.featuredSeries
+    ? [yamlConfig.featuredSeries]
+    : [];
+const momentsConfig = normalizeMomentsConfig(yamlConfig.moments, {
+  reservedRoutes: RESERVED_ROUTES,
+  localeCodes: enabledI18nLocales,
+  seriesSlugs: rawFeaturedSeries.flatMap((series) =>
+    series?.enabled === false || typeof series?.slug !== 'string' ? [] : [series.slug],
+  ),
+});
+
+function assertMomentsOgImage(image, field) {
+  if (!image?.startsWith('/')) return;
+  const publicFile = path.join(process.cwd(), 'public', image.slice(1));
+  if (!fs.existsSync(publicFile) || !fs.statSync(publicFile).isFile()) {
+    throw new Error(`Moments configuration error: "${field}" does not exist in public: ${image}`);
+  }
+}
+
+if (momentsConfig.enabled) {
+  assertMomentsOgImage(momentsConfig.ogImage, 'ogImage');
+  for (const [index, channel] of momentsConfig.channels.entries()) {
+    assertMomentsOgImage(channel.ogImage, `channels[${index}].ogImage`);
+  }
+  const suiteUrl = env.KOHARU_SUITE_URL;
+  if (!suiteUrl) throw new Error('KOHARU_SUITE_URL is required when moments.enabled is true.');
+  const parsedSuiteUrl = new URL(suiteUrl);
+  if (
+    !['http:', 'https:'].includes(parsedSuiteUrl.protocol) ||
+    parsedSuiteUrl.username ||
+    parsedSuiteUrl.password ||
+    parsedSuiteUrl.pathname !== '/' ||
+    parsedSuiteUrl.search ||
+    parsedSuiteUrl.hash
+  ) {
+    throw new Error('KOHARU_SUITE_URL must be an HTTP(S) origin without credentials, query, or fragment.');
+  }
+}
 
 /**
  * Vite plugin for conditional Three.js bundling
@@ -166,6 +215,7 @@ if (contentConfig.enhanceCodeBlock !== false) shikiTransformers.push(collapsible
 // https://astro.build/config
 export default defineConfig({
   site: yamlConfig.site.url,
+  output: 'static',
   compressHTML: true,
   markdown: {
     processor: unified({
@@ -201,7 +251,14 @@ export default defineConfig({
       autoTheme: true,
     }),
     robotsTxt(robotsConfig || {}),
+    ...(momentsConfig.enabled ? [momentsRoutes(momentsConfig)] : []),
   ],
+  ...(momentsConfig.enabled
+    ? {
+        adapter: node({ mode: 'standalone' }),
+        cache: { provider: memoryCache({ max: 1000 }) },
+      }
+    : {}),
   devToolbar: {
     enabled: true,
   },

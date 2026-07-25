@@ -1,0 +1,73 @@
+---
+import { Icon } from 'astro-icon/components';
+import type { MomentChannelViewModel } from './types';
+
+interface Props {
+  action: string;
+  query?: string;
+  channels?: MomentChannelViewModel[];
+  selectedChannelId?: string;
+  sort?: 'relevance' | 'newest';
+  labels: {
+    form: string;
+    query: string;
+    placeholder: string;
+    channel: string;
+    allChannels: string;
+    sort: string;
+    relevance: string;
+    newest: string;
+    submit: string;
+    hint: string;
+  };
+}
+
+const { action, query = '', channels = [], selectedChannelId = '', sort = 'relevance', labels } = Astro.props;
+---
+
+<form action={action} method="get" role="search" aria-label={labels.form} class="bg-muted/25 grid gap-3 rounded-2xl border border-border p-4">
+  <div class="flex gap-2 tablet:flex-col">
+    <label class="min-w-0 grow">
+      <span class="sr-only">{labels.query}</span>
+      <span class="border-border bg-background focus-within:border-primary focus-within:ring-primary flex items-center gap-2 rounded-xl border px-3 focus-within:ring-2">
+        <Icon name="ri:search-line" class="text-muted-foreground shrink-0" aria-hidden="true" />
+        <input
+          type="search"
+          name="q"
+          value={query}
+          minlength="3"
+          maxlength="200"
+          required
+          autocomplete="off"
+          placeholder={labels.placeholder}
+          class="min-w-0 grow bg-transparent py-3 outline-none"
+        />
+      </span>
+    </label>
+    <button
+      type="submit"
+      class="bg-primary hover:bg-primary/85 focus-visible:ring-primary rounded-xl px-5 py-3 font-medium text-white transition-colors focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none"
+    >
+      {labels.submit}
+    </button>
+  </div>
+  <p class="text-muted-foreground text-xs">{labels.hint}</p>
+  <div class="grid grid-cols-2 gap-3 tablet:grid-cols-1">
+    <label class="grid gap-1 text-sm">
+      <span class="text-muted-foreground">{labels.channel}</span>
+      <select name="channel" class="border-border bg-background focus:border-primary rounded-lg border px-3 py-2 outline-none">
+        <option value="" selected={!selectedChannelId}>{labels.allChannels}</option>
+        {channels.map((channel) => (
+          <option value={channel.id} selected={channel.id === selectedChannelId}>{channel.title}</option>
+        ))}
+      </select>
+    </label>
+    <label class="grid gap-1 text-sm">
+      <span class="text-muted-foreground">{labels.sort}</span>
+      <select name="sort" class="border-border bg-background focus:border-primary rounded-lg border px-3 py-2 outline-none">
+        <option value="relevance" selected={sort === 'relevance'}>{labels.relevance}</option>
+        <option value="newest" selected={sort === 'newest'}>{labels.newest}</option>
+      </select>
+    </label>
+  </div>
+</form>

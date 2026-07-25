@@ -1,0 +1,88 @@
+---
+import ChannelSwitcher from '@components/moments/ChannelSwitcher.astro';
+import CursorPagination from '@components/moments/CursorPagination.astro';
+import MessageCard from '@components/moments/MessageCard.astro';
+import MomentsShell from '@components/moments/MomentsShell.astro';
+import MomentsState from '@components/moments/MomentsState.astro';
+import { momentsConfig } from '@constants/site-config';
+import type { MessagePage } from '@coszone/koharu-astro';
+import Layout from '@layouts/Layout.astro';
+import { getMomentsChannels, listChannelMessages } from '../lib/data';
+import { messageCardLabels, momentsLabels } from '../lib/labels';
+import { resolveMomentsOpenGraph } from '../lib/metadata';
+import { toMomentsHttpError } from '../lib/runtime';
+import { momentsPath, rssPath, searchPath } from '../lib/urls';
+import { toChannelViewModel, toMessageViewModel } from '../lib/view-models';
+
+Astro.cache.set({ maxAge: 300, swr: 30 });
+const cursor = Astro.url.searchParams.get('cursor')?.trim() || undefined;
+const channels = await getMomentsChannels().catch((error) => {
+  const failure = toMomentsHttpError(error);
+  Astro.cache.set(false);
+  Astro.response.status = failure.status;
+  if (failure.retryAfterSeconds !== undefined) Astro.response.headers.set('Retry-After', String(failure.retryAfterSeconds));
+  return undefined;
+});
+const primary = channels?.primary;
+let page: MessagePage | undefined;
+let failure: ReturnType<typeof toMomentsHttpError> | undefined;
+if (primary) {
+  try {
+    page = await listChannelMessages(primary.id, cursor);
+  } catch (error) {
+    failure = toMomentsHttpError(error);
+    Astro.cache.set(false);
+    Astro.response.status = failure.status;
+    if (failure.retryAfterSeconds !== undefined) Astro.response.headers.set('Retry-After', String(failure.retryAfterSeconds));
+  }
+}
+
+const channelViews = (channels?.visible ?? []).map((channel) => toChannelViewModel(momentsConfig, channel, primary?.id));
+const messages = primary && page ? page.items.map((message) => toMessageViewModel(momentsConfig, primary, message)) : [];
+const canonicalPath = momentsPath(momentsConfig);
+const canonical = new URL(canonicalPath, Astro.site).href;
+const openGraph = resolveMomentsOpenGraph({ canonical, config: momentsConfig, kind: 'index' });
+const nextHref = page?.nextCursor ? `${canonicalPath}?cursor=${encodeURIComponent(page.nextCursor)}` : undefined;
+const errorKind = failure?.type ?? (channels ? undefined : 'unavailable');
+const errorDescription = errorKind === 'rate-limited' ? momentsLabels.rateLimited : momentsLabels.feedUnavailable;
+---
+
+<Layout
+  title={momentsConfig.title}
+  description={momentsConfig.description}
+  canonical={canonical}
+  openGraph={openGraph}
+  robots={cursor ? 'noindex,follow' : undefined}
+  rssFeeds={[{ href: rssPath(momentsConfig), title: `${momentsConfig.title} RSS` }]}
+  includeLocaleAlternates={false}
+>
+  <MomentsShell title={momentsConfig.title}>
+    <div class="flex flex-wrap items-center justify-between gap-3">
+      <p class="text-muted-foreground text-sm">{momentsConfig.description}</p>
+      <div class="flex gap-3 text-sm">
+        <a class="text-primary hover:underline" href={searchPath(momentsConfig)}>{momentsLabels.search}</a>
+        <a class="text-primary hover:underline" href={rssPath(momentsConfig)}>RSS</a>
+      </div>
+    </div>
+    <ChannelSwitcher channels={channelViews} label={momentsLabels.channelNavigation} />
+    {errorKind ? (
+      <MomentsState
+        kind={errorKind}
+        title={errorKind === 'rate-limited' ? momentsLabels.rateLimitedTitle : momentsLabels.unavailableTitle}
+        description={errorDescription}
+        retryHref={canonicalPath}
+        retryLabel={momentsLabels.retry}
+      />
+    ) : !primary ? (
+      <MomentsState kind="empty" title={momentsLabels.noChannels} />
+    ) : messages.length === 0 ? (
+      <MomentsState kind="empty" title={momentsLabels.emptyChannel} />
+    ) : (
+      <>
+        {messages.map((message) => <MessageCard message={message} labels={messageCardLabels} />)}
+        <CursorPagination nextHref={nextHref} nextLabel={momentsLabels.olderContent} backLabel={momentsLabels.back} navigationLabel={momentsLabels.pagination} />
+      </>
+    )}
+    <p class="text-muted-foreground text-center text-xs">{momentsLabels.cacheNotice}</p>
+  </MomentsShell>
+</Layout>

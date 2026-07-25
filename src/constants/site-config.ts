@@ -1,5 +1,6 @@
 // Import YAML config directly - processed by @rollup/plugin-yaml
 
+import { normalizeMomentsConfig, resolveMomentsNavigation } from '@lib/config/moments';
 import type {
   AnalyticsConfig,
   BangumiConfig,
@@ -16,7 +17,7 @@ import { DEFAULT_TIMEZONE, isValidTimezone } from '@lib/timezone';
 import { createUmamiStatsConfig } from '@lib/umami-stats';
 import type { UmamiStatsConfig } from '@/types/umami-stats';
 import yamlConfig from '../../config/site.yaml';
-import { routers as baseRouters, isReservedSlug, RESERVED_ROUTES } from './router';
+import { DEFAULT_ROUTERS, isReservedSlug, RESERVED_ROUTES } from './router';
 
 /**
  * Runtime site configuration
@@ -317,10 +318,19 @@ export const bgmConfig: { enabled: boolean; metingApi?: string; audio: BgmAudioG
 // Bangumi media tracking config — null when disabled (section commented out in YAML)
 export const bangumiConfig: BangumiConfig | null = yamlConfig.bangumi ?? null;
 
-// Navigation routers with auto-injected bangumi entry
+/** Validated opt-in moments configuration. Disabled when the YAML section is absent. */
+export const momentsConfig = normalizeMomentsConfig(yamlConfig.moments, {
+  reservedRoutes: RESERVED_ROUTES,
+  localeCodes: (yamlConfig.i18n?.locales ?? []).flatMap((locale) => (locale.enabled !== false ? [locale.code] : [])),
+  seriesSlugs: siteConfig.featuredSeries.flatMap((series) => (series.enabled !== false ? [series.slug] : [])),
+});
+
+const momentsRouters = resolveMomentsNavigation(yamlConfig.navigation ?? DEFAULT_ROUTERS, momentsConfig);
+
+// Navigation routers with resolved feature placeholders and auto-injected bangumi entry
 export const routers: RouterItem[] = bangumiConfig
   ? [
-      ...baseRouters,
+      ...momentsRouters,
       {
         name: bangumiConfig.label,
         nameKey: bangumiConfig.label ? undefined : 'nav.bangumi',
@@ -328,7 +338,7 @@ export const routers: RouterItem[] = bangumiConfig
         icon: bangumiConfig.icon ?? 'ri:bilibili-fill',
       },
     ]
-  : baseRouters;
+  : momentsRouters;
 
 // Map YAML dev tools config with defaults (dev only)
 export const devConfig: DevConfig = {

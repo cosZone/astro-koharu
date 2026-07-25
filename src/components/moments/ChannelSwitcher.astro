@@ -1,0 +1,43 @@
+---
+import { cn } from '@lib/utils';
+import type { MomentChannelViewModel } from './types';
+
+interface Props {
+  channels: MomentChannelViewModel[];
+  label: string;
+  className?: string;
+}
+
+const { channels, label, className } = Astro.props;
+---
+
+{
+  channels.length > 0 && (
+    <nav aria-label={label} class={cn('relative min-w-0', className)}>
+      <div class="vertical-scrollbar flex snap-x gap-2 overflow-x-auto py-1" role="list">
+        {channels.map((channel) => (
+          <a
+            href={channel.href}
+            aria-current={channel.isActive ? 'page' : undefined}
+            class:list={[
+              'focus-visible:ring-primary inline-flex shrink-0 snap-start items-center gap-2 rounded-full border px-3 py-2 text-sm transition-colors focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none',
+              channel.isActive
+                ? 'border-primary bg-primary/10 text-primary'
+                : 'border-border bg-card text-muted-foreground hover:border-primary/50 hover:text-primary',
+            ]}
+            role="listitem"
+          >
+            <span
+              aria-hidden="true"
+              class="bg-primary/15 text-primary inline-flex size-7 items-center justify-center rounded-full font-bold"
+            >
+              {Array.from(channel.title.trim())[0] ?? '#'}
+            </span>
+            <span class="whitespace-nowrap font-medium">{channel.title}</span>
+            {channel.username && <span class="text-muted-foreground whitespace-nowrap text-xs">@{channel.username}</span>}
+          </a>
+        ))}
+      </div>
+    </nav>
+  )
+}

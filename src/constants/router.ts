@@ -1,7 +1,4 @@
-// Import YAML config directly - processed by @rollup/plugin-yaml
-
 import type { RouterItem } from '@lib/config/types';
-import yamlConfig from '../../config/site.yaml';
 
 export type Router = RouterItem;
 
@@ -29,14 +26,20 @@ export const RESERVED_ROUTES = new Set([
   'posts',
   'archives',
   'bangumi',
+  'music',
   '404',
   // Special files
   'rss.xml',
+  'rss',
   'sitemap.xml',
+  'sitemap-index.xml',
   'robots.txt',
   'favicon.ico',
   // Astro internals (prevent potential conflicts)
   '_astro',
+  '_actions',
+  '_image',
+  '_server-islands',
   '@fs',
   'api',
 ]);
@@ -59,7 +62,8 @@ export function isReservedSlug(slug: string): boolean {
   return RESERVED_ROUTES.has(slug.toLowerCase());
 }
 
-export const routers: Router[] = yamlConfig.navigation ?? [
+/** Fallback navigation used when `config/site.yaml` does not define `navigation`. */
+export const DEFAULT_ROUTERS: Router[] = [
   { name: 'Home', path: Routes.Home, icon: 'fa6-solid:house-chimney' },
   { name: 'About', path: Routes.About, icon: 'fa6-regular:circle-user' },
 ];

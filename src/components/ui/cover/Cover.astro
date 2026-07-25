@@ -32,6 +32,9 @@ const locale = getLocaleFromUrl(Astro.url.pathname);
 const href = data && localizedPath(routeBuilder(Routes.Post, data), locale);
 
 const pageStatsConfig = href ? createArticleStatsConfig(href) : null;
+const copyLinkLabel = t(locale, 'cover.copyLink');
+const copiedLabel = t(locale, 'common.copied');
+const copyFailedLabel = t(locale, 'common.copyFailed');
 ---
 
 <div class="relative flex h-[60dvh] z-0 max-h-200 overflow-hidden">
@@ -43,12 +46,18 @@ const pageStatsConfig = href ? createArticleStatsConfig(href) : null;
           class={`shadow-text word-break flex items-center gap-2 text-center text-5xl/[1.2] font-bold tracking-widest ${MAX_WIDTH.content}`}
         >
           {title}
-          <Icon
-            name="ri:link"
-            title={t(locale, "cover.copyLink")}
-            class="hover:text-primary cursor-pointer transition-colors duration-300"
-            onclick="navigator.clipboard.writeText(window.location.href)"
-          />
+          <button
+            type="button"
+            class="cover-copy-link hover:text-primary inline-flex cursor-pointer items-center rounded-full p-1 transition-colors duration-300 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white"
+            aria-label={copyLinkLabel}
+            title={copyLinkLabel}
+            data-copy-label={copyLinkLabel}
+            data-copied-label={copiedLabel}
+            data-copy-failed-label={copyFailedLabel}
+          >
+            <Icon name="ri:link" aria-hidden="true" />
+            <span class="sr-only" aria-live="polite"></span>
+          </button>
         </h1>
       ) : data ? (
         <>
@@ -120,3 +129,31 @@ const pageStatsConfig = href ? createArticleStatsConfig(href) : null;
   </div>
   <WaveSvg />
 </div>
+
+<script>
+  function installCoverCopyButtons() {
+    document.querySelectorAll<HTMLButtonElement>('.cover-copy-link:not([data-copy-ready])').forEach((button) => {
+      button.dataset.copyReady = 'true';
+      button.addEventListener('click', async () => {
+        const value = window.location.href;
+        try {
+          await navigator.clipboard.writeText(value);
+        } catch {
+          window.prompt(button.dataset.copyFailedLabel ?? button.dataset.copyLabel ?? '', value);
+          return;
+        }
+
+        const status = button.querySelector<HTMLElement>('[aria-live]');
+        if (status) status.textContent = button.dataset.copiedLabel ?? '';
+        button.title = button.dataset.copiedLabel ?? button.title;
+        window.setTimeout(() => {
+          if (status) status.textContent = '';
+          button.title = button.dataset.copyLabel ?? button.title;
+        }, 1800);
+      });
+    });
+  }
+
+  installCoverCopyButtons();
+  document.addEventListener('astro:page-load', installCoverCopyButtons);
+</script>

@@ -1,0 +1,28 @@
+---
+import HomeSider from '@components/layout/HomeSider.astro';
+import Cover from '@components/ui/cover/Cover.astro';
+import { CONTENT_PADDING } from '@constants/layout';
+import TwoColumnLayout from '@layouts/TwoColumnLayout.astro';
+import { cn } from '@lib/utils';
+
+interface Props {
+  title: string;
+  className?: string;
+}
+
+const { title, className } = Astro.props;
+---
+
+<TwoColumnLayout showPostFooter={false}>
+  <Cover slot="cover" title={title} />
+  <HomeSider slot="sider" />
+  <section
+    class={cn(
+      'shadow-box bg-gradient-start mx-0 flex w-full min-w-0 flex-col gap-6',
+      CONTENT_PADDING.standard,
+      className,
+    )}
+  >
+    <slot />
+  </section>
+</TwoColumnLayout>

@@ -8,9 +8,11 @@ import PostFooter from '@/components/post/PostFooter.astro';
 interface Props {
   className?: string;
   post?: BlogPost;
+  /** Moments and other utility pages do not need article-only related/random content. */
+  showPostFooter?: boolean;
 }
 
-const { className, post } = Astro.props;
+const { className, post, showPostFooter = true } = Astro.props;
 ---
 
 <div class="flex flex-col">
@@ -19,7 +21,7 @@ const { className, post } = Astro.props;
     <slot name="sider" />
     <div class="flex min-w-0 grow flex-col gap-8 md:w-full">
       <slot />
-      <PostFooter post={post} />
+      {showPostFooter && <PostFooter post={post} />}
       <Footer />
     </div>
   </div>

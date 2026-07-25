@@ -1,0 +1,111 @@
+---
+import ChannelSwitcher from '@components/moments/ChannelSwitcher.astro';
+import MessageCard from '@components/moments/MessageCard.astro';
+import MessageContext from '@components/moments/MessageContext.astro';
+import MomentsShell from '@components/moments/MomentsShell.astro';
+import MomentsState from '@components/moments/MomentsState.astro';
+import { momentsConfig } from '@constants/site-config';
+import { type MessageContext as KoharuMessageContext, suiteIdSchema } from '@coszone/koharu-astro';
+import Layout from '@layouts/Layout.astro';
+import { findChannel, getMessageContext, getMomentsChannels, type MomentsChannels } from '../lib/data';
+import { messageCardLabels, momentsLabels } from '../lib/labels';
+import { resolveMomentsOpenGraph } from '../lib/metadata';
+import { toMomentsHttpError } from '../lib/runtime';
+import { messagePath, rssPath } from '../lib/urls';
+import { messageTitle, toChannelViewModel, toContextViewModel, toMessageViewModel } from '../lib/view-models';
+
+Astro.cache.set({ maxAge: 300, swr: 30 });
+let channels: MomentsChannels | undefined;
+let context: KoharuMessageContext | undefined;
+let failure: ReturnType<typeof toMomentsHttpError> | undefined;
+try {
+  channels = await getMomentsChannels();
+} catch (error) {
+  failure = toMomentsHttpError(error);
+}
+const channel = channels && findChannel(channels, Astro.params.channel);
+if (!failure && !channel) failure = { status: 404, type: 'not-found' };
+const messageId = suiteIdSchema.safeParse(Astro.params.message);
+if (!failure && !messageId.success) failure = { status: 404, type: 'not-found' };
+if (channel && messageId.success && !failure) {
+  try {
+    context = await getMessageContext(messageId.data);
+    if (context.message.channel.id !== channel.id) {
+      context = undefined;
+      failure = { status: 404, type: 'not-found' };
+    }
+  } catch (error) {
+    failure = toMomentsHttpError(error);
+  }
+} else if (!failure) {
+  failure = { status: 404, type: 'not-found' };
+}
+if (failure) {
+  Astro.cache.set(false);
+  Astro.response.status = failure.status;
+  if (failure.retryAfterSeconds !== undefined) Astro.response.headers.set('Retry-After', String(failure.retryAfterSeconds));
+}
+
+const message = channel && context ? toMessageViewModel(momentsConfig, channel, context.message) : undefined;
+const title = channel && context ? messageTitle(context.message, channel) : momentsConfig.title;
+const canonicalPath = channel && context ? messagePath(momentsConfig, channel, context.message.id) : Astro.url.pathname;
+const canonical = new URL(canonicalPath, Astro.site).href;
+const openGraph = resolveMomentsOpenGraph({
+  canonical,
+  channel,
+  config: momentsConfig,
+  kind: 'message',
+  message: context?.message,
+});
+const channelViews = (channels?.visible ?? []).map((item) => toChannelViewModel(momentsConfig, item, channel?.id));
+const structuredData =
+  channel && context
+    ? {
+        '@context': 'https://schema.org',
+        '@type': 'SocialMediaPosting',
+        headline: title,
+        datePublished: context.message.publishedAt,
+        url: canonical,
+        articleBody: context.message.content.text ?? undefined,
+        author: context.message.authorSignature ? { '@type': 'Person', name: context.message.authorSignature } : undefined,
+      }
+    : undefined;
+const structuredDataJson = structuredData ? JSON.stringify(structuredData).replaceAll('<', '\\u003c') : undefined;
+---
+
+<Layout
+  title={title}
+  description={message?.plainText ?? momentsConfig.description}
+  canonical={canonical}
+  openGraph={openGraph}
+  robots={failure ? 'noindex,follow' : undefined}
+  rssFeeds={channel ? [{ href: rssPath(momentsConfig, channel), title: `${channel.title} RSS` }] : []}
+  includeLocaleAlternates={false}
+>
+  {structuredDataJson && <script is:inline type="application/ld+json" set:html={structuredDataJson} />}
+  <MomentsShell title={channel?.title ?? momentsConfig.title}>
+    <ChannelSwitcher channels={channelViews} label={momentsLabels.channelNavigation} />
+    {failure || !message || !channel || !context ? (
+      <MomentsState
+        kind={failure?.type ?? 'not-found'}
+        title={failure?.type === 'not-found' ? momentsLabels.notFound : failure?.type === 'rate-limited' ? momentsLabels.rateLimitedTitle : momentsLabels.unavailableTitle}
+        description={failure?.type === 'rate-limited' ? momentsLabels.rateLimited : failure?.type === 'not-found' ? momentsLabels.notFoundDescription : momentsLabels.feedUnavailable}
+        retryHref={failure?.type === 'not-found' ? undefined : Astro.url.pathname}
+        retryLabel={momentsLabels.retry}
+      />
+    ) : (
+      <>
+        <MessageCard message={message} detail labels={messageCardLabels} />
+        <MessageContext
+          newer={toContextViewModel(momentsConfig, channel, context.newer)}
+          older={toContextViewModel(momentsConfig, channel, context.older)}
+          newerLabel={momentsLabels.newer}
+          olderLabel={momentsLabels.older}
+          mediaMessageLabel={momentsLabels.mediaMessage}
+          emptyMessageLabel={momentsLabels.emptyMessage}
+          navigationLabel={momentsLabels.contextNavigation}
+        />
+      </>
+    )}
+  </MomentsShell>
+</Layout>

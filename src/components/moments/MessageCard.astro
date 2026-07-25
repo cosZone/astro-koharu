@@ -1,0 +1,142 @@
+---
+import { Icon } from 'astro-icon/components';
+import MediaGallery from './MediaGallery.astro';
+import MessageBody from './MessageBody.astro';
+import type { MomentMessageViewModel } from './types';
+
+interface Labels {
+  updated: string;
+  permalink: string;
+  copyLink: string;
+  copied: string;
+  copyFailed: string;
+  viewSource: string;
+  emptyMessage: string;
+  expand: string;
+  collapse: string;
+  mediaProcessing: string;
+  mediaUnavailable: string;
+  image: string;
+  video: string;
+  audio: string;
+  document: string;
+  openDocument: string;
+  mediaMore: string;
+}
+
+interface Props {
+  message: MomentMessageViewModel;
+  detail?: boolean;
+  labels: Labels;
+}
+
+const { message, detail = false, labels } = Astro.props;
+---
+
+<article class="moments-message-card bg-card shadow-box min-w-0 rounded-2xl border border-border p-6 tablet:p-4">
+  <header class="mb-4 flex flex-wrap items-start justify-between gap-3">
+    <div class="flex min-w-0 items-center gap-3">
+      <span aria-hidden="true" class="bg-primary/15 text-primary inline-flex size-10 shrink-0 items-center justify-center rounded-full font-bold">
+        {Array.from(message.channel.title.trim())[0] ?? '#'}
+      </span>
+      <div class="min-w-0">
+        <a href={message.channel.href} class="hover:text-primary block truncate font-bold transition-colors">{message.channel.title}</a>
+        {message.channel.username && <p class="text-muted-foreground truncate text-xs">@{message.channel.username}</p>}
+      </div>
+    </div>
+    {message.revision > 1 && <span class="bg-muted text-muted-foreground rounded-full px-2 py-1 text-xs">{labels.updated}</span>}
+  </header>
+
+  <MessageBody
+    html={message.html}
+    collapsible={!detail}
+    emptyLabel={labels.emptyMessage}
+    expandLabel={labels.expand}
+    collapseLabel={labels.collapse}
+  />
+
+  <div class="mt-4">
+    <MediaGallery
+      media={message.media}
+      detail={detail}
+      sourceUrl={message.sourceUrl}
+      labels={{
+        processing: labels.mediaProcessing,
+        unavailable: labels.mediaUnavailable,
+        image: labels.image,
+        video: labels.video,
+        audio: labels.audio,
+        document: labels.document,
+        openDocument: labels.openDocument,
+        viewSource: labels.viewSource,
+        more: labels.mediaMore,
+      }}
+    />
+  </div>
+
+  <footer class="text-muted-foreground mt-5 flex flex-wrap items-center gap-x-4 gap-y-2 border-t border-border pt-4 text-xs">
+    <a href={message.permalink} class="hover:text-primary inline-flex items-center gap-1 transition-colors">
+      <Icon name="ri:time-line" aria-hidden="true" />
+      <time datetime={message.publishedAt}>{message.publishedLabel}</time>
+    </a>
+    <a href={message.permalink} class="hover:text-primary inline-flex items-center gap-1 transition-colors">
+      <Icon name="ri:links-line" aria-hidden="true" />
+      {labels.permalink}
+    </a>
+    <button
+      type="button"
+      class="moments-copy-link hover:text-primary focus-visible:ring-primary inline-flex items-center gap-1 rounded transition-colors focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none"
+      data-copy-value={message.permalink}
+      data-copy-label={labels.copyLink}
+      data-copied-label={labels.copied}
+      data-copy-failed-label={labels.copyFailed}
+      aria-label={labels.copyLink}
+    >
+      <Icon name="ri:file-copy-line" aria-hidden="true" />
+      <span data-copy-text>{labels.copyLink}</span>
+      <span class="sr-only" aria-live="polite" data-copy-status></span>
+    </button>
+    {message.sourceUrl && (
+      <a
+        href={message.sourceUrl}
+        target="_blank"
+        rel="noopener noreferrer"
+        class="hover:text-primary inline-flex items-center gap-1 transition-colors"
+      >
+        <Icon name="ri:external-link-line" aria-hidden="true" />
+        {labels.viewSource}
+      </a>
+    )}
+  </footer>
+</article>
+
+<script>
+  function installMomentCopyButtons() {
+    document.querySelectorAll<HTMLButtonElement>('.moments-copy-link:not([data-copy-ready])').forEach((button) => {
+      button.dataset.copyReady = 'true';
+      button.addEventListener('click', async () => {
+        const text = button.querySelector<HTMLElement>('[data-copy-text]');
+        const status = button.querySelector<HTMLElement>('[data-copy-status]');
+        const value = button.dataset.copyValue ?? window.location.href;
+        let succeeded = false;
+        try {
+          await navigator.clipboard.writeText(new URL(value, window.location.href).href);
+          succeeded = true;
+        } catch {
+          window.prompt(button.dataset.copyFailedLabel ?? '', new URL(value, window.location.href).href);
+        }
+
+        const result = succeeded ? button.dataset.copiedLabel : button.dataset.copyFailedLabel;
+        if (text) text.textContent = result ?? '';
+        if (status) status.textContent = result ?? '';
+        window.setTimeout(() => {
+          if (text) text.textContent = button.dataset.copyLabel ?? '';
+          if (status) status.textContent = '';
+        }, 1800);
+      });
+    });
+  }
+
+  installMomentCopyButtons();
+  document.addEventListener('astro:page-load', installMomentCopyButtons);
+</script>

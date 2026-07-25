@@ -25,7 +25,11 @@ const DropdownNavComponent = ({ item, currentPath, className, locale = defaultLo
         {children?.length
           ? children.map((child: Router, index) => {
               const childName = resolveNavName(child.nameKey, child.name, locale);
-              const childUrl = child.path ? localizedPath(child.path, locale) : child.path;
+              const childUrl = child.path
+                ? child.localeIndependent
+                  ? child.path
+                  : localizedPath(child.path, locale)
+                : child.path;
               return (
                 <a
                   key={child.path}

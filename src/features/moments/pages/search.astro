@@ -1,0 +1,117 @@
+---
+import CursorPagination from '@components/moments/CursorPagination.astro';
+import MessageCard from '@components/moments/MessageCard.astro';
+import MomentsShell from '@components/moments/MomentsShell.astro';
+import MomentsState from '@components/moments/MomentsState.astro';
+import SearchForm from '@components/moments/SearchForm.astro';
+import { momentsConfig } from '@constants/site-config';
+import type { SearchMessagePage } from '@coszone/koharu-astro';
+import Layout from '@layouts/Layout.astro';
+import { getMomentsChannels, type MomentsChannels, searchMessages } from '../lib/data';
+import { messageCardLabels, momentsLabels } from '../lib/labels';
+import { toMomentsHttpError } from '../lib/runtime';
+import { momentsPath, searchPath } from '../lib/urls';
+import { toChannelViewModel, toMessageViewModel } from '../lib/view-models';
+
+Astro.cache.set({ maxAge: 60, swr: 15 });
+const query = Astro.url.searchParams.get('q')?.trim() ?? '';
+const cursor = Astro.url.searchParams.get('cursor')?.trim() || undefined;
+const requestedChannelId = Astro.url.searchParams.get('channel')?.trim() ?? '';
+const sort = Astro.url.searchParams.get('sort') === 'newest' ? 'newest' : 'relevance';
+const queryLength = Array.from(query).length;
+const queryIsValid = queryLength >= 3 && queryLength <= 200;
+const queryIsTooLong = queryLength > 200;
+let channels: MomentsChannels | undefined;
+let failure: ReturnType<typeof toMomentsHttpError> | undefined;
+try {
+  channels = await getMomentsChannels();
+} catch (error) {
+  failure = toMomentsHttpError(error);
+}
+const selectedChannel = channels?.visible.find((channel) => channel.id === requestedChannelId);
+const requestedIds = selectedChannel ? [selectedChannel.id] : (channels?.visible.map((channel) => channel.id) ?? []);
+let page: SearchMessagePage | undefined;
+if (queryIsValid && !failure) {
+  try {
+    page = await searchMessages({ channelIds: requestedIds, cursor, query, sort });
+  } catch (error) {
+    failure = toMomentsHttpError(error);
+  }
+}
+if (failure) {
+  Astro.cache.set(false);
+  Astro.response.status = failure.status;
+  if (failure.retryAfterSeconds !== undefined) Astro.response.headers.set('Retry-After', String(failure.retryAfterSeconds));
+}
+
+const action = searchPath(momentsConfig);
+const canonical = new URL(action, Astro.site).href;
+const channelViews = (channels?.visible ?? []).map((channel) => toChannelViewModel(momentsConfig, channel));
+const results = (page?.items ?? []).flatMap((result) => {
+  const channel = channels?.visible.find((item) => item.id === result.message.channel.id);
+  if (!channel) return [];
+  const view = toMessageViewModel(momentsConfig, channel, result.message);
+  const escapedSnippet = result.match.snippet
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;');
+  return [{ ...view, html: `<p>${escapedSnippet}</p>`, media: [] }];
+});
+const nextUrl = page?.nextCursor ? new URL(action, Astro.site) : undefined;
+if (nextUrl && page?.nextCursor) {
+  nextUrl.searchParams.set('q', query);
+  if (selectedChannel) nextUrl.searchParams.set('channel', selectedChannel.id);
+  if (sort !== 'relevance') nextUrl.searchParams.set('sort', sort);
+  nextUrl.searchParams.set('cursor', page.nextCursor);
+}
+const nextHref = nextUrl ? `${nextUrl.pathname}${nextUrl.search}` : undefined;
+---
+
+<Layout
+  title={`${momentsLabels.search} · ${momentsConfig.title}`}
+  description={momentsConfig.description}
+  canonical={canonical}
+  robots="noindex,follow"
+  includeLocaleAlternates={false}
+>
+  <MomentsShell title={momentsLabels.search}>
+    <SearchForm
+      action={action}
+      query={query}
+      channels={channelViews}
+      selectedChannelId={selectedChannel?.id}
+      sort={sort}
+      labels={{
+        form: momentsLabels.searchForm,
+        query: momentsLabels.searchQuery,
+        placeholder: momentsLabels.searchPlaceholder,
+        channel: momentsLabels.channel,
+        allChannels: momentsLabels.allChannels,
+        sort: momentsLabels.sort,
+        relevance: momentsLabels.relevance,
+        newest: momentsLabels.newest,
+        submit: momentsLabels.submitSearch,
+        hint: momentsLabels.searchHint,
+      }}
+    />
+    {failure ? (
+      <MomentsState
+        kind={failure.type}
+        title={failure.type === 'rate-limited' ? momentsLabels.rateLimitedTitle : momentsLabels.unavailableTitle}
+        description={failure.type === 'rate-limited' ? momentsLabels.rateLimited : momentsLabels.feedUnavailable}
+        retryHref={Astro.url.pathname + Astro.url.search}
+        retryLabel={momentsLabels.retry}
+      />
+    ) : !query ? null : !queryIsValid ? (
+      <MomentsState kind="empty" title={queryIsTooLong ? momentsLabels.searchTooLong : momentsLabels.searchHint} />
+    ) : results.length === 0 ? (
+      <MomentsState kind="empty" title={momentsLabels.noResults} actionHref={momentsPath(momentsConfig)} actionLabel={momentsConfig.title} />
+    ) : (
+      <>
+        {results.map((message) => <MessageCard message={message} labels={messageCardLabels} />)}
+        <CursorPagination nextHref={nextHref} nextLabel={momentsLabels.olderContent} backLabel={momentsLabels.back} navigationLabel={momentsLabels.pagination} />
+      </>
+    )}
+  </MomentsShell>
+</Layout>
