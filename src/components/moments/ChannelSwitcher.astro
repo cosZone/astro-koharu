@@ -12,7 +12,7 @@ const { channels, label, className } = Astro.props;
 ---
 
 {
-  channels.length > 0 && (
+  channels.length > 1 && (
     <nav aria-label={label} class={cn('relative min-w-0', className)}>
       <div class="vertical-scrollbar flex snap-x gap-2 overflow-x-auto py-1" role="list">
         {channels.map((channel) => (

@@ -16,7 +16,7 @@ const { html, collapsible = true, emptyLabel, expandLabel, collapseLabel } = Ast
   data-expand-label={expandLabel}
   data-collapse-label={collapseLabel}
 >
-  <div class="moments-message-content prose max-w-none break-words" data-message-content>
+  <div class="moments-message-content prose dark:prose-invert max-w-none break-words" data-message-content>
     {html ? <div set:html={html} /> : <p class="text-muted-foreground m-0 italic">{emptyLabel}</p>}
   </div>
   <div class="moments-message-fade pointer-events-none" aria-hidden="true"></div>
