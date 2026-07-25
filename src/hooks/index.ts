@@ -36,7 +36,5 @@ export {
   useScrollTrigger,
   useScrollY,
 } from './useScrollTrigger';
-// Search keyboard navigation
-export { useSearchKeyboardNav } from './useSearchKeyboardNav';
 // Zoom and pan for fullscreen viewers
 export { type UseZoomPanReturn, useZoomPan } from './useZoomPan';

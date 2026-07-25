@@ -22,11 +22,11 @@ https://github.com/cosZone/astro-koharu
 
 ### 项目简介
 
-astro-koharu 是一个基于 Astro 6.x 构建的现代化博客系统，从 Hexo 迁移而来，设计灵感和初衷都来自 [Shoka](https://github.com/amehime/hexo-theme-shoka) 主题。欢迎 [fork](https://github.com/cosZone/astro-koharu/fork) 出来制作自己的主题。
+astro-koharu 是一个基于 Astro 7.x 构建的现代化博客系统，从 Hexo 迁移而来，设计灵感和初衷都来自 [Shoka](https://github.com/amehime/hexo-theme-shoka) 主题。欢迎 [fork](https://github.com/cosZone/astro-koharu/fork) 出来制作自己的主题。
 
 **核心特点：**
 
-- 基于 Astro 6.x，静态站点生成，性能优异
+- 基于 Astro 7.x，静态站点生成，性能优异
 - 优雅的深色/浅色主题切换
 - 基于 Pagefind 的无后端全站搜索
 - 完整的 Markdown 增强功能（GFM、代码高亮、自动目录）
@@ -2680,7 +2680,7 @@ import { fadeIn } from "@constants/anim/variants";
 
 | 方面     | Hexo + Shoka   | astro-koharu        |
 | -------- | -------------- | ------------------- |
-| 框架     | Hexo (Node.js) | Astro 6.x           |
+| 框架     | Hexo (Node.js) | Astro 7.x           |
 | 模板引擎 | EJS/Pug        | Astro + React       |
 | 样式     | Stylus         | Tailwind CSS 4.x    |
 | 构建工具 | Webpack        | Vite                |

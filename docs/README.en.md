@@ -58,7 +58,7 @@ docker compose --env-file ./.env -f docker/docker-compose.yml up -d --build
 
 ### Local Development
 
-Before you begin, install Node.js 22.12.0 or later and pnpm 10.28.2.
+Before you begin, install Node.js 22.20.0 or later and pnpm 10.28.2.
 
 1. Clone the project
 
@@ -81,7 +81,7 @@ pnpm dev
 
 ## Features
 
-- Built on Astro 6.x with static site generation and excellent performance
+- Built on Astro 7.x with static site generation and excellent performance
 - Elegant dark/light theme toggle
 - Serverless full-site search powered by Pagefind
 - **Swappable comment systems**: Supports Waline (recommended), Giscus, Remark42, and Twikoo — one-click switch in config, theme auto-follows

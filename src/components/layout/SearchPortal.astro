@@ -1,5 +1,5 @@
 ---
-import Search from 'astro-pagefind/components/Search';
+import Search from 'astro-pagefind/components/Search.astro';
 /**
  * SearchPortal Component
  *
@@ -10,34 +10,25 @@ import Search from 'astro-pagefind/components/Search';
  * point to root-level URLs (e.g., /post/xxx) regardless of the current locale.
  * A future iteration could use custom result rendering to prepend locale prefix.
  */
-import { getLocaleFromUrl, t } from '@/i18n';
+import { getHtmlLang, getLocaleFromUrl, t } from '@/i18n';
 
 const locale = getLocaleFromUrl(Astro.url.pathname);
+const lang = getHtmlLang(locale);
 ---
 
 <!-- Search Component - will be portal'd into dialog -->
 <div id="search-component-portal">
-  <Search
-    id="search-for-dialog"
-    className="pagefind-ui"
-    uiOptions={{
-      showImages: false,
-      resetStyles: false,
-      translations: {
+  <div id="search-for-dialog">
+    <Search
+      className="pagefind-search"
+      configOptions={{ lang }}
+      searchboxOptions={{
         placeholder: t(locale, 'search.placeholder'),
-        clear_search: t(locale, 'search.clear'),
-        load_more: t(locale, 'search.loadMore'),
-        search_label: t(locale, 'search.label'),
-        filters_label: t(locale, 'search.filters'),
-        zero_results: t(locale, 'search.noResults'),
-        many_results: t(locale, 'search.manyResults'),
-        one_result: t(locale, 'search.oneResult'),
-        alt_search: t(locale, 'search.altSearch'),
-        search_suggestion: t(locale, 'search.suggestion'),
-        searching: t(locale, 'search.searching'),
-      },
-    }}
-  />
+        'hide-shortcut': true,
+        'show-keyboard-hints': 'false',
+      }}
+    />
+  </div>
 </div>
 
 <script>

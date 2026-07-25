@@ -1,0 +1,22 @@
+---
+import { analyticsConfig } from '@constants/site-config';
+import { normalizeUrl } from '@lib/utils';
+
+const config = analyticsConfig.umami;
+const enabled = config?.enabled === true && Boolean(config.id);
+const endpoint = normalizeUrl(config?.endpoint) || 'https://cloud.umami.is';
+const scriptSrc = `${endpoint}/script.js`;
+const hostUrl = endpoint === 'https://cloud.umami.is' ? undefined : endpoint;
+---
+
+{enabled && import.meta.env.DEV && <script is:inline>localStorage.setItem('umami.disabled', '1');</script>}
+{enabled && (
+  <script
+    is:inline
+    defer
+    src={scriptSrc}
+    data-website-id={config?.id}
+    data-host-url={hostUrl}
+    data-astro-rerun
+  />
+)}

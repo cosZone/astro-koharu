@@ -58,7 +58,7 @@ docker compose --env-file ./.env -f docker/docker-compose.yml up -d --build
 
 ### 本地开发
 
-开始前请确保已安装 Node.js 22.12.0 或更高版本，以及 pnpm 10.28.2。
+开始前请确保已安装 Node.js 22.20.0 或更高版本，以及 pnpm 10.28.2。
 
 1. 克隆项目到本地
 
@@ -81,7 +81,7 @@ pnpm dev
 
 ## 功能特性
 
-- 基于 Astro 6.x，静态站点生成，性能优异
+- 基于 Astro 7.x，静态站点生成，性能优异
 - 优雅的深色/浅色主题切换
 - 基于 Pagefind 的无后端全站搜索
 - **可更换评论系统**：支持 Waline（推荐）、Giscus、Remark42、Twikoo 四种评论组件，配置文件一键切换，主题自动跟随

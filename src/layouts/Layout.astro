@@ -13,6 +13,7 @@ interface Props {
 }
 
 import { ClientRouter } from 'astro:transitions';
+import UmamiAnalytics from '@components/analytics/UmamiAnalytics.astro';
 import AnnouncementProvider from '@components/announcement/AnnouncementProvider.astro';
 import GlobalBGMPlayer from '@components/bgm/GlobalBGMPlayer';
 import ChristmasEffects from '@components/christmas/ChristmasEffects.astro';
@@ -107,6 +108,7 @@ const keywords = keywordsOverride || siteConfig.keywords || [siteConfig.title];
     )}
 
     <ClientRouter />
+    <UmamiAnalytics />
     <LoadingIndicator color="#e9536a" />
     <Tooltips />
 

@@ -1,110 +1,66 @@
-/* Pagefind Search UI Custom Styles */
+/* Pagefind Component UI theme overrides */
 
-/* CSS Variables Override */
 :root {
-  /* --pagefind-ui-scale: 1; */
-  --pagefind-ui-primary: hsl(var(--primary));
-  --pagefind-ui-text: #393939;
-  --pagefind-ui-background: var(--gradient-bg-start);
-  --pagefind-ui-border: #e5e5e5;
-  --pagefind-ui-tag: rgba(237, 110, 160, 0.15);
-  --pagefind-ui-border-width: 1px;
-  --pagefind-ui-border-radius: 0.75rem;
-  --pagefind-ui-image-border-radius: 0.5rem;
-  --pagefind-ui-font: inherit;
+  --pf-text: #393939;
+  --pf-text-secondary: #666;
+  --pf-text-muted: #767676;
+  --pf-background: var(--gradient-bg-start);
+  --pf-border: #e5e5e5;
+  --pf-border-focus: hsl(var(--primary));
+  --pf-hover: hsl(var(--accent));
+  --pf-mark: hsl(var(--primary));
+  --pf-outline-focus: hsl(var(--primary));
+  --pf-font: inherit;
+  --pf-input-height: 2.5rem;
+  --pf-input-font-size: 1rem;
+  --pf-border-radius: 0.5rem;
+  --pf-searchbox-max-width: 100%;
+  --pf-searchbox-dropdown-max-height: calc(80dvh - 13rem);
 }
 
 .dark {
-  --pagefind-ui-text: #e5e5e5;
-  --pagefind-ui-background: var(--gradient-bg-start);
-  --pagefind-ui-border: rgba(255, 255, 255, 0.15);
-  --pagefind-ui-tag: rgba(241, 139, 179, 0.2);
+  --pf-text: #e5e5e5;
+  --pf-text-secondary: #b7b7b7;
+  --pf-text-muted: #a0a0a0;
+  --pf-border: rgba(255, 255, 255, 0.15);
+  --pf-border-focus: hsl(var(--primary));
+  --pf-hover: rgba(255, 255, 255, 0.08);
+  --pf-mark: hsl(var(--primary));
 }
 
-.search-dialog:has(.pagefind-ui__results) .search-empty-hint,
-.search-dialog:has(.pagefind-ui__message) .search-empty-hint {
-  display: none;
-}
-
-.pagefind-ui__search-input {
+#search-for-dialog,
+#search-for-dialog pagefind-searchbox {
+  display: block;
   width: 100%;
-  interpolate-size: allow-keywords;
-  @apply !h-10 !rounded-lg !px-4 !py-0 !font-normal transition-all duration-300 md:!px-2 md:!text-sm;
 }
 
-.pagefind-ui__search-input:not(:placeholder-shown) {
-  width: calc(100% - 3.5rem);
-}
-
-.pagefind-ui__form.svelte-e9gkc3::before {
+.search-dialog:has(.pf-searchbox.open) .search-empty-hint {
   display: none;
 }
 
-.pagefind-ui__search-input:focus {
-  outline: none;
-  border-color: hsl(var(--primary));
+.search-dialog .pf-searchbox-input {
+  transition:
+    border-color 200ms ease,
+    box-shadow 200ms ease;
 }
 
-/* Clear Button */
-.search-dialog .pagefind-ui__search-clear {
-  @apply text-primary bg-primary/20 top-0 h-10 cursor-pointer rounded-lg border-none px-2 py-1 text-sm font-medium whitespace-nowrap transition-all duration-200;
-  @apply md:px-2.5 md:py-0.5;
-}
-.pagefind-ui__search-clear:hover {
-  background: hsl(var(--primary));
-  color: white;
+:is(*, #\#):is(*, #\#):is(*, #\#) .search-dialog .pf-searchbox-result-title {
+  color: hsl(var(--primary));
+  font-size: 0.95rem;
 }
 
-/* Results Area */
-.pagefind-ui__results-area {
-  @apply !mt-0;
+:is(*, #\#):is(*, #\#):is(*, #\#) .search-dialog .pf-searchbox-result-excerpt {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  white-space: normal;
+  text-overflow: clip;
 }
 
-/* Message */
-.pagefind-ui__message {
-  @apply justify-center self-center !pb-2;
-}
-
-/* Result Item */
-.pagefind-ui__result {
-  background: rgba(0, 0, 0, 0.03);
-  transition: all 0.25s ease;
-  @apply bg-accent mb-2 rounded-lg !border-none !p-3;
-}
-
-.dark .pagefind-ui__result {
-  background: rgba(255, 255, 255, 0.05);
-}
-
-/* Keyboard navigation selected state */
-.pagefind-ui__result[data-selected="true"],
-.pagefind-ui__button[data-selected="true"] {
-  @apply ring-2 ring-primary/50 bg-primary/5;
-}
-
-.dark .pagefind-ui__result[data-selected="true"],
-.dark .pagefind-ui__button[data-selected="true"] {
-  @apply bg-primary/10;
-}
-
-.pagefind-ui__result-inner {
-  @apply !mt-0;
-}
-
-/* Result Link */
-.pagefind-ui__result-link {
-  @apply !text-primary hover:!text-blue transition-colors duration-300 hover:!no-underline;
-}
-
-/* Result Excerpt */
-.pagefind-ui__result-excerpt {
-  @apply line-clamp-2;
-}
-.pagefind-ui__result-excerpt mark {
-  @apply text-primary bg-primary/20 py-px font-bold;
-}
-
-/* Button Styles */
-.pagefind-ui button[type="button"] {
-  @apply mt-2;
+@media (max-width: 768px) {
+  :root {
+    --pf-input-font-size: 0.875rem;
+    --pf-searchbox-dropdown-max-height: calc(80dvh - 11rem);
+  }
 }

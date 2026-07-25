@@ -2,7 +2,7 @@
 
 ## 项目简介
 
-astro-koharu 是一个基于 **Astro 6.x** 构建的现代化静态博客系统，从 Hexo 迁移而来，灵感源自 Shoka 主题。项目采用 React 实现交互组件，Tailwind CSS 进行样式设计，同时保持与原有 Hexo 博客内容的兼容性。
+astro-koharu 是一个基于 **Astro 7.x** 构建的现代化静态博客系统，从 Hexo 迁移而来，灵感源自 Shoka 主题。项目采用 React 实现交互组件，Tailwind CSS 进行样式设计，同时保持与原有 Hexo 博客内容的兼容性。
 
 ### 项目特点
 
@@ -23,7 +23,7 @@ astro-koharu 是一个基于 **Astro 6.x** 构建的现代化静态博客系统�
 ├─────────────────────────────────────────────────────────────┤
 │  框架层                                                      │
 │  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐         │
-│  │  Astro 6.x  │  │  React 19   │  │  TypeScript │         │
+│  │  Astro 7.x  │  │  React 19   │  │  TypeScript │         │
 │  └─────────────┘  └─────────────┘  └─────────────┘         │
 ├─────────────────────────────────────────────────────────────┤
 │  样式层                                                      │
@@ -153,7 +153,7 @@ astro-koharu/
 
 ### 环境要求
 
-- **Node.js**: 22.12.0 或更高版本
+- **Node.js**: 22.20.0 或更高版本
 - **包管理器**: pnpm 10.28.2（项目指定）
 
 ### 安装与运行
@@ -284,7 +284,7 @@ export const siteConfig = {
 
 ## 文档导航
 
-本系列文档共 10 篇，建议按顺序阅读：
+本系列文档共 13 篇，建议按顺序阅读：
 
 1. **[00-overview.md](./00-overview.md)**（当前） - 项目总览与快速开始
 2. **[01-architecture.md](./01-architecture.md)** - 架构设计与技术栈
@@ -296,6 +296,9 @@ export const siteConfig = {
 8. **[07-theme-system.md](./07-theme-system.md)** - 主题系统实现
 9. **[08-animation-system.md](./08-animation-system.md)** - 动画系统设计
 10. **[09-styling.md](./09-styling.md)** - 样式系统（Tailwind + 设计令牌）
+11. **[10-markdown-system.md](./10-markdown-system.md)** - Markdown 处理管线
+12. **[11-deployment-adapters.md](./11-deployment-adapters.md)** - 静态部署与适配器边界
+13. **[12-astro-7-upgrade.md](./12-astro-7-upgrade.md)** - Astro 7 升级、验证与回滚
 
 ---
 

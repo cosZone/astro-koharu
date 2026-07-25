@@ -9,7 +9,6 @@ import { LazyMotionProvider } from '@components/common/LazyMotionProvider';
 import { Dialog, DialogPortal } from '@components/ui/dialog';
 import { useIsMounted } from '@hooks/useIsMounted';
 import { useEscapeKey, useKeyboardShortcut } from '@hooks/useKeyboardShortcut';
-import { useSearchKeyboardNav } from '@hooks/useSearchKeyboardNav';
 import { useTranslation } from '@hooks/useTranslation';
 import { cn } from '@lib/utils';
 import { useStore } from '@nanostores/react';
@@ -39,7 +38,6 @@ function CloseIcon({ className }: { className?: string }) {
 export default function SearchDialog() {
   const { t } = useTranslation();
   const isOpen = useStore($isSearchOpen);
-  const { containerRef } = useSearchKeyboardNav(isOpen);
 
   // Cmd/Ctrl + K to open
   useKeyboardShortcut({
@@ -59,7 +57,7 @@ export default function SearchDialog() {
       window.dispatchEvent(new CustomEvent('search-dialog-open'));
       // Focus search input after animation
       const focusTimer = setTimeout(() => {
-        const searchInput = document.querySelector('.pagefind-ui__search-input') as HTMLInputElement;
+        const searchInput = document.querySelector('.pf-searchbox-input') as HTMLInputElement;
         searchInput?.focus();
       }, 150);
 
@@ -148,7 +146,7 @@ export default function SearchDialog() {
 
                         {/* Search Content Area */}
                         <div className="vertical-scrollbar scroll-feather-mask -mx-6 h-[calc(80dvh-140px)] overflow-auto scroll-smooth px-6 pb-8 after:bottom-10 md:-mx-3 md:h-[calc(80dvh-120px)] md:px-3">
-                          <div id="search-dialog-container" ref={containerRef} />
+                          <div id="search-dialog-container" />
                         </div>
                       </div>
 

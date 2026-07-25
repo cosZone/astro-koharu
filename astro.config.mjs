@@ -5,7 +5,6 @@ import react from '@astrojs/react';
 import sitemap from '@astrojs/sitemap';
 import yaml from '@rollup/plugin-yaml';
 import tailwindcss from '@tailwindcss/vite';
-import umami from '@yeskunall/astro-umami';
 import { defineConfig } from 'astro/config';
 import icon from 'astro-icon';
 import mermaid from 'astro-mermaid';
@@ -16,7 +15,7 @@ import rehypeKatex from 'rehype-katex';
 import rehypeSlug from 'rehype-slug';
 import remarkDirective from 'remark-directive';
 import remarkMath from 'remark-math';
-import Sonda from 'sonda/astro';
+import Sonda from 'sonda/vite';
 import { loadEnv } from 'vite';
 import svgr from 'vite-plugin-svgr';
 import YAML from 'yaml';
@@ -32,7 +31,6 @@ import { remarkShokaRuby } from './src/lib/markdown/remark-shoka-ruby.ts';
 import { remarkShokaSpoiler } from './src/lib/markdown/remark-shoka-spoiler.ts';
 import { collapsibleCodeTransformer } from './src/lib/markdown/shiki-collapsible-transformer.ts';
 import { shokaMetaTransformer } from './src/lib/markdown/shiki-meta-transformer.ts';
-import { normalizeUrl } from './src/lib/utils.ts';
 
 // Load YAML config directly with Node.js (before Vite plugins are available)
 // This is only used in astro.config.mjs - other files use @rollup/plugin-yaml
@@ -48,13 +46,6 @@ const yamlConfig = loadConfigForAstro();
 // Use loadEnv to read .env file (astro.config.mjs runs before Vite loads .env)
 const { ANALYZE } = loadEnv(process.env.NODE_ENV || 'production', process.cwd(), '');
 const isAnalyze = ANALYZE === 'true';
-// Get Umami analytics config from YAML
-const umamiConfig = yamlConfig.analytics?.umami;
-const umamiEnabled = umamiConfig?.enabled ?? false;
-const umamiId = umamiConfig?.id;
-// Normalize endpoint URL to remove trailing slashes
-const umamiEndpoint = normalizeUrl(umamiConfig?.endpoint);
-
 // Get robots.txt config from YAML
 const robotsConfig = yamlConfig.seo?.robots;
 
@@ -205,22 +196,11 @@ export default defineConfig({
         ri: ['*'],
       },
     }),
-    // Umami analytics - configured via config/site.yaml
-    ...(umamiEnabled && umamiId
-      ? [
-          umami({
-            id: umamiId,
-            endpointUrl: umamiEndpoint,
-            hostUrl: umamiEndpoint,
-          }),
-        ]
-      : []),
     pagefind(),
     mermaid({
       autoTheme: true,
     }),
     robotsTxt(robotsConfig || {}),
-    ...(isAnalyze ? [Sonda()] : []),
   ],
   devToolbar: {
     enabled: true,
@@ -230,7 +210,7 @@ export default defineConfig({
       // Enable sourcemap for Sonda bundle analysis
       sourcemap: isAnalyze,
     },
-    plugins: [yaml(), conditionalSnowfall(), svgr(), tailwindcss()],
+    plugins: [...(isAnalyze ? [Sonda({ open: false })] : []), yaml(), conditionalSnowfall(), svgr(), tailwindcss()],
     resolve: {
       noExternal: ['react-tweet'],
     },
