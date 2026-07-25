@@ -76,22 +76,22 @@ const { message, detail = false, labels } = Astro.props;
     </div>
   )}
 
-  <footer class="bg-muted/35 text-muted-foreground mt-3 flex flex-wrap items-center gap-x-1 gap-y-1 rounded-xl px-1.5 py-1 text-xs">
-    <a href={message.permalink} class="hover:bg-background/70 hover:text-foreground inline-flex min-h-8 items-center gap-1.5 rounded-lg px-2 transition-[background-color,color]">
+  <footer class="bg-muted/35 text-muted-foreground mt-3 flex flex-wrap items-center gap-x-0.5 gap-y-1 rounded-xl px-1 py-1 text-xs">
+    <a href={message.permalink} class="hover:bg-background/70 hover:text-foreground inline-flex min-h-8 items-center gap-1.5 rounded-lg px-1.5 transition-[background-color,color]">
       <Icon name="ri:time-line" class="size-4" aria-hidden="true" />
       <time datetime={message.publishedAt} class="tabular-nums">{message.publishedLabel}</time>
     </a>
     <a
       href={message.permalink}
       aria-label={labels.permalink}
-      class="hover:bg-background/70 hover:text-foreground inline-flex min-h-8 items-center gap-1.5 rounded-lg px-2 transition-[background-color,color]"
+      class="hover:bg-background/70 hover:text-foreground inline-flex min-h-8 items-center gap-1.5 rounded-lg px-1.5 transition-[background-color,color]"
     >
       <Icon name="ri:links-line" class="size-4" aria-hidden="true" />
       <span class="tablet:hidden">{labels.permalink}</span>
     </a>
     <button
       type="button"
-      class="moments-copy-link hover:bg-background/70 hover:text-foreground focus-visible:ring-primary inline-flex min-h-8 touch-manipulation items-center gap-1.5 rounded-lg px-2 transition-[background-color,color,scale] active:scale-[0.96] focus-visible:ring-2 focus-visible:ring-offset-1 focus-visible:outline-none"
+      class="moments-copy-link hover:bg-background/70 hover:text-foreground focus-visible:ring-primary inline-flex min-h-8 touch-manipulation items-center gap-1.5 rounded-lg px-1.5 transition-[background-color,color,scale] active:scale-[0.96] focus-visible:ring-2 focus-visible:ring-offset-1 focus-visible:outline-none"
       data-copy-value={message.permalink}
       data-copy-label={labels.copyLink}
       data-copied-label={labels.copied}
@@ -108,7 +108,7 @@ const { message, detail = false, labels } = Astro.props;
         target="_blank"
         rel="noopener noreferrer"
         aria-label={labels.viewSource}
-        class="hover:bg-background/70 hover:text-foreground inline-flex min-h-8 items-center gap-1.5 rounded-lg px-2 transition-[background-color,color]"
+        class="hover:bg-background/70 hover:text-foreground inline-flex min-h-8 items-center gap-1.5 rounded-lg px-1.5 transition-[background-color,color]"
       >
         <Icon name="ri:external-link-line" class="size-4" aria-hidden="true" />
         <span class="tablet:hidden">{labels.viewSource}</span>
