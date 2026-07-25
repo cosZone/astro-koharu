@@ -25,11 +25,11 @@ interface Props {
 const { action, query = '', channels = [], selectedChannelId = '', sort = 'relevance', labels } = Astro.props;
 ---
 
-<form action={action} method="get" role="search" aria-label={labels.form} class="bg-muted/25 grid gap-3 rounded-2xl border border-border p-4">
+<form action={action} method="get" role="search" aria-label={labels.form} class="moments-search-form bg-card grid gap-3 rounded-2xl p-4 tablet:rounded-xl">
   <div class="flex gap-2 tablet:flex-col">
     <label class="min-w-0 grow">
       <span class="sr-only">{labels.query}</span>
-      <span class="border-border bg-background focus-within:border-primary focus-within:ring-primary flex items-center gap-2 rounded-xl border px-3 focus-within:ring-2">
+      <span class="border-border/80 bg-background focus-within:border-primary focus-within:ring-primary/20 flex items-center gap-2 rounded-xl border px-3 transition-[border-color,box-shadow] focus-within:ring-2">
         <Icon name="ri:search-line" class="text-muted-foreground shrink-0" aria-hidden="true" />
         <input
           type="search"
@@ -40,13 +40,13 @@ const { action, query = '', channels = [], selectedChannelId = '', sort = 'relev
           required
           autocomplete="off"
           placeholder={labels.placeholder}
-          class="min-w-0 grow bg-transparent py-3 outline-none"
+          class="min-w-0 grow bg-transparent py-2.5 text-base outline-none desktop:text-sm"
         />
       </span>
     </label>
     <button
       type="submit"
-      class="bg-primary hover:bg-primary/85 focus-visible:ring-primary rounded-xl px-5 py-3 font-medium text-white transition-colors focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none"
+      class="bg-primary hover:bg-primary/85 focus-visible:ring-primary min-h-10 touch-manipulation rounded-xl px-5 py-2 text-sm font-medium text-white transition-[background-color,scale] active:scale-[0.96] focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none"
     >
       {labels.submit}
     </button>
@@ -55,7 +55,7 @@ const { action, query = '', channels = [], selectedChannelId = '', sort = 'relev
   <div class="grid grid-cols-2 gap-3 tablet:grid-cols-1">
     <label class="grid gap-1 text-sm">
       <span class="text-muted-foreground">{labels.channel}</span>
-      <select name="channel" class="border-border bg-background focus:border-primary rounded-lg border px-3 py-2 outline-none">
+      <select name="channel" class="border-border/80 bg-background focus:border-primary focus:ring-primary/20 min-h-10 rounded-lg border px-3 py-2 outline-none focus:ring-2">
         <option value="" selected={!selectedChannelId}>{labels.allChannels}</option>
         {channels.map((channel) => (
           <option value={channel.id} selected={channel.id === selectedChannelId}>{channel.title}</option>
@@ -64,10 +64,18 @@ const { action, query = '', channels = [], selectedChannelId = '', sort = 'relev
     </label>
     <label class="grid gap-1 text-sm">
       <span class="text-muted-foreground">{labels.sort}</span>
-      <select name="sort" class="border-border bg-background focus:border-primary rounded-lg border px-3 py-2 outline-none">
+      <select name="sort" class="border-border/80 bg-background focus:border-primary focus:ring-primary/20 min-h-10 rounded-lg border px-3 py-2 outline-none focus:ring-2">
         <option value="relevance" selected={sort === 'relevance'}>{labels.relevance}</option>
         <option value="newest" selected={sort === 'newest'}>{labels.newest}</option>
       </select>
     </label>
   </div>
 </form>
+
+<style>
+  .moments-search-form {
+    box-shadow:
+      0 0 0 1px hsl(var(--border) / 0.85),
+      0 12px 28px -22px rgb(0 0 0 / 0.42);
+  }
+</style>

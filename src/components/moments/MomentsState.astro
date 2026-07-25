@@ -21,22 +21,30 @@ const icon = {
 }[kind];
 ---
 
-<section class="bg-muted/25 flex min-h-64 flex-col items-center justify-center rounded-2xl border border-border p-8 text-center" aria-labelledby="moments-state-title">
-  <Icon name={icon} class="text-muted-foreground mb-4 size-12" aria-hidden="true" />
-  <h2 id="moments-state-title" class="text-xl font-bold">{title}</h2>
+<section class="moments-state bg-card flex min-h-48 flex-col items-center justify-center rounded-2xl p-6 text-center tablet:min-h-40 tablet:rounded-xl tablet:p-5" aria-labelledby="moments-state-title">
+  <Icon name={icon} class="text-muted-foreground mb-3 size-9" aria-hidden="true" />
+  <h2 id="moments-state-title" class="text-lg font-bold">{title}</h2>
   {description && <p class="text-muted-foreground mt-2 max-w-xl text-sm leading-6">{description}</p>}
   {(retryHref || actionHref) && (
-    <div class="mt-5 flex flex-wrap justify-center gap-3">
+    <div class="mt-4 flex flex-wrap justify-center gap-2">
       {retryHref && retryLabel && (
-        <a href={retryHref} class="bg-primary hover:bg-primary/85 focus-visible:ring-primary rounded-full px-4 py-2 text-sm font-medium text-white transition-colors focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none">
+        <a href={retryHref} class="bg-primary hover:bg-primary/85 focus-visible:ring-primary inline-flex min-h-9 touch-manipulation items-center rounded-full px-4 py-1.5 text-sm font-medium text-white transition-[background-color,scale] active:scale-[0.96] focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none">
           {retryLabel}
         </a>
       )}
       {actionHref && actionLabel && (
-        <a href={actionHref} class="border-border bg-card hover:border-primary/50 hover:text-primary focus-visible:ring-primary rounded-full border px-4 py-2 text-sm font-medium transition-colors focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none">
+        <a href={actionHref} class="border-border bg-card hover:border-primary/50 hover:text-primary focus-visible:ring-primary inline-flex min-h-9 touch-manipulation items-center rounded-full border px-4 py-1.5 text-sm font-medium transition-[border-color,color,scale] active:scale-[0.96] focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none">
           {actionLabel}
         </a>
       )}
     </div>
   )}
 </section>
+
+<style>
+  .moments-state {
+    box-shadow:
+      0 0 0 1px hsl(var(--border) / 0.85),
+      0 12px 28px -22px rgb(0 0 0 / 0.42);
+  }
+</style>

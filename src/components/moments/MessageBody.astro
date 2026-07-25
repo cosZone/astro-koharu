@@ -16,13 +16,13 @@ const { html, collapsible = true, emptyLabel, expandLabel, collapseLabel } = Ast
   data-expand-label={expandLabel}
   data-collapse-label={collapseLabel}
 >
-  <div class="moments-message-content prose dark:prose-invert max-w-none break-words" data-message-content>
+  <div class="moments-message-content prose prose-sm dark:prose-invert max-w-[72ch] break-words prose-p:my-2" data-message-content>
     {html ? <div set:html={html} /> : <p class="text-muted-foreground m-0 italic">{emptyLabel}</p>}
   </div>
   <div class="moments-message-fade pointer-events-none" aria-hidden="true"></div>
   <button
     type="button"
-    class="moments-message-toggle text-primary hover:text-blue focus-visible:ring-primary mt-2 hidden rounded-md px-1 py-1 text-sm font-medium transition-colors focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none"
+    class="moments-message-toggle text-primary hover:bg-primary/10 focus-visible:ring-primary mt-2 hidden min-h-8 touch-manipulation rounded-lg px-2 text-sm font-medium transition-[background-color,color,scale] active:scale-[0.96] focus-visible:ring-2 focus-visible:ring-offset-1 focus-visible:outline-none"
     aria-expanded="true"
     data-message-toggle
   >

@@ -33,18 +33,18 @@ interface Props {
 const { message, detail = false, labels } = Astro.props;
 ---
 
-<article class="moments-message-card bg-card shadow-box min-w-0 rounded-2xl border border-border p-6 tablet:p-4">
-  <header class="mb-4 flex flex-wrap items-start justify-between gap-3">
-    <div class="flex min-w-0 items-center gap-3">
-      <span aria-hidden="true" class="bg-primary/15 text-primary inline-flex size-10 shrink-0 items-center justify-center rounded-full font-bold">
+<article class="moments-message-card bg-card min-w-0 rounded-2xl p-5 tablet:rounded-xl tablet:p-4">
+  <header class="mb-3 flex flex-wrap items-start justify-between gap-2.5">
+    <div class="flex min-w-0 items-center gap-2.5">
+      <span aria-hidden="true" class="bg-primary/12 text-primary inline-flex size-9 shrink-0 items-center justify-center rounded-full text-sm font-bold tablet:size-8">
         {Array.from(message.channel.title.trim())[0] ?? '#'}
       </span>
       <div class="min-w-0">
-        <a href={message.channel.href} class="hover:text-primary block truncate font-bold transition-colors">{message.channel.title}</a>
-        {message.channel.username && <p class="text-muted-foreground truncate text-xs">@{message.channel.username}</p>}
+        <a href={message.channel.href} class="hover:text-primary block truncate text-sm leading-snug font-semibold transition-colors">{message.channel.title}</a>
+        {message.channel.username && <p class="text-muted-foreground truncate text-xs leading-5">@{message.channel.username}</p>}
       </div>
     </div>
-    {message.revision > 1 && <span class="bg-muted text-muted-foreground rounded-full px-2 py-1 text-xs">{labels.updated}</span>}
+    {message.revision > 1 && <span class="bg-muted/70 text-muted-foreground inline-flex min-h-6 items-center rounded-full px-2 text-[0.6875rem]">{labels.updated}</span>}
   </header>
 
   <MessageBody
@@ -55,45 +55,51 @@ const { message, detail = false, labels } = Astro.props;
     collapseLabel={labels.collapse}
   />
 
-  <div class="mt-4">
-    <MediaGallery
-      media={message.media}
-      detail={detail}
-      sourceUrl={message.sourceUrl}
-      labels={{
-        processing: labels.mediaProcessing,
-        unavailable: labels.mediaUnavailable,
-        image: labels.image,
-        video: labels.video,
-        audio: labels.audio,
-        document: labels.document,
-        openDocument: labels.openDocument,
-        viewSource: labels.viewSource,
-        more: labels.mediaMore,
-      }}
-    />
-  </div>
+  {message.media.length > 0 && (
+    <div class="mt-3">
+      <MediaGallery
+        media={message.media}
+        detail={detail}
+        sourceUrl={message.sourceUrl}
+        labels={{
+          processing: labels.mediaProcessing,
+          unavailable: labels.mediaUnavailable,
+          image: labels.image,
+          video: labels.video,
+          audio: labels.audio,
+          document: labels.document,
+          openDocument: labels.openDocument,
+          viewSource: labels.viewSource,
+          more: labels.mediaMore,
+        }}
+      />
+    </div>
+  )}
 
-  <footer class="text-muted-foreground mt-5 flex flex-wrap items-center gap-x-4 gap-y-2 border-t border-border pt-4 text-xs">
-    <a href={message.permalink} class="hover:text-primary inline-flex items-center gap-1 transition-colors">
-      <Icon name="ri:time-line" aria-hidden="true" />
-      <time datetime={message.publishedAt}>{message.publishedLabel}</time>
+  <footer class="bg-muted/35 text-muted-foreground mt-3 flex flex-wrap items-center gap-x-1 gap-y-1 rounded-xl px-1.5 py-1 text-xs">
+    <a href={message.permalink} class="hover:bg-background/70 hover:text-foreground inline-flex min-h-8 items-center gap-1.5 rounded-lg px-2 transition-[background-color,color]">
+      <Icon name="ri:time-line" class="size-4" aria-hidden="true" />
+      <time datetime={message.publishedAt} class="tabular-nums">{message.publishedLabel}</time>
     </a>
-    <a href={message.permalink} class="hover:text-primary inline-flex items-center gap-1 transition-colors">
-      <Icon name="ri:links-line" aria-hidden="true" />
-      {labels.permalink}
+    <a
+      href={message.permalink}
+      aria-label={labels.permalink}
+      class="hover:bg-background/70 hover:text-foreground inline-flex min-h-8 items-center gap-1.5 rounded-lg px-2 transition-[background-color,color]"
+    >
+      <Icon name="ri:links-line" class="size-4" aria-hidden="true" />
+      <span class="tablet:hidden">{labels.permalink}</span>
     </a>
     <button
       type="button"
-      class="moments-copy-link hover:text-primary focus-visible:ring-primary inline-flex items-center gap-1 rounded transition-colors focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none"
+      class="moments-copy-link hover:bg-background/70 hover:text-foreground focus-visible:ring-primary inline-flex min-h-8 touch-manipulation items-center gap-1.5 rounded-lg px-2 transition-[background-color,color,scale] active:scale-[0.96] focus-visible:ring-2 focus-visible:ring-offset-1 focus-visible:outline-none"
       data-copy-value={message.permalink}
       data-copy-label={labels.copyLink}
       data-copied-label={labels.copied}
       data-copy-failed-label={labels.copyFailed}
       aria-label={labels.copyLink}
     >
-      <Icon name="ri:file-copy-line" aria-hidden="true" />
-      <span data-copy-text>{labels.copyLink}</span>
+      <Icon name="ri:file-copy-line" class="size-4" aria-hidden="true" />
+      <span class="tablet:hidden" data-copy-text>{labels.copyLink}</span>
       <span class="sr-only" aria-live="polite" data-copy-status></span>
     </button>
     {message.sourceUrl && (
@@ -101,10 +107,11 @@ const { message, detail = false, labels } = Astro.props;
         href={message.sourceUrl}
         target="_blank"
         rel="noopener noreferrer"
-        class="hover:text-primary inline-flex items-center gap-1 transition-colors"
+        aria-label={labels.viewSource}
+        class="hover:bg-background/70 hover:text-foreground inline-flex min-h-8 items-center gap-1.5 rounded-lg px-2 transition-[background-color,color]"
       >
-        <Icon name="ri:external-link-line" aria-hidden="true" />
-        {labels.viewSource}
+        <Icon name="ri:external-link-line" class="size-4" aria-hidden="true" />
+        <span class="tablet:hidden">{labels.viewSource}</span>
       </a>
     )}
   </footer>
@@ -140,3 +147,23 @@ const { message, detail = false, labels } = Astro.props;
   installMomentCopyButtons();
   document.addEventListener('astro:page-load', installMomentCopyButtons);
 </script>
+
+<style>
+  .moments-message-card {
+    box-shadow:
+      0 0 0 1px hsl(var(--border) / 0.85),
+      0 12px 28px -22px rgb(0 0 0 / 0.42);
+  }
+
+  @media (hover: hover) and (prefers-reduced-motion: no-preference) {
+    .moments-message-card {
+      transition: box-shadow 150ms ease-out;
+    }
+
+    .moments-message-card:hover {
+      box-shadow:
+        0 0 0 1px hsl(var(--primary) / 0.28),
+        0 16px 32px -24px rgb(0 0 0 / 0.48);
+    }
+  }
+</style>

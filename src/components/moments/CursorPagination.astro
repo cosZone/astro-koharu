@@ -14,12 +14,12 @@ const { nextHref, backHref, nextLabel, backLabel, navigationLabel } = Astro.prop
 
 {
   (nextHref || backHref) && (
-    <nav aria-label={navigationLabel} class="mt-2 flex flex-wrap items-center justify-between gap-3">
+    <nav aria-label={navigationLabel} class="mt-1 flex flex-wrap items-center justify-between gap-2">
       {backHref ? (
         <a
           href={backHref}
           rel="prev"
-          class="border-border bg-card hover:border-primary/50 hover:text-primary focus-visible:ring-primary inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm transition-colors focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none"
+          class="border-border/80 bg-card hover:border-primary/50 hover:text-primary focus-visible:ring-primary inline-flex min-h-9 touch-manipulation items-center gap-1.5 rounded-full border px-3 py-1.5 text-sm transition-[border-color,color,scale] active:scale-[0.96] focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none"
         >
           <Icon name="ri:arrow-left-line" aria-hidden="true" />
           {backLabel}
@@ -31,7 +31,7 @@ const { nextHref, backHref, nextLabel, backLabel, navigationLabel } = Astro.prop
         <a
           href={nextHref}
           rel="next"
-          class="border-border bg-card hover:border-primary/50 hover:text-primary focus-visible:ring-primary ml-auto inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm transition-colors focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none"
+          class="border-border/80 bg-card hover:border-primary/50 hover:text-primary focus-visible:ring-primary ms-auto inline-flex min-h-9 touch-manipulation items-center gap-1.5 rounded-full border px-3 py-1.5 text-sm transition-[border-color,color,scale] active:scale-[0.96] focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none"
         >
           {nextLabel}
           <Icon name="ri:arrow-right-line" aria-hidden="true" />

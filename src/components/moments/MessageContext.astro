@@ -18,18 +18,18 @@ const fallbackPreview = (item: MomentContextItemViewModel) => item.preview?.trim
 
 {
   (newer || older) && (
-    <nav aria-label={navigationLabel} class="grid grid-cols-2 gap-3 tablet:grid-cols-1">
+    <nav aria-label={navigationLabel} class="grid grid-cols-2 gap-2 tablet:grid-cols-1">
       {newer ? (
         <a
           href={newer.href}
           rel="prev"
-          class="border-border bg-card hover:border-primary/50 focus-visible:ring-primary group min-w-0 rounded-2xl border p-4 transition-colors focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none"
+          class="moments-context-card bg-card focus-visible:ring-primary group min-w-0 touch-manipulation rounded-xl p-3 transition-[box-shadow,scale] active:scale-[0.96] focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none"
         >
           <span class="text-primary flex items-center gap-1 text-xs font-medium">
             <Icon name="ri:arrow-left-line" aria-hidden="true" />
             {newerLabel}
           </span>
-          <span class="mt-2 block truncate text-sm font-medium group-hover:underline">{fallbackPreview(newer)}</span>
+          <span class="mt-1.5 block truncate text-sm font-medium group-hover:underline">{fallbackPreview(newer)}</span>
           <time datetime={newer.publishedAt} class="text-muted-foreground mt-1 block text-xs">{newer.publishedLabel}</time>
         </a>
       ) : (
@@ -39,16 +39,28 @@ const fallbackPreview = (item: MomentContextItemViewModel) => item.preview?.trim
         <a
           href={older.href}
           rel="next"
-          class="border-border bg-card hover:border-primary/50 focus-visible:ring-primary group min-w-0 rounded-2xl border p-4 text-right transition-colors focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none"
+          class="moments-context-card bg-card focus-visible:ring-primary group min-w-0 touch-manipulation rounded-xl p-3 text-end transition-[box-shadow,scale] active:scale-[0.96] focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none"
         >
           <span class="text-primary flex items-center justify-end gap-1 text-xs font-medium">
             {olderLabel}
             <Icon name="ri:arrow-right-line" aria-hidden="true" />
           </span>
-          <span class="mt-2 block truncate text-sm font-medium group-hover:underline">{fallbackPreview(older)}</span>
+          <span class="mt-1.5 block truncate text-sm font-medium group-hover:underline">{fallbackPreview(older)}</span>
           <time datetime={older.publishedAt} class="text-muted-foreground mt-1 block text-xs">{older.publishedLabel}</time>
         </a>
       )}
     </nav>
   )
 }
+
+<style>
+  .moments-context-card {
+    box-shadow: 0 0 0 1px hsl(var(--border) / 0.85);
+  }
+
+  @media (hover: hover) and (prefers-reduced-motion: no-preference) {
+    .moments-context-card:hover {
+      box-shadow: 0 0 0 1px hsl(var(--primary) / 0.35);
+    }
+  }
+</style>

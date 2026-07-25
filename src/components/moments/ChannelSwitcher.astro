@@ -13,31 +13,32 @@ const { channels, label, className } = Astro.props;
 
 {
   channels.length > 1 && (
-    <nav aria-label={label} class={cn('relative min-w-0', className)}>
-      <div class="vertical-scrollbar flex snap-x gap-2 overflow-x-auto py-1" role="list">
+    <nav aria-label={label} class={cn('-mx-1 min-w-0', className)}>
+      <ul class="scrollbar-hidden flex snap-x snap-mandatory gap-2 overflow-x-auto px-1 pb-1 [scroll-padding-inline:0.25rem]">
         {channels.map((channel) => (
-          <a
-            href={channel.href}
-            aria-current={channel.isActive ? 'page' : undefined}
-            class:list={[
-              'focus-visible:ring-primary inline-flex shrink-0 snap-start items-center gap-2 rounded-full border px-3 py-2 text-sm transition-colors focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none',
-              channel.isActive
-                ? 'border-primary bg-primary/10 text-primary'
-                : 'border-border bg-card text-muted-foreground hover:border-primary/50 hover:text-primary',
-            ]}
-            role="listitem"
-          >
-            <span
-              aria-hidden="true"
-              class="bg-primary/15 text-primary inline-flex size-7 items-center justify-center rounded-full font-bold"
+          <li class="shrink-0 snap-start">
+            <a
+              href={channel.href}
+              aria-current={channel.isActive ? 'page' : undefined}
+              class:list={[
+                'focus-visible:ring-primary inline-flex min-h-9 touch-manipulation items-center gap-2 rounded-full border px-3 py-1.5 text-sm transition-[background-color,border-color,color,scale] duration-150 ease-out active:scale-[0.96] focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none tablet:text-[0.8125rem]',
+                channel.isActive
+                  ? 'border-primary/70 bg-primary/12 text-primary'
+                  : 'border-border/80 bg-card/80 text-muted-foreground hover:border-primary/40 hover:bg-card hover:text-foreground',
+              ]}
             >
-              {Array.from(channel.title.trim())[0] ?? '#'}
-            </span>
-            <span class="whitespace-nowrap font-medium">{channel.title}</span>
-            {channel.username && <span class="text-muted-foreground whitespace-nowrap text-xs">@{channel.username}</span>}
-          </a>
+              <span
+                aria-hidden="true"
+                class="bg-primary/12 text-primary inline-flex size-6 items-center justify-center rounded-full text-xs font-bold"
+              >
+                {Array.from(channel.title.trim())[0] ?? '#'}
+              </span>
+              <span class="whitespace-nowrap font-medium">{channel.title}</span>
+              {channel.username && <span class="text-muted-foreground whitespace-nowrap text-xs">@{channel.username}</span>}
+            </a>
+          </li>
         ))}
-      </div>
+      </ul>
     </nav>
   )
 }

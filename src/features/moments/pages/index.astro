@@ -7,6 +7,7 @@ import MomentsState from '@components/moments/MomentsState.astro';
 import { momentsConfig } from '@constants/site-config';
 import type { MessagePage } from '@coszone/koharu-astro';
 import Layout from '@layouts/Layout.astro';
+import { Icon } from 'astro-icon/components';
 import { getMomentsChannels, listChannelMessages } from '../lib/data';
 import { messageCardLabels, momentsLabels } from '../lib/labels';
 import { resolveMomentsOpenGraph } from '../lib/metadata';
@@ -57,11 +58,17 @@ const errorDescription = errorKind === 'rate-limited' ? momentsLabels.rateLimite
   includeLocaleAlternates={false}
 >
   <MomentsShell title={momentsConfig.title}>
-    <div class="flex flex-wrap items-center justify-between gap-3">
+    <div class="flex flex-wrap items-center justify-between gap-2">
       <p class="text-muted-foreground text-sm">{momentsConfig.description}</p>
-      <div class="flex gap-3 text-sm">
-        <a class="text-primary hover:underline" href={searchPath(momentsConfig)}>{momentsLabels.search}</a>
-        <a class="text-primary hover:underline" href={rssPath(momentsConfig)}>RSS</a>
+      <div class="flex items-center gap-1 text-sm">
+        <a class="hover:bg-muted focus-visible:ring-primary inline-flex min-h-8 touch-manipulation items-center gap-1.5 rounded-lg px-2 text-primary transition-[background-color,scale] active:scale-[0.96] focus-visible:ring-2 focus-visible:outline-none" href={searchPath(momentsConfig)}>
+          <Icon name="ri:search-line" class="size-4" aria-hidden="true" />
+          {momentsLabels.search}
+        </a>
+        <a class="hover:bg-muted focus-visible:ring-primary inline-flex min-h-8 touch-manipulation items-center gap-1.5 rounded-lg px-2 text-primary transition-[background-color,scale] active:scale-[0.96] focus-visible:ring-2 focus-visible:outline-none" href={rssPath(momentsConfig)}>
+          <Icon name="ri:rss-line" class="size-4" aria-hidden="true" />
+          RSS
+        </a>
       </div>
     </div>
     <ChannelSwitcher channels={channelViews} label={momentsLabels.channelNavigation} />

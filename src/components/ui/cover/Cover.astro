@@ -15,9 +15,11 @@ import WaveSvg from './wave';
 export interface CoverProps {
   data?: BlogPost;
   title?: string;
+  /** Utility pages can opt into a shorter cover with a neutral loading surface. */
+  compact?: boolean;
 }
 
-const { data, title } = Astro.props as CoverProps;
+const { data, title, compact = false } = Astro.props as CoverProps;
 
 const { date, updated, title: dataTitle, draft } = data?.data ?? {};
 
@@ -25,7 +27,7 @@ const readState = data ? getPostReadingTime(data) : null;
 const isDraft = import.meta.env.DEV && draft === true;
 
 // 获取横幅图片的 LQIP 样式
-const bannerLqipStyle = getLqipStyle('/img/site_header_1920.webp');
+const bannerLqipStyle = compact ? undefined : getLqipStyle('/img/site_header_1920.webp');
 
 const locale = getLocaleFromUrl(Astro.url.pathname);
 
@@ -37,13 +39,29 @@ const copiedLabel = t(locale, 'common.copied');
 const copyFailedLabel = t(locale, 'common.copyFailed');
 ---
 
-<div class="relative flex h-[60dvh] z-0 max-h-200 overflow-hidden">
+<div
+  class:list={[
+    'relative z-0 flex overflow-hidden',
+    compact ? 'h-[42dvh] min-h-72 max-h-120 tablet:h-[36dvh] tablet:min-h-64' : 'h-[60dvh] max-h-200',
+  ]}
+>
   <div class="absolute inset-0 h-full bg-black/40"></div>
-  <div class="absolute inset-0 bottom-[8dvh] flex flex-col items-center justify-center px-5 text-white">
+  <div
+    class:list={[
+      'absolute inset-0 flex flex-col items-center justify-center px-5 text-white',
+      compact ? 'bottom-[4dvh]' : 'bottom-[8dvh]',
+    ]}
+  >
     {
       title ? (
         <h1
-          class={`shadow-text word-break flex items-center gap-2 text-center text-5xl/[1.2] font-bold tracking-widest ${MAX_WIDTH.content}`}
+          class:list={[
+            'shadow-text word-break flex items-center gap-2 text-center font-bold text-balance',
+            MAX_WIDTH.content,
+            compact
+              ? 'text-4xl/[1.15] tracking-[0.08em] tablet:text-3xl/[1.15] tablet:tracking-[0.05em]'
+              : 'text-5xl/[1.2] tracking-widest',
+          ]}
         >
           {title}
           <button
@@ -55,7 +73,7 @@ const copyFailedLabel = t(locale, 'common.copyFailed');
             data-copied-label={copiedLabel}
             data-copy-failed-label={copyFailedLabel}
           >
-            <Icon name="ri:link" aria-hidden="true" />
+            <Icon name="ri:link" class={compact ? 'size-7 tablet:size-6' : undefined} aria-hidden="true" />
             <span class="sr-only" aria-live="polite"></span>
           </button>
         </h1>
@@ -111,7 +129,7 @@ const copyFailedLabel = t(locale, 'common.copyFailed');
     }
   </div>
   <div
-    class="relative -z-10 h-full min-h-60 w-full"
+    class:list={['relative -z-10 h-full min-h-60 w-full', compact && 'bg-card']}
     transition:persist="page-cover-banner"
     id="banner-box"
     style={bannerLqipStyle}
