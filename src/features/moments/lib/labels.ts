@@ -38,6 +38,7 @@ export const momentsLabels = {
   retry: tr('moments.retry'),
   search: tr('moments.search'),
   searchForm: tr('moments.searchForm'),
+  searchEmpty: tr('moments.searchEmpty'),
   searchHint: tr('moments.searchHint'),
   searchPlaceholder: tr('moments.searchPlaceholder'),
   searchQuery: tr('moments.searchQuery'),

@@ -399,6 +399,7 @@ export const uiStrings: UIStrings = {
   'moments.searchForm': 'Search Moment entries',
   'moments.searchQuery': 'Search query',
   'moments.searchPlaceholder': 'Enter at least 3 characters',
+  'moments.searchEmpty': 'Type a keyword to search messages from all public channels',
   'moments.searchHint': 'Enter at least 3 Unicode characters',
   'moments.searchTooLong': 'Search queries cannot exceed 200 Unicode characters',
   'moments.channel': 'Channel',

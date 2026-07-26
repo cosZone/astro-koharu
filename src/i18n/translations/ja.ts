@@ -400,6 +400,7 @@ export const uiStrings: UIStrings = {
   'moments.searchForm': 'つぶやきの内容を検索',
   'moments.searchQuery': '検索キーワード',
   'moments.searchPlaceholder': '3文字以上入力してください',
+  'moments.searchEmpty': 'キーワードを入力して、公開チャンネルのメッセージを検索',
   'moments.searchHint': 'Unicode文字を3文字以上入力してください',
   'moments.searchTooLong': '検索キーワードはUnicode文字で200文字以内にしてください',
   'moments.channel': 'チャンネル',

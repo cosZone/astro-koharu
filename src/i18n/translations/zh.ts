@@ -397,6 +397,7 @@ export const uiStrings = {
   'moments.searchForm': '搜索碎碎念内容',
   'moments.searchQuery': '搜索关键词',
   'moments.searchPlaceholder': '输入至少 3 个字符',
+  'moments.searchEmpty': '输入关键词，搜索所有公开频道的消息',
   'moments.searchHint': '请输入至少 3 个 Unicode 字符',
   'moments.searchTooLong': '搜索内容不能超过 200 个 Unicode 字符',
   'moments.channel': '频道',

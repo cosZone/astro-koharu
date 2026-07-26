@@ -104,7 +104,9 @@ const nextHref = nextUrl ? `${nextUrl.pathname}${nextUrl.search}` : undefined;
         retryHref={Astro.url.pathname + Astro.url.search}
         retryLabel={momentsLabels.retry}
       />
-    ) : !query ? null : !queryIsValid ? (
+    ) : !query ? (
+      <MomentsState kind="empty" title={momentsLabels.searchEmpty} />
+    ) : !queryIsValid ? (
       <MomentsState kind="empty" title={queryIsTooLong ? momentsLabels.searchTooLong : momentsLabels.searchHint} />
     ) : results.length === 0 ? (
       <MomentsState kind="empty" title={momentsLabels.noResults} actionHref={momentsPath(momentsConfig)} actionLabel={momentsConfig.title} />
