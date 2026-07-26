@@ -116,7 +116,7 @@ const nextHref = nextUrl ? `${nextUrl.pathname}${nextUrl.search}` : undefined;
     </div>
     {!failure && query && queryIsValid && results.length > 0 && (
       <>
-        <ol class="moments-timeline">
+        <ol class="moments-timeline mt-3">
           {results.map((message) => (
             <li>
               <MessageCard message={message} labels={messageCardLabels} />
