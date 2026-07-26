@@ -40,7 +40,7 @@ const { message, detail = false, labels } = Astro.props;
   ]}
   data-message-href={!detail ? message.permalink : undefined}
 >
-  <header class="mb-2.5 flex items-center gap-2.5">
+  <header class="mb-2.5 flex flex-wrap items-center gap-x-2.5 gap-y-1">
     <span aria-hidden="true" class="bg-primary/12 text-primary inline-flex size-7 shrink-0 items-center justify-center rounded-full text-xs font-bold">
       {Array.from(message.channel.title.trim())[0] ?? '#'}
     </span>
