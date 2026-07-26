@@ -36,10 +36,10 @@ const fallbackHidden =
 <moments-media class="bg-muted/25 relative block min-w-0 overflow-hidden rounded-lg" data-media-kind={media.kind}>
   {
     media.cacheStatus === 'pending' ? (
-      <div class="text-muted-foreground flex min-h-24 flex-col items-center justify-center gap-1.5 p-4 text-center text-sm" role="status">
-        <Icon name="ri:loader-4-line" class="motion-safe:animate-spin size-5" aria-hidden="true" />
-        <span>{labels.processing}</span>
-        <span class="text-xs">{displayName}</span>
+      <div class="text-muted-foreground flex items-center gap-2 px-3 py-2.5 text-sm" role="status">
+        <Icon name="ri:loader-4-line" class="motion-safe:animate-spin size-4 shrink-0" aria-hidden="true" />
+        <span class="shrink-0">{labels.processing}</span>
+        <span class="truncate text-xs">{displayName}</span>
       </div>
     ) : media.cacheStatus === 'ready' && media.kind === 'image' && imageUrl ? (
       <button
@@ -106,17 +106,17 @@ const fallbackHidden =
 
   <div
     class:list={[
-      'text-muted-foreground min-h-20 flex-col items-center justify-center gap-1 p-3 text-center text-sm',
+      'text-muted-foreground flex-wrap items-center gap-x-2 gap-y-1 px-3 py-2.5 text-sm',
       fallbackHidden ? 'hidden' : 'flex',
     ]}
     data-media-fallback
     role="status"
   >
-    <Icon name="ri:file-warning-line" class="size-7" aria-hidden="true" />
-    <span>{labels.unavailable}</span>
-    <span class="max-w-full truncate text-xs">{displayName}{fileSize ? ` · ${fileSize}` : ''}</span>
+    <Icon name="ri:file-warning-line" class="size-4 shrink-0" aria-hidden="true" />
+    <span class="shrink-0">{labels.unavailable}</span>
+    <span class="min-w-0 truncate text-xs">{displayName}{fileSize ? ` · ${fileSize}` : ''}</span>
     {sourceUrl && (
-      <a href={sourceUrl} target="_blank" rel="noopener noreferrer" class="text-primary hover:text-blue mt-1 underline-offset-4 hover:underline">
+      <a href={sourceUrl} target="_blank" rel="noopener noreferrer" class="text-primary hover:text-blue shrink-0 text-xs underline-offset-4 hover:underline">
         {labels.viewSource}
       </a>
     )}
