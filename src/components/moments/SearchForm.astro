@@ -10,6 +10,7 @@ interface Props {
   selectedChannelId?: string;
   sort?: 'relevance' | 'newest';
   showHint?: boolean;
+  showFilters?: boolean;
   labels: {
     form: string;
     query: string;
@@ -24,7 +25,16 @@ interface Props {
   };
 }
 
-const { action, query = '', channels = [], selectedChannelId = '', sort = 'relevance', labels, showHint = true } = Astro.props;
+const {
+  action,
+  query = '',
+  channels = [],
+  selectedChannelId = '',
+  sort = 'relevance',
+  labels,
+  showHint = true,
+  showFilters = true,
+} = Astro.props;
 ---
 
 <form action={action} method="get" role="search" aria-label={labels.form} class="grid gap-3">
@@ -61,37 +71,41 @@ const { action, query = '', channels = [], selectedChannelId = '', sort = 'relev
     </button>
   </div>
   {showHint && <p class="text-muted-foreground text-xs">{labels.hint}</p>}
-  <div class="grid grid-cols-2 gap-2" data-native-filters>
-    <label class="grid gap-1 text-sm">
-      <span class="text-muted-foreground text-xs">{labels.channel}</span>
-      <select name="channel" class="border-border/80 bg-background focus:border-primary focus:ring-primary/20 min-h-9 w-full min-w-0 rounded-lg border px-2.5 py-1.5 outline-none focus:ring-2">
-        <option value="" selected={!selectedChannelId}>{labels.allChannels}</option>
-        {channels.map((channel) => (
-          <option value={channel.id} selected={channel.id === selectedChannelId}>{channel.title}</option>
-        ))}
-      </select>
-    </label>
-    <label class="grid gap-1 text-sm">
-      <span class="text-muted-foreground text-xs">{labels.sort}</span>
-      <select name="sort" class="border-border/80 bg-background focus:border-primary focus:ring-primary/20 min-h-9 w-full min-w-0 rounded-lg border px-2.5 py-1.5 outline-none focus:ring-2">
-        <option value="relevance" selected={sort === 'relevance'}>{labels.relevance}</option>
-        <option value="newest" selected={sort === 'newest'}>{labels.newest}</option>
-      </select>
-    </label>
-  </div>
+  {showFilters && (
+    <div class="grid grid-cols-2 gap-2" data-native-filters>
+      <label class="grid gap-1 text-sm">
+        <span class="text-muted-foreground text-xs">{labels.channel}</span>
+        <select name="channel" class="border-border/80 bg-background focus:border-primary focus:ring-primary/20 min-h-9 w-full min-w-0 rounded-lg border px-2.5 py-1.5 outline-none focus:ring-2">
+          <option value="" selected={!selectedChannelId}>{labels.allChannels}</option>
+          {channels.map((channel) => (
+            <option value={channel.id} selected={channel.id === selectedChannelId}>{channel.title}</option>
+          ))}
+        </select>
+      </label>
+      <label class="grid gap-1 text-sm">
+        <span class="text-muted-foreground text-xs">{labels.sort}</span>
+        <select name="sort" class="border-border/80 bg-background focus:border-primary focus:ring-primary/20 min-h-9 w-full min-w-0 rounded-lg border px-2.5 py-1.5 outline-none focus:ring-2">
+          <option value="relevance" selected={sort === 'relevance'}>{labels.relevance}</option>
+          <option value="newest" selected={sort === 'newest'}>{labels.newest}</option>
+        </select>
+      </label>
+    </div>
+  )}
 </form>
-<SearchFilters
-  client:load
-  action={action}
-  query={query}
-  channels={channels.map((channel) => ({ value: channel.id, label: channel.title }))}
-  selectedChannelId={selectedChannelId}
-  sort={sort}
-  labels={{
-    channel: labels.channel,
-    allChannels: labels.allChannels,
-    sort: labels.sort,
-    relevance: labels.relevance,
-    newest: labels.newest,
-  }}
-/>
+{showFilters && (
+  <SearchFilters
+    client:load
+    action={action}
+    query={query}
+    channels={channels.map((channel) => ({ value: channel.id, label: channel.title }))}
+    selectedChannelId={selectedChannelId}
+    sort={sort}
+    labels={{
+      channel: labels.channel,
+      allChannels: labels.allChannels,
+      sort: labels.sort,
+      relevance: labels.relevance,
+      newest: labels.newest,
+    }}
+  />
+)}

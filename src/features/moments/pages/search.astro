@@ -76,7 +76,7 @@ const nextHref = nextUrl ? `${nextUrl.pathname}${nextUrl.search}` : undefined;
   includeLocaleAlternates={false}
 >
   <MomentsShell title={momentsLabels.search}>
-    <div class="moments-fullbleed">
+    <div class="moments-fullbleed flex flex-col gap-3">
       <SearchForm
         action={action}
         query={query}
@@ -84,6 +84,7 @@ const nextHref = nextUrl ? `${nextUrl.pathname}${nextUrl.search}` : undefined;
         selectedChannelId={selectedChannel?.id}
         sort={sort}
         showHint={!query}
+        showFilters={Boolean(query)}
         labels={{
           form: momentsLabels.searchForm,
           query: momentsLabels.searchQuery,
@@ -97,22 +98,23 @@ const nextHref = nextUrl ? `${nextUrl.pathname}${nextUrl.search}` : undefined;
           hint: momentsLabels.searchHint,
         }}
       />
+      {failure ? (
+        <MomentsState
+          kind={failure.type}
+          title={failure.type === 'rate-limited' ? momentsLabels.rateLimitedTitle : momentsLabels.unavailableTitle}
+          description={failure.type === 'rate-limited' ? momentsLabels.rateLimited : momentsLabels.feedUnavailable}
+          retryHref={Astro.url.pathname + Astro.url.search}
+          retryLabel={momentsLabels.retry}
+        />
+      ) : !query ? (
+        <MomentsState kind="empty" title={momentsLabels.searchEmpty} />
+      ) : !queryIsValid ? (
+        <MomentsState kind="empty" title={queryIsTooLong ? momentsLabels.searchTooLong : momentsLabels.searchHint} />
+      ) : results.length === 0 ? (
+        <MomentsState kind="empty" title={momentsLabels.noResults} actionHref={momentsPath(momentsConfig)} actionLabel={momentsConfig.title} />
+      ) : null}
     </div>
-    {failure ? (
-      <MomentsState
-        kind={failure.type}
-        title={failure.type === 'rate-limited' ? momentsLabels.rateLimitedTitle : momentsLabels.unavailableTitle}
-        description={failure.type === 'rate-limited' ? momentsLabels.rateLimited : momentsLabels.feedUnavailable}
-        retryHref={Astro.url.pathname + Astro.url.search}
-        retryLabel={momentsLabels.retry}
-      />
-    ) : !query ? (
-      <MomentsState kind="empty" title={momentsLabels.searchEmpty} />
-    ) : !queryIsValid ? (
-      <MomentsState kind="empty" title={queryIsTooLong ? momentsLabels.searchTooLong : momentsLabels.searchHint} />
-    ) : results.length === 0 ? (
-      <MomentsState kind="empty" title={momentsLabels.noResults} actionHref={momentsPath(momentsConfig)} actionLabel={momentsConfig.title} />
-    ) : (
+    {!failure && query && queryIsValid && results.length > 0 && (
       <>
         <ol class="moments-timeline">
           {results.map((message) => (
