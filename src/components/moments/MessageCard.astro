@@ -33,7 +33,13 @@ interface Props {
 const { message, detail = false, labels } = Astro.props;
 ---
 
-<article class="moments-message-card bg-card min-w-0 rounded-2xl p-5 tablet:rounded-xl tablet:p-4">
+<article
+  class:list={[
+    'moments-message-card bg-card min-w-0 rounded-2xl p-5 tablet:rounded-xl tablet:p-4',
+    !detail && 'cursor-pointer',
+  ]}
+  data-message-href={!detail ? message.permalink : undefined}
+>
   <header class="mb-3 flex flex-wrap items-start justify-between gap-2.5">
     <div class="flex min-w-0 items-center gap-2.5">
       <span aria-hidden="true" class="bg-primary/12 text-primary inline-flex size-9 shrink-0 items-center justify-center rounded-full text-sm font-bold tablet:size-8">
@@ -118,6 +124,30 @@ const { message, detail = false, labels } = Astro.props;
 </article>
 
 <script>
+  const cardInteractiveSelector =
+    'a, button, input, select, textarea, summary, video, audio, [role="button"], [contenteditable="true"]';
+
+  function installMomentCardLinks() {
+    document.querySelectorAll<HTMLElement>('.moments-message-card[data-message-href]:not([data-card-link-ready])').forEach((card) => {
+      card.dataset.cardLinkReady = 'true';
+      card.addEventListener('click', (event) => {
+        if (event.defaultPrevented || event.button !== 0) return;
+        if (!(event.target instanceof Element) || event.target.closest(cardInteractiveSelector)) return;
+        const selection = window.getSelection();
+        if (selection && !selection.isCollapsed) return;
+
+        const href = card.dataset.messageHref;
+        if (!href) return;
+        const url = new URL(href, window.location.href).href;
+        if (event.metaKey || event.ctrlKey) {
+          window.open(url, '_blank', 'noopener');
+          return;
+        }
+        window.location.assign(url);
+      });
+    });
+  }
+
   function installMomentCopyButtons() {
     document.querySelectorAll<HTMLButtonElement>('.moments-copy-link:not([data-copy-ready])').forEach((button) => {
       button.dataset.copyReady = 'true';
@@ -144,7 +174,9 @@ const { message, detail = false, labels } = Astro.props;
     });
   }
 
+  installMomentCardLinks();
   installMomentCopyButtons();
+  document.addEventListener('astro:page-load', installMomentCardLinks);
   document.addEventListener('astro:page-load', installMomentCopyButtons);
 </script>
 
