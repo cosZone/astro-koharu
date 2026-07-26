@@ -61,9 +61,9 @@ const [publishedDate, publishedTimeOfDay] = message.publishedLabel.split(' ');
     <div class="text-muted-foreground flex min-w-0 items-baseline gap-1.5">
       <a href={message.channel.href} class="hover:text-primary truncate text-xs leading-snug font-medium transition-colors">{message.channel.title}</a>
       {message.channel.username && <span class="truncate text-xs tablet:hidden">@{message.channel.username}</span>}
+      {message.revision > 1 && <span class="bg-muted/70 text-muted-foreground inline-flex min-h-5 shrink-0 items-center self-center rounded-full px-1.5 text-[0.6875rem]">{labels.updated}</span>}
     </div>
     <div class="ms-auto flex shrink-0 items-center gap-2">
-      {message.revision > 1 && <span class="bg-muted/70 text-muted-foreground inline-flex min-h-5 items-center rounded-full px-1.5 text-[0.6875rem]">{labels.updated}</span>}
       <a
         href={message.permalink}
         class:list={[
