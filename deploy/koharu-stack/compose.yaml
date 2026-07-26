@@ -1,0 +1,152 @@
+name: koharu-blog
+
+x-postgres-environment: &postgres-environment
+  POSTGRES_DB: ${POSTGRES_DB:-koharu}
+  POSTGRES_HOST: postgres
+  POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}
+  POSTGRES_PORT: 5432
+  POSTGRES_USER: ${POSTGRES_USER:-koharu}
+
+x-koharu-image: &koharu-image
+  image: ${KOHARU_IMAGE:?Set KOHARU_IMAGE to an exact released tag in .env}
+
+services:
+  postgres:
+    image: postgres:18-alpine
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-koharu}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}
+      POSTGRES_USER: ${POSTGRES_USER:-koharu}
+    healthcheck:
+      test: [CMD-SHELL, 'pg_isready -U "$${POSTGRES_USER}" -d "$${POSTGRES_DB}"']
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+    volumes:
+      - postgres-data:/var/lib/postgresql
+
+  suite-migrate:
+    <<: *koharu-image
+    command: [node, dist/cli.js, migrate]
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      <<: *postgres-environment
+    init: true
+    restart: 'no'
+
+  suite-server:
+    <<: *koharu-image
+    command: [node, dist/cli.js, serve]
+    depends_on:
+      suite-migrate:
+        condition: service_completed_successfully
+    environment:
+      <<: *postgres-environment
+      ADMIN_ASSETS_ROOT: /app/admin
+      BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET:?Set BETTER_AUTH_SECRET in .env}
+      BETTER_AUTH_URL: https://${SUITE_DOMAIN:?Set SUITE_DOMAIN in .env}
+      MEDIA_CACHE_ENABLED: ${MEDIA_CACHE_ENABLED:-true}
+      MEDIA_CACHE_MAX_BYTES: ${MEDIA_CACHE_MAX_BYTES:-5368709120}
+      MEDIA_CACHE_ROOT: /var/lib/koharu/media-cache
+      PORT: 3000
+      PUBLIC_CORS_ORIGINS: ${PUBLIC_CORS_ORIGINS:-}
+      PUBLIC_RATE_LIMIT_MAX: ${PUBLIC_RATE_LIMIT_MAX:-120}
+      PUBLIC_RATE_LIMIT_WINDOW_SECONDS: ${PUBLIC_RATE_LIMIT_WINDOW_SECONDS:-60}
+      TRUST_PROXY: 'true'
+    expose:
+      - '3000'
+    healthcheck:
+      test:
+        - CMD
+        - node
+        - -e
+        - fetch('http://127.0.0.1:3000/readyz').then((response) => { if (!response.ok) process.exit(1) }).catch(() => process.exit(1))
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    init: true
+    restart: unless-stopped
+    stop_grace_period: 30s
+    volumes:
+      - media-cache-data:/var/lib/koharu/media-cache:ro
+
+  suite-worker:
+    <<: *koharu-image
+    command: [node, dist/cli.js, worker]
+    depends_on:
+      suite-migrate:
+        condition: service_completed_successfully
+    environment:
+      <<: *postgres-environment
+      MEDIA_CACHE_DOWNLOAD_CONCURRENCY: ${MEDIA_CACHE_DOWNLOAD_CONCURRENCY:-2}
+      MEDIA_CACHE_ENABLED: ${MEDIA_CACHE_ENABLED:-true}
+      MEDIA_CACHE_MAX_BYTES: ${MEDIA_CACHE_MAX_BYTES:-5368709120}
+      MEDIA_CACHE_ROOT: /var/lib/koharu/media-cache
+      TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN:?Set TELEGRAM_BOT_TOKEN in .env}
+      TELEGRAM_WORKER_CONCURRENCY: ${TELEGRAM_WORKER_CONCURRENCY:-4}
+    healthcheck:
+      test: [CMD, node, dist/cli.js, health, worker]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+    init: true
+    restart: unless-stopped
+    stop_grace_period: 30s
+    volumes:
+      - media-cache-data:/var/lib/koharu/media-cache
+
+  astro-koharu:
+    image: astro-koharu:${ASTRO_KOHARU_VERSION:?Set ASTRO_KOHARU_VERSION in .env}
+    build:
+      context: ../..
+      dockerfile: docker/Dockerfile
+      target: dynamic
+      args:
+        KOHARU_SUITE_URL: https://${SUITE_DOMAIN:?Set SUITE_DOMAIN in .env}
+    depends_on:
+      suite-server:
+        condition: service_healthy
+    environment:
+      HOST: 0.0.0.0
+      KOHARU_SUITE_URL: https://${SUITE_DOMAIN:?Set SUITE_DOMAIN in .env}
+      PORT: 4321
+    expose:
+      - '4321'
+    restart: unless-stopped
+
+  caddy:
+    image: caddy:2.11.4-alpine
+    depends_on:
+      astro-koharu:
+        condition: service_healthy
+      suite-server:
+        condition: service_healthy
+    environment:
+      ACME_EMAIL: ${ACME_EMAIL:?Set ACME_EMAIL in .env}
+      BLOG_DOMAIN: ${BLOG_DOMAIN:?Set BLOG_DOMAIN in .env}
+      SUITE_DOMAIN: ${SUITE_DOMAIN:?Set SUITE_DOMAIN in .env}
+    networks:
+      default:
+        aliases:
+          - ${BLOG_DOMAIN:?Set BLOG_DOMAIN in .env}
+          - ${SUITE_DOMAIN:?Set SUITE_DOMAIN in .env}
+    ports:
+      - '80:80'
+      - '443:443'
+      - '443:443/udp'
+    restart: unless-stopped
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-config:/config
+      - caddy-data:/data
+
+volumes:
+  caddy-config:
+  caddy-data:
+  media-cache-data:
+  postgres-data:

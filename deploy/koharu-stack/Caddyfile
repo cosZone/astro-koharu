@@ -1,0 +1,13 @@
+{
+	email {$ACME_EMAIL}
+}
+
+{$SUITE_DOMAIN} {
+	encode zstd gzip
+	reverse_proxy suite-server:3000
+}
+
+{$BLOG_DOMAIN} {
+	encode zstd gzip
+	reverse_proxy astro-koharu:4321
+}

@@ -167,6 +167,7 @@ docker/
 
 ## 相关文档
 
+- [Koharu 双服务部署样例](../../deploy/koharu-stack/README.md)
 - [碎碎念配置与验收](../features/moments.md)
 - [Astro 静态部署](https://docs.astro.build/en/guides/deploy/)
 - [Astro Node adapter](https://docs.astro.build/en/guides/integrations-guide/node/)
