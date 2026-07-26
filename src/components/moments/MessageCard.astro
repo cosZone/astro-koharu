@@ -54,7 +54,7 @@ const [publishedDate, publishedTimeOfDay] = message.publishedLabel.split(' ');
       </time>
     </a>
   )}
-  <header class="mb-2 flex flex-wrap items-center gap-x-2 gap-y-1">
+  <header class="mb-2 flex items-center gap-x-2">
     <span aria-hidden="true" class="bg-primary/12 text-primary inline-flex size-6 shrink-0 items-center justify-center rounded-full text-[0.6875rem] font-bold">
       {Array.from(message.channel.title.trim())[0] ?? '#'}
     </span>
