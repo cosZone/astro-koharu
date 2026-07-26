@@ -17,7 +17,7 @@ const { title, className } = Astro.props;
   <HomeSider slot="sider" />
   <section
     class={cn(
-      'shadow-box bg-gradient-start mx-0 flex w-full min-w-0 flex-col gap-3 px-6 py-5 tablet:gap-2.5 tablet:px-4 tablet:py-4',
+      'moments-panel shadow-box bg-gradient-start mx-0 flex w-full min-w-0 flex-col gap-3 px-6 py-5 tablet:gap-2.5 tablet:px-4 tablet:py-4',
       className,
     )}
   >
@@ -40,19 +40,24 @@ const { title, className } = Astro.props;
   }
 
   @media (min-width: 993px) {
+    /* All panel content shares one leading edge; only timeline furniture
+       (time, dots, rail) hangs in the reserved margin. */
+    .moments-panel {
+      padding-inline-start: 10rem;
+    }
+
     :global(.moments-inline-time) {
       display: none;
     }
 
     :global(.moments-timeline) {
       position: relative;
-      padding-inline-start: 8.5rem;
     }
 
     :global(.moments-timeline)::before {
       position: absolute;
       inset-block: 0.5rem;
-      inset-inline-start: 7rem;
+      inset-inline-start: -24px;
       width: 1px;
       content: '';
       background: hsl(var(--foreground) / 0.14);
