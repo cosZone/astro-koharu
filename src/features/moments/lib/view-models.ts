@@ -28,11 +28,10 @@ function parseFileSize(value: string | null): number | null {
   return Number.isSafeInteger(size) && size >= 0 ? size : null;
 }
 
-const HASHTAG_PATTERN = /(?<![A-Za-z0-9_/&#])#([\p{L}\p{N}_]{1,32})/gu;
+const HASHTAG_PATTERN = /(?<![A-Za-z0-9_/&#])#([\p{L}\p{N}_]{2,32})/gu;
 const MAX_TAGS = 8;
 
-// UI-only convenience: tags are extracted from the already-available plain text so
-// cards can render search shortcuts without a suite-side tags API (see koharu-suite#1).
+// Extract tags from existing plain text so every rendered chip opens a valid search query.
 function toTags(config: NormalizedMomentsConfig, plainText?: string): MomentTagViewModel[] {
   if (!plainText) return [];
   const seen = new Set<string>();
