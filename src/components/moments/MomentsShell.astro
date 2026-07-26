@@ -43,7 +43,7 @@ const { title, className } = Astro.props;
     /* All panel content shares one leading edge; only timeline furniture
        (time, dots, rail) hangs in the reserved margin. */
     .moments-panel {
-      padding-inline-start: 10rem;
+      padding-inline-start: 8rem;
     }
 
     :global(.moments-inline-time) {
@@ -57,7 +57,7 @@ const { title, className } = Astro.props;
     :global(.moments-timeline)::before {
       position: absolute;
       inset-block: 0.5rem;
-      inset-inline-start: -24px;
+      inset-inline-start: -20px;
       width: 1px;
       content: '';
       background: hsl(var(--foreground) / 0.14);
@@ -70,7 +70,7 @@ const { title, className } = Astro.props;
     :global(.moments-timeline > li)::before {
       position: absolute;
       top: 0.45rem;
-      inset-inline-start: -28px;
+      inset-inline-start: -24px;
       width: 9px;
       height: 9px;
       content: '';
@@ -82,9 +82,9 @@ const { title, className } = Astro.props;
     :global(.moments-timeline-time) {
       position: absolute;
       top: 0.15rem;
-      inset-inline-start: -8.5rem;
+      inset-inline-start: -7.25rem;
       display: block;
-      width: 6.5rem;
+      width: 5.5rem;
       text-align: end;
     }
   }

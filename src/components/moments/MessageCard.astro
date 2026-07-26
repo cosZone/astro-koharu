@@ -33,6 +33,7 @@ interface Props {
 
 const { message, detail = false, labels } = Astro.props;
 const [publishedDate, publishedTimeOfDay] = message.publishedLabel.split(' ');
+const railDate = publishedDate?.slice(0, 4) === String(new Date().getFullYear()) ? publishedDate.slice(5) : publishedDate;
 ---
 
 <article
@@ -49,7 +50,7 @@ const [publishedDate, publishedTimeOfDay] = message.publishedLabel.split(' ');
       class="moments-timeline-time text-muted-foreground hover:text-primary tabular-nums text-xs leading-5 transition-colors"
     >
       <time datetime={message.publishedAt}>
-        <span class="block">{publishedDate}</span>
+        <span class="block">{railDate}</span>
         <span class="block">{publishedTimeOfDay}</span>
       </time>
     </a>
