@@ -76,26 +76,28 @@ const nextHref = nextUrl ? `${nextUrl.pathname}${nextUrl.search}` : undefined;
   includeLocaleAlternates={false}
 >
   <MomentsShell title={momentsLabels.search}>
-    <SearchForm
-      action={action}
-      query={query}
-      channels={channelViews}
-      selectedChannelId={selectedChannel?.id}
-      sort={sort}
-      showHint={!query}
-      labels={{
-        form: momentsLabels.searchForm,
-        query: momentsLabels.searchQuery,
-        placeholder: momentsLabels.searchPlaceholder,
-        channel: momentsLabels.channel,
-        allChannels: momentsLabels.allChannels,
-        sort: momentsLabels.sort,
-        relevance: momentsLabels.relevance,
-        newest: momentsLabels.newest,
-        submit: momentsLabels.submitSearch,
-        hint: momentsLabels.searchHint,
-      }}
-    />
+    <div class="moments-fullbleed">
+      <SearchForm
+        action={action}
+        query={query}
+        channels={channelViews}
+        selectedChannelId={selectedChannel?.id}
+        sort={sort}
+        showHint={!query}
+        labels={{
+          form: momentsLabels.searchForm,
+          query: momentsLabels.searchQuery,
+          placeholder: momentsLabels.searchPlaceholder,
+          channel: momentsLabels.channel,
+          allChannels: momentsLabels.allChannels,
+          sort: momentsLabels.sort,
+          relevance: momentsLabels.relevance,
+          newest: momentsLabels.newest,
+          submit: momentsLabels.submitSearch,
+          hint: momentsLabels.searchHint,
+        }}
+      />
+    </div>
     {failure ? (
       <MomentsState
         kind={failure.type}

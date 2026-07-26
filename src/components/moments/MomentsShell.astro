@@ -46,6 +46,11 @@ const { title, className } = Astro.props;
       padding-inline-start: 8rem;
     }
 
+    /* The search form uses the reserved margin instead of sharing the feed edge. */
+    :global(.moments-fullbleed) {
+      margin-inline-start: -6.5rem;
+    }
+
     :global(.moments-inline-time) {
       display: none;
     }
