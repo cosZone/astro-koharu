@@ -1,5 +1,6 @@
 ---
 import { Icon } from 'astro-icon/components';
+import SearchFilters from './SearchFilters';
 import type { MomentChannelViewModel } from './types';
 
 interface Props {
@@ -60,7 +61,7 @@ const { action, query = '', channels = [], selectedChannelId = '', sort = 'relev
     </button>
   </div>
   {showHint && <p class="text-muted-foreground text-xs">{labels.hint}</p>}
-  <div class="grid grid-cols-2 gap-2">
+  <div class="grid grid-cols-2 gap-2" data-native-filters>
     <label class="grid gap-1 text-sm">
       <span class="text-muted-foreground text-xs">{labels.channel}</span>
       <select name="channel" class="border-border/80 bg-background focus:border-primary focus:ring-primary/20 min-h-9 w-full min-w-0 rounded-lg border px-2.5 py-1.5 outline-none focus:ring-2">
@@ -79,3 +80,18 @@ const { action, query = '', channels = [], selectedChannelId = '', sort = 'relev
     </label>
   </div>
 </form>
+<SearchFilters
+  client:load
+  action={action}
+  query={query}
+  channels={channels.map((channel) => ({ value: channel.id, label: channel.title }))}
+  selectedChannelId={selectedChannelId}
+  sort={sort}
+  labels={{
+    channel: labels.channel,
+    allChannels: labels.allChannels,
+    sort: labels.sort,
+    relevance: labels.relevance,
+    newest: labels.newest,
+  }}
+/>
