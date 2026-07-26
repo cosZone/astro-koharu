@@ -109,9 +109,13 @@ const nextHref = nextUrl ? `${nextUrl.pathname}${nextUrl.search}` : undefined;
       <MomentsState kind="empty" title={momentsLabels.noResults} actionHref={momentsPath(momentsConfig)} actionLabel={momentsConfig.title} />
     ) : (
       <>
-        <div class="flex flex-col gap-7">
-          {results.map((message) => <MessageCard message={message} labels={messageCardLabels} />)}
-        </div>
+        <ol class="moments-timeline">
+          {results.map((message) => (
+            <li>
+              <MessageCard message={message} labels={messageCardLabels} />
+            </li>
+          ))}
+        </ol>
         <CursorPagination nextHref={nextHref} nextLabel={momentsLabels.olderContent} backLabel={momentsLabels.back} navigationLabel={momentsLabels.pagination} />
       </>
     )}
