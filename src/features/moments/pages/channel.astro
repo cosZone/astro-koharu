@@ -71,7 +71,13 @@ const nextHref = page?.nextCursor ? `${canonicalPath}?cursor=${encodeURIComponen
       <MomentsState kind="empty" title={momentsLabels.emptyChannel} />
     ) : (
       <>
-        {messages.map((message) => <MessageCard message={message} labels={messageCardLabels} />)}
+        <ol class="moments-timeline">
+          {messages.map((message) => (
+            <li>
+              <MessageCard message={message} labels={messageCardLabels} />
+            </li>
+          ))}
+        </ol>
         <CursorPagination nextHref={nextHref} nextLabel={momentsLabels.olderContent} backLabel={momentsLabels.back} navigationLabel={momentsLabels.pagination} />
       </>
     )}

@@ -48,6 +48,7 @@ export const momentsLabels = {
   updated: tr('moments.updated'),
   unavailableTitle: tr('moments.unavailable'),
   contextNavigation: tr('moments.contextNavigation'),
+  tags: tr('moments.tags'),
   video: tr('moments.video'),
   audio: tr('moments.audio'),
   document: tr('moments.document'),
@@ -72,4 +73,5 @@ export const messageCardLabels = {
   document: momentsLabels.document,
   openDocument: momentsLabels.openDocument,
   mediaMore: momentsLabels.mediaMore,
+  tags: momentsLabels.tags,
 };

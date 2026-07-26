@@ -4,12 +4,13 @@ import type {
   MomentMediaKind,
   MomentMediaViewModel,
   MomentMessageViewModel,
+  MomentTagViewModel,
 } from '@components/moments/types';
 import type { MessageContextReference, PublicMedia, PublicMessage } from '@coszone/koharu-astro';
 import type { NormalizedMomentsConfig, ResolvedMomentsChannel } from '@lib/config/moments';
 import { displayDate } from '@lib/date';
 import { getKoharuClient } from './runtime';
-import { channelPath, messagePath } from './urls';
+import { channelPath, messagePath, searchPath } from './urls';
 
 function escapeHtml(value: string): string {
   return value.replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('"', '&quot;');
@@ -25,6 +26,26 @@ function parseFileSize(value: string | null): number | null {
   if (value === null) return null;
   const size = Number(value);
   return Number.isSafeInteger(size) && size >= 0 ? size : null;
+}
+
+const HASHTAG_PATTERN = /(?<![A-Za-z0-9_/&#])#([\p{L}\p{N}_]{1,32})/gu;
+const MAX_TAGS = 8;
+
+// UI-only convenience: tags are extracted from the already-available plain text so
+// cards can render search shortcuts without a suite-side tags API (see koharu-suite#1).
+function toTags(config: NormalizedMomentsConfig, plainText?: string): MomentTagViewModel[] {
+  if (!plainText) return [];
+  const seen = new Set<string>();
+  const tags: MomentTagViewModel[] = [];
+  for (const match of plainText.matchAll(HASHTAG_PATTERN)) {
+    const label = match[1];
+    const key = label.toLowerCase();
+    if (seen.has(key)) continue;
+    seen.add(key);
+    tags.push({ label: `#${label}`, href: searchPath(config, { query: `#${label}` }) });
+    if (tags.length >= MAX_TAGS) break;
+  }
+  return tags;
 }
 
 function toMedia(media: PublicMedia): MomentMediaViewModel {
@@ -76,6 +97,7 @@ export function toMessageViewModel(
     permalink,
     sourceUrl: message.sourceUrl,
     media: message.media.map(toMedia),
+    tags: toTags(config, plainText),
   };
 }
 

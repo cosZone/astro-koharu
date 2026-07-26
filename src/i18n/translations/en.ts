@@ -432,6 +432,7 @@ export const uiStrings: UIStrings = {
   'moments.newer': 'Newer entry',
   'moments.older': 'Older entry',
   'moments.contextNavigation': 'Adjacent Moments',
+  'moments.tags': 'Tags',
   'moments.emptyChannels': 'No visible channels',
   'moments.emptyChannel': 'This channel has no messages yet',
   'moments.notFound': 'Moment not found',

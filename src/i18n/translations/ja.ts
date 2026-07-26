@@ -433,6 +433,7 @@ export const uiStrings: UIStrings = {
   'moments.newer': '新しいつぶやき',
   'moments.older': '以前のつぶやき',
   'moments.contextNavigation': '前後のつぶやき',
+  'moments.tags': 'タグ',
   'moments.emptyChannels': '表示できるチャンネルがありません',
   'moments.emptyChannel': 'このチャンネルにはまだメッセージがありません',
   'moments.notFound': 'つぶやきが見つかりません',

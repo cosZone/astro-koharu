@@ -24,3 +24,46 @@ const { title, className } = Astro.props;
     <slot />
   </section>
 </TwoColumnLayout>
+
+<style>
+  :global(.moments-timeline) {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  @media (min-width: 993px) {
+    :global(.moments-timeline) {
+      position: relative;
+      padding-inline-start: 1.5rem;
+    }
+
+    :global(.moments-timeline)::before {
+      position: absolute;
+      inset-block: 1.75rem;
+      inset-inline-start: 5px;
+      width: 1px;
+      content: '';
+      background: hsl(var(--border));
+    }
+
+    :global(.moments-timeline) > li {
+      position: relative;
+    }
+
+    :global(.moments-timeline) > li::before {
+      position: absolute;
+      top: 1.45rem;
+      inset-inline-start: -23px;
+      width: 9px;
+      height: 9px;
+      content: '';
+      background: hsl(var(--primary));
+      border-radius: 9999px;
+      box-shadow: 0 0 0 4px hsl(var(--primary) / 0.15);
+    }
+  }
+</style>

@@ -22,6 +22,7 @@ interface Labels {
   document: string;
   openDocument: string;
   mediaMore: string;
+  tags: string;
 }
 
 interface Props {
@@ -40,13 +41,13 @@ const { message, detail = false, labels } = Astro.props;
   ]}
   data-message-href={!detail ? message.permalink : undefined}
 >
-  <header class="mb-2.5 flex flex-wrap items-center gap-x-2.5 gap-y-1">
-    <span aria-hidden="true" class="bg-primary/12 text-primary inline-flex size-7 shrink-0 items-center justify-center rounded-full text-xs font-bold">
+  <header class="mb-2 flex flex-wrap items-center gap-x-2 gap-y-1">
+    <span aria-hidden="true" class="bg-primary/12 text-primary inline-flex size-6 shrink-0 items-center justify-center rounded-full text-[0.6875rem] font-bold">
       {Array.from(message.channel.title.trim())[0] ?? '#'}
     </span>
-    <div class="flex min-w-0 items-baseline gap-1.5">
-      <a href={message.channel.href} class="hover:text-primary truncate text-sm leading-snug font-semibold transition-colors">{message.channel.title}</a>
-      {message.channel.username && <span class="text-muted-foreground truncate text-xs tablet:hidden">@{message.channel.username}</span>}
+    <div class="text-muted-foreground flex min-w-0 items-baseline gap-1.5">
+      <a href={message.channel.href} class="hover:text-primary truncate text-xs leading-snug font-medium transition-colors">{message.channel.title}</a>
+      {message.channel.username && <span class="truncate text-xs tablet:hidden">@{message.channel.username}</span>}
     </div>
     <div class="ms-auto flex shrink-0 items-center gap-2">
       {message.revision > 1 && <span class="bg-muted/70 text-muted-foreground inline-flex min-h-5 items-center rounded-full px-1.5 text-[0.6875rem]">{labels.updated}</span>}
@@ -83,6 +84,20 @@ const { message, detail = false, labels } = Astro.props;
         }}
       />
     </div>
+  )}
+
+  {message.tags.length > 0 && (
+    <nav aria-label={labels.tags} class="mt-2.5 flex flex-wrap items-center gap-1.5">
+      <Icon name="ri:hashtag" class="text-muted-foreground size-3.5 shrink-0" aria-hidden="true" />
+      {message.tags.map((tag) => (
+        <a
+          href={tag.href}
+          class="bg-muted/50 text-muted-foreground hover:bg-primary/10 hover:text-primary focus-visible:ring-primary inline-flex min-h-6 items-center rounded-full px-2 text-xs transition-[background-color,color] focus-visible:ring-2 focus-visible:outline-none"
+        >
+          {tag.label}
+        </a>
+      ))}
+    </nav>
   )}
 
   <footer class="text-muted-foreground mt-2.5 flex flex-wrap items-center gap-x-1 gap-y-0.5 text-xs">

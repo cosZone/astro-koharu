@@ -34,6 +34,7 @@ export interface MomentMessageViewModel {
   permalink: string;
   sourceUrl?: string | null;
   media: MomentMediaViewModel[];
+  tags: MomentTagViewModel[];
 }
 
 export interface MomentContextItemViewModel {
@@ -41,6 +42,11 @@ export interface MomentContextItemViewModel {
   publishedAt: string;
   publishedLabel: string;
   preview?: string | null;
+}
+
+export interface MomentTagViewModel {
+  label: string;
+  href: string;
 }
 
 export function formatMomentFileSize(bytes?: number | null): string | undefined {

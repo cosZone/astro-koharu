@@ -430,6 +430,7 @@ export const uiStrings = {
   'moments.newer': '较新一条',
   'moments.older': '较早一条',
   'moments.contextNavigation': '相邻碎碎念',
+  'moments.tags': '标签',
   'moments.emptyChannels': '暂无可见频道',
   'moments.emptyChannel': '这个频道还没有消息',
   'moments.notFound': '没有找到这条碎碎念',
