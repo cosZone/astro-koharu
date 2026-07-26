@@ -1,4 +1,5 @@
 ---
+import { displayDate } from '@lib/date';
 import { Icon } from 'astro-icon/components';
 import MediaGallery from './MediaGallery.astro';
 import MessageBody from './MessageBody.astro';
@@ -33,7 +34,8 @@ interface Props {
 
 const { message, detail = false, labels } = Astro.props;
 const [publishedDate, publishedTimeOfDay] = message.publishedLabel.split(' ');
-const railDate = publishedDate?.slice(0, 4) === String(new Date().getFullYear()) ? publishedDate.slice(5) : publishedDate;
+const currentYear = displayDate.date(new Date()).slice(0, 4);
+const railDate = publishedDate?.slice(0, 4) === currentYear ? publishedDate.slice(5) : publishedDate;
 ---
 
 <article
