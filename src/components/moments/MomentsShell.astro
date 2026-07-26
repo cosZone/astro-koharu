@@ -29,22 +29,30 @@ const { title, className } = Astro.props;
   :global(.moments-timeline) {
     display: flex;
     flex-direction: column;
-    gap: 0.75rem;
+    gap: 2.25rem;
     margin: 0;
     padding: 0;
     list-style: none;
   }
 
+  :global(.moments-timeline-time) {
+    display: none;
+  }
+
   @media (min-width: 993px) {
+    :global(.moments-inline-time) {
+      display: none;
+    }
+
     :global(.moments-timeline) {
       position: relative;
-      padding-inline-start: 1.5rem;
+      padding-inline-start: 8.5rem;
     }
 
     :global(.moments-timeline)::before {
       position: absolute;
-      inset-block: 1.75rem;
-      inset-inline-start: 5px;
+      inset-block: 0.5rem;
+      inset-inline-start: 7rem;
       width: 1px;
       content: '';
       background: hsl(var(--border));
@@ -56,14 +64,23 @@ const { title, className } = Astro.props;
 
     :global(.moments-timeline > li)::before {
       position: absolute;
-      top: 1.45rem;
-      inset-inline-start: -23px;
+      top: 1rem;
+      inset-inline-start: -28px;
       width: 9px;
       height: 9px;
       content: '';
       background: hsl(var(--primary));
       border-radius: 9999px;
       box-shadow: 0 0 0 4px hsl(var(--primary) / 0.15);
+    }
+
+    :global(.moments-timeline-time) {
+      position: absolute;
+      top: 0.55rem;
+      inset-inline-start: -8.5rem;
+      display: block;
+      width: 6.5rem;
+      text-align: end;
     }
   }
 </style>

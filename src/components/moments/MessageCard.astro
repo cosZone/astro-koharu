@@ -32,15 +32,28 @@ interface Props {
 }
 
 const { message, detail = false, labels } = Astro.props;
+const [publishedDate, publishedTimeOfDay] = message.publishedLabel.split(' ');
 ---
 
 <article
   class:list={[
-    'moments-message-card bg-card min-w-0 rounded-xl p-4 tablet:p-3.5',
-    !detail && 'cursor-pointer',
+    'moments-message-card min-w-0',
+    !detail && '-m-2 cursor-pointer rounded-xl p-2 transition-colors hover:bg-muted/45',
   ]}
   data-message-href={!detail ? message.permalink : undefined}
 >
+  {!detail && (
+    <a
+      href={message.permalink}
+      aria-label={labels.permalink}
+      class="moments-timeline-time text-muted-foreground hover:text-primary tabular-nums text-xs leading-5 transition-colors"
+    >
+      <time datetime={message.publishedAt}>
+        <span class="block">{publishedDate}</span>
+        <span class="block">{publishedTimeOfDay}</span>
+      </time>
+    </a>
+  )}
   <header class="mb-2 flex flex-wrap items-center gap-x-2 gap-y-1">
     <span aria-hidden="true" class="bg-primary/12 text-primary inline-flex size-6 shrink-0 items-center justify-center rounded-full text-[0.6875rem] font-bold">
       {Array.from(message.channel.title.trim())[0] ?? '#'}
@@ -51,7 +64,14 @@ const { message, detail = false, labels } = Astro.props;
     </div>
     <div class="ms-auto flex shrink-0 items-center gap-2">
       {message.revision > 1 && <span class="bg-muted/70 text-muted-foreground inline-flex min-h-5 items-center rounded-full px-1.5 text-[0.6875rem]">{labels.updated}</span>}
-      <a href={message.permalink} class="text-muted-foreground hover:text-primary inline-flex min-h-7 items-center transition-colors" aria-label={labels.permalink}>
+      <a
+        href={message.permalink}
+        class:list={[
+          'text-muted-foreground hover:text-primary inline-flex min-h-7 items-center transition-colors',
+          !detail && 'moments-inline-time',
+        ]}
+        aria-label={labels.permalink}
+      >
         <time datetime={message.publishedAt} class="tabular-nums text-xs">{message.publishedLabel}</time>
       </a>
     </div>
@@ -193,23 +213,3 @@ const { message, detail = false, labels } = Astro.props;
   document.addEventListener('astro:page-load', installMomentCardLinks);
   document.addEventListener('astro:page-load', installMomentCopyButtons);
 </script>
-
-<style>
-  .moments-message-card {
-    box-shadow:
-      0 0 0 1px hsl(var(--border) / 0.85),
-      0 12px 28px -22px rgb(0 0 0 / 0.42);
-  }
-
-  @media (hover: hover) and (prefers-reduced-motion: no-preference) {
-    .moments-message-card {
-      transition: box-shadow 150ms ease-out;
-    }
-
-    .moments-message-card:hover {
-      box-shadow:
-        0 0 0 1px hsl(var(--primary) / 0.28),
-        0 16px 32px -24px rgb(0 0 0 / 0.48);
-    }
-  }
-</style>
