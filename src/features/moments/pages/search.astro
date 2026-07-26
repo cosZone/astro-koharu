@@ -82,6 +82,7 @@ const nextHref = nextUrl ? `${nextUrl.pathname}${nextUrl.search}` : undefined;
       channels={channelViews}
       selectedChannelId={selectedChannel?.id}
       sort={sort}
+      showHint={!query}
       labels={{
         form: momentsLabels.searchForm,
         query: momentsLabels.searchQuery,
