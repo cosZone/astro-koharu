@@ -51,7 +51,10 @@ moments:
 
 ```bash
 cp deploy/koharu-stack/.env.example deploy/koharu-stack/.env
+chmod 600 deploy/koharu-stack/.env
 ```
+
+`chmod 600` 让 `.env` 只对当前服务器用户可读写，避免同一台主机上的其他普通用户直接读取密码和 Bot token。
 
 编辑 `.env`：
 
@@ -114,6 +117,9 @@ docker compose --env-file deploy/koharu-stack/.env \
   -f deploy/koharu-stack/compose.yaml up -d --build
 ```
 
+Caddy 与 Astro 不等待 suite 或数据库健康后才启动：数据库临时不可用时，博客首页和反向代理仍能启动，
+只有依赖 suite 的动态路由暂时失败。所有容器日志采用 `10 MiB × 5` 的轮转上限，避免默认 JSON 日志无限占用磁盘。
+
 第一次启动时 Caddy 需要等待 DNS 生效并申请证书。查看状态与日志：
 
 ```bash
@@ -126,13 +132,21 @@ docker compose --env-file deploy/koharu-stack/.env \
 
 ## 4. 验收
 
-加载变量并运行 smoke：
+只传入两个公开域名并运行 smoke。脚本仍通过 Compose 的 `--env-file` 读取容器配置，不会把密码和 token
+加载进当前 shell：
 
 ```bash
-set -a
-. deploy/koharu-stack/.env
-set +a
+BLOG_DOMAIN=blog.example.com \
+SUITE_DOMAIN=suite.example.com \
 ./deploy/koharu-stack/smoke.sh
+```
+
+如果 `config/site.yaml` 使用了自定义路径，把同一个相对路径作为参数传入，例如：
+
+```bash
+BLOG_DOMAIN=blog.example.com \
+SUITE_DOMAIN=suite.example.com \
+./deploy/koharu-stack/smoke.sh life/moments
 ```
 
 然后人工完成一次最小链路：

@@ -10,6 +10,12 @@ x-postgres-environment: &postgres-environment
 x-koharu-image: &koharu-image
   image: ${KOHARU_IMAGE:?Set KOHARU_IMAGE to an exact released tag in .env}
 
+x-default-logging: &default-logging
+  driver: json-file
+  options:
+    max-file: '5'
+    max-size: 10m
+
 services:
   postgres:
     image: postgres:18-alpine
@@ -22,6 +28,7 @@ services:
       interval: 5s
       timeout: 5s
       retries: 10
+    logging: *default-logging
     restart: unless-stopped
     volumes:
       - postgres-data:/var/lib/postgresql
@@ -35,6 +42,7 @@ services:
     environment:
       <<: *postgres-environment
     init: true
+    logging: *default-logging
     restart: 'no'
 
   suite-server:
@@ -69,6 +77,7 @@ services:
       retries: 5
       start_period: 10s
     init: true
+    logging: *default-logging
     restart: unless-stopped
     stop_grace_period: 30s
     volumes:
@@ -95,6 +104,7 @@ services:
       retries: 5
       start_period: 15s
     init: true
+    logging: *default-logging
     restart: unless-stopped
     stop_grace_period: 30s
     volumes:
@@ -108,24 +118,17 @@ services:
       target: dynamic
       args:
         KOHARU_SUITE_URL: https://${SUITE_DOMAIN:?Set SUITE_DOMAIN in .env}
-    depends_on:
-      suite-server:
-        condition: service_healthy
     environment:
       HOST: 0.0.0.0
       KOHARU_SUITE_URL: https://${SUITE_DOMAIN:?Set SUITE_DOMAIN in .env}
       PORT: 4321
     expose:
       - '4321'
+    logging: *default-logging
     restart: unless-stopped
 
   caddy:
     image: caddy:2.11.4-alpine
-    depends_on:
-      astro-koharu:
-        condition: service_healthy
-      suite-server:
-        condition: service_healthy
     environment:
       ACME_EMAIL: ${ACME_EMAIL:?Set ACME_EMAIL in .env}
       BLOG_DOMAIN: ${BLOG_DOMAIN:?Set BLOG_DOMAIN in .env}
@@ -139,6 +142,7 @@ services:
       - '80:80'
       - '443:443'
       - '443:443/udp'
+    logging: *default-logging
     restart: unless-stopped
     volumes:
       - ./Caddyfile:/etc/caddy/Caddyfile:ro
