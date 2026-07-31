@@ -80,6 +80,16 @@ export interface FeaturedSeriesItem {
  */
 export type FeaturedSeries = FeaturedSeriesItem;
 
+/**
+ * Runtime site configuration: {@link SiteBasicConfig} with `url` renamed to
+ * `site` and featured content normalized.
+ */
+export type ResolvedSiteConfig = Omit<SiteBasicConfig, 'url'> & {
+  site: string;
+  featuredCategories?: FeaturedCategory[];
+  featuredSeries: FeaturedSeriesItem[];
+};
+
 // =============================================================================
 // Social Configuration
 // =============================================================================
@@ -145,19 +155,27 @@ export interface AnnouncementConfig {
 // Content Processing Configuration
 // =============================================================================
 
+/** Post card cover placement on list pages. */
+export type PostCardImagePosition = 'alternating' | 'left' | 'right';
+
+/**
+ * Raw `content:` section of `config/site.yaml`. Every field is optional —
+ * use {@link ResolvedContentConfig} for the value consumers see.
+ */
 export interface ContentConfig {
-  addBlankTarget: boolean;
-  smoothScroll: boolean;
-  addHeadingLevel: boolean;
-  enhanceCodeBlock: boolean;
-  enableCodeCopy: boolean;
-  enableCodeFullscreen: boolean;
-  enableLinkEmbed: boolean;
-  enableTweetEmbed: boolean;
-  enableOGPreview: boolean;
-  enableCodePenEmbed: boolean;
-  previewCacheTime: number;
-  lazyLoadEmbeds: boolean;
+  addBlankTarget?: boolean;
+  smoothScroll?: boolean;
+  addHeadingLevel?: boolean;
+  enhanceCodeBlock?: boolean;
+  enableCodeCopy?: boolean;
+  enableCodeFullscreen?: boolean;
+  enableLinkEmbed?: boolean;
+  enableTweetEmbed?: boolean;
+  enableOGPreview?: boolean;
+  enableCodePenEmbed?: boolean;
+  previewCacheTime?: number;
+  lazyLoadEmbeds?: boolean;
+  postCardImagePosition?: PostCardImagePosition;
   // Shoka compatibility features
   enableShokaContainers?: boolean;
   enableShokaAttrs?: boolean;
@@ -170,6 +188,9 @@ export interface ContentConfig {
   enableQuiz?: boolean;
   enableEncryptedBlock?: boolean;
 }
+
+/** Content config after defaults are applied — no optional fields. */
+export type ResolvedContentConfig = Required<ContentConfig>;
 
 // =============================================================================
 // Navigation

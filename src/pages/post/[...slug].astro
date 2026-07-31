@@ -59,7 +59,7 @@ const { Content } = await render(post);
 const { title, categories = [], tags = [], date, math: postMath, keywords: postKeywords = [] } = post?.data ?? {};
 // KaTeX CSS: only load when global enableMath is on AND post hasn't opted out.
 // When enableMath is false globally, rehype-katex is not in the pipeline, so no math is rendered.
-const hasMath = defaultContentConfig.enableMath !== false && postMath !== false;
+const hasMath = defaultContentConfig.enableMath && postMath !== false;
 
 // 使用统一的工具函数获取文章描述（加密文章使用通用描述）
 const finalDescription = getPostDescription(post, locale);

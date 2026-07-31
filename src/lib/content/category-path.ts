@@ -3,7 +3,7 @@
  * Extracted to break the circular dependency: posts → categories → posts.
  */
 
-import { categoryMap } from '@constants/category';
+import { categoryMap } from '@lib/config/site';
 import { encodeSlug } from '../route';
 
 /**

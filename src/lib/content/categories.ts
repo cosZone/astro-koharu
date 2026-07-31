@@ -2,7 +2,7 @@
  * Category-related utility functions
  */
 
-import { categoryMap } from '@constants/category';
+import { categoryMap } from '@lib/config/site';
 import { getContentFeaturedCategoryField, getContentSeriesField } from '@/i18n/content';
 import type { Locale } from '@/i18n/types';
 import { encodeSlug } from '../route';

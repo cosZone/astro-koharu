@@ -31,8 +31,8 @@ const spoilerRevealLabel = t(getLocaleFromUrl(Astro.url.pathname), 'content.reve
     client:idle
     enableCopy={finalConfig.enableCodeCopy}
     enableFullscreen={finalConfig.enableCodeFullscreen}
-    enableQuiz={finalConfig.enableQuiz ?? true}
-    enableEncryptedBlock={finalConfig.enableEncryptedBlock ?? false}
+    enableQuiz={finalConfig.enableQuiz}
+    enableEncryptedBlock={finalConfig.enableEncryptedBlock}
   />
 )}
 

@@ -4,7 +4,7 @@
 
 import { type CollectionEntry, getCollection } from 'astro:content';
 import summaries from '@assets/summaries.json';
-import { siteConfig } from '@constants/site-config';
+import { siteConfig } from '@lib/config/site';
 import type { FeaturedSeriesItem } from '@lib/config/types';
 import readingTime from 'reading-time';
 import type { BlogPost } from 'types/blog';

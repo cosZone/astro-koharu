@@ -1,4 +1,4 @@
-import { categoryMap } from '@constants/category';
+import { categoryMap } from '@lib/config/site';
 import { getContentCategoryName } from '@/i18n/content';
 import type { Locale } from '@/i18n/types';
 

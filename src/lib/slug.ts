@@ -5,8 +5,8 @@
  * using the `transliteration` library. Gated by `enableSlugTransliteration`.
  */
 
+import { siteConfig } from '@lib/config/site';
 import { slugify } from 'transliteration';
-import { siteConfig } from '@/constants/site-config';
 
 /**
  * Transliterate a slug containing non-ASCII characters to ASCII.

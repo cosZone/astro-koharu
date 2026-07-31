@@ -5,7 +5,7 @@
  * All date display should use these utilities to ensure consistent timezone handling.
  */
 
-import { siteTimezone } from '@constants/site-config';
+import { siteTimezone } from '@lib/config/site';
 import { formatInTimeZone, fromZonedTime, toDate } from 'date-fns-tz';
 
 /**

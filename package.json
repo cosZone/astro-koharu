@@ -31,6 +31,8 @@
     "koharu": "npx tsx scripts/koharu.tsx",
     "migrate": "pnpm koharu migrate",
     "save-slugs": "npx tsx scripts/save-slugs.ts",
+    "test": "npm run test:config && npm run test:migrate && npm run test:moments",
+    "test:config": "tsx --test src/lib/config/content.test.ts src/lib/config/featured-series.test.ts",
     "test:migrate": "tsx --test scripts/koharu/utils/*.test.ts",
     "test:moments": "tsx --test src/lib/config/moments.test.ts tests/moments/*.test.ts",
     "test:moments:smoke": "bash tests/moments/smoke.sh",
