@@ -5,9 +5,10 @@
  * Uses custom hooks for state management and sub-components for better organization.
  */
 
-import { useActiveHeading, useExpandedState, useHeadingClickHandler, useHeadingTree } from '@hooks/index';
+import { useTocController } from '@hooks/useTocController';
 import { useTranslation } from '@hooks/useTranslation';
 import { HeadingList } from './HeadingList';
+import { TocProvider } from './TocContext';
 
 // Constants
 const SCROLL_OFFSET_TOP = 120; // Offset for header height when detecting active heading
@@ -27,17 +28,7 @@ interface TableOfContentsProps {
  */
 export function TableOfContents({ defaultExpanded = false, enableNumbering = true }: TableOfContentsProps = {}) {
   const { t } = useTranslation();
-  // Use custom hooks for heading tree, active heading, and expand/collapse state
-  const headings = useHeadingTree();
-  const activeId = useActiveHeading({ offsetTop: SCROLL_OFFSET_TOP });
-  const { expandedIds, setExpandedIds } = useExpandedState({
-    headings,
-    activeId,
-    defaultExpanded,
-  });
-
-  // Handle heading click - scroll to heading and update expand state with accordion behavior
-  const handleHeadingClick = useHeadingClickHandler({ headings, setExpandedIds });
+  const { headings, toc } = useTocController({ offsetTop: SCROLL_OFFSET_TOP, defaultExpanded });
 
   // Empty state
   if (headings.length === 0) {
@@ -53,13 +44,9 @@ export function TableOfContents({ defaultExpanded = false, enableNumbering = tru
       className={`toc-container vertical-scrollbar scroll-gutter-stable flex h-full flex-col gap-2 overflow-auto pr-1 md:pb-3 md:pl-1 ${enableNumbering ? '' : 'toc-no-numbering'}`}
       aria-label={t('toc.title')}
     >
-      <HeadingList
-        headings={headings}
-        depth={0}
-        activeId={activeId}
-        expandedIds={expandedIds}
-        onHeadingClick={handleHeadingClick}
-      />
+      <TocProvider value={toc}>
+        <HeadingList headings={headings} />
+      </TocProvider>
     </nav>
   );
 }

@@ -17,7 +17,7 @@ export { type UseExpandedStateOptions, type UseExpandedStateReturn, useExpandedS
 export { type UseFloatingUIOptions, useFloatingUI } from './useFloatingUI';
 export { type UseHeadingClickHandlerOptions, useHeadingClickHandler } from './useHeadingClickHandler';
 // TableOfContents-specific hooks
-export { findHeadingById, getParentIds, getSiblingIds, type Heading, useHeadingTree } from './useHeadingTree';
+export { useHeadingTree } from './useHeadingTree';
 // Theme state hook (monitors actual page theme, not system preference)
 export { useIsDarkTheme } from './useIsDarkTheme';
 // Utility hooks
@@ -29,12 +29,7 @@ export { useIsMobile, useIsTablet, useMediaQuery, usePrefersColorSchemeDark, use
 // Timer management
 export { useRetimer } from './useRetimer';
 // Scroll state hooks
-export {
-  type ScrollTriggerState,
-  type UseScrollTriggerOptions,
-  useScrolledPast,
-  useScrollTrigger,
-  useScrollY,
-} from './useScrollTrigger';
+export { type ScrollTriggerState, type UseScrollTriggerOptions, useScrollTrigger } from './useScrollTrigger';
+export { type UseTocControllerOptions, type UseTocControllerReturn, useTocController } from './useTocController';
 // Zoom and pan for fullscreen viewers
 export { type UseZoomPanReturn, useZoomPan } from './useZoomPan';

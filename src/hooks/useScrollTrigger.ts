@@ -23,7 +23,7 @@
  * ```
  */
 
-import { useMemo, useSyncExternalStore } from 'react';
+import { useSyncExternalStore } from 'react';
 
 export interface UseScrollTriggerOptions {
   /**
@@ -204,35 +204,24 @@ function createScrollStore(options: UseScrollTriggerOptions = {}) {
   };
 }
 
-export function useScrollTrigger(options: UseScrollTriggerOptions = {}): ScrollTriggerState {
-  const { triggerDistance, isPixels, throttleMs, skipFirstScroll } = options;
+const stores = new Map<string, ReturnType<typeof createScrollStore>>();
 
-  const store = useMemo(
-    () => createScrollStore({ triggerDistance, isPixels, throttleMs, skipFirstScroll }),
-    [triggerDistance, isPixels, throttleMs, skipFirstScroll],
-  );
+/**
+ * Module-level cached store lookup. Deliberately not `useMemo` — React may drop
+ * a memo at any time, which would split subscribers across several listeners.
+ */
+function getScrollStore(options: UseScrollTriggerOptions): ReturnType<typeof createScrollStore> {
+  const key = `${options.triggerDistance}|${options.isPixels}|${options.throttleMs}|${options.skipFirstScroll}`;
+  let store = stores.get(key);
+  if (!store) {
+    store = createScrollStore(options);
+    stores.set(key, store);
+  }
+  return store;
+}
+
+export function useScrollTrigger(options: UseScrollTriggerOptions = {}): ScrollTriggerState {
+  const store = getScrollStore(options);
 
   return useSyncExternalStore(store.subscribe, store.getSnapshot, store.getServerSnapshot);
-}
-
-/**
- * Simple hook to get current scroll position
- * @deprecated Use `useScrollTrigger({ skipFirstScroll: false }).scrollY`.
- */
-export function useScrollY(): number {
-  const { scrollY } = useScrollTrigger({ skipFirstScroll: false });
-  return scrollY;
-}
-
-/**
- * Hook to detect if scrolled past a threshold
- * @deprecated Use `useScrollTrigger` when scroll state or direction is also needed.
- */
-export function useScrolledPast(threshold: number, isPixels = true): boolean {
-  const { isBeyond } = useScrollTrigger({
-    triggerDistance: threshold,
-    isPixels,
-    skipFirstScroll: false,
-  });
-  return isBeyond;
 }
