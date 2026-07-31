@@ -136,7 +136,7 @@ export interface ContentConfig {
   // 是否启用 OG 链接预览
   enableOGPreview: boolean;
 
-  // 预览数据缓存时间(秒)
+  // 预览数据缓存时间(天), v4.x 起单位由秒改为天
   previewCacheTime: number;
 
   // 是否懒加载嵌入内容
@@ -149,7 +149,7 @@ export const defaultContentConfig: ContentConfig = {
   enableTweetEmbed: true,
   enableOGPreview: true,
   enableCodePenEmbed: true,
-  previewCacheTime: 30, // 30 days
+  previewCacheTime: 30, // 30 天
   lazyLoadEmbeds: true,
 };
 ```
