@@ -12,7 +12,6 @@ type HomeSiderSegmentedProps = {
   className?: string;
   indicateClass?: string;
   itemClass?: string;
-  id?: string;
   value?: HomeSiderSegmentType; // 受控
 };
 

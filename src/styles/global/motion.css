@@ -11,8 +11,7 @@ html.motion-off .typewriter-cursor,
 html.motion-off .audio-player-disc,
 html.motion-off .lightrope li,
 html.motion-off .animate-ping,
-html.motion-off .sider-slot.entering,
-html.motion-off .sider-slot.exiting {
+html.motion-off .sider-slot.entering {
   /* html.motion-off … outranks the single-class animation definitions, so no !important needed. */
   animation: none;
 }
@@ -26,8 +25,7 @@ html.motion-off .sider-slot.exiting {
   .audio-player-disc,
   .lightrope li,
   .animate-ping,
-  .sider-slot.entering,
-  .sider-slot.exiting {
+  .sider-slot.entering {
     /* biome-ignore lint/complexity/noImportantStyles: same specificity as the source animations, which are imported after this file, so !important is required to win. */
     animation: none !important;
   }

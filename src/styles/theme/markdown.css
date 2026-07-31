@@ -6,8 +6,12 @@
   /* Preserve the original full-width layout until the reader chooses a custom measure.
      JavaScript converts that measure to px so differently sized children share one width. */
   width: 100%;
+  min-width: 0;
   max-width: var(--reader-measure, none);
   margin-inline: auto;
+
+  /* Emergency wrapping keeps unknown long text from widening the document. */
+  overflow-wrap: anywhere;
 
   /* Progressive CJK typography enhancements. */
   word-break: auto-phrase;
@@ -41,6 +45,10 @@
     /* 字体 */
     font-size: 0.9em;
     font-weight: 500;
+
+    word-break: break-word;
+    -webkit-box-decoration-break: clone;
+    box-decoration-break: clone;
 
     /* Hover 效果 */
     transition:
