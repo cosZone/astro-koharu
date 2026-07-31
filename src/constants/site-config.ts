@@ -14,7 +14,6 @@ import {
   featuredSeriesList,
   i18nConfig,
   siteConfig,
-  siteTimezone,
 } from '@lib/config/site';
 import type {
   AnalyticsConfig,
@@ -31,7 +30,7 @@ import type { UmamiStatsConfig } from '@/types/umami-stats';
 import yamlConfig from '../../config/site.yaml';
 import { DEFAULT_ROUTERS, RESERVED_ROUTES } from './router';
 
-export { contentConfig, i18nConfig, siteConfig, siteTimezone };
+export { contentConfig, i18nConfig, siteConfig };
 
 export const socialConfig: SocialConfig = yamlConfig.social ?? {};
 
