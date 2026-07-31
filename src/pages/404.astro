@@ -4,17 +4,35 @@ import Cover from '@components/ui/cover/Cover.astro';
 import Layout from '@layouts/Layout.astro';
 import TwoColumnLayout from '@layouts/TwoColumnLayout.astro';
 import { Icon } from 'astro-icon/components';
-import { getLocaleFromUrl, localizedPath, t } from '@/i18n';
+import { defaultLocale, getHtmlLang, localeList, localizedPath, t } from '@/i18n';
 
-const locale = getLocaleFromUrl(Astro.url.pathname);
+// Static hosts serve a single /404.html for every unknown URL, so this page cannot be
+// pre-rendered per locale. It ships the default locale and re-localizes itself from
+// the requested pathname on load (see the inline script at the end of the template).
+const locale = defaultLocale;
 const title = `404 - ${t(locale, 'notFound.title')}`;
 const description = t(locale, 'notFound.description');
+
+const localeCopy = Object.fromEntries(
+  localeList.map((loc) => [
+    loc,
+    {
+      htmlLang: getHtmlLang(loc),
+      title: `404 - ${t(loc, 'notFound.title')}`,
+      message: t(loc, 'notFound.message'),
+      backHome: t(loc, 'notFound.backHome'),
+      browseArchives: t(loc, 'notFound.browseArchives'),
+      homeHref: localizedPath('/', loc),
+      archivesHref: localizedPath('/archives', loc),
+    },
+  ]),
+);
 
 // Debug flag: Set to true to pause animation at the "Cat" shape for inspection
 const DEBUG_CAT_STATE = false;
 ---
 
-<Layout title={title} description={description}>
+<Layout locale={locale} title={title} description={description}>
   <TwoColumnLayout>
     <Cover slot="cover" title="404" />
     <HomeSider slot="sider" />
@@ -93,20 +111,43 @@ const DEBUG_CAT_STATE = false;
         </svg>
 
         <div class="message-container">
-          <p class="fade-text">{t(locale, 'notFound.message')}</p>
+          <p class="fade-text" data-nf-text="message">{t(locale, 'notFound.message')}</p>
         </div>
 
         <div class="actions">
-           <a href={localizedPath('/', locale)} class="action-btn home-btn">
+           <a href={localizedPath('/', locale)} class="action-btn home-btn" data-nf-link="home">
             <Icon name="fa6-solid:house-chimney" />
-            <span>{t(locale, 'notFound.backHome')}</span>
+            <span data-nf-text="backHome">{t(locale, 'notFound.backHome')}</span>
           </a>
-          <a href={localizedPath('/archives', locale)} class="action-btn archive-btn">
+          <a href={localizedPath('/archives', locale)} class="action-btn archive-btn" data-nf-link="archives">
             <Icon name="ri:archive-2-fill" />
-            <span>{t(locale, 'notFound.browseArchives')}</span>
+            <span data-nf-text="browseArchives">{t(locale, 'notFound.browseArchives')}</span>
           </a>
         </div>
       </div>
+
+  <script is:inline define:vars={{ localeCopy, defaultLocale }}>
+    // The single pre-rendered 404.html must serve every locale, so resolve the locale
+    // from the requested pathname and swap in the matching copy.
+    (function () {
+      function localize() {
+        var segment = window.location.pathname.split('/').filter(Boolean)[0];
+        var copy = localeCopy[segment && segment !== defaultLocale ? segment : defaultLocale];
+        if (!copy) return;
+        document.title = copy.title;
+        document.documentElement.lang = copy.htmlLang;
+        for (var node of document.querySelectorAll('[data-nf-text]')) {
+          node.textContent = copy[node.dataset.nfText];
+        }
+        for (var link of document.querySelectorAll('[data-nf-link]')) {
+          link.setAttribute('href', copy[link.dataset.nfLink + 'Href']);
+        }
+      }
+
+      localize();
+      document.addEventListener('astro:page-load', localize);
+    })();
+  </script>
 
 <style>
   .cat-404-container {

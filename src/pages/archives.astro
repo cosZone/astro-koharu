@@ -7,10 +7,15 @@ import TwoColumnLayout from '@layouts/TwoColumnLayout.astro';
 import { getPostSlug, getSortedPosts } from '@lib/content';
 import { displayDate } from '@lib/date';
 import { encodeSlug } from '@lib/route';
-import { getLocaleFromUrl, localizedPath, t } from '@/i18n';
+import { defaultLocale, localizedPath, t } from '@/i18n';
 import Layout from '../layouts/Layout.astro';
 
-const locale = getLocaleFromUrl(Astro.url.pathname);
+interface Props {
+  locale?: string;
+}
+
+// Root pages render the default locale; `[lang]/` mirrors pass their locale in explicitly.
+const { locale = defaultLocale } = Astro.props;
 const posts = await getSortedPosts(locale);
 
 // 按年份对文章进行分组
@@ -29,7 +34,7 @@ const postsByYear = posts.reduce(
 const years = Object.keys(postsByYear).sort((a, b) => Number(b) - Number(a));
 ---
 
-<Layout title={`${t(locale, 'archives.title')} | ${siteConfig.title}`} description={t(locale, 'archives.title')}>
+<Layout locale={locale} title={`${t(locale, 'archives.title')} | ${siteConfig.title}`} description={t(locale, 'archives.title')}>
   <TwoColumnLayout>
     <Cover slot="cover" title={t(locale, 'archives.title')} />
     <HomeSider slot="sider" />

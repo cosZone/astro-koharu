@@ -1,28 +1,15 @@
 ---
-import { getCategoryByLink, getCategoryLinks, getCategoryList } from '@lib/content';
-import { defaultLocale, localeList } from '@/i18n/config';
+import type { Category } from '@lib/content';
+import { categoryRoute } from '../../_shared/routes';
 import CategoryPage from '../../categories/[...slug].astro';
 
-export async function getStaticPaths() {
-  const nonDefaultLocales = localeList.filter((l) => l !== defaultLocale);
-  const paths = [];
+export const getStaticPaths = categoryRoute.mirror;
 
-  for (const lang of nonDefaultLocales) {
-    const { categories } = await getCategoryList(lang);
-    const links = getCategoryLinks(categories, '');
-
-    for (const link of links) {
-      const category = getCategoryByLink(categories, link);
-      paths.push({
-        params: { lang, slug: link },
-        props: { category },
-      });
-    }
-  }
-
-  return paths;
+interface Props {
+  category: Category | null;
+  locale: string;
 }
 
-const { category } = Astro.props;
+const { category, locale } = Astro.props;
 ---
-<CategoryPage category={category} />
+<CategoryPage category={category} locale={locale} />

@@ -1,0 +1,172 @@
+---
+/**
+ * Pre-paint bootstrapping: everything the document must settle *before* the first
+ * frame (theme, seasonal effects, reader settings) plus the no-JS fallback style.
+ *
+ * These scripts are `is:inline` on purpose — they must run synchronously during
+ * head parsing. Treat them as frozen: any deferral or refactor reintroduces FOUC.
+ */
+
+import { christmasConfig } from '@constants/site-config';
+import {
+  FONT_PRESETS,
+  GENERAL_DEFAULTS,
+  READER_DEFAULTS,
+  READER_FONT_FAMILY_MAX_LENGTH,
+  STORAGE_KEYS,
+  WENKAI_STYLESHEET_HREF,
+  WENKAI_STYLESHEET_ID,
+} from '@store/settings-constants';
+---
+
+<script is:inline>
+  // 主题系统 - 立即执行以防止 FOUC（无样式内容闪烁）
+  // 优先级：1. 用户手动选择 > 2. 系统偏好
+  (function() {
+    function getTheme() {
+      // 用户明确选择了主题
+      if (localStorage.theme === 'dark') return 'dark';
+      if (localStorage.theme === 'light') return 'light';
+      // 未设置，跟随系统偏好
+      return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
+
+    function applyTheme(theme) {
+      var root = document.documentElement;
+      root.classList.toggle('dark', theme === 'dark');
+      root.dataset.theme = theme; // For astro-mermaid autoTheme
+    }
+
+    // 立即应用主题
+    applyTheme(getTheme());
+
+    // 监听系统主题偏好变化
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function() {
+      // 仅当用户未明确选择主题时自动切换
+      if (!('theme' in localStorage)) {
+        applyTheme(getTheme());
+      }
+    });
+
+    // View Transition 切换页面后重新应用主题（在 DOM 渲染前）
+    document.addEventListener('astro:after-swap', function() {
+      applyTheme(getTheme());
+    });
+  })();
+</script>
+<script is:inline define:vars={{ christmasFeatureEnabled: christmasConfig.enabled }}>
+  // 立即执行圣诞状态检查 否则彩灯等会闪烁
+  (function () {
+    // 如果构建时配置关闭，则始终不启用
+    if (!christmasFeatureEnabled) {
+      document.documentElement.classList.remove('christmas');
+      return;
+    }
+    // 否则使用用户偏好
+    var stored = localStorage.getItem('christmas-enabled');
+    var enabled = stored !== 'false'; // 默认启用
+    document.documentElement.classList.toggle('christmas', enabled);
+  })();
+</script>
+
+<script
+  is:inline
+  define:vars={{ STORAGE_KEYS, READER_DEFAULTS, READER_FONT_FAMILY_MAX_LENGTH, GENERAL_DEFAULTS, FONT_PRESETS, WENKAI_STYLESHEET_ID, WENKAI_STYLESHEET_HREF }}
+>
+  // Apply settings immediately to prevent a flash of default reader styles.
+  // Defaults and keys are injected from src/store/settings-constants.ts (single source of truth).
+  (function () {
+    function readPositiveNumber(key, fallback) {
+      var stored = parseFloat(localStorage.getItem(key));
+      return isFinite(stored) && stored > 0 ? stored : fallback;
+    }
+    function readOptionalPositiveNumber(key) {
+      var stored = parseFloat(localStorage.getItem(key));
+      return isFinite(stored) && stored > 0 ? stored : null;
+    }
+    function readBoolean(key, fallback) {
+      var stored = localStorage.getItem(key);
+      return stored === null ? fallback : stored === 'true';
+    }
+    function quoteFontFamily(family) {
+      var serialized = '"';
+      for (var character of family) {
+        var codePoint = character.codePointAt(0);
+        if (codePoint === 0) {
+          serialized += '\uFFFD';
+        } else if ((codePoint >= 0x01 && codePoint <= 0x1f) || codePoint === 0x7f) {
+          serialized += '\\' + codePoint.toString(16) + ' ';
+        } else if (character === '"' || character === '\\') {
+          serialized += '\\' + character;
+        } else {
+          serialized += character;
+        }
+      }
+      return serialized + '"';
+    }
+    function applySettings() {
+      var root = document.documentElement;
+      var stored = localStorage.getItem(STORAGE_KEYS.fontPreset);
+      var preset = FONT_PRESETS.indexOf(stored) !== -1 ? stored : READER_DEFAULTS.fontPreset;
+      root.setAttribute('data-font-preset', preset);
+      var fontFamily = (localStorage.getItem(STORAGE_KEYS.fontFamily) || '')
+        .trim()
+        .slice(0, READER_FONT_FAMILY_MAX_LENGTH);
+      if (fontFamily) {
+        root.setAttribute('data-reader-font', 'local');
+        root.style.setProperty('--reader-font-family', quoteFontFamily(fontFamily));
+      } else {
+        root.removeAttribute('data-reader-font');
+        root.style.removeProperty('--reader-font-family');
+      }
+      var fontSize = readPositiveNumber(STORAGE_KEYS.fontSize, READER_DEFAULTS.fontSize);
+      root.style.setProperty('--reader-font-size', fontSize + 'px');
+      root.style.setProperty('--reader-line-height', String(readPositiveNumber(STORAGE_KEYS.lineHeight, READER_DEFAULTS.lineHeight)));
+      var measure = readOptionalPositiveNumber(STORAGE_KEYS.measure);
+      if (measure === null) {
+        root.style.removeProperty('--reader-measure');
+      } else {
+        // Convert ch to px so headings and body text share one absolute content width.
+        root.style.setProperty('--reader-measure', measure * 0.5 * fontSize + 'px');
+      }
+      root.classList.toggle('reader-justify', readBoolean(STORAGE_KEYS.justify, READER_DEFAULTS.justify));
+      root.classList.toggle('motion-off', readBoolean(STORAGE_KEYS.masterMotion, GENERAL_DEFAULTS.masterMotion));
+      root.classList.toggle('wave-off', !readBoolean(STORAGE_KEYS.wave, GENERAL_DEFAULTS.wave));
+      // Load WenKai only when the matching preset is selected.
+      if (preset === 'wenkai' && !fontFamily && !document.getElementById(WENKAI_STYLESHEET_ID)) {
+        var link = document.createElement('link');
+        link.id = WENKAI_STYLESHEET_ID;
+        link.rel = 'stylesheet';
+        link.href = WENKAI_STYLESHEET_HREF;
+        document.head.appendChild(link);
+      }
+    }
+
+    // Apply before the first frame.
+    applySettings();
+
+    // Reapply before Astro renders the swapped page.
+    document.addEventListener('astro:after-swap', applySettings);
+  })();
+</script>
+
+<noscript>
+  <style is:inline>
+    /* Long code blocks ship pre-collapsed; without JS the toolbar never hydrates, so force them open. */
+    html .prose .code-block-wrapper.code-collapsed > pre {
+      grid-template-rows: 1fr;
+      border-width: 1px;
+      border-radius: 0.75rem;
+      box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+    }
+    html .prose .code-block-wrapper.code-collapsed > pre > code {
+      max-height: none;
+      overflow-x: auto;
+      overflow-y: visible;
+      padding-block: 1rem;
+    }
+    html .prose .code-block-wrapper.code-collapsed > .code-block-wrapper-toolbar-mount {
+      display: none;
+    }
+  </style>
+</noscript>

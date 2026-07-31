@@ -2,5 +2,11 @@
 import { getLocaleStaticPaths } from '../_shared/utils';
 import FriendsPage from '../friends.astro';
 export const getStaticPaths = getLocaleStaticPaths;
+
+interface Props {
+  locale: string;
+}
+
+const { locale } = Astro.props;
 ---
-<FriendsPage />
+<FriendsPage locale={locale} />

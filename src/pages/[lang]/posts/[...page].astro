@@ -1,22 +1,16 @@
 ---
-import { PAGINATION } from '@constants/layout';
-import { getNonFeaturedPosts } from '@lib/content';
-import type { PaginateFunction } from 'astro';
-import { defaultLocale, localeList } from '@/i18n/config';
+import type { Page } from 'astro';
+import type { BlogPost } from 'types/blog';
+import { postListRoute } from '../../_shared/routes';
 import PostListPage from '../../posts/[...page].astro';
 
-export async function getStaticPaths({ paginate }: { paginate: PaginateFunction }) {
-  const nonDefaultLocales = localeList.filter((l) => l !== defaultLocale);
-  const paths = [];
+export const getStaticPaths = postListRoute.mirror;
 
-  for (const lang of nonDefaultLocales) {
-    const posts = await getNonFeaturedPosts(lang);
-    paths.push(...paginate(posts, { pageSize: PAGINATION.pageSize, params: { lang } }));
-  }
-
-  return paths;
+interface Props {
+  page: Page<BlogPost>;
+  locale: string;
 }
 
-const { page } = Astro.props;
+const { page, locale } = Astro.props;
 ---
-<PostListPage page={page} />
+<PostListPage page={page} locale={locale} />

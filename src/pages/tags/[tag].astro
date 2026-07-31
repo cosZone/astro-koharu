@@ -8,32 +8,22 @@ import TwoColumnLayout from '@layouts/TwoColumnLayout.astro';
 import { getPostLastCategory, getPostSlug, getSortedPosts, normalizeTag, translateCategoryName } from '@lib/content';
 import { displayDate } from '@lib/date';
 import { encodeSlug } from '@lib/route';
-import { defaultLocale, getLocaleFromUrl, localizedPath, t } from '@/i18n';
+import { localizedPath, t } from '@/i18n';
+import { tagRoute } from '../_shared/routes';
 
-export async function getStaticPaths() {
-  const posts = await getSortedPosts(defaultLocale);
-  const tags = new Set<string>();
+export const getStaticPaths = tagRoute.root;
 
-  for (const post of posts) {
-    const postTags = post.data.tags || [];
-    for (const tag of postTags) {
-      tags.add(normalizeTag(tag));
-    }
-  }
-
-  return Array.from(tags).map((tag) => ({
-    params: { tag: normalizeTag(tag).replace(/\//g, '-') },
-    props: { tag },
-  }));
+interface Props {
+  tag: string;
+  locale: string;
 }
 
-const { tag } = Astro.props;
-const locale = getLocaleFromUrl(Astro.url.pathname);
+const { tag, locale } = Astro.props;
 const allPosts = await getSortedPosts(locale);
 const posts = allPosts.filter((post) => post.data.tags?.some((tg) => normalizeTag(tg) === tag));
 ---
 
-<Layout title={`${t(locale, 'tag.postsWithTag', { name: tag })} | ${siteConfig.title}`} description={t(locale, 'tag.postsWithTag', { name: tag })}>
+<Layout locale={locale} title={`${t(locale, 'tag.postsWithTag', { name: tag })} | ${siteConfig.title}`} description={t(locale, 'tag.postsWithTag', { name: tag })}>
   <TwoColumnLayout>
     <Cover slot="cover" title={t(locale, 'tag.postsWithTag', { name: tag })} />
     <HomeSider slot="sider" />
