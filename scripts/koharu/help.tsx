@@ -1,6 +1,7 @@
 import { Box, Text } from 'ink';
 import { useEffect } from 'react';
-import { AUTO_EXIT_DELAY, usePressAnyKey, useRetimer } from './shared';
+import { AUTO_EXIT_DELAY } from './constants';
+import { usePressAnyKey, useRetimer } from './hooks';
 
 interface HelpAppProps {
   showReturnHint?: boolean;

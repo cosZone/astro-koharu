@@ -1,6 +1,8 @@
 import { Box, Text } from 'ink';
 import { useEffect, useState } from 'react';
-import { AUTO_EXIT_DELAY, BACKUP_DIR, type BackupInfo, getBackupList, usePressAnyKey, useRetimer } from './shared';
+import { AUTO_EXIT_DELAY, BACKUP_DIR } from './constants';
+import { usePressAnyKey, useRetimer } from './hooks';
+import { type BackupInfo, getBackupList } from './utils';
 
 interface ListAppProps {
   showReturnHint?: boolean;

@@ -6,27 +6,18 @@ import { CycleSelect as Select } from './components';
 import { AUTO_EXIT_DELAY } from './constants';
 import type { ReleaseInfo, UpdateOptions } from './constants/update';
 import { usePressAnyKey, useRetimer } from './hooks';
-import { runBackup } from './utils/backup-operations';
-import { statusEffects } from './utils/update-effects';
-import { abortMerge, abortRebase, buildReleaseUrl, extractReleaseSummary, fetchReleaseInfo } from './utils/update-operations';
-import { createInitialState, updateReducer } from './utils/update-reducer';
-
-/** 根据更新模式获取操作标签 */
-function getModeLabel(opts: { rebase: boolean; clean: boolean; isDowngrade?: boolean }): string {
-  if (opts.rebase) return 'Rebase';
-  if (opts.clean) return 'Clean 模式更新';
-  if (opts.isDowngrade) return '版本回退';
-  return '更新';
-}
-
-/** 生成确认提示文字 */
-function getConfirmMessage(opts: UpdateOptions, latestVersion: string, isDowngrade: boolean): string {
-  const target = opts.targetTag ? `版本 v${latestVersion}` : '最新版本';
-  if (opts.rebase) return `确认执行 rebase 到${opts.targetTag ? target : '上游最新'}？（历史将被重写）`;
-  if (opts.clean) return `确认执行 clean 模式更新到${target}？`;
-  if (isDowngrade) return `确认回退到版本 v${latestVersion}？`;
-  return `确认更新到${target}？`;
-}
+import {
+  abortMerge,
+  abortRebase,
+  buildReleaseUrl,
+  createInitialState,
+  extractReleaseSummary,
+  fetchReleaseInfo,
+  runBackup,
+  selectUpdatePresentation,
+  statusEffects,
+  updateReducer,
+} from './utils';
 
 interface UpdateAppProps {
   checkOnly?: boolean;
@@ -66,10 +57,10 @@ export function UpdateApp({
     backupFile,
     error,
     branchWarning,
-    needsMigration,
     restoredFiles,
     options: stateOptions,
   } = state;
+  const presentation = selectUpdatePresentation(state);
   const retimer = useRetimer();
 
   // 统一完成处理
@@ -227,12 +218,12 @@ export function UpdateApp({
       {/* Backup confirmation */}
       {status === 'backup-confirm' && (
         <Box flexDirection="column">
-          {stateOptions.rebase || stateOptions.clean ? (
+          {presentation.forceBackup ? (
             // Rebase/Clean 模式：强制备份，只能确认或取消整个流程
             <>
               <Box marginBottom={1} flexDirection="column">
                 <Text color="yellow" bold>
-                  ⚠ {stateOptions.rebase ? 'Rebase' : 'Clean'} 模式强制要求备份
+                  ⚠ {presentation.forcedBackupModeLabel} 模式强制要求备份
                 </Text>
                 {stateOptions.skipBackup && (
                   <Text color="yellow" dimColor>
@@ -286,7 +277,7 @@ export function UpdateApp({
       {status === 'preview' && updateInfo && (
         <Box flexDirection="column">
           {/* Rebase 模式警告 */}
-          {stateOptions.rebase && (
+          {presentation.showRebaseWarning && (
             <Box marginBottom={1}>
               <Text color="red" bold>
                 ⚠ REBASE 模式 - 历史将被重写！
@@ -303,7 +294,7 @@ export function UpdateApp({
           )}
 
           {/* 降级警告 */}
-          {updateInfo.isDowngrade && !stateOptions.rebase && (
+          {presentation.showDowngradeWarning && (
             <Box marginBottom={1} flexDirection="column">
               <Text color="yellow" bold>
                 ⚠ 这是一个降级操作，将回退到旧版本
@@ -406,7 +397,7 @@ export function UpdateApp({
           )}
 
           {/* 首次迁移提示 */}
-          {needsMigration && !stateOptions.rebase && !stateOptions.clean && (
+          {presentation.showMigrationHint && (
             <Box marginTop={1}>
               <Text color="yellow">⚠ 检测到首次从 squash merge 迁移，建议使用 --clean 模式获得零冲突体验</Text>
             </Box>
@@ -470,7 +461,7 @@ export function UpdateApp({
           ) : (
             !stateOptions.force && (
               <Box marginTop={1} flexDirection="column">
-                {updateInfo.isDowngrade && !backupFile && !stateOptions.rebase && (
+                {presentation.showUnbackedDowngradeWarning && (
                   <Box marginBottom={1}>
                     <Text color="red" bold>
                       ⚠ 警告: 未备份！降级后需要手动恢复您的博客内容
@@ -478,10 +469,12 @@ export function UpdateApp({
                   </Box>
                 )}
                 <Box flexDirection="column">
-                  <Text>{getConfirmMessage(stateOptions, updateInfo.latestVersion, updateInfo.isDowngrade)}</Text>
-                  {stateOptions.clean && <Text dimColor>{'  '}将使用 clean 模式：替换所有主题文件，还原用户内容</Text>}
-                  {!stateOptions.rebase && !stateOptions.clean && !updateInfo.isDowngrade && (
-                    <Text dimColor>{'  '}将使用 merge 合并上游更新</Text>
+                  <Text>{presentation.confirmMessage}</Text>
+                  {presentation.strategyNote && (
+                    <Text dimColor>
+                      {'  '}
+                      {presentation.strategyNote}
+                    </Text>
                   )}
                 </Box>
                 <ConfirmInput onConfirm={handleUpdateConfirm} onCancel={handleUpdateCancel} />
@@ -494,7 +487,7 @@ export function UpdateApp({
       {/* Merging */}
       {status === 'merging' && (
         <Box>
-          <Spinner label={`正在执行${getModeLabel({ ...stateOptions, isDowngrade: updateInfo?.isDowngrade })}...`} />
+          <Spinner label={`正在执行${presentation.modeLabel}...`} />
         </Box>
       )}
 
@@ -516,7 +509,7 @@ export function UpdateApp({
       {status === 'done' && (
         <Box flexDirection="column">
           <Text bold color="green">
-            {getModeLabel({ ...stateOptions, isDowngrade: updateInfo?.isDowngrade })}完成
+            {presentation.modeLabel}完成
           </Text>
           {updateInfo?.isDowngrade && !stateOptions.rebase && (
             <Text>

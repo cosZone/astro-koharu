@@ -5,7 +5,7 @@ import { CycleSelect as Select } from './components';
 import { AUTO_EXIT_DELAY } from './constants';
 import { DEFAULT_LLM_MODEL, GENERATE_ITEMS, type GenerateType } from './constants/generate';
 import { usePressAnyKey, useRetimer } from './hooks';
-import { checkLlmServer, type RunScriptResult, runGenerate, runGenerateAll } from './utils/generate-operations';
+import { checkLlmServer, type RunScriptResult, runGenerate, runGenerateAll } from './utils';
 
 type GenerateStatus = 'selecting' | 'model-input' | 'checking' | 'generating' | 'done' | 'error';
 type GenerateSelection = GenerateType | 'all' | 'cancel';
