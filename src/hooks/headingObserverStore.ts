@@ -116,13 +116,16 @@ function createHeadingObserverStore({ selector, offsetTop, scopeSelector }: Head
       }
     }
 
-    // During programmatic scroll, pin to the clicked heading to prevent flickering
+    // During programmatic scroll, pin to the clicked heading to prevent flickering.
+    // The lock is global, so an id outside this store's selector scope must still resolve normally.
     const locked = getLockedHeadingId();
     if (locked) {
-      cancelPendingRaf();
       const element = visible.get(locked)?.element ?? trackedHeadings.find((heading) => heading.id === locked);
-      if (element) update(toObservedHeading(element));
-      return;
+      if (element) {
+        cancelPendingRaf();
+        update(toObservedHeading(element));
+        return;
+      }
     }
 
     resolveCurrent();
