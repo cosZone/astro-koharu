@@ -59,6 +59,9 @@ importers:
       '@iconify-json/ri':
         specifier: ^1.2.6
         version: 1.2.6
+      '@iconify/react':
+        specifier: ^5.2.1
+        version: 5.2.1(react@19.2.1)
       '@nanostores/react':
         specifier: ^0.8.4
         version: 0.8.4(nanostores@0.11.4)(react@19.2.1)
@@ -236,6 +239,9 @@ importers:
       three:
         specifier: ^0.182.0
         version: 0.182.0
+      transliteration:
+        specifier: ^2.6.1
+        version: 2.6.1
       twikoo:
         specifier: ^1.6.44
         version: 1.6.44
@@ -261,9 +267,6 @@ importers:
       '@huggingface/transformers':
         specifier: ^3.8.1
         version: 3.8.1
-      '@iconify/react':
-        specifier: ^5.2.1
-        version: 5.2.1(react@19.2.1)
       '@inkjs/ui':
         specifier: ^2.0.0
         version: 2.0.0(ink@6.6.0(@types/react@19.2.7)(react@19.2.1))
@@ -342,9 +345,6 @@ importers:
       strip-markdown:
         specifier: ^6.0.0
         version: 6.0.0
-      transliteration:
-        specifier: ^2.6.1
-        version: 2.6.1
       tsx:
         specifier: ^4.21.0
         version: 4.21.0
