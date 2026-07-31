@@ -18,6 +18,7 @@ export const GET: APIRoute = async (context) => {
       channels: [channel],
       config: momentsConfig,
       description: momentsConfig.description,
+      hasMore: Boolean(page.nextCursor),
       messages: page.items.slice(0, 50),
       site: context.site,
       title: `${channel.title} · ${momentsConfig.title}`,

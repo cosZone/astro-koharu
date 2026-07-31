@@ -81,11 +81,15 @@ canonical 动态区域，不会复制为 `/en` 或 `/ja` 路由。正文和媒�
 Telegram 仍是来源，但页面文案统一使用“查看源消息”。无法构造公开来源 URL 时不会生成假链接。
 
 消息保持 newest-first。feed 中长正文会在有 JavaScript 且确认溢出后折叠，详情页始终展示完整
-正文。`revision > 1` 只表示“已更新”，不会伪造编辑时间。每条 suite message 都保持独立，第一版
-不会根据 Telegram `mediaGroupId` 猜测跨消息相册。
+正文。`revision > 1` 只表示“已更新”，不会伪造编辑时间。feed 会把相邻且具有同一
+`mediaGroupId` 的消息显示为一个相册；Telegram Desktop JSON 缺少该字段时，仅在同频道、同一
+时间、来源消息 ID 连续、每条都有媒体且最多一条含正文时进行保守合并。跨 cursor 边界的候选组
+保持独立，避免隐藏未加载的媒体；聚合卡片展示相册全部媒体且每项保留自己的来源链接，每条 suite
+message 的 UUID 和详情永久链接仍然有效。
 
-RSS 的 GUID 使用稳定的 suite message UUID，`pubDate` 使用原始 `publishedAt`；编辑后 GUID 和
-pubDate 不变，正文更新为当前 revision。
+RSS 的 GUID 使用稳定的 suite message UUID，`pubDate` 使用该稳定成员的原始 `publishedAt`；相册使用
+不随 caption 编辑变化的成员 UUID 作为 RSS GUID 锚点。聚合卡片和 RSS item 的链接则跟随实际提供正文的
+成员，确保打开的详情与所见正文一致；编辑后 GUID 和 pubDate 不变，正文更新为当前 revision。
 
 ## 缓存与故障边界
 

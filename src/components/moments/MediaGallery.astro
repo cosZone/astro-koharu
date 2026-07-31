@@ -17,12 +17,12 @@ interface Labels {
 interface Props {
   media: MomentMediaViewModel[];
   detail?: boolean;
-  sourceUrl?: string | null;
+  showAll?: boolean;
   labels: Labels;
 }
 
-const { media, detail = false, sourceUrl, labels } = Astro.props;
-const visible = detail ? media : media.slice(0, 4);
+const { media, detail = false, showAll = false, labels } = Astro.props;
+const visible = detail || showAll ? media : media.slice(0, 4);
 const remaining = Math.max(0, media.length - visible.length);
 const columns = visible.length === 1 ? 'grid-cols-1' : 'grid-cols-2';
 ---
@@ -32,7 +32,7 @@ const columns = visible.length === 1 ? 'grid-cols-1' : 'grid-cols-2';
     <moments-media-gallery class={`relative grid ${columns} gap-2`}>
       {visible.map((attachment, index) => (
         <div class:list={['relative min-w-0', visible.length === 3 && index === 0 ? 'col-span-2' : '']}>
-          <MediaAttachment media={attachment} sourceUrl={sourceUrl} labels={labels} />
+          <MediaAttachment media={attachment} sourceUrl={attachment.sourceUrl} labels={labels} />
           {remaining > 0 && index === visible.length - 1 && (
             <span
               class="pointer-events-none absolute inset-0 flex items-center justify-center rounded-lg bg-black/60 text-2xl font-bold text-white"

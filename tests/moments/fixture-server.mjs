@@ -62,6 +62,53 @@ const message = {
   revision: 2,
   sourceUrl: 'https://t.me/daily/1',
 };
+const albumMessages = [
+  message,
+  {
+    ...message,
+    id: '018f3f7a-2b1c-7def-8abc-1234567890b2',
+    content: { kind: 'none', text: null, html: null, entities: [] },
+    media: [
+      {
+        ...message.media[2],
+        id: '018f3f7a-2b1c-7def-8abc-1234567890b4',
+        fileName: 'second-unavailable.jpg',
+        mimeType: 'image/jpeg',
+        kind: 'photo',
+      },
+    ],
+    authorSignature: null,
+    revision: 1,
+    sourceUrl: 'https://t.me/daily/2',
+  },
+  {
+    ...message,
+    id: '018f3f7a-2b1c-7def-8abc-1234567890b3',
+    content: { kind: 'none', text: null, html: null, entities: [] },
+    media: [
+      {
+        ...message.media[2],
+        id: '018f3f7a-2b1c-7def-8abc-1234567890b5',
+        fileName: 'third-unavailable.jpg',
+        mimeType: 'image/jpeg',
+        kind: 'photo',
+      },
+    ],
+    authorSignature: null,
+    revision: 1,
+    sourceUrl: 'https://t.me/daily/3',
+  },
+];
+const unrelatedMessage = {
+  ...message,
+  id: '018f3f7a-2b1c-7def-8abc-1234567890b6',
+  content: { kind: 'text', text: 'Older fixture message', html: '<p>Older fixture message</p>', entities: [] },
+  media: [],
+  mediaGroupId: null,
+  publishedAt: '2026-07-25T11:59:00.000Z',
+  revision: 1,
+  sourceUrl: 'https://t.me/daily/0',
+};
 const mismatchMessageId = '018f3f7a-2b1c-7def-8abc-1234567890b0';
 
 function send(response, status, body, headers = {}) {
@@ -78,8 +125,10 @@ const server = http.createServer((request, response) => {
   }
   if (url.searchParams.get('cursor') === 'invalid') return send(response, 200, { unexpected: true });
 
-  if (url.pathname === '/api/v1/messages') return send(response, 200, { items: [message], nextCursor: 'older-page' });
-  if (url.pathname === '/api/v1/messages/latest') return send(response, 200, { items: [message], nextCursor: null });
+  if (url.pathname === '/api/v1/messages') {
+    return send(response, 200, { items: [...albumMessages, unrelatedMessage], nextCursor: 'older-page' });
+  }
+  if (url.pathname === '/api/v1/messages/latest') return send(response, 200, { items: albumMessages, nextCursor: null });
   if (url.pathname === '/api/v1/search/messages') {
     return send(response, 200, {
       items: [{ match: { score: 1, snippet: 'Fixture hello' }, message }],

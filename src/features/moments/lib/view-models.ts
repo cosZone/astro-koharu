@@ -9,6 +9,7 @@ import type {
 import type { MessageContextReference, PublicMedia, PublicMessage } from '@coszone/koharu-astro';
 import type { NormalizedMomentsConfig, ResolvedMomentsChannel } from '@lib/config/moments';
 import { displayDate } from '@lib/date';
+import { type GroupMomentMessagesOptions, groupMomentMessages } from './message-groups';
 import { getKoharuClient } from './runtime';
 import { channelPath, messagePath, searchPath } from './urls';
 
@@ -47,7 +48,7 @@ function toTags(config: NormalizedMomentsConfig, plainText?: string): MomentTagV
   return tags;
 }
 
-function toMedia(media: PublicMedia): MomentMediaViewModel {
+function toMedia(media: PublicMedia, sourceUrl: string | null): MomentMediaViewModel {
   const client = getKoharuClient();
   return {
     id: media.id,
@@ -59,6 +60,7 @@ function toMedia(media: PublicMedia): MomentMediaViewModel {
     fileSize: parseFileSize(media.fileSize),
     mimeType: media.mimeType,
     alt: media.fileName,
+    sourceUrl,
   };
 }
 
@@ -95,9 +97,28 @@ export function toMessageViewModel(
     plainText,
     permalink,
     sourceUrl: message.sourceUrl,
-    media: message.media.map(toMedia),
+    media: message.media.map((media) => toMedia(media, message.sourceUrl)),
     tags: toTags(config, plainText),
   };
+}
+
+export function toMessageViewModels(
+  config: NormalizedMomentsConfig,
+  channel: ResolvedMomentsChannel,
+  messages: readonly PublicMessage[],
+  options: GroupMomentMessagesOptions = {},
+): MomentMessageViewModel[] {
+  return groupMomentMessages(messages, options).map((group) => {
+    const primary = toMessageViewModel(config, channel, group.primary);
+    if (group.messages.length === 1) return primary;
+
+    return {
+      ...primary,
+      media: group.messages.flatMap((message) => message.media.map((media) => toMedia(media, message.sourceUrl))),
+      revision: Math.max(...group.messages.map((message) => message.revision)),
+      showAllMedia: true,
+    };
+  });
 }
 
 export function toContextViewModel(

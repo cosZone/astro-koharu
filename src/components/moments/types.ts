@@ -21,6 +21,7 @@ export interface MomentMediaViewModel {
   fileSize?: number | null;
   mimeType?: string | null;
   alt?: string | null;
+  sourceUrl?: string | null;
 }
 
 export interface MomentMessageViewModel {
@@ -34,6 +35,7 @@ export interface MomentMessageViewModel {
   permalink: string;
   sourceUrl?: string | null;
   media: MomentMediaViewModel[];
+  showAllMedia?: boolean;
   tags: MomentTagViewModel[];
 }
 
