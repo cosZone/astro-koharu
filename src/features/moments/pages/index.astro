@@ -13,7 +13,7 @@ import { messageCardLabels, momentsLabels } from '../lib/labels';
 import { resolveMomentsOpenGraph } from '../lib/metadata';
 import { toMomentsHttpError } from '../lib/runtime';
 import { momentsPath, rssPath, searchPath } from '../lib/urls';
-import { toChannelViewModel, toMessageViewModel } from '../lib/view-models';
+import { toChannelViewModel, toMessageViewModels } from '../lib/view-models';
 
 Astro.cache.set({ maxAge: 300, swr: 30 });
 const cursor = Astro.url.searchParams.get('cursor')?.trim() || undefined;
@@ -39,7 +39,13 @@ if (primary) {
 }
 
 const channelViews = (channels?.visible ?? []).map((channel) => toChannelViewModel(momentsConfig, channel, primary?.id));
-const messages = primary && page ? page.items.map((message) => toMessageViewModel(momentsConfig, primary, message)) : [];
+const messages =
+  primary && page
+    ? toMessageViewModels(momentsConfig, primary, page.items, {
+        separateFirst: Boolean(cursor),
+        separateLast: Boolean(page.nextCursor),
+      })
+    : [];
 const canonicalPath = momentsPath(momentsConfig);
 const canonical = new URL(canonicalPath, Astro.site).href;
 const openGraph = resolveMomentsOpenGraph({ canonical, config: momentsConfig, kind: 'index' });

@@ -16,6 +16,7 @@ export const GET: APIRoute = async (context) => {
       channels: channels.visible,
       config: momentsConfig,
       description: momentsConfig.description,
+      hasMore: Boolean(page.nextCursor),
       messages: page.items,
       site: context.site,
       title: momentsConfig.title,

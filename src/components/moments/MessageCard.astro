@@ -80,20 +80,22 @@ const railDate = publishedDate?.slice(0, 4) === currentYear ? publishedDate.slic
     </div>
   </header>
 
-  <MessageBody
-    html={message.html}
-    collapsible={!detail}
-    emptyLabel={labels.emptyMessage}
-    expandLabel={labels.expand}
-    collapseLabel={labels.collapse}
-  />
+  {(message.html || message.media.length === 0) && (
+    <MessageBody
+      html={message.html}
+      collapsible={!detail}
+      emptyLabel={labels.emptyMessage}
+      expandLabel={labels.expand}
+      collapseLabel={labels.collapse}
+    />
+  )}
 
   {message.media.length > 0 && (
     <div class="mt-2.5">
       <MediaGallery
         media={message.media}
         detail={detail}
-        sourceUrl={message.sourceUrl}
+        showAll={message.showAllMedia}
         labels={{
           processing: labels.mediaProcessing,
           unavailable: labels.mediaUnavailable,

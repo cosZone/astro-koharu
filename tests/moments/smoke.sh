@@ -28,7 +28,12 @@ base="http://127.0.0.1:${blog_port}"
 message_id='018f3f7a-2b1c-7def-8abc-1234567890ab'
 mismatch_message_id='018f3f7a-2b1c-7def-8abc-1234567890b0'
 
-curl -fsS "$base/moments" | grep -q 'Fixture hello from'
+moments_html="$(curl -fsS "$base/moments")"
+grep -q 'Fixture hello from' <<<"$moments_html"
+[[ "$(grep -o 'class="moments-message-card' <<<"$moments_html" | wc -l | tr -d ' ')" == '2' ]]
+[[ "$(grep -o 'data-media-kind=' <<<"$moments_html" | wc -l | tr -d ' ')" == '5' ]]
+grep -q 'https://t.me/daily/2' <<<"$moments_html"
+grep -q 'https://t.me/daily/3' <<<"$moments_html"
 curl -fsS "$base/moments/daily" | grep -q '媒体处理中'
 curl -fsS "$base/moments/daily/$message_id" | grep -q '查看源消息'
 curl -fsS "$base/moments/search?q=hello" | grep -q 'Fixture hello'

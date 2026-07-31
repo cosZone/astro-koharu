@@ -80,11 +80,16 @@ navigation:
 見る」と表示し、公開 URL を作れない場合は偽のリンクを出しません。
 
 新しい順に表示します。フィードの長文は JavaScript が実際のオーバーフローを確認した後だけ折りたたみ、詳細では
-常に全文を表示します。`revision > 1` は「更新済み」だけを示し、編集日時を推測しません。suite message は 1 件ずつ
-独立し、初版では Telegram `mediaGroupId` から複数メッセージのアルバムを推測しません。
+常に全文を表示します。`revision > 1` は「更新済み」だけを示し、編集日時を推測しません。同じ `mediaGroupId` を持つ
+隣接メッセージは 1 枚のアルバムカードにまとめます。Telegram Desktop JSON にこの値がない場合は、同一チャンネル、
+同一時刻、連続する出典 ID、全項目にメディアがあり本文は最大 1 件、という条件をすべて満たす場合だけまとめます。
+cursor 境界の候補は分離したままにし、各 suite UUID と詳細 permalink は引き続き有効です。
+アルバムカードは全メディアを表示し、各項目はそれぞれの出典リンクを保持します。
 
-RSS GUID は安定した suite message UUID、`pubDate` は元の `publishedAt` です。編集後も GUID と公開日時は変わらず、
-本文だけが現在の revision に更新されます。
+RSS GUID は安定した suite message UUID、`pubDate` はその安定メンバーの元の `publishedAt` です。アルバムでは caption
+編集に左右されないメンバー UUID を RSS GUID のアンカーにします。一方、アルバムカードと RSS item のリンクは本文を
+提供するメンバーを指すため、開いた詳細と表示中の caption が一致します。編集後も GUID と公開日時は変わらず、本文だけが
+現在の revision に更新されます。
 
 ## キャッシュと障害境界
 

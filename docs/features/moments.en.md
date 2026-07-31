@@ -81,11 +81,16 @@ It is one canonical dynamic area and is not duplicated under `/en` or `/ja`. Tel
 links use “View source message”; no fake source link is rendered when the public Telegram URL is unavailable.
 
 Messages are newest-first. Long feed text is collapsed only after JavaScript confirms overflow; detail pages always
-show the full body. `revision > 1` means only “Updated” because no reliable edit timestamp exists. Each suite message
-remains independent; the first release does not guess cross-message albums from Telegram `mediaGroupId`.
+show the full body. `revision > 1` means only “Updated” because no reliable edit timestamp exists. Adjacent messages
+with the same `mediaGroupId` share one album card. When Telegram Desktop JSON omits that field, Moments coalesces
+only same-channel messages with one timestamp, consecutive source IDs, media on every member, and at most one
+caption. Candidates touching a cursor boundary remain separate so unloaded media is never hidden; every suite UUID
+and detail permalink remains valid. Album cards render every member, and each attachment keeps its own source link.
 
-RSS uses the stable suite message UUID as GUID and the original `publishedAt` as `pubDate`. Editing updates the body
-but never changes the GUID or publication date.
+RSS uses the stable suite message UUID as GUID and that stable member's original `publishedAt` as `pubDate`; an album
+selects a member UUID independent of caption edits as its RSS GUID anchor. The album card and RSS item link instead
+follow the member that supplies the body, so the opened detail matches the displayed caption. Editing updates the body
+without changing the GUID or publication date.
 
 ## Cache and failure boundaries
 
