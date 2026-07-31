@@ -11,7 +11,7 @@
  */
 
 import { collectExpandableIds, type Heading, revealPath } from '@lib/toc';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 export interface UseExpandedStateOptions {
   /** Heading tree */
@@ -39,6 +39,7 @@ export function useExpandedState({
   const [expandedIds, setExpandedIds] = useState<Set<string>>(() =>
     defaultExpanded ? collectExpandableIds(headings) : new Set(),
   );
+  const defaultApplied = useRef(headings.length > 0);
 
   const revealTo = useCallback(
     (id: string) => {
@@ -51,6 +52,14 @@ export function useExpandedState({
   useEffect(() => {
     if (activeId) revealTo(activeId);
   }, [activeId, revealTo]);
+
+  // `headings` is still empty on first render (useHeadingTree fills it from an
+  // effect), so the initial state cannot honour `defaultExpanded` on its own.
+  useEffect(() => {
+    if (!defaultExpanded || defaultApplied.current || headings.length === 0) return;
+    defaultApplied.current = true;
+    setExpandedIds((prev) => new Set([...prev, ...collectExpandableIds(headings)]));
+  }, [defaultExpanded, headings]);
 
   const toggle = useCallback((id: string) => {
     setExpandedIds((prev) => {

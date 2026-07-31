@@ -58,6 +58,15 @@ function createHeadingObserverStore({ selector, offsetTop, scopeSelector }: Head
     pendingRaf = null;
   };
 
+  /** Every deferred frame goes through here so unsubscribe cleanup can cancel it */
+  const scheduleRaf = (callback: () => void) => {
+    cancelPendingRaf();
+    pendingRaf = requestAnimationFrame(() => {
+      pendingRaf = null;
+      callback();
+    });
+  };
+
   /** Last heading already scrolled past — IO never fires for those */
   const findLastHeadingAboveOffset = (): ObservedHeading | null => {
     for (let i = trackedHeadings.length - 1; i >= 0; i--) {
@@ -75,8 +84,7 @@ function createHeadingObserverStore({ selector, offsetTop, scopeSelector }: Head
       }
       // Defer the layout read to the next frame to avoid a forced reflow
       if (pendingRaf !== null) return;
-      pendingRaf = requestAnimationFrame(() => {
-        pendingRaf = null;
+      scheduleRaf(() => {
         // Intersection events may have fired since this frame was scheduled
         if (visible.size > 0) return;
         update(findLastHeadingAboveOffset());
@@ -123,7 +131,7 @@ function createHeadingObserverStore({ selector, offsetTop, scopeSelector }: Head
   const setupObserver = () => {
     observer?.disconnect();
     visible.clear();
-    current = null;
+    update(null);
 
     const scope = scopeSelector ? document.querySelector(scopeSelector) : document;
     if (!scope) {
@@ -142,17 +150,14 @@ function createHeadingObserverStore({ selector, offsetTop, scopeSelector }: Head
     for (const heading of trackedHeadings) observer.observe(heading);
 
     if (trackedHeadings.length > 0 && visible.size === 0) {
-      requestAnimationFrame(() => {
-        update(findLastHeadingAboveOffset());
-      });
+      scheduleRaf(() => update(findLastHeadingAboveOffset()));
     }
   };
 
   const handlePageLoad = () => {
     visible.clear();
-    current = null;
-    cancelPendingRaf();
-    requestAnimationFrame(setupObserver);
+    update(null);
+    scheduleRaf(setupObserver);
   };
 
   return {
