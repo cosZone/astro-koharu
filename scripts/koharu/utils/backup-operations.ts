@@ -2,7 +2,14 @@ import { randomBytes } from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
 
-import { BACKUP_DIR, BACKUP_ITEMS, BACKUP_SCHEMA_VERSION, type BackupItem, MANIFEST_NAME, PROJECT_ROOT } from '../constants';
+import {
+  BACKUP_ITEMS,
+  BACKUP_SCHEMA_VERSION,
+  type BackupItem,
+  DEFAULT_WORKSPACE,
+  type KoharuWorkspace,
+  MANIFEST_NAME,
+} from '../constants';
 import { tarCreate } from './tar';
 import { getVersion } from './version';
 
@@ -63,21 +70,27 @@ function validateBackupTree(sourcePath: string, itemSource: string): void {
  * 执行备份操作
  * @param isFullBackup 是否完整备份
  * @param onProgress 进度回调
+ * @param workspace 备份读写的根目录集合
  */
-export function runBackup(isFullBackup: boolean, onProgress?: (results: BackupResult[]) => void): BackupOutput {
-  fs.mkdirSync(BACKUP_DIR, { recursive: true, mode: 0o700 });
-  const backupDirStat = fs.lstatSync(BACKUP_DIR);
+export function runBackup(
+  isFullBackup: boolean,
+  onProgress?: (results: BackupResult[]) => void,
+  workspace: KoharuWorkspace = DEFAULT_WORKSPACE,
+): BackupOutput {
+  const { root, backupDir } = workspace;
+  fs.mkdirSync(backupDir, { recursive: true, mode: 0o700 });
+  const backupDirStat = fs.lstatSync(backupDir);
   if (!backupDirStat.isDirectory() || backupDirStat.isSymbolicLink()) {
-    throw new Error(`备份目录无效或为符号链接: ${BACKUP_DIR}`);
+    throw new Error(`备份目录无效或为符号链接: ${backupDir}`);
   }
-  fs.chmodSync(BACKUP_DIR, 0o700);
+  fs.chmodSync(backupDir, 0o700);
 
   // 生成时间戳
   const now = new Date();
   const timestamp = now.toISOString().replace(/[:.]/g, '-').replace('T', '-').replace(/Z$/, '');
   const backupName = `backup-${timestamp}-${randomBytes(4).toString('hex')}`;
-  const tempDir = fs.mkdtempSync(path.join(BACKUP_DIR, `.tmp-${backupName}-`));
-  const backupFilePath = path.join(BACKUP_DIR, `${backupName}.tar.gz`);
+  const tempDir = fs.mkdtempSync(path.join(backupDir, `.tmp-${backupName}-`));
+  const backupFilePath = path.join(backupDir, `${backupName}.tar.gz`);
 
   fs.chmodSync(tempDir, 0o700);
 
@@ -89,7 +102,7 @@ export function runBackup(isFullBackup: boolean, onProgress?: (results: BackupRe
   try {
     // Run the backup.
     for (const item of itemsToBackup) {
-      const srcPath = path.join(PROJECT_ROOT, item.src);
+      const srcPath = path.join(root, item.src);
       const destPath = path.join(tempDir, item.dest);
 
       if (fs.existsSync(srcPath)) {

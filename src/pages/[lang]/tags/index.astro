@@ -2,5 +2,11 @@
 import { getLocaleStaticPaths } from '../../_shared/utils';
 import TagsPage from '../../tags/index.astro';
 export const getStaticPaths = getLocaleStaticPaths;
+
+interface Props {
+  locale: string;
+}
+
+const { locale } = Astro.props;
 ---
-<TagsPage />
+<TagsPage locale={locale} />

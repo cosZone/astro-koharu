@@ -1,424 +1,67 @@
 ---
 import type { HomeSiderType } from '@constants/enum';
 import type { BlogPost } from 'types/blog';
+import type { PageMeta, PageMetaProps } from './page-meta';
 
-interface Props {
-  title: string;
+interface Props extends PageMetaProps {
+  title?: string;
   description?: string;
+  /**
+   * Locale of the rendered page. Pages resolve it in `getStaticPaths` and pass it down;
+   * callers that don't (e.g. Markdown pages rendered via `PageLayout`) fall back to the URL.
+   */
+  locale?: string;
+  // TODO: siderType should be custom in router file, not in layout
   siderType?: HomeSiderType;
   post?: BlogPost;
-  /** Override canonical URL (e.g., for fallback pages pointing to default-locale version) */
-  canonical?: string;
-  keywords?: string[];
-  /** Page-specific Open Graph values. Relative images are resolved against Astro.site. */
-  openGraph?: {
-    title?: string;
-    description?: string;
-    image?: string;
-    type?: 'website' | 'article';
-    url?: string;
-  };
-  /** Robots directive for dynamic or otherwise non-indexable pages. */
-  robots?: string;
-  /** Alternate RSS feeds. Omit to keep the site's default RSS link. */
-  rssFeeds?: Array<{ href: string; title: string }>;
-  /** Disable locale hreflang links for a canonical route that is not duplicated per locale. */
-  includeLocaleAlternates?: boolean;
 }
 
 import { ClientRouter } from 'astro:transitions';
 import UmamiAnalytics from '@components/analytics/UmamiAnalytics.astro';
-import AnnouncementProvider from '@components/announcement/AnnouncementProvider.astro';
-import GlobalBGMPlayer from '@components/bgm/GlobalBGMPlayer';
-import ChristmasEffects from '@components/christmas/ChristmasEffects.astro';
-import FloatingGroup from '@components/layout/FloatingGroup';
-import Header from '@components/layout/Header.astro';
-import MobileDrawer from '@components/layout/MobileDrawer.astro';
-import SearchDialog from '@components/layout/SearchDialog';
-import SearchPortal from '@components/layout/SearchPortal.astro';
-import CodeBlockFullscreen from '@components/markdown/CodeBlockFullscreen';
-import DiagramFullscreen from '@components/markdown/DiagramFullscreen';
-import ImageLightbox from '@components/markdown/ImageLightbox';
-import SettingsPanel from '@components/settings/SettingsPanel';
-import { Toaster } from '@components/ui/sonner';
-import { bgmConfig, christmasConfig, seoConfig, siteConfig } from '@constants/site-config';
-import { getOgImageUrl } from '@lib/seo/og-image';
-import {
-  FONT_PRESETS,
-  GENERAL_DEFAULTS,
-  READER_DEFAULTS,
-  READER_FONT_FAMILY_MAX_LENGTH,
-  STORAGE_KEYS,
-  WENKAI_STYLESHEET_HREF,
-  WENKAI_STYLESHEET_ID,
-} from '@store/settings-constants';
+import { seoConfig } from '@constants/site-config';
 import LoadingIndicator from 'astro-loading-indicator/component';
-import { SEO } from 'astro-seo';
 import { Tooltips } from 'astro-tooltips';
-import {
-  defaultLocale,
-  getAlternateUrl,
-  getHtmlLang,
-  getLocaleFromUrl,
-  isI18nEnabled,
-  localeList,
-  localizedPath,
-  stripLocaleFromPath,
-} from '@/i18n';
+import { getHtmlLang, getLocaleFromUrl, stripLocaleFromPath } from '@/i18n';
+import AppShell from './AppShell.astro';
+import BootScripts from './BootScripts.astro';
+import HeadMeta from './HeadMeta.astro';
 
 import '@styles/index.css';
 
 const {
   title = seoConfig.title,
   description = seoConfig.description,
+  locale = getLocaleFromUrl(Astro.url.pathname),
   siderType,
   post,
-  canonical: canonicalOverride,
-  keywords: keywordsOverride,
-  openGraph: openGraphOverride,
-  robots,
-  rssFeeds: rssFeedsOverride,
-  includeLocaleAlternates = true,
+  ...metaProps
 } = Astro.props;
 
-// TODO: siderType should be custom in router file, not in layout
-
-// i18n: derive locale from URL and compute BCP 47 lang tag
-const locale = getLocaleFromUrl(Astro.url.pathname);
-const htmlLang = getHtmlLang(locale);
+const meta: PageMeta = { ...metaProps, locale, title, description, coverImage: post?.data.cover };
 
 // Detect if current page is a post page for mobile header (locale-prefix safe)
 const isPostPage = stripLocaleFromPath(Astro.url.pathname).startsWith('/post/');
-
-// OGP image: use post cover if available, otherwise use default from config, fallback to avatar
-const defaultOgImage = getOgImageUrl(post?.data.cover, Astro.site);
-const resolveAbsoluteUrl = (value: string | undefined) => (value ? new URL(value, Astro.site).href : undefined);
-const ogImage = resolveAbsoluteUrl(openGraphOverride?.image) ?? defaultOgImage;
-
-// Pre-compute i18n URLs for <head> links
-const rssFeeds = rssFeedsOverride ?? [
-  {
-    href: new URL(localizedPath('/rss.xml', locale), Astro.site).href,
-    title: siteConfig.title,
-  },
-];
-const hreflangLinks = localeList.map((loc) => ({
-  lang: getHtmlLang(loc),
-  href: new URL(getAlternateUrl(Astro.url.pathname, loc), Astro.site).href,
-}));
-const xDefaultHref = new URL(getAlternateUrl(Astro.url.pathname, defaultLocale), Astro.site).href;
-const canonicalHref = canonicalOverride ?? Astro.url.href;
-const openGraphTitle = openGraphOverride?.title ?? title;
-const openGraphDescription = openGraphOverride?.description ?? description;
-const openGraphUrl = resolveAbsoluteUrl(openGraphOverride?.url) ?? canonicalHref;
-
-const keywords = keywordsOverride || siteConfig.keywords || [siteConfig.title];
 ---
 
 <!doctype html>
-<html transition:name="root" lang={htmlLang} class="vertical-scrollbar">
+<html transition:name="root" lang={getHtmlLang(locale)} class="vertical-scrollbar">
   <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.ico" />
-    <meta name="generator" content={Astro.generator} />
-    {/* Async load rounded fonts — Japanese pages use Gen Jyuu Gothic P, others use ChillRoundF (fix #113) */}
-    {locale === 'ja' ? (
-      <>
-        <link rel="stylesheet" href="/fonts/GenJyuuGothic-P-Regular/result.css" media="print" onload="this.setAttribute('media','all')" />
-        <link rel="stylesheet" href="/fonts/GenJyuuGothic-P-Bold/result.css" media="print" onload="this.setAttribute('media','all')" />
-      </>
-    ) : (
-      <>
-        <link rel="stylesheet" href="/fonts/ChillRoundFRegular/result.css" media="print" onload="this.setAttribute('media','all')" />
-        <link rel="stylesheet" href="/fonts/ChillRoundFBold/result.css" media="print" onload="this.setAttribute('media','all')" />
-      </>
-    )}
+    <HeadMeta meta={meta} />
 
     <ClientRouter />
     <UmamiAnalytics />
     <LoadingIndicator color="#e9536a" />
     <Tooltips />
 
-    <!-- SEO 元数据由 astro-seo 管理 -->
-    <SEO
-      title={title}
-      description={description}
-      canonical={canonicalHref}
-      openGraph={{
-        basic: {
-          title: openGraphTitle,
-          type: openGraphOverride?.type ?? 'website',
-          image: ogImage || '',
-          url: openGraphUrl,
-        },
-        optional: {
-          siteName: siteConfig.name,
-          description: openGraphDescription,
-        },
-      }}
-      twitter={{
-        card: ogImage ? 'summary_large_image' : 'summary',
-        title: openGraphTitle,
-        description: openGraphDescription,
-        ...(ogImage && { image: ogImage }),
-      }}
-      extend={{
-        meta: [{ name: 'author', content: siteConfig.author || '' }],
-      }}
-    />
-    {/* astro-seo 暂不支持管理 keywords */}
-    <meta name="keywords" content={keywords.join(', ')} />
-    {robots && <meta name="robots" content={robots} />}
-
-    {rssFeeds.map((feed) => (
-      <link rel="alternate" type="application/rss+xml" title={feed.title} href={feed.href} />
-    ))}
-    {/* hreflang alternate links for SEO — only output when multiple locales are configured */}
-    {includeLocaleAlternates && isI18nEnabled && hreflangLinks.map(({ lang, href }) => (
-      <link rel="alternate" hreflang={lang} href={href} />
-    ))}
-    {includeLocaleAlternates && isI18nEnabled && <link rel="alternate" hreflang="x-default" href={xDefaultHref} />}
-
-    <script is:inline>
-      // 主题系统 - 立即执行以防止 FOUC（无样式内容闪烁）
-      // 优先级：1. 用户手动选择 > 2. 系统偏好
-      (function() {
-        function getTheme() {
-          // 用户明确选择了主题
-          if (localStorage.theme === 'dark') return 'dark';
-          if (localStorage.theme === 'light') return 'light';
-          // 未设置，跟随系统偏好
-          return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-        }
-
-        function applyTheme(theme) {
-          var root = document.documentElement;
-          root.classList.toggle('dark', theme === 'dark');
-          root.dataset.theme = theme; // For astro-mermaid autoTheme
-        }
-
-        // 立即应用主题
-        applyTheme(getTheme());
-
-        // 监听系统主题偏好变化
-        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function() {
-          // 仅当用户未明确选择主题时自动切换
-          if (!('theme' in localStorage)) {
-            applyTheme(getTheme());
-          }
-        });
-
-        // View Transition 切换页面后重新应用主题（在 DOM 渲染前）
-        document.addEventListener('astro:after-swap', function() {
-          applyTheme(getTheme());
-        });
-      })();
-    </script>
-    <script is:inline define:vars={{ christmasFeatureEnabled: christmasConfig.enabled }}>
-      // 立即执行圣诞状态检查 否则彩灯等会闪烁
-      (function () {
-        // 如果构建时配置关闭，则始终不启用
-        if (!christmasFeatureEnabled) {
-          document.documentElement.classList.remove('christmas');
-          return;
-        }
-        // 否则使用用户偏好
-        var stored = localStorage.getItem('christmas-enabled');
-        var enabled = stored !== 'false'; // 默认启用
-        document.documentElement.classList.toggle('christmas', enabled);
-      })();
-    </script>
-
-    <script
-      is:inline
-      define:vars={{ STORAGE_KEYS, READER_DEFAULTS, READER_FONT_FAMILY_MAX_LENGTH, GENERAL_DEFAULTS, FONT_PRESETS, WENKAI_STYLESHEET_ID, WENKAI_STYLESHEET_HREF }}
-    >
-      // Apply settings immediately to prevent a flash of default reader styles.
-      // Defaults and keys are injected from src/store/settings-constants.ts (single source of truth).
-      (function () {
-        function readPositiveNumber(key, fallback) {
-          var stored = parseFloat(localStorage.getItem(key));
-          return isFinite(stored) && stored > 0 ? stored : fallback;
-        }
-        function readOptionalPositiveNumber(key) {
-          var stored = parseFloat(localStorage.getItem(key));
-          return isFinite(stored) && stored > 0 ? stored : null;
-        }
-        function readBoolean(key, fallback) {
-          var stored = localStorage.getItem(key);
-          return stored === null ? fallback : stored === 'true';
-        }
-        function quoteFontFamily(family) {
-          var serialized = '"';
-          for (var character of family) {
-            var codePoint = character.codePointAt(0);
-            if (codePoint === 0) {
-              serialized += '\uFFFD';
-            } else if ((codePoint >= 0x01 && codePoint <= 0x1f) || codePoint === 0x7f) {
-              serialized += '\\' + codePoint.toString(16) + ' ';
-            } else if (character === '"' || character === '\\') {
-              serialized += '\\' + character;
-            } else {
-              serialized += character;
-            }
-          }
-          return serialized + '"';
-        }
-        function applySettings() {
-          var root = document.documentElement;
-          var stored = localStorage.getItem(STORAGE_KEYS.fontPreset);
-          var preset = FONT_PRESETS.indexOf(stored) !== -1 ? stored : READER_DEFAULTS.fontPreset;
-          root.setAttribute('data-font-preset', preset);
-          var fontFamily = (localStorage.getItem(STORAGE_KEYS.fontFamily) || '')
-            .trim()
-            .slice(0, READER_FONT_FAMILY_MAX_LENGTH);
-          if (fontFamily) {
-            root.setAttribute('data-reader-font', 'local');
-            root.style.setProperty('--reader-font-family', quoteFontFamily(fontFamily));
-          } else {
-            root.removeAttribute('data-reader-font');
-            root.style.removeProperty('--reader-font-family');
-          }
-          var fontSize = readPositiveNumber(STORAGE_KEYS.fontSize, READER_DEFAULTS.fontSize);
-          root.style.setProperty('--reader-font-size', fontSize + 'px');
-          root.style.setProperty('--reader-line-height', String(readPositiveNumber(STORAGE_KEYS.lineHeight, READER_DEFAULTS.lineHeight)));
-          var measure = readOptionalPositiveNumber(STORAGE_KEYS.measure);
-          if (measure === null) {
-            root.style.removeProperty('--reader-measure');
-          } else {
-            // Convert ch to px so headings and body text share one absolute content width.
-            root.style.setProperty('--reader-measure', measure * 0.5 * fontSize + 'px');
-          }
-          root.classList.toggle('reader-justify', readBoolean(STORAGE_KEYS.justify, READER_DEFAULTS.justify));
-          root.classList.toggle('motion-off', readBoolean(STORAGE_KEYS.masterMotion, GENERAL_DEFAULTS.masterMotion));
-          root.classList.toggle('wave-off', !readBoolean(STORAGE_KEYS.wave, GENERAL_DEFAULTS.wave));
-          // Load WenKai only when the matching preset is selected.
-          if (preset === 'wenkai' && !fontFamily && !document.getElementById(WENKAI_STYLESHEET_ID)) {
-            var link = document.createElement('link');
-            link.id = WENKAI_STYLESHEET_ID;
-            link.rel = 'stylesheet';
-            link.href = WENKAI_STYLESHEET_HREF;
-            document.head.appendChild(link);
-          }
-        }
-
-        // Apply before the first frame.
-        applySettings();
-
-        // Reapply before Astro renders the swapped page.
-        document.addEventListener('astro:after-swap', applySettings);
-      })();
-    </script>
-
-    <noscript>
-      <style is:inline>
-        /* Long code blocks ship pre-collapsed; without JS the toolbar never hydrates, so force them open. */
-        html .prose .code-block-wrapper.code-collapsed > pre {
-          grid-template-rows: 1fr;
-          border-width: 1px;
-          border-radius: 0.75rem;
-          box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
-        }
-        html .prose .code-block-wrapper.code-collapsed > pre > code {
-          max-height: none;
-          overflow-x: auto;
-          overflow-y: visible;
-          padding-block: 1rem;
-        }
-        html .prose .code-block-wrapper.code-collapsed > .code-block-wrapper-toolbar-mount {
-          display: none;
-        }
-      </style>
-    </noscript>
+    <BootScripts />
 
     <!-- 子页面可通过 slot="head" 注入额外的 head 内容（如 JSON-LD） -->
     <slot name="head" />
-
-    <script>
-      // CodePen embed initialization for Astro page transitions
-      // https://blog.codepen.io/documentation/embedded-pens/
-
-      declare global {
-        interface Window {
-          __CPEmbed?: () => void;
-        }
-      }
-
-      let codepenScriptLoaded = false;
-
-      function loadCodePenScript() {
-        return new Promise<void>((resolve, reject) => {
-          // Check if already loaded
-          if (codepenScriptLoaded || window.__CPEmbed) {
-            resolve();
-            return;
-          }
-
-          const script = document.createElement('script');
-          script.src = 'https://cpwebassets.codepen.io/assets/embed/ei.js';
-          script.async = true;
-          script.onload = () => {
-            codepenScriptLoaded = true;
-            resolve();
-          };
-          script.onerror = reject;
-          document.head.appendChild(script);
-        });
-      }
-
-      async function initializeCodePenEmbeds() {
-        // Check if there are any CodePen embeds on the page
-        const codepenElements = document.querySelectorAll('.codepen');
-        if (codepenElements.length === 0) {
-          return;
-        }
-
-        try {
-          // Load the CodePen script if not already loaded
-          await loadCodePenScript();
-
-          // Initialize all CodePen embeds
-          if (window.__CPEmbed) {
-            window.__CPEmbed();
-          }
-        } catch (error) {
-          console.error('[CodePen Embed] Failed to load CodePen embed script:', error);
-        }
-      }
-
-      // Initialize on initial page load
-      if (document.readyState !== 'loading') {
-        initializeCodePenEmbeds();
-      }
-
-      // Re-initialize on Astro page transitions
-      document.addEventListener('astro:page-load', initializeCodePenEmbeds);
-    </script>
   </head>
   <body>
-    <ChristmasEffects transition:persist="christmas-snowfall" />
-    <div class="flex min-h-screen flex-col text-black dark:text-white">
-      <Header isPostPage={isPostPage} tocNumbering={post?.data.tocNumbering ?? true} />
-      <main class="relative flex grow flex-col gap-4">
-        {(<slot />)}
-      </main>
-      {bgmConfig.enabled && bgmConfig.audio.length > 0 && (
-        <div transition:persist="global-bgm">
-          <GlobalBGMPlayer client:only="react" audioGroups={bgmConfig.audio} metingApi={bgmConfig.metingApi} />
-        </div>
-      )}
-      <FloatingGroup client:only="react" />
-      <SettingsPanel client:idle />
-      <MobileDrawer type={siderType} post={post} />
-      <SearchDialog client:idle />
-      <SearchPortal />
-      <CodeBlockFullscreen client:idle />
-      <DiagramFullscreen client:idle />
-      <ImageLightbox client:idle />
-      <Toaster client:idle />
-      <AnnouncementProvider />
-    </div>
+    <AppShell post={post} siderType={siderType} isPostPage={isPostPage}>
+      <slot />
+    </AppShell>
   </body>
 </html>
 

@@ -10,6 +10,14 @@ export const GITHUB_REPO = 'cosZone/astro-koharu';
 /** 主分支名称 */
 export const MAIN_BRANCH = 'main';
 
+/** A single git invocation planned by the policy layer and run by the porcelain layer. */
+export interface GitCommand {
+  /** Arguments passed to `git`, already quoted. */
+  args: string;
+  /** Run through the non-throwing porcelain helper. */
+  safe?: boolean;
+}
+
 /** Commit 信息 */
 export interface CommitInfo {
   hash: string;

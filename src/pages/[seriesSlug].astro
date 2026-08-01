@@ -7,26 +7,19 @@ import { siteConfig } from '@constants/site-config';
 import Layout from '@layouts/Layout.astro';
 import TwoColumnLayout from '@layouts/TwoColumnLayout.astro';
 import type { FeaturedSeriesItem } from '@lib/config/types';
-import { getEnabledSeries, getPostsByCategory, translateSeriesField } from '@lib/content';
+import { getPostsByCategory, translateSeriesField } from '@lib/content';
 import { toPostCardDataList } from '@lib/content/transforms';
-import type { GetStaticPaths } from 'astro';
-import { getLocaleFromUrl, localizedPath, t } from '@/i18n';
+import { localizedPath, t } from '@/i18n';
+import { seriesRoute } from './_shared/routes';
 
-export const getStaticPaths: GetStaticPaths = async () => {
-  const enabledSeries = getEnabledSeries();
-
-  return enabledSeries.map((series) => ({
-    params: { seriesSlug: series.slug },
-    props: { series },
-  }));
-};
+export const getStaticPaths = seriesRoute.root;
 
 interface Props {
   series: FeaturedSeriesItem;
+  locale: string;
 }
 
-const { series } = Astro.props;
-const locale = getLocaleFromUrl(Astro.url.pathname);
+const { series, locale } = Astro.props;
 
 // Get all posts for this series (transform to card data)
 const seriesPosts = series.categoryName
@@ -38,7 +31,7 @@ const seriesLabel = translateSeriesField(series.slug, 'label', series.label, loc
 const pageTitle = seriesFullName || seriesLabel || series.categoryName;
 ---
 
-<Layout title={`${pageTitle} | ${siteConfig.title}`} description={series.description?.slice(0, 160)}>
+<Layout locale={locale} title={`${pageTitle} | ${siteConfig.title}`} description={series.description?.slice(0, 160)}>
   <TwoColumnLayout>
     <SeriesCover slot="cover" series={series} />
     <HomeSider slot="sider" />

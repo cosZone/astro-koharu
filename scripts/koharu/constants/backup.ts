@@ -62,6 +62,9 @@ export const BACKUP_ITEMS: BackupItem[] = [
   { src: 'src/assets/summaries.json', dest: 'assets/summaries.json', label: 'AI 摘要数据', required: false, kind: 'file' },
 ];
 
+/** Root-relative prefixes that hold user content rather than theme files. */
+export const USER_CONTENT_PREFIXES = BACKUP_ITEMS.filter((item) => item.required).map((item) => item.src);
+
 const FULL_BACKUP_DESTINATIONS = [
   'favicon.ico',
   'assets/lqips.json',

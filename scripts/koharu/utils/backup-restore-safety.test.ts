@@ -4,16 +4,26 @@ import os from 'node:os';
 import path from 'node:path';
 import { test } from 'node:test';
 
-import { BACKUP_DIR, BACKUP_ITEMS, BACKUP_SCHEMA_VERSION, MANIFEST_NAME } from '../constants';
+import { BACKUP_ITEMS, BACKUP_SCHEMA_VERSION, createWorkspace, type KoharuWorkspace, MANIFEST_NAME } from '../constants';
 import { getBackupList, getRestorableBackupList } from './backup';
 import { validateBackupSource } from './backup-operations';
 import { getRestorePreview, restoreBackup } from './restore-operations';
 import { tarCreate, tarExtract } from './tar';
 import { validateBackupArchive, withValidatedBackupArchiveSnapshot } from './validation';
 
-function createArchive(stage: string): string {
-  fs.mkdirSync(BACKUP_DIR, { recursive: true });
-  const archive = path.join(BACKUP_DIR, `backup-safety-${process.pid}-${Date.now()}-${Math.random()}.tar.gz`);
+/** Every test runs against a throwaway workspace so the project's real backups are never touched. */
+function createTestWorkspace(prefix: string): KoharuWorkspace {
+  const workspace = createWorkspace(fs.mkdtempSync(path.join(os.tmpdir(), prefix)));
+  fs.mkdirSync(workspace.backupDir, { recursive: true });
+  return workspace;
+}
+
+function removeWorkspace(workspace: KoharuWorkspace): void {
+  fs.rmSync(workspace.root, { recursive: true, force: true });
+}
+
+function createArchive(workspace: KoharuWorkspace, stage: string): string {
+  const archive = path.join(workspace.backupDir, `backup-safety-${process.pid}-${Date.now()}-${Math.random()}.tar.gz`);
   tarCreate(archive, stage);
   return archive;
 }
@@ -63,46 +73,49 @@ function writePost(root: string, relativePath: string, link: string): void {
 }
 
 test('backup archives are private and historical v1 manifests remain valid', () => {
-  const stage = fs.mkdtempSync(path.join(os.tmpdir(), 'koharu-backup-v1-'));
-  let archive = '';
+  const workspace = createTestWorkspace('koharu-backup-v1-');
+  const stage = fs.mkdtempSync(path.join(os.tmpdir(), 'koharu-backup-v1-stage-'));
   try {
     writeBasicManifest(stage, [], null);
-    archive = createArchive(stage);
+    const archive = createArchive(workspace, stage);
 
     assert.equal(fs.statSync(archive).mode & 0o777, 0o600);
-    assert.equal(validateBackupArchive(archive).manifest.schemaVersion, 1);
+    assert.equal(validateBackupArchive(archive, workspace.backupDir).manifest.schemaVersion, 1);
   } finally {
     fs.rmSync(stage, { recursive: true, force: true });
-    if (archive) fs.rmSync(archive, { force: true });
+    removeWorkspace(workspace);
   }
 });
 
 test('validation and extraction use one private immutable archive snapshot', () => {
+  const workspace = createTestWorkspace('koharu-backup-snapshot-');
   const originalStage = fs.mkdtempSync(path.join(os.tmpdir(), 'koharu-backup-snapshot-original-'));
   const replacementStage = fs.mkdtempSync(path.join(os.tmpdir(), 'koharu-backup-snapshot-replacement-'));
   const extractDir = fs.mkdtempSync(path.join(os.tmpdir(), 'koharu-backup-snapshot-extract-'));
-  let originalArchive = '';
-  let replacementArchive = '';
   let snapshotPath = '';
 
   try {
     fs.writeFileSync(path.join(originalStage, 'env'), 'original');
     writeBasicManifest(originalStage, ['env']);
-    originalArchive = createArchive(originalStage);
+    const originalArchive = createArchive(workspace, originalStage);
 
     fs.writeFileSync(path.join(replacementStage, 'env'), 'replacement');
     writeBasicManifest(replacementStage, ['env']);
-    replacementArchive = createArchive(replacementStage);
+    const replacementArchive = createArchive(workspace, replacementStage);
 
-    withValidatedBackupArchiveSnapshot(originalArchive, (validated) => {
-      snapshotPath = validated.path;
-      assert.notEqual(snapshotPath, originalArchive);
-      assert.equal(fs.statSync(snapshotPath).mode & 0o777, 0o400);
+    withValidatedBackupArchiveSnapshot(
+      originalArchive,
+      (validated) => {
+        snapshotPath = validated.path;
+        assert.notEqual(snapshotPath, originalArchive);
+        assert.equal(fs.statSync(snapshotPath).mode & 0o777, 0o400);
 
-      fs.copyFileSync(replacementArchive, originalArchive);
-      tarExtract(validated.path, extractDir);
-      assert.equal(fs.readFileSync(path.join(extractDir, 'env'), 'utf8'), 'original');
-    });
+        fs.copyFileSync(replacementArchive, originalArchive);
+        tarExtract(validated.path, extractDir);
+        assert.equal(fs.readFileSync(path.join(extractDir, 'env'), 'utf8'), 'original');
+      },
+      workspace.backupDir,
+    );
 
     assert.equal(fs.existsSync(snapshotPath), false);
     assert.equal(fs.existsSync(path.dirname(snapshotPath)), false);
@@ -110,12 +123,12 @@ test('validation and extraction use one private immutable archive snapshot', () 
     fs.rmSync(originalStage, { recursive: true, force: true });
     fs.rmSync(replacementStage, { recursive: true, force: true });
     fs.rmSync(extractDir, { recursive: true, force: true });
-    if (originalArchive) fs.rmSync(originalArchive, { force: true });
-    if (replacementArchive) fs.rmSync(replacementArchive, { force: true });
+    removeWorkspace(workspace);
   }
 });
 
 test('every historical basic manifest layout resolves to current restore targets', () => {
+  const workspace = createTestWorkspace('koharu-backup-layout-');
   const layouts = [
     ['content/blog', 'config/site.yaml', 'pages/about.md', 'img/avatar.webp', 'env'],
     ['content/blog', 'config/site.yaml', 'pages/about.md', 'img', 'env'],
@@ -123,18 +136,16 @@ test('every historical basic manifest layout resolves to current restore targets
     ['content/blog', 'config/site.yaml', 'pages', 'img', 'env'],
     ['content/blog', 'config', 'pages', 'img', 'env'],
   ];
-  const archives: string[] = [];
   const stages: string[] = [];
 
   try {
     for (const destinations of layouts) {
-      const stage = fs.mkdtempSync(path.join(os.tmpdir(), 'koharu-backup-layout-'));
+      const stage = fs.mkdtempSync(path.join(os.tmpdir(), 'koharu-backup-layout-stage-'));
       stages.push(stage);
       writeLegacyManifest(stage, destinations);
-      const archive = createArchive(stage);
-      archives.push(archive);
+      const archive = createArchive(workspace, stage);
 
-      const validated = validateBackupArchive(archive);
+      const validated = validateBackupArchive(archive, workspace.backupDir);
       assert.equal(validated.manifest.schemaVersion, 1);
       assert.deepEqual(
         validated.items.map((item) => item.dest),
@@ -143,14 +154,13 @@ test('every historical basic manifest layout resolves to current restore targets
     }
   } finally {
     for (const stage of stages) fs.rmSync(stage, { recursive: true, force: true });
-    for (const archive of archives) fs.rmSync(archive, { force: true });
+    removeWorkspace(workspace);
   }
 });
 
 test('historical file-level backup items restore to their original project paths', () => {
-  const projectRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'koharu-legacy-restore-target-'));
+  const workspace = createTestWorkspace('koharu-legacy-restore-target-');
   const stage = fs.mkdtempSync(path.join(os.tmpdir(), 'koharu-legacy-restore-stage-'));
-  let archive = '';
 
   try {
     fs.mkdirSync(path.join(stage, 'config'), { recursive: true });
@@ -164,30 +174,28 @@ test('historical file-level backup items restore to their original project paths
       ['content/blog', 'config/site.yaml', 'pages/about.md', 'img/avatar.webp', 'env'],
       ['config/site.yaml', 'pages/about.md', 'img/avatar.webp'],
     );
-    archive = createArchive(stage);
+    const archive = createArchive(workspace, stage);
 
-    const preview = getRestorePreview(archive, { projectRoot });
+    const preview = getRestorePreview(archive, { workspace });
     assert.deepEqual(
       preview.items.map((item) => item.path),
       ['config/site.yaml', 'src/pages/about.md', 'public/img/avatar.webp'],
     );
 
-    const output = restoreBackup(archive, { projectRoot });
+    const output = restoreBackup(archive, { workspace });
     assert.deepEqual(output.restoredFiles, ['config/site.yaml', 'src/pages/about.md', 'public/img/avatar.webp']);
-    assert.equal(fs.readFileSync(path.join(projectRoot, 'config/site.yaml'), 'utf8'), 'site:\n  title: restored\n');
-    assert.equal(fs.readFileSync(path.join(projectRoot, 'src/pages/about.md'), 'utf8'), 'restored about');
-    assert.equal(fs.readFileSync(path.join(projectRoot, 'public/img/avatar.webp'), 'utf8'), 'restored avatar');
+    assert.equal(fs.readFileSync(path.join(workspace.root, 'config/site.yaml'), 'utf8'), 'site:\n  title: restored\n');
+    assert.equal(fs.readFileSync(path.join(workspace.root, 'src/pages/about.md'), 'utf8'), 'restored about');
+    assert.equal(fs.readFileSync(path.join(workspace.root, 'public/img/avatar.webp'), 'utf8'), 'restored avatar');
   } finally {
-    fs.rmSync(projectRoot, { recursive: true, force: true });
     fs.rmSync(stage, { recursive: true, force: true });
-    if (archive) fs.rmSync(archive, { force: true });
+    removeWorkspace(workspace);
   }
 });
 
 test('historical full image snapshots supersede the overlapping avatar item', () => {
-  const projectRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'koharu-legacy-full-target-'));
+  const workspace = createTestWorkspace('koharu-legacy-full-target-');
   const stage = fs.mkdtempSync(path.join(os.tmpdir(), 'koharu-legacy-full-stage-'));
-  let archive = '';
 
   try {
     const destinations = [
@@ -206,22 +214,21 @@ test('historical full image snapshots supersede the overlapping avatar item', ()
     fs.writeFileSync(path.join(stage, 'img/avatar.webp'), 'restored avatar');
     fs.writeFileSync(path.join(stage, 'img/cover.webp'), 'restored cover');
     writeLegacyManifest(stage, destinations, ['img/avatar.webp', 'img'], 'full');
-    archive = createArchive(stage);
+    const archive = createArchive(workspace, stage);
 
-    const preview = getRestorePreview(archive, { projectRoot });
+    const preview = getRestorePreview(archive, { workspace });
     assert.deepEqual(
       preview.items.map((item) => item.path),
       ['public/img'],
     );
 
-    const output = restoreBackup(archive, { projectRoot });
+    const output = restoreBackup(archive, { workspace });
     assert.deepEqual(output.restoredFiles, ['public/img']);
-    assert.equal(fs.readFileSync(path.join(projectRoot, 'public/img/avatar.webp'), 'utf8'), 'restored avatar');
-    assert.equal(fs.readFileSync(path.join(projectRoot, 'public/img/cover.webp'), 'utf8'), 'restored cover');
+    assert.equal(fs.readFileSync(path.join(workspace.root, 'public/img/avatar.webp'), 'utf8'), 'restored avatar');
+    assert.equal(fs.readFileSync(path.join(workspace.root, 'public/img/cover.webp'), 'utf8'), 'restored cover');
   } finally {
-    fs.rmSync(projectRoot, { recursive: true, force: true });
     fs.rmSync(stage, { recursive: true, force: true });
-    if (archive) fs.rmSync(archive, { force: true });
+    removeWorkspace(workspace);
   }
 });
 
@@ -254,132 +261,123 @@ test('backup source validation rejects contract mismatches and nested symlinks',
 });
 
 test('restore rejects missing or inconsistent manifests before preview', () => {
+  const workspace = createTestWorkspace('koharu-backup-manifest-');
   const missingStage = fs.mkdtempSync(path.join(os.tmpdir(), 'koharu-backup-missing-manifest-'));
   const inconsistentStage = fs.mkdtempSync(path.join(os.tmpdir(), 'koharu-backup-inconsistent-manifest-'));
-  let missingArchive = '';
-  let inconsistentArchive = '';
   try {
     fs.writeFileSync(path.join(missingStage, 'unexpected.txt'), 'unexpected');
-    missingArchive = createArchive(missingStage);
-    assert.throws(() => getRestorePreview(missingArchive), /缺少 manifest\.json/);
+    const missingArchive = createArchive(workspace, missingStage);
+    assert.throws(() => getRestorePreview(missingArchive, { workspace }), /缺少 manifest\.json/);
     assert.equal(
-      getBackupList().some((backup) => backup.path === missingArchive),
+      getBackupList(workspace).some((backup) => backup.path === missingArchive),
       true,
     );
     assert.equal(
-      getRestorableBackupList().some((backup) => backup.path === missingArchive),
+      getRestorableBackupList(workspace).some((backup) => backup.path === missingArchive),
       false,
     );
 
     fs.mkdirSync(path.join(inconsistentStage, 'img'), { recursive: true });
     fs.writeFileSync(path.join(inconsistentStage, 'img/restored.txt'), 'restored');
     writeBasicManifest(inconsistentStage, []);
-    inconsistentArchive = createArchive(inconsistentStage);
-    assert.throws(() => getRestorePreview(inconsistentArchive), /files\.img 与归档内容不一致/);
+    const inconsistentArchive = createArchive(workspace, inconsistentStage);
+    assert.throws(() => getRestorePreview(inconsistentArchive, { workspace }), /files\.img 与归档内容不一致/);
   } finally {
     fs.rmSync(missingStage, { recursive: true, force: true });
     fs.rmSync(inconsistentStage, { recursive: true, force: true });
-    if (missingArchive) fs.rmSync(missingArchive, { force: true });
-    if (inconsistentArchive) fs.rmSync(inconsistentArchive, { force: true });
+    removeWorkspace(workspace);
   }
 });
 
 test('restore rejects archive items whose type disagrees with the backup contract', () => {
-  const projectRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'koharu-restore-type-target-'));
+  const workspace = createTestWorkspace('koharu-restore-type-target-');
   const directoryAsFileStage = fs.mkdtempSync(path.join(os.tmpdir(), 'koharu-restore-dir-as-file-'));
   const fileAsDirectoryStage = fs.mkdtempSync(path.join(os.tmpdir(), 'koharu-restore-file-as-dir-'));
-  const archives: string[] = [];
 
   try {
-    writePost(path.join(projectRoot, 'src/content/blog'), 'old.md', 'old');
+    writePost(path.join(workspace.root, 'src/content/blog'), 'old.md', 'old');
 
     fs.mkdirSync(path.join(directoryAsFileStage, 'content'), { recursive: true });
     fs.writeFileSync(path.join(directoryAsFileStage, 'content/blog'), 'not a directory');
     writeBasicManifest(directoryAsFileStage, ['content/blog']);
-    archives.push(createArchive(directoryAsFileStage));
+    const directoryAsFileArchive = createArchive(workspace, directoryAsFileStage);
 
     fs.mkdirSync(path.join(fileAsDirectoryStage, 'env'), { recursive: true });
     fs.writeFileSync(path.join(fileAsDirectoryStage, 'env/value'), 'not a file');
     writeBasicManifest(fileAsDirectoryStage, ['env']);
-    archives.push(createArchive(fileAsDirectoryStage));
+    const fileAsDirectoryArchive = createArchive(workspace, fileAsDirectoryStage);
 
-    assert.throws(() => getRestorePreview(archives[0], { projectRoot }), /content\/blog 类型无效，应为目录/);
-    assert.throws(() => restoreBackup(archives[0], { projectRoot }), /content\/blog 类型无效，应为目录/);
-    assert.throws(() => getRestorePreview(archives[1], { projectRoot }), /env 类型无效，应为普通文件/);
-    assert.throws(() => restoreBackup(archives[1], { projectRoot }), /env 类型无效，应为普通文件/);
-    assert.equal(fs.existsSync(path.join(projectRoot, 'src/content/blog/old.md')), true);
+    assert.throws(() => getRestorePreview(directoryAsFileArchive, { workspace }), /content\/blog 类型无效，应为目录/);
+    assert.throws(() => restoreBackup(directoryAsFileArchive, { workspace }), /content\/blog 类型无效，应为目录/);
+    assert.throws(() => getRestorePreview(fileAsDirectoryArchive, { workspace }), /env 类型无效，应为普通文件/);
+    assert.throws(() => restoreBackup(fileAsDirectoryArchive, { workspace }), /env 类型无效，应为普通文件/);
+    assert.equal(fs.existsSync(path.join(workspace.root, 'src/content/blog/old.md')), true);
   } finally {
-    fs.rmSync(projectRoot, { recursive: true, force: true });
     fs.rmSync(directoryAsFileStage, { recursive: true, force: true });
     fs.rmSync(fileAsDirectoryStage, { recursive: true, force: true });
-    for (const archive of archives) fs.rmSync(archive, { force: true });
+    removeWorkspace(workspace);
   }
 });
 
 test('restore rejects symlink archive entries before extraction', () => {
-  const projectRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'koharu-restore-archive-symlink-target-'));
+  const workspace = createTestWorkspace('koharu-restore-archive-symlink-target-');
   const external = fs.mkdtempSync(path.join(os.tmpdir(), 'koharu-restore-archive-symlink-external-'));
   const stage = fs.mkdtempSync(path.join(os.tmpdir(), 'koharu-restore-archive-symlink-stage-'));
-  let archive = '';
 
   try {
     fs.mkdirSync(path.join(stage, 'content'), { recursive: true });
     fs.symlinkSync(external, path.join(stage, 'content/blog'), 'dir');
     writeBasicManifest(stage, ['content/blog']);
-    archive = createArchive(stage);
+    const archive = createArchive(workspace, stage);
 
-    assert.throws(() => getRestorePreview(archive, { projectRoot }), /unsupported type/);
-    assert.throws(() => restoreBackup(archive, { projectRoot }), /unsupported type/);
+    assert.throws(() => getRestorePreview(archive, { workspace }), /unsupported type/);
+    assert.throws(() => restoreBackup(archive, { workspace }), /unsupported type/);
     assert.deepEqual(fs.readdirSync(external), []);
   } finally {
-    fs.rmSync(projectRoot, { recursive: true, force: true });
     fs.rmSync(external, { recursive: true, force: true });
     fs.rmSync(stage, { recursive: true, force: true });
-    if (archive) fs.rmSync(archive, { force: true });
+    removeWorkspace(workspace);
   }
 });
 
 test('content migration errors leave every existing restore target unchanged', () => {
-  const projectRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'koharu-restore-migration-error-'));
+  const workspace = createTestWorkspace('koharu-restore-migration-error-');
   const stage = fs.mkdtempSync(path.join(os.tmpdir(), 'koharu-restore-migration-stage-'));
-  let archive = '';
   try {
-    writePost(path.join(projectRoot, 'src/content/blog'), 'old.md', 'old');
+    writePost(path.join(workspace.root, 'src/content/blog'), 'old.md', 'old');
     writePost(path.join(stage, 'content/blog'), 'first.md', 'duplicate');
     writePost(path.join(stage, 'content/blog'), 'second.md', 'duplicate');
     writeBasicManifest(stage, ['content/blog']);
-    archive = createArchive(stage);
+    const archive = createArchive(workspace, stage);
 
-    assert.throws(() => restoreBackup(archive, { projectRoot }), /内容迁移存在 2 个错误/);
-    assert.equal(fs.existsSync(path.join(projectRoot, 'src/content/blog/old.md')), true);
-    assert.equal(fs.existsSync(path.join(projectRoot, 'src/content/blog/first.md')), false);
+    assert.throws(() => restoreBackup(archive, { workspace }), /内容迁移存在 2 个错误/);
+    assert.equal(fs.existsSync(path.join(workspace.root, 'src/content/blog/old.md')), true);
+    assert.equal(fs.existsSync(path.join(workspace.root, 'src/content/blog/first.md')), false);
     assert.equal(
-      fs.readdirSync(projectRoot).some((entry) => entry.startsWith('.koharu-restore-')),
+      fs.readdirSync(workspace.root).some((entry) => entry.startsWith('.koharu-restore-')),
       false,
     );
   } finally {
-    fs.rmSync(projectRoot, { recursive: true, force: true });
     fs.rmSync(stage, { recursive: true, force: true });
-    if (archive) fs.rmSync(archive, { force: true });
+    removeWorkspace(workspace);
   }
 });
 
 test('a commit failure rolls back targets already switched to restored candidates', () => {
-  const projectRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'koharu-restore-rollback-'));
+  const workspace = createTestWorkspace('koharu-restore-rollback-');
   const stage = fs.mkdtempSync(path.join(os.tmpdir(), 'koharu-restore-rollback-stage-'));
-  let archive = '';
   const originalRenameSync = fs.renameSync;
   let injected = false;
 
   try {
-    writePost(path.join(projectRoot, 'src/content/blog'), 'old.md', 'old');
-    fs.mkdirSync(path.join(projectRoot, 'public/img'), { recursive: true });
-    fs.writeFileSync(path.join(projectRoot, 'public/img/old.txt'), 'old');
+    writePost(path.join(workspace.root, 'src/content/blog'), 'old.md', 'old');
+    fs.mkdirSync(path.join(workspace.root, 'public/img'), { recursive: true });
+    fs.writeFileSync(path.join(workspace.root, 'public/img/old.txt'), 'old');
     writePost(path.join(stage, 'content/blog'), 'new.md', 'new');
     fs.mkdirSync(path.join(stage, 'img'), { recursive: true });
     fs.writeFileSync(path.join(stage, 'img/new.txt'), 'new');
     writeBasicManifest(stage, ['content/blog', 'img']);
-    archive = createArchive(stage);
+    const archive = createArchive(workspace, stage);
 
     Object.defineProperty(fs, 'renameSync', {
       configurable: true,
@@ -393,14 +391,14 @@ test('a commit failure rolls back targets already switched to restored candidate
       }) satisfies typeof fs.renameSync,
     });
 
-    assert.throws(() => restoreBackup(archive, { projectRoot }), /injected commit failure/);
+    assert.throws(() => restoreBackup(archive, { workspace }), /injected commit failure/);
     assert.equal(injected, true);
-    assert.equal(fs.existsSync(path.join(projectRoot, 'src/content/blog/old.md')), true);
-    assert.equal(fs.existsSync(path.join(projectRoot, 'src/content/blog/new.md')), false);
-    assert.equal(fs.readFileSync(path.join(projectRoot, 'public/img/old.txt'), 'utf8'), 'old');
-    assert.equal(fs.existsSync(path.join(projectRoot, 'public/img/new.txt')), false);
+    assert.equal(fs.existsSync(path.join(workspace.root, 'src/content/blog/old.md')), true);
+    assert.equal(fs.existsSync(path.join(workspace.root, 'src/content/blog/new.md')), false);
+    assert.equal(fs.readFileSync(path.join(workspace.root, 'public/img/old.txt'), 'utf8'), 'old');
+    assert.equal(fs.existsSync(path.join(workspace.root, 'public/img/new.txt')), false);
     assert.equal(
-      fs.readdirSync(projectRoot).some((entry) => entry.startsWith('.koharu-restore-')),
+      fs.readdirSync(workspace.root).some((entry) => entry.startsWith('.koharu-restore-')),
       false,
     );
   } finally {
@@ -409,8 +407,7 @@ test('a commit failure rolls back targets already switched to restored candidate
       writable: true,
       value: originalRenameSync,
     });
-    fs.rmSync(projectRoot, { recursive: true, force: true });
     fs.rmSync(stage, { recursive: true, force: true });
-    if (archive) fs.rmSync(archive, { force: true });
+    removeWorkspace(workspace);
   }
 });

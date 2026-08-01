@@ -1,0 +1,54 @@
+---
+/** Body-level chrome: the page frame plus every globally mounted island. */
+
+import type { HomeSiderType } from '@constants/enum';
+import type { BlogPost } from 'types/blog';
+
+interface Props {
+  post?: BlogPost;
+  siderType?: HomeSiderType;
+  isPostPage: boolean;
+}
+
+import AnnouncementProvider from '@components/announcement/AnnouncementProvider.astro';
+import GlobalBGMPlayer from '@components/bgm/GlobalBGMPlayer';
+import ChristmasEffects from '@components/christmas/ChristmasEffects.astro';
+import CodePenEmbed from '@components/embed/CodePenEmbed.astro';
+import FloatingGroup from '@components/layout/FloatingGroup';
+import Header from '@components/layout/Header.astro';
+import MobileDrawer from '@components/layout/MobileDrawer.astro';
+import SearchDialog from '@components/layout/SearchDialog';
+import SearchPortal from '@components/layout/SearchPortal.astro';
+import CodeBlockFullscreen from '@components/markdown/CodeBlockFullscreen';
+import DiagramFullscreen from '@components/markdown/DiagramFullscreen';
+import ImageLightbox from '@components/markdown/ImageLightbox';
+import SettingsPanel from '@components/settings/SettingsPanel';
+import { Toaster } from '@components/ui/sonner';
+import { bgmConfig } from '@constants/site-config';
+
+const { post, siderType, isPostPage } = Astro.props;
+---
+
+<ChristmasEffects transition:persist="christmas-snowfall" />
+<div class="flex min-h-screen flex-col text-black dark:text-white">
+  <Header isPostPage={isPostPage} tocNumbering={post?.data.tocNumbering ?? true} />
+  <main class="relative flex grow flex-col gap-4">
+    {(<slot />)}
+  </main>
+  {bgmConfig.enabled && bgmConfig.audio.length > 0 && (
+    <div transition:persist="global-bgm">
+      <GlobalBGMPlayer client:only="react" audioGroups={bgmConfig.audio} metingApi={bgmConfig.metingApi} />
+    </div>
+  )}
+  <FloatingGroup client:only="react" />
+  <SettingsPanel client:idle />
+  <MobileDrawer type={siderType} post={post} />
+  <SearchDialog client:idle />
+  <SearchPortal />
+  <CodeBlockFullscreen client:idle />
+  <DiagramFullscreen client:idle />
+  <ImageLightbox client:idle />
+  <Toaster client:idle />
+  <AnnouncementProvider />
+  <CodePenEmbed />
+</div>

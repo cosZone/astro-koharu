@@ -3,8 +3,9 @@ import { ConfirmInput, Spinner } from '@inkjs/ui';
 import { Box, Text } from 'ink';
 import { useCallback, useEffect, useState } from 'react';
 import { CycleSelect as Select } from './components';
+import { AUTO_EXIT_DELAY } from './constants';
+import { usePressAnyKey, useRetimer } from './hooks';
 import {
-  AUTO_EXIT_DELAY,
   type BackupInfo,
   type ContentMigrationPlan,
   getRestorableBackupList,
@@ -12,10 +13,8 @@ import {
   type RestorePreviewItem,
   restoreBackup,
   tarExtractManifest,
-  usePressAnyKey,
-  useRetimer,
   validateBackupFilePath,
-} from './shared';
+} from './utils';
 
 type RestoreStatus = 'selecting' | 'confirming' | 'restoring' | 'done' | 'error' | 'cancelled';
 

@@ -9,7 +9,7 @@
  * - `supportedLocales` / `localeList`: Only enabled locales — for routing, UI, hreflang
  */
 
-import { i18nConfig } from '@constants/site-config';
+import { i18nConfig } from '@lib/config/site';
 
 /** Default locale code (e.g., 'zh') */
 export const defaultLocale: string = i18nConfig.defaultLocale;

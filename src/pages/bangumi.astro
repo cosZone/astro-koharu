@@ -7,16 +7,21 @@ import { bangumiConfig, siteConfig } from '@constants/site-config';
 import Layout from '@layouts/Layout.astro';
 import TwoColumnLayout from '@layouts/TwoColumnLayout.astro';
 import { Comment } from '@/components/comment';
-import { getLocaleFromUrl, t } from '@/i18n';
+import { defaultLocale, t } from '@/i18n';
+
+interface Props {
+  locale?: string;
+}
 
 if (!bangumiConfig) return Astro.redirect('/404');
 
-const locale = getLocaleFromUrl(Astro.url.pathname);
+// Root pages render the default locale; `[lang]/` mirrors pass their locale in explicitly.
+const { locale = defaultLocale } = Astro.props;
 const title = `${t(locale, 'bangumi.title')} | ${siteConfig.title}`;
 const description = t(locale, 'bangumi.description');
 ---
 
-<Layout title={title} description={description}>
+<Layout locale={locale} title={title} description={description}>
   <TwoColumnLayout>
     <Cover slot="cover" title={t(locale, 'bangumi.title')} />
     <HomeSider slot="sider" />

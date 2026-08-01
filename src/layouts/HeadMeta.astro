@@ -1,0 +1,91 @@
+---
+import type { PageMeta } from './page-meta';
+
+interface Props {
+  meta: PageMeta;
+}
+
+import { siteConfig } from '@constants/site-config';
+import { getOgImageUrl } from '@lib/seo/og-image';
+import { SEO } from 'astro-seo';
+import { defaultLocale, getAlternateUrl, getHtmlLang, isI18nEnabled, localeList, localizedPath } from '@/i18n';
+
+const { meta } = Astro.props;
+const { locale, title, description, openGraph, robots, includeLocaleAlternates = true } = meta;
+
+const resolveAbsoluteUrl = (value: string | undefined) => (value ? new URL(value, Astro.site).href : undefined);
+
+const ogImage = resolveAbsoluteUrl(openGraph?.image) ?? getOgImageUrl(meta.coverImage, Astro.site);
+const ogTitle = openGraph?.title ?? title;
+const ogDescription = openGraph?.description ?? description;
+const canonicalHref = meta.canonical ?? Astro.url.href;
+const ogUrl = resolveAbsoluteUrl(openGraph?.url) ?? canonicalHref;
+
+const keywords = meta.keywords || siteConfig.keywords || [siteConfig.title];
+const rssFeeds = meta.rssFeeds ?? [
+  { href: new URL(localizedPath('/rss.xml', locale), Astro.site).href, title: siteConfig.title },
+];
+
+const showLocaleAlternates = includeLocaleAlternates && isI18nEnabled;
+const alternateUrl = (target: string) => new URL(getAlternateUrl(Astro.url.pathname, target), Astro.site).href;
+const hreflangLinks = showLocaleAlternates
+  ? localeList.map((loc) => ({ lang: getHtmlLang(loc), href: alternateUrl(loc) }))
+  : [];
+---
+
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<link rel="icon" type="image/svg+xml" href="/favicon.ico" />
+<meta name="generator" content={Astro.generator} />
+{/* Async load rounded fonts — Japanese pages use Gen Jyuu Gothic P, others use ChillRoundF (fix #113) */}
+{locale === 'ja' ? (
+  <>
+    <link rel="stylesheet" href="/fonts/GenJyuuGothic-P-Regular/result.css" media="print" onload="this.setAttribute('media','all')" />
+    <link rel="stylesheet" href="/fonts/GenJyuuGothic-P-Bold/result.css" media="print" onload="this.setAttribute('media','all')" />
+  </>
+) : (
+  <>
+    <link rel="stylesheet" href="/fonts/ChillRoundFRegular/result.css" media="print" onload="this.setAttribute('media','all')" />
+    <link rel="stylesheet" href="/fonts/ChillRoundFBold/result.css" media="print" onload="this.setAttribute('media','all')" />
+  </>
+)}
+
+<!-- SEO 元数据由 astro-seo 管理 -->
+<SEO
+  title={title}
+  description={description}
+  canonical={canonicalHref}
+  openGraph={{
+    basic: {
+      title: ogTitle,
+      type: openGraph?.type ?? 'website',
+      image: ogImage || '',
+      url: ogUrl,
+    },
+    optional: {
+      siteName: siteConfig.name,
+      description: ogDescription,
+    },
+  }}
+  twitter={{
+    card: ogImage ? 'summary_large_image' : 'summary',
+    title: ogTitle,
+    description: ogDescription,
+    ...(ogImage && { image: ogImage }),
+  }}
+  extend={{
+    meta: [{ name: 'author', content: siteConfig.author || '' }],
+  }}
+/>
+{/* astro-seo 暂不支持管理 keywords */}
+<meta name="keywords" content={keywords.join(', ')} />
+{robots && <meta name="robots" content={robots} />}
+
+{rssFeeds.map((feed) => (
+  <link rel="alternate" type="application/rss+xml" title={feed.title} href={feed.href} />
+))}
+{/* hreflang alternate links for SEO — only output when multiple locales are configured */}
+{hreflangLinks.map(({ lang, href }) => (
+  <link rel="alternate" hreflang={lang} href={href} />
+))}
+{showLocaleAlternates && <link rel="alternate" hreflang="x-default" href={alternateUrl(defaultLocale)} />}

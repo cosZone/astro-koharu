@@ -21,7 +21,7 @@ const { posts, page, showPaginator = true, baseUrl, isHomePage = false, isSimple
 const locale = getLocaleFromUrl(Astro.url.pathname);
 const covers = shuffle(defaultCoverList);
 
-const imagePosition = contentConfig.postCardImagePosition || 'alternating';
+const imagePosition = contentConfig.postCardImagePosition;
 const isUniformPosition = imagePosition !== 'alternating';
 
 /**

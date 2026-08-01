@@ -22,6 +22,10 @@ export {
   runGenerateAll,
   runScript,
 } from './generate-operations';
+// Git porcelain
+export { abortMerge, abortRebase } from './git-porcelain';
+// Migration operations
+export { applyContentMigration, type ContentMigrationPlan, planContentMigration } from './migration-operations';
 // New operations
 export {
   appendFriend,
@@ -35,6 +39,8 @@ export {
   loadSiteConfig,
   postExists,
 } from './new-operations';
+// Release feed
+export { buildReleaseUrl, extractReleaseSummary, fetchReleaseInfo } from './release-feed';
 // Restore operations
 export {
   getRestorePreview,
@@ -50,10 +56,8 @@ export { tarCreate, tarExtract, tarExtractManifest, tarList } from './tar';
 export { statusEffects } from './update-effects';
 // Update operations
 export {
-  abortMerge,
   addUpstreamRemote,
   checkGitStatus,
-  cleanRestore,
   ensureUpstreamRemote,
   fetchUpstream,
   getUpdateInfo,
@@ -62,7 +66,7 @@ export {
   installDeps,
   mergeUpstream,
 } from './update-operations';
-export { createInitialState, updateReducer } from './update-reducer';
+export { createInitialState, selectUpdatePresentation, type UpdatePresentation, updateReducer } from './update-reducer';
 // Validation utilities
 export {
   isPathWithinBackupDir,

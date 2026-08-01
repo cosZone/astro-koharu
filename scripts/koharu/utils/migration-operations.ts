@@ -8,7 +8,7 @@ import { load } from 'js-yaml';
 import { slugify } from 'transliteration';
 
 import { isBlogContentFile } from '../../../src/lib/content/glob';
-import { BLOG_CONTENT_PATH, PROJECT_ROOT, SITE_CONFIG_PATH } from '../constants/paths';
+import { DEFAULT_WORKSPACE, type KoharuWorkspace, PROJECT_ROOT } from '../constants/paths';
 
 export type ContentMigrationAction = 'add-link' | 'rename-slug' | 'remove-slug';
 
@@ -35,7 +35,11 @@ export interface ContentMigrationPlan {
 }
 
 export interface ContentMigrationOptions {
+  /** 迁移的目标工作区，默认当前项目 */
+  workspace?: KoharuWorkspace;
+  /** 覆盖 workspace 的内容目录（还原流程指向暂存副本） */
   contentDir?: string;
+  /** 覆盖 workspace 的站点配置路径 */
   siteConfigPath?: string;
 }
 
@@ -149,62 +153,58 @@ function findTopLevelField(lines: string[], endIndex: number, field: string): nu
   return indexes;
 }
 
-function replaceSlugField(raw: string, link: string): string | null {
+/**
+ * Count the lines a `slug` entry occupies, including a block scalar's indented body.
+ *
+ * Only block scalars (`|`/`>`) are tracked reliably; multi-line flow scalars are
+ * caught later by re-parsing the rewritten document.
+ */
+function getFieldLineSpan(frontmatter: FrontmatterLines, startIndex: number): number {
+  const line = frontmatter.lines[startIndex];
+  const value = line.slice(line.indexOf(':') + 1).trimStart();
+  if (!value.startsWith('|') && !value.startsWith('>')) return 1;
+
+  let span = 1;
+  while (startIndex + span < frontmatter.endIndex) {
+    const next = frontmatter.lines[startIndex + span];
+    if (next.length > 0 && !/^\s/.test(next)) break;
+    span++;
+  }
+  return span;
+}
+
+/** A single line-level frontmatter edit that keeps the `slug` → `link` migration reversible. */
+type FrontmatterEdit =
+  | { kind: 'add-link'; link: string }
+  | { kind: 'rename-slug' }
+  | { kind: 'replace-slug'; link: string }
+  | { kind: 'remove-slug' };
+
+/** Apply one frontmatter edit, or return null when the field cannot be located safely. */
+function editFrontmatterField(raw: string, edit: FrontmatterEdit): string | null {
   const frontmatter = getFrontmatterLines(raw);
   if (!frontmatter) return null;
-  const indexes = findTopLevelField(frontmatter.lines, frontmatter.endIndex, 'slug');
-  if (indexes.length !== 1) return null;
 
-  const startIndex = indexes[0];
-  const value = frontmatter.lines[startIndex].slice(frontmatter.lines[startIndex].indexOf(':') + 1).trimStart();
-  let replaceCount = 1;
-  if (value.startsWith('|') || value.startsWith('>')) {
-    while (startIndex + replaceCount < frontmatter.endIndex) {
-      const line = frontmatter.lines[startIndex + replaceCount];
-      if (line.length > 0 && !/^\s/.test(line)) break;
-      replaceCount++;
-    }
+  if (edit.kind === 'add-link') {
+    frontmatter.lines.splice(1, 0, `link: ${yamlQuote(edit.link)}`);
+    return frontmatter.lines.join(frontmatter.eol);
   }
 
-  frontmatter.lines.splice(startIndex, replaceCount, `link: ${yamlQuote(link)}`);
-  return frontmatter.lines.join(frontmatter.eol);
-}
-
-function renameSlugField(raw: string): string | null {
-  const frontmatter = getFrontmatterLines(raw);
-  if (!frontmatter) return null;
   const indexes = findTopLevelField(frontmatter.lines, frontmatter.endIndex, 'slug');
   if (indexes.length !== 1) return null;
-
-  frontmatter.lines[indexes[0]] = frontmatter.lines[indexes[0]].replace(/^slug(\s*:)/, 'link$1');
-  return frontmatter.lines.join(frontmatter.eol);
-}
-
-function removeSlugField(raw: string): string | null {
-  const frontmatter = getFrontmatterLines(raw);
-  if (!frontmatter) return null;
-  const indexes = findTopLevelField(frontmatter.lines, frontmatter.endIndex, 'slug');
-  if (indexes.length !== 1) return null;
-
   const startIndex = indexes[0];
-  const value = frontmatter.lines[startIndex].slice(frontmatter.lines[startIndex].indexOf(':') + 1).trimStart();
-  let deleteCount = 1;
-  if (value.startsWith('|') || value.startsWith('>')) {
-    while (startIndex + deleteCount < frontmatter.endIndex) {
-      const line = frontmatter.lines[startIndex + deleteCount];
-      if (line.length > 0 && !/^\s/.test(line)) break;
-      deleteCount++;
-    }
+
+  switch (edit.kind) {
+    case 'rename-slug':
+      frontmatter.lines[startIndex] = frontmatter.lines[startIndex].replace(/^slug(\s*:)/, 'link$1');
+      break;
+    case 'replace-slug':
+      frontmatter.lines.splice(startIndex, getFieldLineSpan(frontmatter, startIndex), `link: ${yamlQuote(edit.link)}`);
+      break;
+    default:
+      frontmatter.lines.splice(startIndex, getFieldLineSpan(frontmatter, startIndex));
   }
 
-  frontmatter.lines.splice(startIndex, deleteCount);
-  return frontmatter.lines.join(frontmatter.eol);
-}
-
-function addLinkField(raw: string, link: string): string | null {
-  const frontmatter = getFrontmatterLines(raw);
-  if (!frontmatter) return null;
-  frontmatter.lines.splice(1, 0, `link: ${yamlQuote(link)}`);
   return frontmatter.lines.join(frontmatter.eol);
 }
 
@@ -303,8 +303,9 @@ function emptyPlan(snapshot: ContentMigrationSnapshot, errors: ContentMigrationI
  * - posts with neither field receive their locale-free file path as `link`.
  */
 export function planContentMigration(options: ContentMigrationOptions = {}): ContentMigrationPlan {
-  const contentDir = path.resolve(options.contentDir ?? BLOG_CONTENT_PATH);
-  const siteConfigPath = path.resolve(options.siteConfigPath ?? SITE_CONFIG_PATH);
+  const workspace = options.workspace ?? DEFAULT_WORKSPACE;
+  const contentDir = path.resolve(options.contentDir ?? workspace.contentDir);
+  const siteConfigPath = path.resolve(options.siteConfigPath ?? workspace.siteConfigPath);
   const snapshot = createContentMigrationSnapshot(contentDir, siteConfigPath);
   if (!fs.existsSync(contentDir)) {
     return emptyPlan(snapshot, [{ file: displayPath(contentDir), message: '博客内容目录不存在' }]);
@@ -383,11 +384,14 @@ export function planContentMigration(options: ContentMigrationOptions = {}): Con
     let action: ContentMigrationAction | null = null;
 
     if (link && hasSlugField) {
-      updated = removeSlugField(raw);
+      updated = editFrontmatterField(raw, { kind: 'remove-slug' });
       action = 'remove-slug';
     } else if (!link && slug) {
       targetLink = normalizeLegacySlug(slug, localeConfig);
-      updated = targetLink === slug ? renameSlugField(raw) : replaceSlugField(raw, targetLink);
+      updated = editFrontmatterField(
+        raw,
+        targetLink === slug ? { kind: 'rename-slug' } : { kind: 'replace-slug', link: targetLink },
+      );
       action = 'rename-slug';
     } else if (!link) {
       const pathLink = getPathLink(relativePath, localeConfig);
@@ -403,7 +407,7 @@ export function planContentMigration(options: ContentMigrationOptions = {}): Con
         continue;
       }
       targetLink = defaultLocaleLink ?? counterpartCandidates?.values().next().value ?? pathLink;
-      updated = addLinkField(raw, targetLink);
+      updated = editFrontmatterField(raw, { kind: 'add-link', link: targetLink });
       action = 'add-link';
     }
 

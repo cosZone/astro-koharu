@@ -1,6 +1,16 @@
 ---
+import { bangumiConfig } from '@constants/site-config';
 import { getLocaleStaticPaths } from '../_shared/utils';
 import BangumiPage from '../bangumi.astro';
-export const getStaticPaths = getLocaleStaticPaths;
+
+// Without bangumi configured the root page redirects at its top level, which throws
+// when rendered as a child component (astro#5551) — emit no paths instead.
+export const getStaticPaths = bangumiConfig ? getLocaleStaticPaths : async () => [];
+
+interface Props {
+  locale: string;
+}
+
+const { locale } = Astro.props;
 ---
-<BangumiPage />
+<BangumiPage locale={locale} />

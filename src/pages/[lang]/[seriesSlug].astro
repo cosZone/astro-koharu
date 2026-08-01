@@ -1,20 +1,15 @@
 ---
-import { getEnabledSeries } from '@lib/content';
-import { defaultLocale, localeList } from '@/i18n/config';
+import type { FeaturedSeriesItem } from '@lib/config/types';
+import { seriesRoute } from '../_shared/routes';
 import SeriesPage from '../[seriesSlug].astro';
 
-export async function getStaticPaths() {
-  const nonDefaultLocales = localeList.filter((l) => l !== defaultLocale);
-  const enabledSeries = getEnabledSeries();
+export const getStaticPaths = seriesRoute.mirror;
 
-  return nonDefaultLocales.flatMap((lang) =>
-    enabledSeries.map((series) => ({
-      params: { lang, seriesSlug: series.slug },
-      props: { series },
-    })),
-  );
+interface Props {
+  series: FeaturedSeriesItem;
+  locale: string;
 }
 
-const { series } = Astro.props;
+const { series, locale } = Astro.props;
 ---
-<SeriesPage series={series} />
+<SeriesPage series={series} locale={locale} />

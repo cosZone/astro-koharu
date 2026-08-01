@@ -2,27 +2,29 @@
 import HomeSider from '@components/layout/HomeSider.astro';
 import PostList from '@components/post/PostList.astro';
 import Cover from '@components/ui/cover/Cover.astro';
-import { CONTENT_PADDING, PAGINATION } from '@constants/layout';
+import { CONTENT_PADDING } from '@constants/layout';
 import { seoConfig } from '@constants/site-config';
 import Layout from '@layouts/Layout.astro';
 import TwoColumnLayout from '@layouts/TwoColumnLayout.astro';
-import { getNonFeaturedPosts } from '@lib/content';
 import { toPostCardDataList } from '@lib/content/transforms';
-import type { PaginateFunction } from 'astro';
+import type { Page } from 'astro';
+import type { BlogPost } from 'types/blog';
 import Divider from '@/components/ui/divider';
-import { defaultLocale, getLocaleFromUrl, t } from '@/i18n';
+import { t } from '@/i18n';
+import { postListRoute } from '../_shared/routes';
 
-export async function getStaticPaths({ paginate }: { paginate: PaginateFunction }) {
-  const postCollections = await getNonFeaturedPosts(defaultLocale);
-  return paginate(postCollections, { pageSize: PAGINATION.pageSize });
+export const getStaticPaths = postListRoute.root;
+
+interface Props {
+  page: Page<BlogPost>;
+  locale: string;
 }
 
-const { page } = Astro.props;
-const locale = getLocaleFromUrl(Astro.url.pathname);
+const { page, locale } = Astro.props;
 const postCardData = toPostCardDataList(page.data, locale);
 ---
 
-<Layout title={seoConfig.title}>
+<Layout locale={locale} title={seoConfig.title}>
   <TwoColumnLayout>
     <Cover slot="cover" />
     <HomeSider slot="sider" />

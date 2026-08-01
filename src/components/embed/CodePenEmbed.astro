@@ -1,0 +1,64 @@
+---
+/**
+ * Loads CodePen's embed script on demand and re-runs it after Astro page transitions.
+ * https://blog.codepen.io/documentation/embedded-pens/
+ */
+---
+
+<script>
+  declare global {
+    interface Window {
+      __CPEmbed?: () => void;
+    }
+  }
+
+  let codepenScriptLoaded = false;
+
+  function loadCodePenScript() {
+    return new Promise<void>((resolve, reject) => {
+      // Check if already loaded
+      if (codepenScriptLoaded || window.__CPEmbed) {
+        resolve();
+        return;
+      }
+
+      const script = document.createElement('script');
+      script.src = 'https://cpwebassets.codepen.io/assets/embed/ei.js';
+      script.async = true;
+      script.onload = () => {
+        codepenScriptLoaded = true;
+        resolve();
+      };
+      script.onerror = reject;
+      document.head.appendChild(script);
+    });
+  }
+
+  async function initializeCodePenEmbeds() {
+    // Check if there are any CodePen embeds on the page
+    const codepenElements = document.querySelectorAll('.codepen');
+    if (codepenElements.length === 0) {
+      return;
+    }
+
+    try {
+      // Load the CodePen script if not already loaded
+      await loadCodePenScript();
+
+      // Initialize all CodePen embeds
+      if (window.__CPEmbed) {
+        window.__CPEmbed();
+      }
+    } catch (error) {
+      console.error('[CodePen Embed] Failed to load CodePen embed script:', error);
+    }
+  }
+
+  // Initialize on initial page load
+  if (document.readyState !== 'loading') {
+    initializeCodePenEmbeds();
+  }
+
+  // Re-initialize on Astro page transitions
+  document.addEventListener('astro:page-load', initializeCodePenEmbeds);
+</script>

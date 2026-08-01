@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 
-import { BACKUP_DIR, BACKUP_FILE_EXTENSION } from '../constants';
+import { BACKUP_FILE_EXTENSION, DEFAULT_WORKSPACE, type KoharuWorkspace } from '../constants';
 import { formatSize } from './format';
 import { tarExtractManifest } from './tar';
 import { validateBackupArchive } from './validation';
@@ -36,19 +36,20 @@ export function parseBackupManifest(manifest: string): { type: string; timestamp
 /**
  * 获取备份列表
  */
-export function getBackupList(): BackupInfo[] {
-  if (!fs.existsSync(BACKUP_DIR)) {
+export function getBackupList(workspace: KoharuWorkspace = DEFAULT_WORKSPACE): BackupInfo[] {
+  const { backupDir } = workspace;
+  if (!fs.existsSync(backupDir)) {
     return [];
   }
 
   const files = fs
-    .readdirSync(BACKUP_DIR)
+    .readdirSync(backupDir)
     .filter((f) => f.endsWith(BACKUP_FILE_EXTENSION))
     .sort()
     .reverse();
 
   return files.map((name) => {
-    const filePath = path.join(BACKUP_DIR, name);
+    const filePath = path.join(backupDir, name);
     const stats = fs.statSync(filePath);
 
     let type = 'unknown';
@@ -65,10 +66,10 @@ export function getBackupList(): BackupInfo[] {
 }
 
 /** Return only archives that are safe to offer in the restore picker. */
-export function getRestorableBackupList(): BackupInfo[] {
-  return getBackupList().filter((backup) => {
+export function getRestorableBackupList(workspace: KoharuWorkspace = DEFAULT_WORKSPACE): BackupInfo[] {
+  return getBackupList(workspace).filter((backup) => {
     try {
-      validateBackupArchive(backup.path);
+      validateBackupArchive(backup.path, workspace.backupDir);
       return true;
     } catch {
       return false;

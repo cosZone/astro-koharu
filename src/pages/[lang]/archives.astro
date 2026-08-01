@@ -2,5 +2,11 @@
 import { getLocaleStaticPaths } from '../_shared/utils';
 import ArchivesPage from '../archives.astro';
 export const getStaticPaths = getLocaleStaticPaths;
+
+interface Props {
+  locale: string;
+}
+
+const { locale } = Astro.props;
 ---
-<ArchivesPage />
+<ArchivesPage locale={locale} />

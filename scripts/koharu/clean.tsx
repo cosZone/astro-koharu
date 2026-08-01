@@ -1,15 +1,9 @@
 import { ConfirmInput, MultiSelect } from '@inkjs/ui';
 import { Box, Text } from 'ink';
 import { useCallback, useEffect, useState } from 'react';
-import {
-  AUTO_EXIT_DELAY,
-  type BackupInfo,
-  deleteBackups,
-  formatSize,
-  getBackupList,
-  usePressAnyKey,
-  useRetimer,
-} from './shared';
+import { AUTO_EXIT_DELAY } from './constants';
+import { usePressAnyKey, useRetimer } from './hooks';
+import { type BackupInfo, deleteBackups, formatSize, getBackupList } from './utils';
 
 type CleanStatus = 'selecting' | 'confirming' | 'deleting' | 'done' | 'cancelled';
 

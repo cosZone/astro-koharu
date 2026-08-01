@@ -48,7 +48,6 @@ const nextPost = adjacentPosts.nextPost ? toPostRef(adjacentPosts.nextPost) : nu
         className="my-4 tablet:mb-0 flex justify-between text-sm/6 w-auto"
         itemClass="grow"
         defaultValue={defaultSegmentType}
-        id="inner-home-sider"
       />
     )
   }
@@ -108,30 +107,16 @@ const nextPost = adjacentPosts.nextPost ? toPostRef(adjacentPosts.nextPost) : nu
     private seriesContent: HTMLElement | null = null;
     private pageType: string | null = null;
     private defaultType: string | null = null;
+    private unsubscribe: (() => void) | null = null;
+    private animationFrame: number | null = null;
 
-    constructor() {
-      super();
-
-      // 保存最初的内容片段
+    connectedCallback() {
       this.infoContent = this.querySelector('[slot="info"]');
       this.directoryContent = this.querySelector('[slot="directory"]');
       this.seriesContent = this.querySelector('[slot="series"]');
-
-      // 从HTML属性中获取当前页面类型和默认分段类型
       this.pageType = this.getAttribute('data-type');
       this.defaultType = this.getAttribute('data-default-type');
-
-      // 初始化
-      this.init();
-    }
-
-    init() {
-      // 确保DOM已准备好
-      if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', () => this.initContent());
-      } else {
-        this.initContent();
-      }
+      this.initContent();
     }
 
     initContent() {
@@ -145,13 +130,16 @@ const nextPost = adjacentPosts.nextPost ? toPostRef(adjacentPosts.nextPost) : nu
         this.showContent(initialType, true);
 
         // 监听状态变化（有动画）
-        homeSiderSegmentType.listen((value) => {
+        this.unsubscribe?.();
+        this.unsubscribe = homeSiderSegmentType.listen((value) => {
           this.showContent(value, false);
         });
       }
     }
 
     showContent(type: HomeSiderSegmentType, skipAnimation = false) {
+      const contentPanels = [this.infoContent, this.directoryContent, this.seriesContent];
+
       // 确定目标内容
       let targetContent: HTMLElement | null = null;
       if (type === HomeSiderSegmentType.DIRECTORY) {
@@ -165,7 +153,7 @@ const nextPost = adjacentPosts.nextPost ? toPostRef(adjacentPosts.nextPost) : nu
       // 如果是初始化或者跳过动画，直接切换
       if (skipAnimation) {
         // 先隐藏所有
-        [this.infoContent, this.directoryContent, this.seriesContent].forEach((content) => {
+        contentPanels.forEach((content) => {
           content?.classList.add('hidden');
         });
         // 再显示目标
@@ -178,32 +166,40 @@ const nextPost = adjacentPosts.nextPost ? toPostRef(adjacentPosts.nextPost) : nu
         return;
       }
 
-      // 隐藏其他内容（添加退出动画）
-      [this.infoContent, this.directoryContent, this.seriesContent].forEach((content) => {
-        if (content && content !== targetContent && !content.classList.contains('hidden')) {
-          content.classList.add('exiting');
-          setTimeout(() => {
-            content.classList.add('hidden');
-            content.classList.remove('exiting');
-          }, 200);
-        }
+      if (this.animationFrame !== null) {
+        cancelAnimationFrame(this.animationFrame);
+        this.animationFrame = null;
+      }
+
+      // Hide the previous panel immediately so expensive drawer content never animates in parallel.
+      contentPanels.forEach((content) => {
+        content?.classList.toggle('hidden', content !== targetContent);
+        content?.classList.remove('entering');
       });
 
-      // 显示目标内容（添加进入动画）
+      // A single lightweight entrance keeps feedback without timers that can outlive rapid switches.
       if (targetContent) {
-        targetContent.classList.remove('hidden');
-        requestAnimationFrame(() => {
-          targetContent?.classList.add('entering');
-          setTimeout(() => {
-            targetContent?.classList.remove('entering');
-          }, 200);
+        this.animationFrame = requestAnimationFrame(() => {
+          targetContent.classList.add('entering');
+          this.animationFrame = null;
         });
+      }
+    }
+
+    disconnectedCallback() {
+      this.unsubscribe?.();
+      this.unsubscribe = null;
+      if (this.animationFrame !== null) {
+        cancelAnimationFrame(this.animationFrame);
+        this.animationFrame = null;
       }
     }
   }
 
   // 注册自定义元素
-  customElements.define('sider-content', SiderContent);
+  if (!customElements.get('sider-content')) {
+    customElements.define('sider-content', SiderContent);
+  }
 </script>
 
 <style>
@@ -234,8 +230,7 @@ const nextPost = adjacentPosts.nextPost ? toPostRef(adjacentPosts.nextPost) : nu
   }
 
   /* 默认无动画，适用于 prefers-reduced-motion: reduce */
-  .sider-slot.entering,
-  .sider-slot.exiting {
+  .sider-slot.entering {
     animation: none;
   }
 
@@ -252,23 +247,8 @@ const nextPost = adjacentPosts.nextPost ? toPostRef(adjacentPosts.nextPost) : nu
       }
     }
 
-    @keyframes slide-out-to-left {
-      from {
-        opacity: 1;
-        transform: translateX(0);
-      }
-      to {
-        opacity: 0;
-        transform: translateX(-12px);
-      }
-    }
-
     .sider-slot.entering {
-      animation: slide-in-from-right 0.2s ease-in-out;
-    }
-
-    .sider-slot.exiting {
-      animation: slide-out-to-left 0.2s ease-in-out;
+      animation: slide-in-from-right 0.15s ease-out;
     }
   }
 </style>

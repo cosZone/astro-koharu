@@ -62,6 +62,12 @@
     overflow: auto;
   }
 
+  @media (992px >= width) {
+    html {
+      scrollbar-gutter: auto;
+    }
+  }
+
   .vertical-scrollbar::-webkit-scrollbar {
     display: block;
     width: var(--scrollbar-width, 0.25rem);

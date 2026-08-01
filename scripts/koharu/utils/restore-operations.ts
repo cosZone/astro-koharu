@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 
-import { type BackupItem, PROJECT_ROOT } from '../constants';
+import { type BackupItem, DEFAULT_WORKSPACE, type KoharuWorkspace } from '../constants';
 import { type ContentMigrationPlan, runContentMigration } from './migration-operations';
 import { tarExtract } from './tar';
 import { type ValidatedBackupArchive, withValidatedBackupArchiveSnapshot } from './validation';
@@ -28,7 +28,8 @@ export interface RestoreOutput {
 }
 
 export interface RestoreOptions {
-  projectRoot?: string;
+  /** 还原的目标工作区，默认当前项目 */
+  workspace?: KoharuWorkspace;
 }
 
 interface RestoreItemPaths {
@@ -279,11 +280,15 @@ function previewRestoredContentMigration(tempDir: string, projectRoot: string): 
   return runContentMigration({ contentDir: projectedContent, siteConfigPath: projectedConfig, dryRun: true });
 }
 
-function extractValidatedBackupSnapshot(backupPath: string, tempDir: string): ValidatedBackupArchive {
-  return withValidatedBackupArchiveSnapshot(backupPath, (validated) => {
-    tarExtract(validated.path, tempDir);
-    return { ...validated, path: path.resolve(backupPath) };
-  });
+function extractValidatedBackupSnapshot(backupPath: string, tempDir: string, backupDir: string): ValidatedBackupArchive {
+  return withValidatedBackupArchiveSnapshot(
+    backupPath,
+    (validated) => {
+      tarExtract(validated.path, tempDir);
+      return { ...validated, path: path.resolve(backupPath) };
+    },
+    backupDir,
+  );
 }
 
 /**
@@ -292,11 +297,12 @@ function extractValidatedBackupSnapshot(backupPath: string, tempDir: string): Va
  * @returns Preview of the files to restore and delete, plus the content migration plan.
  */
 export function getRestorePreview(backupPath: string, options: RestoreOptions = {}): RestorePreview {
-  const projectRoot = path.resolve(options.projectRoot ?? PROJECT_ROOT);
+  const workspace = options.workspace ?? DEFAULT_WORKSPACE;
+  const projectRoot = workspace.root;
   const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'astro-koharu-restore-preview-'));
 
   try {
-    const validated = extractValidatedBackupSnapshot(backupPath, tempDir);
+    const validated = extractValidatedBackupSnapshot(backupPath, tempDir, workspace.backupDir);
     const items: RestorePreviewItem[] = [];
 
     for (const item of getPresentRestoreItems(validated)) {
@@ -325,13 +331,14 @@ export function getRestorePreview(backupPath: string, options: RestoreOptions = 
  * @returns The restored target paths and the content migration plan that ran.
  */
 export function restoreBackup(backupPath: string, options: RestoreOptions = {}): RestoreOutput {
-  const projectRoot = path.resolve(options.projectRoot ?? PROJECT_ROOT);
+  const workspace = options.workspace ?? DEFAULT_WORKSPACE;
+  const projectRoot = workspace.root;
   const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'astro-koharu-restore-'));
   let transactionDir: string | null = null;
   let preserveTransaction = false;
 
   try {
-    const validated = extractValidatedBackupSnapshot(backupPath, tempDir);
+    const validated = extractValidatedBackupSnapshot(backupPath, tempDir, workspace.backupDir);
 
     const restoreItems: RestoreItemPaths[] = getPresentRestoreItems(validated).flatMap((item) => {
       const srcPath = path.join(tempDir, item.dest);

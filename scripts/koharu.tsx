@@ -5,14 +5,15 @@ import { useState } from 'react';
 import { BackupApp } from './koharu/backup.js';
 import { CleanApp } from './koharu/clean.js';
 import { CycleSelect as Select } from './koharu/components';
+import { BACKUP_DIR } from './koharu/constants';
 import { GenerateApp } from './koharu/generate.js';
 import { HelpApp } from './koharu/help.js';
 import { ListApp } from './koharu/list.js';
 import { MigrateApp } from './koharu/migrate.js';
 import { NewApp } from './koharu/new.js';
 import { RestoreApp } from './koharu/restore.js';
-import { BACKUP_DIR, getBackupList, parseArgs } from './koharu/shared.js';
 import { UpdateApp } from './koharu/update.js';
+import { getBackupList, parseArgs } from './koharu/utils';
 
 const args = parseArgs();
 

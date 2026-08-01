@@ -1,205 +1,36 @@
-// Import YAML config directly - processed by @rollup/plugin-yaml
+/**
+ * Site configuration assembly layer.
+ *
+ * Re-exports the normalized values from `@lib/config/site` and maps the
+ * remaining YAML sections onto their runtime shapes. Nothing under `src/lib/**`
+ * may import this module — depend on `@lib/config/*` instead.
+ */
 
 import { normalizeMomentsConfig, resolveMomentsNavigation } from '@lib/config/moments';
+import {
+  contentConfig,
+  enabledLocaleCodes,
+  enabledSeriesSlugList,
+  featuredSeriesList,
+  i18nConfig,
+  siteConfig,
+} from '@lib/config/site';
 import type {
   AnalyticsConfig,
   BangumiConfig,
   BgmAudioGroup,
+  ChristmasConfig,
   CommentConfig,
   DevConfig,
-  FeaturedCategory,
-  FeaturedSeriesItem,
-  I18nConfig,
   RouterItem,
-  SiteBasicConfig,
+  SocialConfig,
 } from '@lib/config/types';
-import { DEFAULT_TIMEZONE, isValidTimezone } from '@lib/timezone';
 import { createUmamiStatsConfig } from '@lib/umami-stats';
 import type { UmamiStatsConfig } from '@/types/umami-stats';
 import yamlConfig from '../../config/site.yaml';
-import { DEFAULT_ROUTERS, isReservedSlug, RESERVED_ROUTES } from './router';
+import { DEFAULT_ROUTERS, RESERVED_ROUTES } from './router';
 
-/**
- * Runtime site configuration
- * Extends SiteBasicConfig with runtime-specific fields
- */
-type SiteConfig = Omit<SiteBasicConfig, 'url'> & {
-  /** Site URL (mapped from SiteBasicConfig.url) */
-  site: string;
-  featuredCategories?: FeaturedCategory[];
-  /** Normalized array of featured series */
-  featuredSeries: FeaturedSeriesItem[];
-};
-
-/**
- * Type guard to check if an unknown value is a valid FeaturedSeriesItem
- * @param value - The value to check
- * @returns true if the value is a valid FeaturedSeriesItem
- */
-function isFeaturedSeriesItem(value: unknown): value is FeaturedSeriesItem {
-  if (typeof value !== 'object' || value === null) {
-    return false;
-  }
-
-  const item = value as Record<string, unknown>;
-
-  // Check required field: categoryName must be a non-empty string
-  if (typeof item.categoryName !== 'string' || item.categoryName.trim() === '') {
-    return false;
-  }
-
-  // Check optional but important fields
-  if (item.slug !== undefined && typeof item.slug !== 'string') {
-    return false;
-  }
-
-  if (item.label !== undefined && typeof item.label !== 'string') {
-    return false;
-  }
-
-  if (item.enabled !== undefined && typeof item.enabled !== 'boolean') {
-    return false;
-  }
-
-  return true;
-}
-
-/**
- * Normalize featured series config to array format
- * Supports both legacy single object and new array format
- * Validates all series configurations at build time
- */
-function normalizeFeaturedSeries(config: unknown): FeaturedSeriesItem[] {
-  if (!config) return [];
-
-  // Convert to array format
-  let items: unknown[];
-  if (Array.isArray(config)) {
-    items = config;
-  } else {
-    // Legacy single object format - convert to array with default slug
-    items = [config];
-  }
-
-  // Validate each item using type guard
-  const validatedItems: FeaturedSeriesItem[] = [];
-  for (const [index, item] of items.entries()) {
-    if (!isFeaturedSeriesItem(item)) {
-      const itemStr = JSON.stringify(item, null, 2);
-      throw new Error(
-        `Featured series configuration error: Item at index ${index} is not a valid FeaturedSeriesItem.\n` +
-          `Expected an object with at least a 'categoryName' string field.\n` +
-          `Received: ${itemStr}`,
-      );
-    }
-
-    // Add default slug for legacy configs
-    const slug = item.slug || yamlConfig.categoryMap?.[item.categoryName] || 'series';
-    validatedItems.push({ ...item, slug });
-  }
-
-  // Validate each series configuration
-  const slugSet = new Set<string>();
-
-  for (const item of validatedItems) {
-    const rawSlug = typeof item.slug === 'string' ? item.slug : '';
-    const normalizedSlug = rawSlug.trim().toLowerCase();
-
-    // Validate required fields
-    if (!normalizedSlug) {
-      throw new Error(
-        `Featured series configuration error: Missing or invalid "slug" field. ` + `Each series must have a non-empty slug.`,
-      );
-    }
-
-    if (!item.categoryName || typeof item.categoryName !== 'string' || item.categoryName.trim() === '') {
-      throw new Error(
-        `Featured series configuration error: Series "${item.slug}" is missing or has invalid "categoryName" field. ` +
-          `Each series must have a valid category name.`,
-      );
-    }
-
-    // Validate slug format (alphanumeric, hyphens, underscores only)
-    const slugPattern = /^[a-z0-9-_]+$/i;
-    if (!slugPattern.test(normalizedSlug)) {
-      throw new Error(
-        `Featured series configuration error: Invalid slug "${rawSlug}". ` +
-          `Slugs must contain only alphanumeric characters, hyphens, and underscores.`,
-      );
-    }
-
-    // Check for reserved slugs
-    if (isReservedSlug(normalizedSlug)) {
-      throw new Error(
-        `Featured series configuration error: Slug "${rawSlug}" conflicts with a reserved route. ` +
-          `Reserved routes are: ${Array.from(RESERVED_ROUTES).join(', ')}. ` +
-          `Please choose a different slug.`,
-      );
-    }
-
-    // Check for duplicate slugs
-    if (slugSet.has(normalizedSlug)) {
-      throw new Error(`Featured series configuration error: Duplicate slug "${rawSlug}". Each series must have a unique slug.`);
-    }
-    slugSet.add(normalizedSlug);
-    item.slug = normalizedSlug;
-
-    // Validate categoryName exists in categoryMap
-    if (yamlConfig.categoryMap && !yamlConfig.categoryMap[item.categoryName]) {
-      console.warn(
-        `[Warning] Featured series "${item.slug}": Category "${item.categoryName}" not found in categoryMap. ` +
-          `Consider adding it to config/site.yaml for proper URL mapping.`,
-      );
-    }
-  }
-
-  return validatedItems;
-}
-
-type SocialPlatform = {
-  url: string;
-  icon: string;
-  color: string;
-};
-
-type SocialConfig = {
-  github?: SocialPlatform;
-  google?: SocialPlatform;
-  twitter?: SocialPlatform;
-  zhihu?: SocialPlatform;
-  music?: SocialPlatform;
-  weibo?: SocialPlatform;
-  about?: SocialPlatform;
-  email?: SocialPlatform;
-  facebook?: SocialPlatform;
-  stackoverflow?: SocialPlatform;
-  youtube?: SocialPlatform;
-  instagram?: SocialPlatform;
-  skype?: SocialPlatform;
-  douban?: SocialPlatform;
-  bilibili?: SocialPlatform;
-  rss?: SocialPlatform;
-};
-
-// Map YAML config to existing types
-export const siteConfig: SiteConfig = {
-  title: yamlConfig.site.title,
-  alternate: yamlConfig.site.alternate,
-  subtitle: yamlConfig.site.subtitle,
-  name: yamlConfig.site.name,
-  description: yamlConfig.site.description,
-  avatar: yamlConfig.site.avatar,
-  showLogo: yamlConfig.site.showLogo,
-  author: yamlConfig.site.author,
-  site: yamlConfig.site.url,
-  startYear: yamlConfig.site.startYear,
-  defaultOgImage: yamlConfig.site.defaultOgImage,
-  keywords: yamlConfig.site.keywords,
-  breadcrumbHome: yamlConfig.site.breadcrumbHome,
-  featuredCategories: yamlConfig.featuredCategories,
-  featuredSeries: normalizeFeaturedSeries(yamlConfig.featuredSeries),
-  enableSlugTransliteration: yamlConfig.site.enableSlugTransliteration,
-};
+export { contentConfig, i18nConfig, siteConfig };
 
 export const socialConfig: SocialConfig = yamlConfig.social ?? {};
 
@@ -223,51 +54,8 @@ export const seoConfig = {
 const BUILT_IN_COVERS = Array.from({ length: 21 }, (_, i) => `/img/cover/${i + 1}.webp`);
 export const defaultCoverList = yamlConfig?.defaultCoverList?.length ? yamlConfig.defaultCoverList : BUILT_IN_COVERS;
 
-// Analytics config — reuses AnalyticsConfig from config/types.ts
-
-// Christmas config types
-type ChristmasConfig = {
-  enabled: boolean;
-  features: {
-    snowfall: boolean;
-    christmasColorScheme: boolean;
-    christmasCoverDecoration: boolean;
-    christmasHat: boolean;
-    readingTimeSnow: boolean;
-  };
-  snowfall: {
-    speed: number;
-    intensity: number;
-    mobileIntensity: number;
-    maxLayers: number;
-    maxIterations: number;
-    mobileMaxLayers: number;
-    mobileMaxIterations: number;
-  };
-};
-
 // Map YAML comment config
 export const commentConfig: CommentConfig = yamlConfig.comment || {};
-
-// Content config types
-type ContentConfig = {
-  addBlankTarget?: boolean;
-  smoothScroll?: boolean;
-  addHeadingLevel?: boolean;
-  enhanceCodeBlock?: boolean;
-  enableCodeCopy?: boolean;
-  enableCodeFullscreen?: boolean;
-  enableLinkEmbed?: boolean;
-  enableTweetEmbed?: boolean;
-  enableOGPreview?: boolean;
-  previewCacheTime?: number;
-  lazyLoadEmbeds?: boolean;
-  /** Post card image position: 'alternating' | 'left' | 'right' */
-  postCardImagePosition?: 'alternating' | 'left' | 'right';
-};
-
-// Map YAML content config
-export const contentConfig: ContentConfig = yamlConfig.content || {};
 
 // Map YAML analytics config
 export const analyticsConfig: AnalyticsConfig = yamlConfig.analytics || {};
@@ -321,8 +109,8 @@ export const bangumiConfig: BangumiConfig | null = yamlConfig.bangumi ?? null;
 /** Validated opt-in moments configuration. Disabled when the YAML section is absent. */
 export const momentsConfig = normalizeMomentsConfig(yamlConfig.moments, {
   reservedRoutes: RESERVED_ROUTES,
-  localeCodes: (yamlConfig.i18n?.locales ?? []).flatMap((locale) => (locale.enabled !== false ? [locale.code] : [])),
-  seriesSlugs: siteConfig.featuredSeries.flatMap((series) => (series.enabled !== false ? [series.slug] : [])),
+  localeCodes: enabledLocaleCodes,
+  seriesSlugs: enabledSeriesSlugList,
 });
 
 const momentsRouters = resolveMomentsNavigation(yamlConfig.navigation ?? DEFAULT_ROUTERS, momentsConfig);
@@ -347,41 +135,8 @@ export const devConfig: DevConfig = {
   editors: yamlConfig.dev?.editors ?? [],
 };
 
-// =============================================================================
-// i18n Configuration
-// =============================================================================
-
-export const i18nConfig: I18nConfig = yamlConfig.i18n ?? {
-  defaultLocale: 'zh',
-  locales: [{ code: 'zh', label: '中文' }],
-};
-
-// =============================================================================
-// Site Timezone
-// =============================================================================
-
-/**
- * Site timezone in IANA format
- * Falls back to 'Asia/Shanghai' if configured timezone is invalid
- * @default 'Asia/Shanghai'
- */
-export const siteTimezone: string = (() => {
-  const configuredTz = yamlConfig.site.timezone ?? DEFAULT_TIMEZONE;
-  if (!isValidTimezone(configuredTz)) {
-    console.warn(`[config] Invalid timezone "${configuredTz}", falling back to "${DEFAULT_TIMEZONE}"`);
-    return DEFAULT_TIMEZONE;
-  }
-  return configuredTz;
-})();
-
-// =============================================================================
-// Series Slugs (Pre-computed for navigation filtering)
-// =============================================================================
-
 /** All configured series slugs (lowercase) */
-export const configuredSeriesSlugs = new Set(siteConfig.featuredSeries.map((series) => series.slug.toLowerCase()));
+export const configuredSeriesSlugs = new Set(featuredSeriesList.map((series) => series.slug));
 
 /** Only enabled series slugs (lowercase) */
-export const enabledSeriesSlugs = new Set(
-  siteConfig.featuredSeries.flatMap((series) => (series.enabled !== false ? [series.slug.toLowerCase()] : [])),
-);
+export const enabledSeriesSlugs = new Set(enabledSeriesSlugList);

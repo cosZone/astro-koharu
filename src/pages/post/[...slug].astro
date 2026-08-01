@@ -18,7 +18,6 @@ import {
   getPostLocale,
   getPostSlug,
   getPostSummary,
-  getSortedPosts,
   translateCategoryName,
 } from '@lib/content';
 import { formatForSeo } from '@lib/date';
@@ -27,19 +26,18 @@ import { getOgImageUrl } from '@lib/seo/og-image';
 import { Icon } from 'astro-icon/components';
 import { Comment } from '@/components/comment';
 import EditButton from '@/components/EditButton';
-import { defaultLocale, getLocaleFromUrl, getLocaleLabel, localizedPath, t } from '@/i18n';
+import { defaultLocale, getLocaleLabel, localizedPath, t } from '@/i18n';
 import { extractTextFromMarkdown } from '@/lib/sanitize';
+import { postRoute } from '../_shared/routes';
 
-export async function getStaticPaths() {
-  const postCollections = await getSortedPosts(defaultLocale);
+export const getStaticPaths = postRoute.root;
 
-  return postCollections.map((post) => ({
-    params: { slug: getPostSlug(post) },
-    props: { postId: post.id },
-  }));
+interface Props {
+  postId: string;
+  locale: string;
 }
-const { postId } = Astro.props;
-const locale = getLocaleFromUrl(Astro.url.pathname);
+
+const { postId, locale } = Astro.props;
 // Look up by locale first (may find a translated version); fall back to defaultLocale
 // which is guaranteed to exist since getStaticPaths enumerates from defaultLocale posts.
 const post =
@@ -59,7 +57,7 @@ const { Content } = await render(post);
 const { title, categories = [], tags = [], date, math: postMath, keywords: postKeywords = [] } = post?.data ?? {};
 // KaTeX CSS: only load when global enableMath is on AND post hasn't opted out.
 // When enableMath is false globally, rehype-katex is not in the pipeline, so no math is rendered.
-const hasMath = defaultContentConfig.enableMath !== false && postMath !== false;
+const hasMath = defaultContentConfig.enableMath && postMath !== false;
 
 // 使用统一的工具函数获取文章描述（加密文章使用通用描述）
 const finalDescription = getPostDescription(post, locale);
@@ -156,6 +154,7 @@ if (post.data.description) {
 ---
 
 <Layout
+  locale={locale}
   title={`${post.data.title}${categoryStr} | ${siteConfig.title}`}
   description={finalDescription}
   siderType={HomeSiderType.POST}
@@ -169,7 +168,9 @@ if (post.data.description) {
   <TwoColumnLayout post={post}>
     <Cover slot="cover" data={post} />
     <HomeSider slot="sider" type={HomeSiderType.POST} post={post} />
-    <div class={`shadow-box bg-gradient-start flex flex-col gap-2 ${CONTENT_PADDING.standard}`}>
+    <div
+      class={`shadow-box bg-gradient-start flex min-w-0 w-full max-w-full flex-col gap-2 overflow-x-clip ${CONTENT_PADDING.standard}`}
+    >
       <!-- Breadcrumb Navigation -->
       <nav class="text-muted-foreground flex items-center justify-between gap-2 text-sm">
         <div class="flex items-center gap-2">

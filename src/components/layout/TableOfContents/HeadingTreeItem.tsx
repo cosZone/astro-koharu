@@ -1,13 +1,13 @@
 /**
  * HeadingTreeItem Component
  *
- * Renders a single heading item in the table of contents tree.
- * Supports nesting, active state highlighting, and recursive rendering of children.
+ * A single heading row in the table of contents. Active state and the click
+ * handler come from TocContext; nested levels arrive as children.
  */
 
-import type { Heading } from '@hooks/useHeadingTree';
-import { memo } from 'react';
+import type { Heading } from '@lib/toc';
 import { cn } from '@/lib/utils';
+import { useTocContext } from './TocContext';
 
 // Constants
 const INDENT_BASE = 0.75; // Base left padding in rem
@@ -18,31 +18,17 @@ interface HeadingTreeItemProps {
   heading: Heading;
   /** Current nesting depth (0 for top level) */
   depth?: number;
-  /** Whether this heading is currently active */
-  isActive?: boolean;
-  /** Whether this heading's children are expanded */
-  isExpanded?: boolean;
-  /** Callback when heading is clicked */
-  onHeadingClick: (id: string) => void;
-  /** Recursively render children if expanded */
-  renderChildren?: (headings: Heading[], depth: number) => React.ReactElement[];
+  /** Rendered child level, when expanded */
+  children?: React.ReactNode;
 }
 
-/**
- * HeadingTreeItem - A single item in the table of contents tree
- */
-const HeadingTreeItemComponent = ({
-  heading,
-  depth = 0,
-  isActive = false,
-  isExpanded = false,
-  onHeadingClick,
-  renderChildren,
-}: HeadingTreeItemProps) => {
+export function HeadingTreeItem({ heading, depth = 0, children }: HeadingTreeItemProps) {
+  const { activeId, onHeadingClick } = useTocContext();
+  const isActive = activeId === heading.id;
   const hasChildren = heading.children.length > 0;
 
   return (
-    <div key={heading.id} className="heading-tree-item relative">
+    <div className="heading-tree-item relative">
       <a
         href={`#${heading.id}`}
         onClick={(e) => {
@@ -69,16 +55,7 @@ const HeadingTreeItemComponent = ({
         {isActive && <span className="ml-2 text-primary text-xs">•</span>}
       </a>
 
-      {/* Render children nested within this item */}
-      {hasChildren && isExpanded && renderChildren && (
-        <div className="heading-children">{renderChildren(heading.children, depth + 1)}</div>
-      )}
+      {children && <div className="heading-children">{children}</div>}
     </div>
   );
-};
-
-/**
- * Memoized HeadingTreeItem for performance optimization
- * Prevents unnecessary re-renders when props haven't changed
- */
-export const HeadingTreeItem = memo(HeadingTreeItemComponent);
+}

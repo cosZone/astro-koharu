@@ -121,38 +121,33 @@ remark-link-embed 插件 (识别独行链接)
 
 ## 配置选项
 
-在 `src/constants/content-config.ts` 中可以配置:
+在 `config/site.yaml` 的 `content:` 段中配置(相关字段):
 
-```typescript
-export interface ContentConfig {
-  // ... 其他配置
-
-  // 是否启用链接嵌入功能
-  enableLinkEmbed: boolean;
-
-  // 是否启用 Tweet 嵌入
-  enableTweetEmbed: boolean;
-
-  // 是否启用 OG 链接预览
-  enableOGPreview: boolean;
-
-  // 预览数据缓存时间(秒)
-  previewCacheTime: number;
-
-  // 是否懒加载嵌入内容
-  lazyLoadEmbeds: boolean;
-}
-
-export const defaultContentConfig: ContentConfig = {
-  // ... 其他配置
-  enableLinkEmbed: true,
-  enableTweetEmbed: true,
-  enableOGPreview: true,
-  enableCodePenEmbed: true,
-  previewCacheTime: 30, // 30 days
-  lazyLoadEmbeds: true,
-};
+```yaml
+content:
+  # ... 其他内容处理选项
+  enableLinkEmbed: true # 链接卡片预览
+  enableCodePenEmbed: true # CodePen 嵌入
+  enableTweetEmbed: true # 推文嵌入
+  enableOGPreview: true # OG 预览卡片
+  previewCacheTime: 30 # 预览缓存时间(天)
+  lazyLoadEmbeds: true # 延迟加载嵌入
 ```
+
+字段说明:
+
+| 字段 | 默认值 | 说明 |
+| --- | --- | --- |
+| `enableLinkEmbed` | `true` | 是否启用链接嵌入功能(总开关) |
+| `enableCodePenEmbed` | `true` | 是否启用 CodePen 嵌入 |
+| `enableTweetEmbed` | `true` | 是否启用 Tweet 嵌入 |
+| `enableOGPreview` | `true` | 是否启用 OG 链接预览卡片 |
+| `previewCacheTime` | `30` | 预览数据缓存时间,单位为**天** |
+| `lazyLoadEmbeds` | `true` | 是否懒加载嵌入内容 |
+
+默认值与校验逻辑由 `src/lib/config/content.ts` 的 `normalizeContentConfig()` 统一维护,`content:` 段可以只写需要覆盖的字段,其余字段沿用默认值。`src/constants/content-config.ts` 只是对 `@lib/config/site` 的再导出,直接修改它不会生效。
+
+修改 `config/site.yaml` 后需要重启 dev server 或重新构建,YAML 配置在构建时会被缓存。
 
 ## 文件结构
 
@@ -234,17 +229,18 @@ src/
 
 ## 禁用功能
 
-如需禁用此功能,可在 `src/constants/content-config.ts` 中设置:
+如需禁用此功能,可在 `config/site.yaml` 的 `content:` 段中设置:
 
-```typescript
-export const defaultContentConfig: ContentConfig = {
-  // ...
-  enableLinkEmbed: false,
-  // 或单独禁用某个功能
-  enableTweetEmbed: false,
-  enableOGPreview: false,
-};
+```yaml
+content:
+  enableLinkEmbed: false # 关闭链接嵌入总开关
+  # 或单独禁用某个功能
+  enableTweetEmbed: false
+  enableOGPreview: false
+  enableCodePenEmbed: false
 ```
+
+同样地,修改后需要重启 dev server 或重新构建才会生效。
 
 ## 技术栈
 

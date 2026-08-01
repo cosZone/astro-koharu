@@ -3,7 +3,9 @@ import { Spinner } from '@inkjs/ui';
 import { Box, Text } from 'ink';
 import { useCallback, useEffect, useState } from 'react';
 import { CycleSelect as Select } from './components';
-import { AUTO_EXIT_DELAY, type BackupResult, formatSize, runBackup, usePressAnyKey, useRetimer } from './shared';
+import { AUTO_EXIT_DELAY } from './constants';
+import { usePressAnyKey, useRetimer } from './hooks';
+import { type BackupResult, formatSize, runBackup } from './utils';
 
 type BackupStatus = 'selecting' | 'pending' | 'backing' | 'compressing' | 'done' | 'error';
 

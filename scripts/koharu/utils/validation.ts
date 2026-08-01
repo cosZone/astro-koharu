@@ -3,13 +3,13 @@ import os from 'node:os';
 import path from 'node:path';
 
 import {
-  BACKUP_DIR,
   BACKUP_FILE_EXTENSION,
   BACKUP_ITEM_BY_DESTINATION,
   BACKUP_ITEMS,
   BACKUP_SCHEMA_VERSION,
   type BackupItem,
   type BackupType,
+  DEFAULT_WORKSPACE,
   LEGACY_BACKUP_LAYOUTS,
   MANIFEST_NAME,
 } from '../constants';
@@ -46,8 +46,8 @@ export function isPathWithinDir(targetPath: string, allowedDir: string): boolean
 /**
  * 验证路径是否在备份目录内
  */
-export function isPathWithinBackupDir(targetPath: string): boolean {
-  return isPathWithinDir(targetPath, BACKUP_DIR);
+export function isPathWithinBackupDir(targetPath: string, backupDir = DEFAULT_WORKSPACE.backupDir): boolean {
+  return isPathWithinDir(targetPath, backupDir);
 }
 
 /**
@@ -75,10 +75,10 @@ export function isValidBackupFile(filePath: string): boolean {
   }
 }
 
-function validateBackupPath(filePath: string): string {
+function validateBackupPath(filePath: string, backupDir: string): string {
   const resolved = path.resolve(filePath);
 
-  if (!isPathWithinBackupDir(resolved)) {
+  if (!isPathWithinBackupDir(resolved, backupDir)) {
     throw new Error(`备份文件不在备份目录内: ${filePath}`);
   }
 
@@ -232,8 +232,11 @@ function validateBackupArchiveContents(archivePath: string, diagnosticPath = arc
   return { path: archivePath, manifest, items };
 }
 
-function createPrivateArchiveSnapshot(filePath: string): { path: string; sourcePath: string; cleanup: () => void } {
-  const resolved = validateBackupPath(filePath);
+function createPrivateArchiveSnapshot(
+  filePath: string,
+  backupDir: string,
+): { path: string; sourcePath: string; cleanup: () => void } {
+  const resolved = validateBackupPath(filePath, backupDir);
   const snapshotDir = fs.mkdtempSync(path.join(os.tmpdir(), 'astro-koharu-backup-snapshot-'));
   const snapshotPath = path.join(snapshotDir, 'archive.tar.gz');
   let sourceHandle: number | null = null;
@@ -279,8 +282,9 @@ function createPrivateArchiveSnapshot(filePath: string): { path: string; sourceP
 export function withValidatedBackupArchiveSnapshot<T>(
   filePath: string,
   consumeSnapshot: (archive: ValidatedBackupArchive) => T,
+  backupDir = DEFAULT_WORKSPACE.backupDir,
 ): T {
-  const snapshot = createPrivateArchiveSnapshot(filePath);
+  const snapshot = createPrivateArchiveSnapshot(filePath, backupDir);
   try {
     return consumeSnapshot(validateBackupArchiveContents(snapshot.path, snapshot.sourcePath));
   } finally {
@@ -289,9 +293,8 @@ export function withValidatedBackupArchiveSnapshot<T>(
 }
 
 /** Validate the archive path and its complete manifest/archive contract. */
-export function validateBackupArchive(filePath: string): ValidatedBackupArchive {
-  const resolved = validateBackupPath(filePath);
-  return validateBackupArchiveContents(resolved);
+export function validateBackupArchive(filePath: string, backupDir = DEFAULT_WORKSPACE.backupDir): ValidatedBackupArchive {
+  return validateBackupArchiveContents(validateBackupPath(filePath, backupDir));
 }
 
 /**
@@ -300,8 +303,8 @@ export function validateBackupArchive(filePath: string): ValidatedBackupArchive 
  * @throws Error When the path is invalid.
  * @returns The normalized path.
  */
-export function validateBackupFilePath(filePath: string): string {
-  return validateBackupArchive(filePath).path;
+export function validateBackupFilePath(filePath: string, backupDir = DEFAULT_WORKSPACE.backupDir): string {
+  return validateBackupArchive(filePath, backupDir).path;
 }
 
 /**
@@ -310,10 +313,10 @@ export function validateBackupFilePath(filePath: string): string {
  * @throws Error 如果路径不在备份目录内
  * @returns 规范化后的路径
  */
-export function validatePathInBackupDir(filePath: string): string {
+export function validatePathInBackupDir(filePath: string, backupDir = DEFAULT_WORKSPACE.backupDir): string {
   const resolved = path.resolve(filePath);
 
-  if (!isPathWithinBackupDir(resolved)) {
+  if (!isPathWithinBackupDir(resolved, backupDir)) {
     throw new Error(`路径不在备份目录内: ${filePath}`);
   }
 

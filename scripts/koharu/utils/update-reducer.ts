@@ -1,5 +1,10 @@
 import { MAIN_BRANCH, type UpdateAction, type UpdateOptions, type UpdateState } from '../constants/update';
 
+/** Rebase 和 clean 模式重写工作区，备份不可跳过（忽略 skipBackup 和 force） */
+export function shouldForceBackup(options: UpdateOptions): boolean {
+  return options.rebase || options.clean;
+}
+
 /**
  * 更新流程状态机 Reducer
  * 所有状态转换逻辑集中在此处，易于理解和测试
@@ -47,9 +52,7 @@ export function updateReducer(state: UpdateState, action: UpdateAction): UpdateS
         return { ...state, status: 'up-to-date', updateInfo };
       }
 
-      // Rebase 和 clean 模式强制备份（忽略 skipBackup 和 force）
-      const forceBackup = options.rebase || options.clean;
-      const nextStatus = forceBackup ? 'backup-confirm' : options.skipBackup || options.force ? 'preview' : 'backup-confirm';
+      const nextStatus = shouldForceBackup(options) || !(options.skipBackup || options.force) ? 'backup-confirm' : 'preview';
       return { ...state, status: nextStatus, updateInfo, needsMigration: needsMigration ?? false };
     }
 
@@ -58,7 +61,7 @@ export function updateReducer(state: UpdateState, action: UpdateAction): UpdateS
         return { ...state, status: 'backing-up' };
       }
       // Rebase 和 clean 模式下不允许跳过备份（防御性检查）
-      if (action.type === 'BACKUP_SKIP' && !options.rebase && !options.clean) {
+      if (action.type === 'BACKUP_SKIP' && !shouldForceBackup(options)) {
         return { ...state, status: 'preview' };
       }
       return state;
@@ -121,6 +124,62 @@ export function updateReducer(state: UpdateState, action: UpdateAction): UpdateS
     default:
       return state;
   }
+}
+
+/** Everything the update screen needs to render, derived once instead of in JSX conditions. */
+export interface UpdatePresentation {
+  /** 操作标签，用于进度与完成提示 */
+  modeLabel: string;
+  confirmMessage: string;
+  /** 备份不可跳过 */
+  forceBackup: boolean;
+  /** 强制备份界面里的模式名 */
+  forcedBackupModeLabel: string;
+  /** 确认界面下方的策略说明 */
+  strategyNote: string | null;
+  showRebaseWarning: boolean;
+  showDowngradeWarning: boolean;
+  showUnbackedDowngradeWarning: boolean;
+  showMigrationHint: boolean;
+}
+
+/** 生成确认提示文字 */
+function getConfirmMessage(options: UpdateOptions, latestVersion: string, isDowngrade: boolean): string {
+  const target = options.targetTag ? `版本 v${latestVersion}` : '最新版本';
+  if (options.rebase) return `确认执行 rebase 到${options.targetTag ? target : '上游最新'}？（历史将被重写）`;
+  if (options.clean) return `确认执行 clean 模式更新到${target}？`;
+  if (isDowngrade) return `确认回退到版本 v${latestVersion}？`;
+  return `确认更新到${target}？`;
+}
+
+function getModeLabel(options: UpdateOptions, isDowngrade: boolean): string {
+  if (options.rebase) return 'Rebase';
+  if (options.clean) return 'Clean 模式更新';
+  if (isDowngrade) return '版本回退';
+  return '更新';
+}
+
+function getStrategyNote(options: UpdateOptions, isDowngrade: boolean): string | null {
+  if (options.clean) return '将使用 clean 模式：替换所有主题文件，还原用户内容';
+  if (!options.rebase && !isDowngrade) return '将使用 merge 合并上游更新';
+  return null;
+}
+
+export function selectUpdatePresentation(state: UpdateState): UpdatePresentation {
+  const { options, updateInfo, backupFile, needsMigration } = state;
+  const isDowngrade = updateInfo?.isDowngrade ?? false;
+
+  return {
+    modeLabel: getModeLabel(options, isDowngrade),
+    confirmMessage: getConfirmMessage(options, updateInfo?.latestVersion ?? 'unknown', isDowngrade),
+    forceBackup: shouldForceBackup(options),
+    forcedBackupModeLabel: options.rebase ? 'Rebase' : 'Clean',
+    strategyNote: getStrategyNote(options, isDowngrade),
+    showRebaseWarning: options.rebase,
+    showDowngradeWarning: isDowngrade && !options.rebase,
+    showUnbackedDowngradeWarning: isDowngrade && !options.rebase && !backupFile,
+    showMigrationHint: needsMigration && !options.rebase && !options.clean,
+  };
 }
 
 /** 创建初始状态 */

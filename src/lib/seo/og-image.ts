@@ -1,4 +1,4 @@
-import { siteConfig } from '@constants/site-config';
+import { siteConfig } from '@lib/config/site';
 
 /**
  * Get the OG image URL with proper fallback chain

@@ -4,8 +4,7 @@ import { useCallback, useEffect, useState } from 'react';
 
 import { AUTO_EXIT_DELAY } from './constants';
 import { usePressAnyKey, useRetimer } from './hooks';
-import { runBackup } from './utils/backup-operations';
-import { applyContentMigration, type ContentMigrationPlan, planContentMigration } from './utils/migration-operations';
+import { applyContentMigration, type ContentMigrationPlan, planContentMigration, runBackup } from './utils';
 
 type MigrationStatus = 'confirming' | 'backing-up' | 'migrating' | 'done' | 'error' | 'cancelled';
 

@@ -5,11 +5,10 @@ import { encodeSlug } from '@lib/route';
 import { buildRssItemFields } from '@lib/rss-utils';
 import type { APIContext } from 'astro';
 import type { BlogPost } from 'types/blog';
-import { defaultLocale, getHtmlLang, localeList, localizedPath } from '@/i18n';
+import { getHtmlLang, localizedPath } from '@/i18n';
+import { getLocaleStaticPaths } from '../_shared/utils';
 
-export function getStaticPaths() {
-  return localeList.flatMap((lang) => (lang !== defaultLocale ? [{ params: { lang } }] : []));
-}
+export const getStaticPaths = getLocaleStaticPaths;
 
 export async function GET(context: APIContext) {
   const lang = context.params.lang as string;

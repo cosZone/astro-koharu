@@ -1,5 +1,7 @@
 import type { RouterItem } from '@lib/config/types';
 
+export { RESERVED_ROUTES } from '@lib/config/reserved-routes';
+
 export type Router = RouterItem;
 
 // Routes enum kept for backwards compatibility
@@ -14,36 +16,6 @@ export enum Routes {
   Bangumi = '/bangumi',
 }
 
-// Reserved routes that cannot be used as series slugs
-// Includes: static routes, Astro internals, and potentially dangerous paths
-export const RESERVED_ROUTES = new Set([
-  // Static pages
-  'about',
-  'categories',
-  'tags',
-  'friends',
-  'post',
-  'posts',
-  'archives',
-  'bangumi',
-  'music',
-  '404',
-  // Special files
-  'rss.xml',
-  'rss',
-  'sitemap.xml',
-  'sitemap-index.xml',
-  'robots.txt',
-  'favicon.ico',
-  // Astro internals (prevent potential conflicts)
-  '_astro',
-  '_actions',
-  '_image',
-  '_server-islands',
-  '@fs',
-  'api',
-]);
-
 /**
  * Get the URL path for a featured series
  * @param slug - The series slug (e.g., 'weekly')
@@ -51,15 +23,6 @@ export const RESERVED_ROUTES = new Set([
  */
 export function getSeriesPath(slug: string): string {
   return `/${slug}`;
-}
-
-/**
- * Check if a slug is reserved (conflicts with existing routes)
- * @param slug - The slug to check
- * @returns true if the slug is reserved
- */
-export function isReservedSlug(slug: string): boolean {
-  return RESERVED_ROUTES.has(slug.toLowerCase());
 }
 
 /** Fallback navigation used when `config/site.yaml` does not define `navigation`. */
