@@ -9,13 +9,10 @@ import type {
 import type { MessageContextReference, PublicMedia, PublicMessage } from '@coszone/koharu-astro';
 import type { NormalizedMomentsConfig, ResolvedMomentsChannel } from '@lib/config/moments';
 import { displayDate } from '@lib/date';
+import { sanitizeKoharuContentHtml } from '@lib/sanitize';
 import { type GroupMomentMessagesOptions, groupMomentMessages } from './message-groups';
 import { getKoharuClient } from './runtime';
 import { channelPath, messagePath, searchPath } from './urls';
-
-function escapeHtml(value: string): string {
-  return value.replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('"', '&quot;');
-}
 
 function mediaKind(kind: PublicMedia['kind']): MomentMediaKind {
   if (kind === 'photo') return 'image';
@@ -86,7 +83,7 @@ export function toMessageViewModel(
 ): MomentMessageViewModel {
   const permalink = messagePath(config, channel, message.id);
   const plainText = message.content.text?.trim() || undefined;
-  const html = message.content.html ?? (plainText ? `<p>${escapeHtml(plainText)}</p>` : '');
+  const html = sanitizeKoharuContentHtml(message.content.html, message.content.text);
   return {
     id: message.id,
     channel: toChannelViewModel(config, channel),

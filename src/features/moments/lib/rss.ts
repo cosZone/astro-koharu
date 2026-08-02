@@ -1,6 +1,7 @@
 import rss from '@astrojs/rss';
 import type { PublicMessage } from '@coszone/koharu-astro';
 import type { NormalizedMomentsConfig, ResolvedMomentsChannel } from '@lib/config/moments';
+import { sanitizeKoharuRssContentHtml } from '@lib/sanitize';
 import { groupMomentMessages } from './message-groups';
 import { messagePath } from './urls';
 
@@ -30,7 +31,7 @@ export async function buildMomentsRss(options: {
           pubDate: new Date(anchor.publishedAt),
           description: plain ?? options.description,
           link: messagePath(options.config, channel, primary.id),
-          content: primary.content.html ?? (plain ? `<p>${escapeXml(plain)}</p>` : undefined),
+          content: sanitizeKoharuRssContentHtml(primary.content.html, primary.content.text) || undefined,
           customData: `<guid isPermaLink="false">urn:uuid:${anchor.id}</guid>`,
         },
       ];
@@ -39,8 +40,4 @@ export async function buildMomentsRss(options: {
   const headers = new Headers(response.headers);
   headers.set('Content-Type', 'application/xml; charset=utf-8');
   return new Response(response.body, { status: response.status, headers });
-}
-
-function escapeXml(value: string): string {
-  return value.replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;');
 }

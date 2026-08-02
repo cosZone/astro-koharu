@@ -1,17 +1,112 @@
 import sanitizeHtml from 'sanitize-html';
 
+const INVALID_XML_CHARACTERS =
+  // biome-ignore lint/suspicious/noControlCharactersInRegex: Intentional - filtering invalid XML characters
+  /[^\x09\x0A\x0D\x20-\xFF\x85\xA0-\uD7FF\uE000-\uFDCF\uFDE0-\uFFFD\u{10000}-\u{10FFFF}]/gu;
+
+const cleanInvalidXmlCharacters = (text: string) => text.replace(INVALID_XML_CHARACTERS, '');
+
 export const getSanitizeHtml = (html: string) => {
   return sanitizeHtml(html, {
     // https://stackoverflow.com/questions/12229572/php-generated-xml-shows-invalid-char-value-27-message
-    textFilter: (text) =>
-      text.replace(
-        // biome-ignore lint/suspicious/noControlCharactersInRegex: Intentional - filtering invalid XML characters
-        /[^\x09\x0A\x0D\x20-\xFF\x85\xA0-\uD7FF\uE000-\uFDCF\uFDE0-\uFFFD]/gm,
-        '',
-      ),
+    textFilter: cleanInvalidXmlCharacters,
     allowedTags: sanitizeHtml.defaults.allowedTags.concat(['img']),
   });
 };
+
+const KOHARU_CONTENT_TAGS = ['a', 'blockquote', 'code', 'em', 'pre', 's', 'spoiler-span', 'strong', 'u'] as const;
+
+function escapeHtml(value: string): string {
+  return value.replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('"', '&quot;');
+}
+
+const KOHARU_LINK_PROTOCOLS = new Set(['http:', 'https:', 'mailto:', 'tg:']);
+
+function safeKoharuHref(value?: string): string | undefined {
+  if (!value || value.trim() !== value) return undefined;
+  const href = value;
+  for (const character of href) {
+    const code = character.charCodeAt(0);
+    if (code <= 31 || code === 127) return undefined;
+  }
+  try {
+    const url = new URL(href);
+    if (!KOHARU_LINK_PROTOCOLS.has(url.protocol)) return undefined;
+    if ((url.protocol === 'http:' || url.protocol === 'https:') && (url.username || url.password)) return undefined;
+    return href;
+  } catch {
+    return undefined;
+  }
+}
+
+interface SanitizeKoharuContentOptions {
+  interactiveSpoilers?: boolean;
+}
+
+/**
+ * Normalize Koharu Suite rich text for rendering in Moments and RSS.
+ *
+ * Suite HTML is external input even when it comes from a configured instance,
+ * so only Telegram formatting emitted by the public API is retained. Telegram
+ * spoilers are adapted to the same web component used by Shoka markdown
+ * content. Newline text nodes remain unchanged so the Moments renderer can
+ * preserve them without corrupting block structure.
+ */
+export function sanitizeKoharuContentHtml(
+  html?: string | null,
+  plainText?: string | null,
+  options: SanitizeKoharuContentOptions = {},
+): string {
+  const richHtml = html?.trim() ? html : undefined;
+  const source = richHtml ?? (plainText ? escapeHtml(plainText) : '');
+  if (!source) return '';
+
+  const normalizedSource = source.replace(/\r\n?/g, '\n');
+  const interactiveSpoilers = options.interactiveSpoilers ?? true;
+  return sanitizeHtml(normalizedSource, {
+    allowedTags: [...KOHARU_CONTENT_TAGS],
+    allowedAttributes: {
+      a: ['href', 'rel'],
+      blockquote: ['class'],
+      code: ['class'],
+    },
+    allowedClasses: {
+      blockquote: ['tg-expandable-blockquote'],
+      code: [/^language-[A-Za-z0-9_+-]{1,64}$/],
+    },
+    allowedSchemes: ['http', 'https', 'mailto', 'tg'],
+    allowedSchemesAppliedToAttributes: ['href'],
+    allowProtocolRelative: false,
+    enforceHtmlBoundary: true,
+    transformTags: {
+      a: (_tagName, attributes) => {
+        const href = safeKoharuHref(attributes.href);
+        const attribs: Record<string, string> = {};
+        if (href) {
+          attribs.href = href;
+          attribs.rel = 'nofollow noopener noreferrer';
+        }
+        return {
+          tagName: 'a',
+          attribs,
+        };
+      },
+      span: (_tagName, attributes) => {
+        return attributes.class === 'tg-spoiler'
+          ? { tagName: interactiveSpoilers ? 'spoiler-span' : 'span', attribs: {} }
+          : { tagName: 'span', attribs: {} };
+      },
+      'spoiler-span': () => ({ tagName: 'span', attribs: {} }),
+    },
+    exclusiveFilter: (frame) => (frame.tag === 'a' && !frame.attribs.href ? 'excludeTag' : false),
+    textFilter: cleanInvalidXmlCharacters,
+  });
+}
+
+/** Use a visible, non-interactive spoiler fallback in feed readers. */
+export function sanitizeKoharuRssContentHtml(html?: string | null, plainText?: string | null): string {
+  return sanitizeKoharuContentHtml(html, plainText, { interactiveSpoilers: false });
+}
 
 /**
  * Strip all HTML tags and return plain text, truncated to maxLength.
@@ -21,12 +116,7 @@ export function stripHtmlToText(html: string, maxLength: number = 150): string {
   const text = sanitizeHtml(html, {
     allowedTags: [],
     allowedAttributes: {},
-    textFilter: (text) =>
-      text.replace(
-        // biome-ignore lint/suspicious/noControlCharactersInRegex: Intentional - filtering invalid XML characters
-        /[^\x09\x0A\x0D\x20-\xFF\x85\xA0-\uD7FF\uE000-\uFDCF\uFDE0-\uFFFD]/gm,
-        '',
-      ),
+    textFilter: cleanInvalidXmlCharacters,
   });
   if (text.length <= maxLength) return text;
   return text.substring(0, maxLength).replace(/\s+\S*$/, '');
