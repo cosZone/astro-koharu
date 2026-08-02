@@ -43,6 +43,31 @@ test('uses the suite UUID as a stable non-permalink GUID and links back to the b
   assert.match(xml, /Edited body/);
 });
 
+test('sanitizes RSS rich text, retains raw newlines, and makes spoilers visible', async () => {
+  const unsafeMessage = {
+    ...message,
+    content: {
+      kind: 'text' as const,
+      text: 'first\nsecond',
+      html: '<strong>first</strong>\n<span class="tg-spoiler">second</span><script>alert(1)</script>',
+      entities: [],
+    },
+  } satisfies PublicMessage;
+  const response = await buildMomentsRss({
+    channels: [channel],
+    config: normalizeMomentsConfig({ enabled: true }),
+    description: 'Moments',
+    messages: [unsafeMessage],
+    site: new URL('https://blog.example.com'),
+    title: 'Moments',
+  });
+  const xml = await response.text();
+
+  assert.match(xml, /&lt;strong&gt;first&lt;\/strong&gt;\nsecond/);
+  assert.doesNotMatch(xml, /spoiler-span/);
+  assert.doesNotMatch(xml, /&lt;script|alert\(1\)/);
+});
+
 test('emits one RSS item for a contiguous media album', async () => {
   const album = [
     {

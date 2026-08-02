@@ -5,9 +5,10 @@ interface Props {
   emptyLabel: string;
   expandLabel: string;
   collapseLabel: string;
+  spoilerRevealLabel: string;
 }
 
-const { html, collapsible = true, emptyLabel, expandLabel, collapseLabel } = Astro.props;
+const { html, collapsible = true, emptyLabel, expandLabel, collapseLabel, spoilerRevealLabel } = Astro.props;
 ---
 
 <moments-message-body
@@ -16,8 +17,16 @@ const { html, collapsible = true, emptyLabel, expandLabel, collapseLabel } = Ast
   data-expand-label={expandLabel}
   data-collapse-label={collapseLabel}
 >
-  <div class="moments-message-content prose prose-sm dark:prose-invert max-w-[72ch] break-words prose-p:my-2" data-message-content>
-    {html ? <div set:html={html} /> : <p class="text-muted-foreground m-0 italic">{emptyLabel}</p>}
+  <div
+    class="moments-message-content prose prose-sm dark:prose-invert max-w-[72ch] break-words prose-p:my-2"
+    data-message-content
+    data-spoiler-reveal-label={spoilerRevealLabel}
+  >
+    {html ? (
+      <div class="whitespace-pre-wrap" set:html={html} />
+    ) : (
+      <p class="text-muted-foreground m-0 italic">{emptyLabel}</p>
+    )}
   </div>
   <div class="moments-message-fade pointer-events-none" aria-hidden="true"></div>
   <button
@@ -31,7 +40,13 @@ const { html, collapsible = true, emptyLabel, expandLabel, collapseLabel } = Ast
 </moments-message-body>
 
 <script>
+  import { enhanceSpoilers } from '@lib/spoiler-enhancer';
+
   const COLLAPSED_HEIGHT = 384;
+
+  function enhanceMomentSpoilers(root: ParentNode = document) {
+    enhanceSpoilers(root);
+  }
 
   class MomentsMessageBody extends HTMLElement {
     connectedCallback() {
@@ -67,6 +82,13 @@ const { html, collapsible = true, emptyLabel, expandLabel, collapseLabel } = Ast
   if (!customElements.get('moments-message-body')) {
     customElements.define('moments-message-body', MomentsMessageBody);
   }
+
+  enhanceMomentSpoilers();
+  document.addEventListener('astro:page-load', () => enhanceMomentSpoilers());
+  document.addEventListener('moments:content-appended', (event) => {
+    const root = event instanceof CustomEvent && event.detail?.root instanceof Element ? event.detail.root : document;
+    enhanceMomentSpoilers(root);
+  });
 </script>
 
 <style>
@@ -81,6 +103,11 @@ const { html, collapsible = true, emptyLabel, expandLabel, collapseLabel } = Ast
 
   .moments-message-fade {
     display: none;
+  }
+
+  .moments-message-content :global(pre),
+  .moments-message-content :global(pre code) {
+    white-space: pre;
   }
 
   moments-message-body[data-collapsible='true'][data-expanded='false'] .moments-message-fade {

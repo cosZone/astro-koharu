@@ -42,52 +42,7 @@ const spoilerRevealLabel = t(getLocaleFromUrl(Astro.url.pathname), 'content.reve
 <script>
   import { enhanceImages } from '@lib/image-enhancer';
   import { enhanceLinkPreviews } from '@lib/link-preview-enhancer';
-
-  let spoilerJsPromise: Promise<unknown> | null = null;
-
-  function installSpoilerFallback(contentContainer: Element) {
-    contentContainer.querySelectorAll<HTMLElement>('spoiler-span:not(:defined)').forEach((spoiler) => {
-      if (spoiler.dataset.fallbackReady === 'true') return;
-
-      spoiler.dataset.fallbackReady = 'true';
-      spoiler.setAttribute('role', 'button');
-      spoiler.setAttribute('tabindex', '0');
-      spoiler.setAttribute('aria-label', contentContainer.getAttribute('data-spoiler-reveal-label') ?? 'Reveal spoiler');
-
-      function reveal() {
-        if (spoiler.dataset.fallbackRevealed === 'true') return;
-        spoiler.dataset.fallbackRevealed = 'true';
-        spoiler.removeAttribute('role');
-        spoiler.removeAttribute('tabindex');
-        spoiler.removeAttribute('aria-label');
-        spoiler.removeAttribute('aria-pressed');
-        spoiler.removeEventListener('click', reveal);
-        spoiler.removeEventListener('keydown', handleKeydown);
-      }
-
-      function handleKeydown(event: KeyboardEvent) {
-        if (event.key !== 'Enter' && event.key !== ' ') return;
-        event.preventDefault();
-        reveal();
-      }
-
-      spoiler.addEventListener('click', reveal);
-      spoiler.addEventListener('keydown', handleKeydown);
-    });
-  }
-
-  function loadSpoilerJs(contentContainer: Element) {
-    if (!contentContainer.querySelector('spoiler-span') || customElements.get('spoiler-span')) return;
-
-    if (!spoilerJsPromise) {
-      spoilerJsPromise = import('spoilerjs/spoiler-span').catch((error) => {
-        spoilerJsPromise = null;
-        console.error('[content] Failed to load spoilerjs:', error);
-        const activeContentContainer = document.querySelector('.custom-content');
-        if (activeContentContainer) installSpoilerFallback(activeContentContainer);
-      });
-    }
-  }
+  import { enhanceSpoilers } from '@lib/spoiler-enhancer';
 
   // Content enhancement script - handles non-React enhancements
   function enhanceContent() {
@@ -96,7 +51,7 @@ const spoilerRevealLabel = t(getLocaleFromUrl(Astro.url.pathname), 'content.reve
 
     // Keep this outside the general enhancement guard so a transient module-load
     // failure can retry without registering the other handlers again.
-    loadSpoilerJs(contentContainer);
+    enhanceSpoilers(contentContainer);
 
     // Avoid re-enhancing
     if (contentContainer.getAttribute('data-enhanced') === 'true') return;

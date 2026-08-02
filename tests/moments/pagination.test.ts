@@ -15,10 +15,11 @@ test('marks every cursor-paginated Moments timeline for progressive enhancement'
   }
 });
 
-test('cursor pagination keeps a link fallback and initializes appended cards with a scoped event', async () => {
-  const [pagination, messageCard] = await Promise.all([
+test('cursor pagination keeps a link fallback and initializes appended cards and spoilers with a scoped event', async () => {
+  const [pagination, messageCard, messageBody] = await Promise.all([
     read('src/components/moments/CursorPagination.astro'),
     read('src/components/moments/MessageCard.astro'),
+    read('src/components/moments/MessageBody.astro'),
   ]);
 
   assert.match(pagination, /href=\{nextHref\}/);
@@ -36,6 +37,34 @@ test('cursor pagination keeps a link fallback and initializes appended cards wit
   assert.match(messageCard, /document\.addEventListener\('moments:content-appended'/);
   assert.match(messageCard, /installMomentCardLinks\(root\)/);
   assert.match(messageCard, /installMomentCopyButtons\(root\)/);
+  assert.match(messageCard, /audio, spoiler-span,/);
+  assert.match(messageBody, /import \{ enhanceSpoilers \} from '@lib\/spoiler-enhancer'/);
+  assert.match(messageBody, /document\.addEventListener\('moments:content-appended'/);
+  assert.match(messageBody, /enhanceMomentSpoilers\(root\)/);
+  assert.match(messageBody, /whitespace-pre-wrap/);
+  assert.match(messageBody, /:global\(pre code\)/);
+});
+
+test('blog and Moments content reuse one spoiler enhancer', async () => {
+  const [customContent, messageBody, enhancer] = await Promise.all([
+    read('src/components/common/CustomContent.astro'),
+    read('src/components/moments/MessageBody.astro'),
+    read('src/lib/spoiler-enhancer.ts'),
+  ]);
+
+  assert.match(customContent, /import \{ enhanceSpoilers \} from '@lib\/spoiler-enhancer'/);
+  assert.match(messageBody, /import \{ enhanceSpoilers \} from '@lib\/spoiler-enhancer'/);
+  assert.match(enhancer, /import\('spoilerjs\/spoiler-span'\)/);
+  assert.match(enhancer, /setAttribute\('aria-pressed', 'false'\)/);
+  assert.match(enhancer, /event\.key !== 'Enter' && event\.key !== ' '/);
+  assert.match(enhancer, /shadowRoot\?\.querySelector<HTMLElement>\('\[role="button"\]'\)/);
+  assert.match(enhancer, /control\.setAttribute\('aria-label', revealLabelFor\(spoiler\)\)/);
+  assert.match(enhancer, /spoiler\.dataset\.fallbackRevealed === 'true'/);
+  assert.match(enhancer, /control\.click\(\)/);
+  assert.match(enhancer, /customElements\.get\('spoiler-span'\)/);
+  assert.match(enhancer, /enhanceDefinedSpoilers\(spoilers\)/);
+  assert.doesNotMatch(customContent, /function installSpoilerFallback/);
+  assert.doesNotMatch(messageBody, /function installSpoilerFallback/);
 });
 
 test('renders loading as an inline timeline placeholder strip and gently reveals each appended batch', async () => {
