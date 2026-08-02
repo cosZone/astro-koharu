@@ -166,8 +166,8 @@ const railDate = publishedDate?.slice(0, 4) === currentYear ? publishedDate.slic
   const cardInteractiveSelector =
     'a, button, input, select, textarea, summary, video, audio, [role="button"], [contenteditable="true"]';
 
-  function installMomentCardLinks() {
-    document.querySelectorAll<HTMLElement>('.moments-message-card[data-message-href]:not([data-card-link-ready])').forEach((card) => {
+  function installMomentCardLinks(root: ParentNode = document) {
+    root.querySelectorAll<HTMLElement>('.moments-message-card[data-message-href]:not([data-card-link-ready])').forEach((card) => {
       card.dataset.cardLinkReady = 'true';
       card.addEventListener('click', (event) => {
         if (event.defaultPrevented || event.button !== 0) return;
@@ -187,8 +187,8 @@ const railDate = publishedDate?.slice(0, 4) === currentYear ? publishedDate.slic
     });
   }
 
-  function installMomentCopyButtons() {
-    document.querySelectorAll<HTMLButtonElement>('.moments-copy-link:not([data-copy-ready])').forEach((button) => {
+  function installMomentCopyButtons(root: ParentNode = document) {
+    root.querySelectorAll<HTMLButtonElement>('.moments-copy-link:not([data-copy-ready])').forEach((button) => {
       button.dataset.copyReady = 'true';
       button.addEventListener('click', async () => {
         const text = button.querySelector<HTMLElement>('[data-copy-text]');
@@ -215,6 +215,11 @@ const railDate = publishedDate?.slice(0, 4) === currentYear ? publishedDate.slic
 
   installMomentCardLinks();
   installMomentCopyButtons();
-  document.addEventListener('astro:page-load', installMomentCardLinks);
-  document.addEventListener('astro:page-load', installMomentCopyButtons);
+  document.addEventListener('astro:page-load', () => installMomentCardLinks());
+  document.addEventListener('astro:page-load', () => installMomentCopyButtons());
+  document.addEventListener('moments:content-appended', (event) => {
+    const root = event instanceof CustomEvent && event.detail?.root instanceof Element ? event.detail.root : document;
+    installMomentCardLinks(root);
+    installMomentCopyButtons(root);
+  });
 </script>

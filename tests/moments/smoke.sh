@@ -30,13 +30,21 @@ mismatch_message_id='018f3f7a-2b1c-7def-8abc-1234567890b0'
 
 moments_html="$(curl -fsS "$base/moments")"
 grep -q 'Fixture hello from' <<<"$moments_html"
+grep -q 'data-moments-timeline' <<<"$moments_html"
+grep -q 'data-moments-cursor-pagination' <<<"$moments_html"
+grep -q 'moments-cursor-pagination' <<<"$moments_html"
 [[ "$(grep -o 'class="moments-message-card' <<<"$moments_html" | wc -l | tr -d ' ')" == '2' ]]
 [[ "$(grep -o 'data-media-kind=' <<<"$moments_html" | wc -l | tr -d ' ')" == '5' ]]
 grep -q 'https://t.me/daily/2' <<<"$moments_html"
 grep -q 'https://t.me/daily/3' <<<"$moments_html"
-curl -fsS "$base/moments/daily" | grep -q '媒体处理中'
+channel_html="$(curl -fsS "$base/moments/daily")"
+grep -q '媒体处理中' <<<"$channel_html"
+grep -q 'data-moments-timeline' <<<"$channel_html"
+grep -q 'data-moments-cursor-pagination' <<<"$channel_html"
 curl -fsS "$base/moments/daily/$message_id" | grep -q '查看源消息'
-curl -fsS "$base/moments/search?q=hello" | grep -q 'Fixture hello'
+search_html="$(curl -fsS "$base/moments/search?q=hello")"
+grep -q 'Fixture hello' <<<"$search_html"
+grep -q 'data-moments-timeline' <<<"$search_html"
 curl -fsS "$base/moments/rss.xml" | grep -q "urn:uuid:$message_id"
 curl -fsS "$base/moments/daily/rss.xml" | grep -q "urn:uuid:$message_id"
 
