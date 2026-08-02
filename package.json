@@ -1,7 +1,7 @@
 {
   "name": "astro-koharu",
   "type": "module",
-  "version": "6.2.0",
+  "version": "6.2.1",
   "packageManager": "pnpm@10.28.2",
   "engines": {
     "node": ">=22.20.0"
