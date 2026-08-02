@@ -8,7 +8,7 @@ import { momentsConfig } from '@constants/site-config';
 import type { SearchMessagePage } from '@coszone/koharu-astro';
 import Layout from '@layouts/Layout.astro';
 import { getMomentsChannels, type MomentsChannels, searchMessages } from '../lib/data';
-import { messageCardLabels, momentsLabels } from '../lib/labels';
+import { cursorPaginationLabels, messageCardLabels, momentsLabels } from '../lib/labels';
 import { toMomentsHttpError } from '../lib/runtime';
 import { momentsPath, searchPath } from '../lib/urls';
 import { toChannelViewModel, toMessageViewModel } from '../lib/view-models';
@@ -116,14 +116,14 @@ const nextHref = nextUrl ? `${nextUrl.pathname}${nextUrl.search}` : undefined;
     </div>
     {!failure && query && queryIsValid && results.length > 0 && (
       <>
-        <ol class="moments-timeline mt-3">
+        <ol class="moments-timeline mt-3" data-moments-timeline>
           {results.map((message) => (
             <li>
               <MessageCard message={message} labels={messageCardLabels} />
             </li>
           ))}
         </ol>
-        <CursorPagination nextHref={nextHref} nextLabel={momentsLabels.olderContent} backLabel={momentsLabels.back} navigationLabel={momentsLabels.pagination} />
+        <CursorPagination nextHref={nextHref} labels={cursorPaginationLabels} />
       </>
     )}
   </MomentsShell>

@@ -8,7 +8,7 @@ import { momentsConfig } from '@constants/site-config';
 import type { MessagePage } from '@coszone/koharu-astro';
 import Layout from '@layouts/Layout.astro';
 import { findChannel, getMomentsChannels, listChannelMessages, type MomentsChannels } from '../lib/data';
-import { messageCardLabels, momentsLabels } from '../lib/labels';
+import { cursorPaginationLabels, messageCardLabels, momentsLabels } from '../lib/labels';
 import { resolveMomentsOpenGraph } from '../lib/metadata';
 import { toMomentsHttpError } from '../lib/runtime';
 import { channelPath, rssPath } from '../lib/urls';
@@ -77,14 +77,14 @@ const nextHref = page?.nextCursor ? `${canonicalPath}?cursor=${encodeURIComponen
       <MomentsState kind="empty" title={momentsLabels.emptyChannel} />
     ) : (
       <>
-        <ol class="moments-timeline">
+        <ol class="moments-timeline" data-moments-timeline>
           {messages.map((message) => (
             <li>
               <MessageCard message={message} labels={messageCardLabels} />
             </li>
           ))}
         </ol>
-        <CursorPagination nextHref={nextHref} nextLabel={momentsLabels.olderContent} backLabel={momentsLabels.back} navigationLabel={momentsLabels.pagination} />
+        <CursorPagination nextHref={nextHref} labels={cursorPaginationLabels} />
       </>
     )}
     <p class="text-muted-foreground text-center text-xs">{momentsLabels.cacheNotice}</p>

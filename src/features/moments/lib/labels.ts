@@ -29,6 +29,10 @@ export const momentsLabels = {
   notFoundDescription: tr('moments.notFoundDescription'),
   older: tr('moments.older'),
   olderContent: tr('moments.loadEarlier'),
+  loadingEarlier: tr('moments.loadingEarlier'),
+  loadedEarlier: tr('moments.loadedEarlier'),
+  allLoaded: tr('moments.allLoaded'),
+  loadEarlierFailed: tr('moments.loadEarlierFailed'),
   openDocument: tr('moments.openDocument'),
   permalink: tr('moments.permalink'),
   pagination: tr('moments.pagination'),
@@ -54,6 +58,17 @@ export const momentsLabels = {
   audio: tr('moments.audio'),
   document: tr('moments.document'),
   viewSource: tr('moments.viewSource'),
+} as const;
+
+export const cursorPaginationLabels = {
+  next: momentsLabels.olderContent,
+  back: momentsLabels.back,
+  navigation: momentsLabels.pagination,
+  loading: momentsLabels.loadingEarlier,
+  loaded: momentsLabels.loadedEarlier,
+  end: momentsLabels.allLoaded,
+  error: momentsLabels.loadEarlierFailed,
+  retry: momentsLabels.retry,
 } as const;
 
 export const messageCardLabels = {

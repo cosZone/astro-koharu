@@ -1,42 +1,455 @@
 ---
 import { Icon } from 'astro-icon/components';
 
+interface Labels {
+  next: string;
+  back: string;
+  navigation: string;
+  loading: string;
+  loaded: string;
+  end: string;
+  error: string;
+  retry: string;
+}
+
 interface Props {
   nextHref?: string | null;
   backHref?: string | null;
-  nextLabel: string;
-  backLabel: string;
-  navigationLabel: string;
+  labels: Labels;
 }
 
-const { nextHref, backHref, nextLabel, backLabel, navigationLabel } = Astro.props;
+const { nextHref, backHref, labels } = Astro.props;
 ---
 
 {
   (nextHref || backHref) && (
-    <nav aria-label={navigationLabel} class="mt-1 flex flex-wrap items-center justify-between gap-2">
-      {backHref ? (
-        <a
-          href={backHref}
-          rel="prev"
-          class="border-border/80 bg-card hover:border-primary/50 hover:text-primary focus-visible:ring-primary inline-flex min-h-9 touch-manipulation items-center gap-1.5 rounded-full border px-3 py-1.5 text-sm transition-[border-color,color,scale] active:scale-[0.96] focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none"
+    <moments-cursor-pagination
+      class="mt-1 block"
+      data-moments-cursor-pagination
+      data-next-href={nextHref}
+      data-next-label={labels.next}
+      data-loading-label={labels.loading}
+      data-loaded-label={labels.loaded}
+      data-end-label={labels.end}
+      data-error-label={labels.error}
+      data-retry-label={labels.retry}
+    >
+      <div class="h-px" data-pagination-sentinel aria-hidden="true"></div>
+      <div class="moments-pagination-tail flex flex-wrap items-center gap-x-3 gap-y-1" data-pagination-tail>
+        <p
+          class="text-muted-foreground focus-visible:outline-primary hidden min-h-10 min-w-0 grow items-center gap-2 text-sm focus-visible:outline-2 focus-visible:outline-offset-2"
+          data-pagination-status
+          tabindex="-1"
         >
-          <Icon name="ri:arrow-left-line" aria-hidden="true" />
-          {backLabel}
-        </a>
-      ) : (
-        <span />
-      )}
-      {nextHref && (
-        <a
-          href={nextHref}
-          rel="next"
-          class="border-border/80 bg-card hover:border-primary/50 hover:text-primary focus-visible:ring-primary ms-auto inline-flex min-h-9 touch-manipulation items-center gap-1.5 rounded-full border px-3 py-1.5 text-sm transition-[border-color,color,scale] active:scale-[0.96] focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none"
-        >
-          {nextLabel}
-          <Icon name="ri:arrow-right-line" aria-hidden="true" />
-        </a>
-      )}
-    </nav>
+          <Icon
+            name="ri:loader-4-line"
+            class="text-primary motion-safe:animate-spin size-4 shrink-0"
+            data-status-spinner
+            aria-hidden="true"
+          />
+          <span data-status-text></span>
+        </p>
+        <span class="sr-only" data-pagination-live aria-live="polite" aria-atomic="true"></span>
+        <nav aria-label={labels.navigation} class="flex w-full min-w-0 flex-wrap items-center justify-between gap-2">
+          {backHref ? (
+            <a
+              href={backHref}
+              rel="prev"
+              class="border-border/80 bg-card hover:border-primary/50 hover:text-primary focus-visible:ring-primary inline-flex min-h-9 touch-manipulation items-center gap-1.5 rounded-full border px-3 py-1.5 text-sm transition-[border-color,color,scale] active:scale-[0.96] focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none"
+            >
+              <Icon name="ri:arrow-left-line" aria-hidden="true" />
+              {labels.back}
+            </a>
+          ) : (
+            <span />
+          )}
+          {nextHref && (
+            <a
+              href={nextHref}
+              rel="next"
+              data-next-link
+              class="border-border/80 bg-card hover:border-primary/50 hover:text-primary focus-visible:ring-primary ms-auto inline-flex min-h-9 touch-manipulation items-center gap-1.5 rounded-full border px-3 py-1.5 text-sm transition-[border-color,color,scale] active:scale-[0.96] focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none"
+            >
+              <span data-next-label>{labels.next}</span>
+              <Icon name="ri:arrow-right-line" aria-hidden="true" />
+            </a>
+          )}
+        </nav>
+      </div>
+    </moments-cursor-pagination>
   )
 }
+
+<script>
+  const CONTENT_APPENDED_EVENT = 'moments:content-appended';
+  // Keep the loading indicator on screen at least this long on successful
+  // loads so fast responses do not make it flash.
+  const MIN_LOADING_INDICATOR_MS = 600;
+  const LOAD_TIMEOUT_MS = 15_000;
+  const LOAD_ROOT_MARGIN_PX = 320;
+
+  class MomentsCursorPagination extends HTMLElement {
+    private observer?: IntersectionObserver;
+    private timeline?: HTMLOListElement;
+    private sentinel?: HTMLElement;
+    private loadAbortController?: AbortController;
+    private loading = false;
+    private loadingStartedAt = 0;
+    private isIntersecting = false;
+    private pendingIntersectionLoad = false;
+    private statusClearTimer?: number;
+    private readonly loadedHrefs = new Set<string>();
+
+    connectedCallback() {
+      if (this.dataset.initialized === 'true') return;
+      this.dataset.initialized = 'true';
+
+      if (!('IntersectionObserver' in window) || !('DOMParser' in window) || !window.fetch) return;
+      const timeline = this.previousElementSibling?.matches('[data-moments-timeline]')
+        ? this.previousElementSibling
+        : document.querySelector('[data-moments-timeline]');
+      const sentinel = this.querySelector<HTMLElement>('[data-pagination-sentinel]');
+      if (!(timeline instanceof HTMLOListElement) || !sentinel || !this.dataset.nextHref) return;
+
+      this.timeline = timeline;
+      this.sentinel = sentinel;
+      this.dataset.enhanced = 'true';
+      this.setState('idle');
+      this.observer = new IntersectionObserver(
+        ([entry]) => {
+          if (!entry?.isIntersecting) {
+            this.isIntersecting = false;
+            return;
+          }
+          if (this.isIntersecting) return;
+          this.isIntersecting = true;
+          if (this.dataset.state === 'error') return;
+          if (this.loading) {
+            this.pendingIntersectionLoad = true;
+            return;
+          }
+          void this.loadNext(false);
+        },
+        { rootMargin: `0px 0px ${LOAD_ROOT_MARGIN_PX}px`, threshold: 0 },
+      );
+      this.observer.observe(sentinel);
+
+      this.querySelector<HTMLAnchorElement>('[data-next-link]')?.addEventListener('click', (event) => {
+        if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+        event.preventDefault();
+        if (!this.loading) void this.loadNext(event.detail === 0);
+      });
+    }
+
+    disconnectedCallback() {
+      this.observer?.disconnect();
+      this.loadAbortController?.abort();
+      if (this.statusClearTimer !== undefined) window.clearTimeout(this.statusClearTimer);
+    }
+
+    private setState(state: 'idle' | 'loading' | 'error' | 'end', status = '', focusEndStatus = false) {
+      if (!this.isConnected) return;
+      this.dataset.state = state;
+      const busy = state === 'loading';
+      this.setAttribute('aria-busy', String(busy));
+      this.timeline?.setAttribute('aria-busy', String(busy));
+
+      const link = this.querySelector<HTMLAnchorElement>('[data-next-link]');
+      const linkLabel = this.querySelector<HTMLElement>('[data-next-label]');
+      const statusElement = this.querySelector<HTMLElement>('[data-pagination-status]');
+      const statusText = this.querySelector<HTMLElement>('[data-status-text]');
+      const liveRegion = this.querySelector<HTMLElement>('[data-pagination-live]');
+      if (linkLabel) linkLabel.textContent = state === 'error' ? (this.dataset.retryLabel ?? '') : (this.dataset.nextLabel ?? '');
+      if (statusElement) {
+        statusElement.classList.toggle('hidden', !status);
+        statusElement.classList.toggle('flex', Boolean(status));
+      }
+      if (statusText) statusText.textContent = status;
+      if (liveRegion) liveRegion.textContent = status;
+      if (state === 'end' && focusEndStatus && link === document.activeElement) {
+        statusElement?.focus({ preventScroll: true });
+      }
+      if (link) {
+        link.hidden = state === 'end';
+        link.setAttribute('aria-disabled', String(busy));
+      }
+    }
+
+    private announceLoaded() {
+      this.setState('idle', this.dataset.loadedLabel ?? '');
+      if (this.statusClearTimer !== undefined) window.clearTimeout(this.statusClearTimer);
+      this.statusClearTimer = window.setTimeout(() => {
+        if (this.dataset.state === 'idle') this.setState('idle');
+      }, 1600);
+    }
+
+    private sentinelIsWithinLoadMargin() {
+      const bounds = this.sentinel?.getBoundingClientRect();
+      return Boolean(bounds && bounds.bottom >= 0 && bounds.top <= window.innerHeight + LOAD_ROOT_MARGIN_PX);
+    }
+
+    private async loadNext(focusEndStatus: boolean) {
+      const timeline = this.timeline;
+      const nextHref = this.dataset.nextHref;
+      if (this.loading || !timeline || !nextHref) return;
+
+      const requestedUrl = new URL(nextHref, window.location.href);
+      if (this.loadedHrefs.has(requestedUrl.href)) {
+        this.setState('end', this.dataset.endLabel ?? '', focusEndStatus);
+        this.observer?.disconnect();
+        return;
+      }
+
+      const controller = new AbortController();
+      const timeoutId = window.setTimeout(
+        () => controller.abort(new DOMException('Moments page request timed out', 'TimeoutError')),
+        LOAD_TIMEOUT_MS,
+      );
+      this.loadAbortController = controller;
+      this.loading = true;
+      this.loadingStartedAt = Date.now();
+      if (this.statusClearTimer !== undefined) window.clearTimeout(this.statusClearTimer);
+      this.setState('loading', this.dataset.loadingLabel ?? '');
+      let completedWithNextPage = false;
+
+      try {
+        const response = await fetch(requestedUrl, {
+          credentials: 'same-origin',
+          headers: { Accept: 'text/html' },
+          signal: controller.signal,
+        });
+        if (!response.ok) throw new Error(`Moments page request failed with ${response.status}`);
+        if (!this.isConnected) {
+          controller.abort();
+          return;
+        }
+
+        const responseHtml = await response.text();
+        if (!this.isConnected) {
+          controller.abort();
+          return;
+        }
+        if (controller.signal.aborted) throw controller.signal.reason;
+
+        const page = new DOMParser().parseFromString(responseHtml, 'text/html');
+        const nextTimeline = page.querySelector<HTMLOListElement>('[data-moments-timeline]');
+        if (!nextTimeline) throw new Error('Moments response did not include a timeline');
+        const items = Array.from(nextTimeline.children).filter(
+          (item): item is HTMLElement => item instanceof HTMLElement && item.tagName === 'LI',
+        );
+        if (items.length === 0) throw new Error('Moments response did not include timeline entries');
+
+        const nextPagination = page.querySelector<HTMLElement>('[data-moments-cursor-pagination]');
+        const candidateHref = nextPagination?.dataset.nextHref;
+        const nextUrl = candidateHref ? new URL(candidateHref, response.url || requestedUrl).href : undefined;
+
+        // Keep the loading strip visible before revealing the new batch. Waiting
+        // after append would leave a spinner beside content that has already loaded.
+        const remainingIndicatorMs = MIN_LOADING_INDICATOR_MS - (Date.now() - this.loadingStartedAt);
+        if (remainingIndicatorMs > 0) {
+          await new Promise<void>((resolve) => window.setTimeout(resolve, remainingIndicatorMs));
+        }
+        if (!this.isConnected) {
+          controller.abort();
+          return;
+        }
+        if (controller.signal.aborted) throw controller.signal.reason;
+
+        const appendedItems = items.map((item) => {
+          item.dataset.momentsEntering = 'true';
+          return document.adoptNode(item);
+        });
+        timeline.append(...appendedItems);
+        this.loadedHrefs.add(requestedUrl.href);
+        document.dispatchEvent(new CustomEvent(CONTENT_APPENDED_EVENT, { detail: { root: timeline } }));
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => {
+            if (!this.isConnected) return;
+            for (const item of appendedItems) item.dataset.momentsEntering = 'settled';
+            window.setTimeout(() => {
+              for (const item of appendedItems) delete item.dataset.momentsEntering;
+            }, 260);
+          });
+        });
+
+        if (!this.isConnected) {
+          controller.abort();
+          return;
+        }
+        const repeatedCursor = nextUrl === requestedUrl.href || (nextUrl ? this.loadedHrefs.has(nextUrl) : false);
+        if (!nextUrl || repeatedCursor) {
+          delete this.dataset.nextHref;
+          this.setState('end', this.dataset.endLabel ?? '', focusEndStatus);
+          this.observer?.disconnect();
+        } else {
+          this.dataset.nextHref = nextUrl;
+          const link = this.querySelector<HTMLAnchorElement>('[data-next-link]');
+          if (link) link.href = nextUrl;
+          this.announceLoaded();
+          completedWithNextPage = true;
+        }
+      } catch (error) {
+        const isAbortError = error instanceof DOMException && error.name === 'AbortError';
+        if (!isAbortError && this.isConnected) this.setState('error', this.dataset.errorLabel ?? '');
+      } finally {
+        window.clearTimeout(timeoutId);
+        if (this.loadAbortController === controller) this.loadAbortController = undefined;
+        this.loading = false;
+        const replayIntersection = completedWithNextPage && this.pendingIntersectionLoad;
+        this.pendingIntersectionLoad = false;
+        if (replayIntersection && this.isConnected) {
+          requestAnimationFrame(() => {
+            if (
+              this.isConnected &&
+              !this.loading &&
+              this.isIntersecting &&
+              this.dataset.nextHref &&
+              this.sentinelIsWithinLoadMargin()
+            ) {
+              void this.loadNext(false);
+            }
+          });
+        }
+      }
+    }
+  }
+
+  if (!customElements.get('moments-cursor-pagination')) {
+    customElements.define('moments-cursor-pagination', MomentsCursorPagination);
+  }
+</script>
+
+<style>
+  moments-cursor-pagination[data-enhanced='true'] [data-pagination-tail] {
+    position: relative;
+    min-height: 6.75rem;
+    padding-block: 1rem 1.5rem;
+  }
+
+  /*
+   * Loading and error states render inline as a full-width placeholder strip at
+   * the end of the timeline — exactly where the next batch of entries will
+   * appear — inside the reserved tail space, so the footer never jumps. The
+   * strip eases in with a short delay so instant (cached) responses skip it.
+   */
+  moments-cursor-pagination[data-state='loading'] [data-pagination-status],
+  moments-cursor-pagination[data-state='error'] [data-pagination-status] {
+    width: 100%;
+    min-height: 3.75rem;
+    padding: 0.75rem 1rem;
+    margin-block: 0.25rem;
+    align-items: center;
+    background: hsl(var(--card) / 0.6);
+    border: 1px solid hsl(var(--border) / 0.8);
+    border-radius: 0.75rem;
+  }
+
+  moments-cursor-pagination[data-state='loading'] [data-pagination-status] {
+    color: hsl(var(--foreground));
+    animation: moments-status-in 180ms ease-out 150ms backwards;
+  }
+
+  moments-cursor-pagination[data-state='error'] [data-pagination-status] {
+    color: hsl(var(--destructive));
+    border-color: hsl(var(--destructive) / 0.35);
+  }
+
+  [data-status-spinner] {
+    display: none;
+  }
+
+  moments-cursor-pagination[data-state='loading'] [data-status-spinner] {
+    display: block;
+  }
+
+  @keyframes moments-status-in {
+    from {
+      opacity: 0;
+      transform: translateY(4px);
+    }
+
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  moments-cursor-pagination[data-enhanced='true']:not([data-state='error']) [data-next-link] {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border-width: 0;
+  }
+
+  moments-cursor-pagination[data-enhanced='true'] [data-next-link]:focus-visible {
+    position: static;
+    width: auto;
+    height: auto;
+    padding: 0.375rem 0.75rem;
+    margin-inline-start: auto;
+    overflow: visible;
+    clip: auto;
+    white-space: normal;
+    border-width: 1px;
+  }
+
+  :global([data-moments-entering='true']) {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  :global([data-moments-entering]) {
+    transition: opacity 240ms ease-out, transform 240ms ease-out;
+  }
+
+  :global([data-moments-entering='settled']) {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  @media (min-width: 993px) {
+    moments-cursor-pagination[data-enhanced='true'] [data-pagination-tail]::before {
+      position: absolute;
+      top: -1.75rem;
+      bottom: calc(100% - 1.3rem);
+      inset-inline-start: -20px;
+      width: 1px;
+      content: '';
+      background: hsl(var(--foreground) / 0.14);
+    }
+
+    moments-cursor-pagination[data-enhanced='true'] [data-pagination-tail]::after {
+      position: absolute;
+      top: 1rem;
+      inset-inline-start: -24px;
+      width: 9px;
+      height: 9px;
+      content: '';
+      background: hsl(var(--muted-foreground));
+      border-radius: 9999px;
+      box-shadow: 0 0 0 4px hsl(var(--foreground) / 0.08);
+    }
+
+    moments-cursor-pagination[data-state='error'] [data-pagination-tail]::after {
+      background: hsl(var(--destructive));
+      box-shadow: 0 0 0 4px hsl(var(--destructive) / 0.12);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    :global([data-moments-entering]) {
+      opacity: 1;
+      transform: none;
+      transition: none;
+    }
+
+    moments-cursor-pagination[data-state='loading'] [data-pagination-status] {
+      animation: none;
+    }
+  }
+</style>
