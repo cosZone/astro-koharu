@@ -84,6 +84,7 @@ const railDate = publishedDate?.slice(0, 4) === currentYear ? publishedDate.slic
   {(message.html || message.media.length === 0) && (
     <MessageBody
       html={message.html}
+      contentId={`moments-message-${message.id}-content`}
       collapsible={!detail}
       emptyLabel={labels.emptyMessage}
       expandLabel={labels.expand}

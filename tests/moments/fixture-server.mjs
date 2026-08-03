@@ -11,8 +11,10 @@ const message = {
   channel,
   content: {
     kind: 'text',
-    text: 'Fixture hello from Koharu Suite',
-    html: '<p>Fixture hello from <strong>Koharu Suite</strong></p>',
+    text: 'Fixture hello from Koharu Suite\nSafe linked article',
+    html:
+      'Fixture hello from <strong>Koharu Suite</strong>\n' +
+      '<a href="https://example.com/search-rich-text" onclick="alert(1)">Safe linked article</a>',
     entities: [],
   },
   media: [
@@ -131,7 +133,15 @@ const server = http.createServer((request, response) => {
   if (url.pathname === '/api/v1/messages/latest') return send(response, 200, { items: albumMessages, nextCursor: null });
   if (url.pathname === '/api/v1/search/messages') {
     return send(response, 200, {
-      items: [{ match: { score: 1, snippet: 'Fixture hello' }, message }],
+      items: [
+        {
+          match: {
+            score: 1,
+            snippet: '<img src=x onerror="alert(1)"><script>search-snippet-must-not-render</script>',
+          },
+          message,
+        },
+      ],
       mode: 'trigram',
       nextCursor: null,
     });

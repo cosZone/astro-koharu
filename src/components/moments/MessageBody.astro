@@ -1,6 +1,9 @@
 ---
+import { Icon } from 'astro-icon/components';
+
 interface Props {
   html: string;
+  contentId: string;
   collapsible?: boolean;
   emptyLabel: string;
   expandLabel: string;
@@ -8,7 +11,7 @@ interface Props {
   spoilerRevealLabel: string;
 }
 
-const { html, collapsible = true, emptyLabel, expandLabel, collapseLabel, spoilerRevealLabel } = Astro.props;
+const { html, contentId, collapsible = true, emptyLabel, expandLabel, collapseLabel, spoilerRevealLabel } = Astro.props;
 ---
 
 <moments-message-body
@@ -18,6 +21,7 @@ const { html, collapsible = true, emptyLabel, expandLabel, collapseLabel, spoile
   data-collapse-label={collapseLabel}
 >
   <div
+    id={contentId}
     class="moments-message-content prose prose-sm dark:prose-invert max-w-[72ch] break-words prose-p:my-2"
     data-message-content
     data-spoiler-reveal-label={spoilerRevealLabel}
@@ -28,14 +32,16 @@ const { html, collapsible = true, emptyLabel, expandLabel, collapseLabel, spoile
       <p class="text-muted-foreground m-0 italic">{emptyLabel}</p>
     )}
   </div>
-  <div class="moments-message-fade pointer-events-none" aria-hidden="true"></div>
   <button
+    hidden
     type="button"
-    class="moments-message-toggle text-primary hover:bg-primary/10 focus-visible:ring-primary mt-2 hidden min-h-8 touch-manipulation rounded-lg px-2 text-sm font-medium transition-[background-color,color,scale] active:scale-[0.96] focus-visible:ring-2 focus-visible:ring-offset-1 focus-visible:outline-none"
+    class="moments-message-toggle text-muted-foreground hover:text-primary focus-visible:ring-primary min-h-9 touch-manipulation rounded-full px-3 text-sm font-medium backdrop-blur-sm transition-[background-color,color,box-shadow,scale] active:scale-[0.96] motion-reduce:transition-none focus-visible:ring-2 focus-visible:ring-offset-1 focus-visible:outline-none"
     aria-expanded="true"
+    aria-controls={contentId}
     data-message-toggle
   >
-    {expandLabel}
+    <span data-message-toggle-label>{expandLabel}</span>
+    <Icon name="ri:arrow-down-s-line" class="moments-message-toggle-icon size-4" aria-hidden="true" />
   </button>
 </moments-message-body>
 
@@ -43,39 +49,124 @@ const { html, collapsible = true, emptyLabel, expandLabel, collapseLabel, spoile
   import { enhanceSpoilers } from '@lib/spoiler-enhancer';
 
   const COLLAPSED_HEIGHT = 384;
+  const COLLAPSED_FADE_HEIGHT = 88;
+  const COLLAPSED_FOCUSABLE_SELECTOR = [
+    'a[href]',
+    'button:not([disabled])',
+    'input:not([disabled]):not([type="hidden"])',
+    'select:not([disabled])',
+    'textarea:not([disabled])',
+    'audio[controls]',
+    'video[controls]',
+    '[contenteditable="true"]',
+    '[tabindex]',
+    'spoiler-span',
+  ].join(',');
+
+  interface CollapsedInteractiveState {
+    inert: boolean;
+    tabindex: string | null;
+  }
 
   function enhanceMomentSpoilers(root: ParentNode = document) {
     enhanceSpoilers(root);
   }
 
   class MomentsMessageBody extends HTMLElement {
+    private lifecycleController?: AbortController;
+    private collapsedInteractiveStates = new Map<HTMLElement, CollapsedInteractiveState>();
+
+    private restoreCollapsedInteractions() {
+      for (const [element, state] of this.collapsedInteractiveStates) {
+        element.inert = state.inert;
+        if (state.tabindex === null) element.removeAttribute('tabindex');
+        else element.setAttribute('tabindex', state.tabindex);
+      }
+      this.collapsedInteractiveStates.clear();
+    }
+
+    private syncCollapsedInteractions(content: HTMLElement) {
+      this.restoreCollapsedInteractions();
+      if (this.dataset.expanded !== 'false') return;
+
+      const visibleBottom = content.getBoundingClientRect().bottom - COLLAPSED_FADE_HEIGHT;
+      const candidates = content.querySelectorAll<HTMLElement>(COLLAPSED_FOCUSABLE_SELECTOR);
+      for (const element of candidates) {
+        const rect = element.getBoundingClientRect();
+        if (element.inert || rect.height === 0 || rect.bottom <= visibleBottom) continue;
+
+        this.collapsedInteractiveStates.set(element, {
+          inert: element.inert,
+          tabindex: element.getAttribute('tabindex'),
+        });
+        element.inert = true;
+        element.setAttribute('tabindex', '-1');
+      }
+    }
+
     connectedCallback() {
-      if (this.dataset.initialized === 'true') return;
-      this.dataset.initialized = 'true';
+      if (this.lifecycleController) return;
+      this.lifecycleController = new AbortController();
 
       if (this.dataset.collapsibleRequested !== 'true') return;
       const content = this.querySelector<HTMLElement>('[data-message-content]');
       const toggle = this.querySelector<HTMLButtonElement>('[data-message-toggle]');
-      if (!content || !toggle) return;
+      const toggleLabel = toggle?.querySelector<HTMLElement>('[data-message-toggle-label]');
+      if (!content || !toggle || !toggleLabel) return;
 
       const update = () => {
-        if (content.scrollHeight <= COLLAPSED_HEIGHT + 8) return;
-        this.dataset.collapsible = 'true';
-        this.dataset.expanded = 'false';
-        toggle.classList.remove('hidden');
-        toggle.setAttribute('aria-expanded', 'false');
-        toggle.textContent = this.dataset.expandLabel ?? '';
+        if (!this.isConnected) return;
+        if (content.scrollHeight <= COLLAPSED_HEIGHT + 8) {
+          if (this.dataset.collapsible === 'true') {
+            delete this.dataset.collapsible;
+            delete this.dataset.expanded;
+            toggle.hidden = true;
+            toggle.setAttribute('aria-expanded', 'true');
+            this.restoreCollapsedInteractions();
+          }
+          return;
+        }
+
+        if (this.dataset.collapsible !== 'true') {
+          this.dataset.collapsible = 'true';
+          this.dataset.expanded = 'false';
+          toggle.hidden = false;
+          toggle.setAttribute('aria-expanded', 'false');
+          toggleLabel.textContent = this.dataset.expandLabel ?? '';
+        }
+        this.syncCollapsedInteractions(content);
       };
 
-      requestAnimationFrame(update);
-      document.fonts?.ready.then(update).catch(() => undefined);
+      let updateScheduled = false;
+      const scheduleUpdate = () => {
+        if (updateScheduled) return;
+        updateScheduled = true;
+        requestAnimationFrame(() => {
+          updateScheduled = false;
+          update();
+        });
+      };
+
+      scheduleUpdate();
+      document.fonts?.ready.then(scheduleUpdate).catch(() => undefined);
+      window.addEventListener('resize', scheduleUpdate, {
+        passive: true,
+        signal: this.lifecycleController.signal,
+      });
 
       toggle.addEventListener('click', () => {
         const expanded = this.dataset.expanded === 'true';
         this.dataset.expanded = expanded ? 'false' : 'true';
         toggle.setAttribute('aria-expanded', String(!expanded));
-        toggle.textContent = expanded ? (this.dataset.expandLabel ?? '') : (this.dataset.collapseLabel ?? '');
-      });
+        toggleLabel.textContent = expanded ? (this.dataset.expandLabel ?? '') : (this.dataset.collapseLabel ?? '');
+        this.syncCollapsedInteractions(content);
+      }, { signal: this.lifecycleController.signal });
+    }
+
+    disconnectedCallback() {
+      this.lifecycleController?.abort();
+      this.lifecycleController = undefined;
+      this.restoreCollapsedInteractions();
     }
   }
 
@@ -99,10 +190,10 @@ const { html, collapsible = true, emptyLabel, expandLabel, collapseLabel, spoile
   moments-message-body[data-collapsible='true'][data-expanded='false'] .moments-message-content {
     max-height: 24rem;
     overflow: hidden;
-  }
-
-  .moments-message-fade {
-    display: none;
+    -webkit-mask-image: linear-gradient(to bottom, #000 0%, #000 calc(100% - 5.5rem), transparent 100%);
+    mask-image: linear-gradient(to bottom, #000 0%, #000 calc(100% - 5.5rem), transparent 100%);
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
   }
 
   .moments-message-content :global(pre),
@@ -110,21 +201,53 @@ const { html, collapsible = true, emptyLabel, expandLabel, collapseLabel, spoile
     white-space: pre;
   }
 
-  moments-message-body[data-collapsible='true'][data-expanded='false'] .moments-message-fade {
-    position: absolute;
-    right: 0;
-    bottom: 2.75rem;
-    left: 0;
-    display: block;
-    height: 5rem;
-    background: linear-gradient(to bottom, transparent, hsl(var(--card)));
+  .moments-message-toggle:not([hidden]) {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    width: max-content;
+    align-items: center;
+    gap: 0.125rem;
+    margin: 0.75rem auto 0;
+    background: hsl(var(--background) / 0.9);
+    box-shadow:
+      0 0 0 1px hsl(var(--border) / 0.72),
+      0 1px 2px hsl(var(--foreground) / 0.05),
+      0 4px 12px hsl(var(--foreground) / 0.04);
+  }
+
+  moments-message-body[data-collapsible='true'][data-expanded='false'] .moments-message-toggle {
+    margin-top: -1rem;
+  }
+
+  .moments-message-toggle:hover {
+    background: hsl(var(--muted) / 0.88);
+    box-shadow:
+      0 0 0 1px hsl(var(--border)),
+      0 2px 8px hsl(var(--foreground) / 0.08);
+  }
+
+  .moments-message-toggle-icon {
+    transition: transform 180ms ease-out;
+  }
+
+  moments-message-body[data-expanded='true'] .moments-message-toggle-icon {
+    transform: rotate(180deg);
   }
 
   @media (prefers-reduced-motion: no-preference) {
     .moments-message-toggle {
       transition:
         color 180ms ease,
-        background-color 180ms ease;
+        background-color 180ms ease,
+        box-shadow 180ms ease,
+        scale 120ms ease;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .moments-message-toggle-icon {
+      transition: none;
     }
   }
 </style>
