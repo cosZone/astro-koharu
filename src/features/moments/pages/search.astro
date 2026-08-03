@@ -51,12 +51,7 @@ const results = (page?.items ?? []).flatMap((result) => {
   const channel = channels?.visible.find((item) => item.id === result.message.channel.id);
   if (!channel) return [];
   const view = toMessageViewModel(momentsConfig, channel, result.message);
-  const escapedSnippet = result.match.snippet
-    .replaceAll('&', '&amp;')
-    .replaceAll('<', '&lt;')
-    .replaceAll('>', '&gt;')
-    .replaceAll('"', '&quot;');
-  return [{ ...view, html: `<p>${escapedSnippet}</p>`, media: [] }];
+  return [{ ...view, media: [] }];
 });
 const nextUrl = page?.nextCursor ? new URL(action, Astro.site) : undefined;
 if (nextUrl && page?.nextCursor) {

@@ -37,6 +37,8 @@ test('cursor pagination keeps a link fallback and initializes appended cards and
   assert.match(messageCard, /document\.addEventListener\('moments:content-appended'/);
   assert.match(messageCard, /installMomentCardLinks\(root\)/);
   assert.match(messageCard, /installMomentCopyButtons\(root\)/);
+  assert.match(messageCard, /const cardInteractiveSelector =\s*'a, button,/);
+  assert.match(messageCard, /event\.target\.closest\(cardInteractiveSelector\)/);
   assert.match(messageCard, /audio, spoiler-span,/);
   assert.match(messageBody, /import \{ enhanceSpoilers \} from '@lib\/spoiler-enhancer'/);
   assert.match(messageBody, /document\.addEventListener\('moments:content-appended'/);
