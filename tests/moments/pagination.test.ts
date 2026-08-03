@@ -69,6 +69,26 @@ test('blog and Moments content reuse one spoiler enhancer', async () => {
   assert.doesNotMatch(messageBody, /function installSpoilerFallback/);
 });
 
+test('long Moments content uses a surface-independent feather and an accessible disclosure control', async () => {
+  const [messageBody, messageCard] = await Promise.all([
+    read('src/components/moments/MessageBody.astro'),
+    read('src/components/moments/MessageCard.astro'),
+  ]);
+
+  assert.match(messageBody, /mask-image: linear-gradient/);
+  assert.match(messageBody, /data-message-toggle-label/);
+  assert.match(messageBody, /toggle\.hidden = false/);
+  assert.match(messageBody, /active:scale-\[0\.96\]/);
+  assert.match(messageBody, /moments-message-toggle-icon/);
+  assert.match(messageBody, /aria-controls=\{contentId\}/);
+  assert.match(messageCard, /contentId=\{`moments-message-\$\{message\.id\}-content`\}/);
+  assert.match(messageBody, /this\.dataset\.collapsible !== 'true'/);
+  assert.match(messageBody, /element\.inert = true/);
+  assert.match(messageBody, /this\.restoreCollapsedInteractions\(\)/);
+  assert.doesNotMatch(messageBody, /moments-message-fade/);
+  assert.doesNotMatch(messageBody, /transition:\s*all/);
+});
+
 test('renders loading as an inline timeline placeholder strip and gently reveals each appended batch', async () => {
   const pagination = await read('src/components/moments/CursorPagination.astro');
 
