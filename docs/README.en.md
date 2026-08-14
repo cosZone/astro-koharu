@@ -372,7 +372,7 @@ Thanks to the following projects for providing inspiration and reference for ast
 
 ## Star History
 
-[![Star History Chart](https://api.star-history.com/svg?repos=cosZone/astro-koharu&type=date&legend=top-left)](https://www.star-history.com/#cosZone/astro-koharu&type=date&legend=top-left)
+[![Star History Chart](https://star-history.dera.page/svg?repos=cosZone/astro-koharu&type=date&legend=top-left)](https://star-history.dera.page/#cosZone/astro-koharu&type=date&legend=top-left)
 
 ## License
 
