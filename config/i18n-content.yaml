@@ -64,3 +64,30 @@ ja:
     tools:
       label: ツール
       description: ツールの使い方と生産性
+
+ko:
+  categories:
+    life: 에세이
+    note: 노트
+    tools: 도구
+    weekly: 주간지
+    front-end: 프론트엔드
+
+  series:
+    weekly:
+      label: 나의 주간지
+      fullName: 나의 기술 주간지
+
+  featuredCategories:
+    life:
+      label: 에세이
+      description: 일상 기록, 이런저런 생각들
+    note:
+      label: 노트
+      description: 기술 노트, 학습 노트
+    note/front-end:
+      label: 프론트엔드
+      description: 프론트엔드 기술 관련
+    tools:
+      label: 도구
+      description: 도구 사용법, 효율성 향상
