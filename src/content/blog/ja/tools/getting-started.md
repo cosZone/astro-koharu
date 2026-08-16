@@ -62,7 +62,7 @@ Vercel で簡単にデプロイ：
 
 ## さらに詳しく
 
-- [Markdown 機能デモ](/post/markdown-features) ですべての Markdown 拡張機能をチェック
-- [使い方ガイド](/post/astro-koharu-guide) で詳細な設定方法を確認
+- [Markdown 機能デモ](/ja/post/markdown-features) ですべての Markdown 拡張機能をチェック
+- [使い方ガイド](/ja/post/astro-koharu-guide) で詳細な設定方法を確認
 
 ブログをお楽しみください！

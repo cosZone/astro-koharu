@@ -62,7 +62,7 @@ Deploy easily with Vercel:
 
 ## Learn More
 
-- Check out the [Markdown Features Demo](/post/markdown-features) for all Markdown enhancements
-- Check out the [Usage Guide](/post/astro-koharu-guide) for detailed configuration
+- Check out the [Markdown Features Demo](/en/post/markdown-features) for all Markdown enhancements
+- Check out the [Usage Guide](/en/post/astro-koharu-guide) for detailed configuration
 
 Enjoy blogging!
