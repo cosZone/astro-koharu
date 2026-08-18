@@ -1,0 +1,424 @@
+{
+  "https://react-tweet.vercel.app/": {
+    "data": {
+      "originUrl": "https://react-tweet.vercel.app/",
+      "url": "https://react-tweet.vercel.app/",
+      "title": "Introduction – react-tweet",
+      "description": "Embed tweets in your React application.",
+      "image": null,
+      "logo": "https://react-tweet.vercel.app/#fff"
+    },
+    "timestamp": 1771066804183
+  },
+  "https://juejin.cn/post/7006338919767736357": {
+    "data": {
+      "originUrl": "https://juejin.cn/post/7006338919767736357",
+      "url": "https://juejin.cn/post/7006338919767736357",
+      "title": "推荐一个好用的 VSCode 插件 Live Server作用: 搭了一个本地服务并且具有自动刷新功能、 比如有时我们想 - 掘金",
+      "description": "作用: 搭了一个本地服务并且具有自动刷新功能、 比如有时我们想看下页面效果，或者使用 esm 模块可能有跨域问题等等，反正需要放服务器上看的都可以临时用一用方便快速。这个小工具可以说是非常有用了。 安",
+      "image": "https://p1-jj.byteimg.com/tos-cn-i-t2oaga2asx/gold-assets/icon/icon-128.png~tplv-t2oaga2asx-image.image",
+      "logo": "https://lf-web-assets.juejin.cn/obj/juejin-web/xitu_juejin_web/static/favicons/apple-touch-icon.png"
+    },
+    "timestamp": 1767721417073
+  },
+  "https://happy.engineering/docs/use-cases/hemingway-technique/": {
+    "data": {
+      "originUrl": "https://happy.engineering/docs/use-cases/hemingway-technique/",
+      "url": "https://slopus.github.io/",
+      "title": "Happy - Claude Code Mobile Client",
+      "description": "Free, open-source mobile app for Claude Code. Control Claude AI from your phone with end-to-end encryption and seamless workflow.",
+      "image": "https://slopus.github.io/og-image.png",
+      "logo": "https://happy.engineering/apple-touch-icon.png"
+    },
+    "timestamp": 1767721420101
+  },
+  "https://blog.cosine.ren/post/my-claude-code-record-2": {
+    "data": {
+      "originUrl": "https://blog.cosine.ren/post/my-claude-code-record-2",
+      "url": "https://blog.cosine.ren/post/my-claude-code-record-2/",
+      "title": "我的 Claude Code 使用小记 2 | 笔记 / AI | 余弦の博客",
+      "description": "本文地址 https://blog.cosine.ren/post/my-claude-code-record-2 距离我 8 月份写下《我的 Claude Code 使用小记》已经过去了近 4 个月，在这段时间的高强度使用后，是时候分享一些新的体验了。…",
+      "image": "https://blog.cosine.ren/favicon.ico",
+      "logo": "https://blog.cosine.ren/favicon.ico"
+    },
+    "timestamp": 1767721417174
+  },
+  "https://messenger.abeto.co/": {
+    "data": {
+      "originUrl": "https://messenger.abeto.co/",
+      "url": "https://messenger.abeto.co/",
+      "title": "Messenger",
+      "description": "It’s a small planet, but someone’s gotta make the deliveries.",
+      "image": "https://messenger.abeto.co/assets/images/social.jpg",
+      "logo": "https://messenger.abeto.co/assets/favicon32-BC0QIL61.png"
+    },
+    "timestamp": 1767721418453
+  },
+  "https://marketplace.visualstudio.com/items?itemName=eamodio.gitlens": {
+    "data": {
+      "originUrl": "https://marketplace.visualstudio.com/items?itemName=eamodio.gitlens",
+      "url": "https://marketplace.visualstudio.com/items?itemName=eamodio.gitlens",
+      "title": "GitLens — Git supercharged - Visual Studio Marketplace",
+      "description": "Extension for Visual Studio Code - Supercharge Git within VS Code — Visualize code authorship at a glance via Git blame annotations and CodeLens, seamlessly navigate and explore Git repositories, gain valuable insights via rich visualizations and powerful comparison commands, and so much more",
+      "image": "https://eamodio.gallerycdn.vsassets.io/extensions/eamodio/gitlens/2026.1.604/1767690705652/Microsoft.VisualStudio.Services.Icons.Default",
+      "logo": "https://marketplace.visualstudio.com/favicon.ico"
+    },
+    "timestamp": 1767721418503
+  },
+  "https://guangzhengli.com/blog/zh/indie-hacker-poor-stack": {
+    "data": {
+      "originUrl": "https://guangzhengli.com/blog/zh/indie-hacker-poor-stack",
+      "url": "https://guangzhengli.com/undefined/zh/indie-hacker-poor-stack",
+      "title": "独立开发穷鬼套餐(Web实践篇)",
+      "description": "独立开发穷鬼套餐(Web实践篇)",
+      "image": "https://storage.guangzhengli.com/images/og-image.png",
+      "logo": "https://guangzhengli.com/favicon.png"
+    },
+    "timestamp": 1767721420680
+  },
+  "https://github.com/vercel/react-tweet": {
+    "data": {
+      "originUrl": "https://github.com/vercel/react-tweet",
+      "url": "https://github.com/vercel/react-tweet",
+      "title": "GitHub - vercel/react-tweet: Embed tweets in your React application.",
+      "description": "Embed tweets in your React application. Contribute to vercel/react-tweet development by creating an account on GitHub.",
+      "image": "https://opengraph.githubassets.com/a55cc4a7f7db90fbf062ee90a71d48aac4fe6a2895e6c07047be1655d3b2923f/vercel/react-tweet",
+      "logo": "https://github.com/fluidicon.png"
+    },
+    "timestamp": 1772209621560
+  },
+  "https://github.com/cosZone/astro-koharu": {
+    "data": {
+      "originUrl": "https://github.com/cosZone/astro-koharu",
+      "url": "https://github.com/cosZone/astro-koharu",
+      "title": "GitHub - cosZone/astro-koharu: astro-koharu 是一个萌系/二次元/粉蓝配色的 astro 主题博客，灵感来自 Hexo 的 Shoka 主题，加了很多自己的小巧思，性能优越。",
+      "description": "astro-koharu 是一个萌系/二次元/粉蓝配色的 astro 主题博客，灵感来自 Hexo 的 Shoka 主题，加了很多自己的小巧思，性能优越。 - cosZone/astro-koharu",
+      "image": "https://opengraph.githubassets.com/9f69001d5d2f1da62f35f20b1924606ae53f9a7551a2ef73c7c0ad98d4f03363/cosZone/astro-koharu",
+      "logo": "https://github.com/fluidicon.png"
+    },
+    "timestamp": 1772209621455
+  },
+  "https://marketplace.cursorapi.com/items?itemName=vscode-icons-team.vscode-icons": {
+    "data": {
+      "originUrl": "https://marketplace.cursorapi.com/items?itemName=vscode-icons-team.vscode-icons",
+      "url": "https://marketplace.cursorapi.com/items?itemName=vscode-icons-team.vscode-icons",
+      "title": "Open VSX Registry",
+      "description": null,
+      "image": null,
+      "logo": "https://t1.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https://marketplace.cursorapi.com/items?itemName=vscode-icons-team.vscode-icons&size=128"
+    },
+    "timestamp": 1767721421523
+  },
+  "https://developer.mozilla.org/en-US/docs/Web/API/HTMLMediaElement": {
+    "data": {
+      "originUrl": "https://developer.mozilla.org/en-US/docs/Web/API/HTMLMediaElement",
+      "url": "https://developer.mozilla.org/en-US/docs/Web/API/HTMLMediaElement",
+      "title": "HTMLMediaElement - Web APIs | MDN",
+      "description": "The HTMLMediaElement interface adds to HTMLElement the properties and methods needed to support basic media-related capabilities that are common to audio and video.",
+      "image": null,
+      "logo": "https://developer.mozilla.org/favicon.ico"
+    },
+    "timestamp": 1767721427238
+  },
+  "https://nextjs.org/blog/security-update-2025-12-11": {
+    "data": {
+      "originUrl": "https://nextjs.org/blog/security-update-2025-12-11",
+      "url": "https://nextjs.org/blog/security-update-2025-12-11",
+      "title": "Next.js Security Update: December 11, 2025",
+      "description": "Two additional vulnerabilities have been identified in React Server Components. Users should upgrade to patched versions immediately.",
+      "image": "https://h8dxkfmaphn8o0p3.public.blob.vercel-storage.com/static/blog/security-update-2025-12-11/twitter-card.jpeg",
+      "logo": "https://nextjs.org/favicon.ico?favicon.d29c4393.ico"
+    },
+    "timestamp": 1767881085350
+  },
+  "https://nextjs.org/blog/CVE-2025-66478": {
+    "data": {
+      "originUrl": "https://nextjs.org/blog/CVE-2025-66478",
+      "url": "https://nextjs.org/blog/CVE-2025-66478",
+      "title": "Security Advisory: CVE-2025-66478",
+      "description": "A critical vulnerability (CVE-2025-66478) has been identified in the React Server Components protocol. Users should upgrade to patched versions immediately.",
+      "image": "https://h8dxkfmaphn8o0p3.public.blob.vercel-storage.com/static/blog/CVE-2025-66478/twitter-card.jpeg"
+    },
+    "timestamp": 1767118769238
+  },
+  "https://chrome.dev/css-wrapped-2025/": {
+    "data": {
+      "originUrl": "https://chrome.dev/css-wrapped-2025/",
+      "url": "https://chrome.dev/css-wrapped-2025/",
+      "title": "CSS Wrapped 2025",
+      "description": "Sculpt dynamic interfaces, stretch your imagination, and play with these 22 powerful new CSS features that landed in Chrome this year.",
+      "image": "https://chrome.dev/css-wrapped-2025/social.jpg",
+      "logo": "https://chrome.dev/css-wrapped-2025/favicon.svg"
+    },
+    "timestamp": 1767881094815
+  },
+  "https://alexop.dev/posts/semantic-related-posts-astro-transformersjs/": {
+    "data": {
+      "originUrl": "https://alexop.dev/posts/semantic-related-posts-astro-transformersjs/",
+      "url": "https://alexop.dev/posts/semantic-related-posts-astro-transformersjs/",
+      "title": "No Server, No Database: Smarter Related Posts in Astro with `transformers.js` | alexop.dev",
+      "description": "How I used Hugging Face embeddings to create smart “Related Posts” for my Astro blog—no backend, no database, just TypeScript.",
+      "image": "https://alexop.dev/posts/no-server-no-database-smarter-related-posts-in-astro-with-transformers-js/index.png",
+      "logo": "https://alexop.dev/favicon.svg"
+    },
+    "timestamp": 1767881087072
+  },
+  "https://react.dev/blog/2025/12/11/denial-of-service-and-source-code-exposure-in-react-server-components": {
+    "data": {
+      "originUrl": "https://react.dev/blog/2025/12/11/denial-of-service-and-source-code-exposure-in-react-server-components",
+      "url": "https://react.dev/blog/2025/12/11/denial-of-service-and-source-code-exposure-in-react-server-components",
+      "title": "Denial of Service and Source Code Exposure in React Server Components – React",
+      "description": "The library for web and native user interfaces",
+      "image": "https://react.dev/images/og-blog.png",
+      "logo": "https://react.dev/apple-touch-icon.png"
+    },
+    "timestamp": 1767881085832
+  },
+  "https://react.dev/blog/2025/12/03/critical-security-vulnerability-in-react-server-components": {
+    "data": {
+      "originUrl": "https://react.dev/blog/2025/12/03/critical-security-vulnerability-in-react-server-components",
+      "url": "https://react.dev/blog/2025/12/03/critical-security-vulnerability-in-react-server-components",
+      "title": "Critical Security Vulnerability in React Server Components – React",
+      "description": "The library for web and native user interfaces",
+      "image": "https://react.dev/images/og-blog.png"
+    },
+    "timestamp": 1767118773727
+  },
+  "https://juejin.cn/post/7580374090365665318": {
+    "data": {
+      "originUrl": "https://juejin.cn/post/7580374090365665318",
+      "url": "https://juejin.cn/post/7580374090365665318",
+      "title": "安全漏洞核弹|又一个CVSS10.0满分的安全漏洞爆发｜我的服务被攻击了，拆解攻击过程我收到阿里云ECS存在安全风险提示 - 掘金",
+      "description": "我收到阿里云ECS存在安全风险提示，是 umami 被攻击执行了异常内容。而这个漏洞却是因为上游 Nextjs 以及更上游的 React 存在漏洞导致的，CVSS评分10.0满分，这是一个可以比拟当年---\ntitle: ”安全漏洞核弹|又一个CVSS10.0满分的安全漏洞爆发｜我的服务被攻击了，拆解攻击过程”\ndes",
+      "image": "https://p1-jj.byteimg.com/tos-cn-i-t2oaga2asx/gold-assets/icon/icon-128.png~tplv-t2oaga2asx-image.image"
+    },
+    "timestamp": 1767118774338
+  },
+  "https://docs.umami.is/docs/guides/migrate-mysql-postgresql": {
+    "data": {
+      "originUrl": "https://docs.umami.is/docs/guides/migrate-mysql-postgresql",
+      "url": "https://docs.umami.is/docs/guides/migrate-mysql-postgresql",
+      "title": "Migrate MySQL to PostgreSQL",
+      "description": null,
+      "image": "https://docs.umami.is/og/docs/guides/migrate-mysql-postgresql/image.png"
+    },
+    "timestamp": 1767118774823
+  },
+  "https://github.com/cosZone/astro-koharu/commit/61c0a9c7da78ae241918eea2595aba48289734ed": {
+    "data": {
+      "originUrl": "https://github.com/cosZone/astro-koharu/commit/61c0a9c7da78ae241918eea2595aba48289734ed",
+      "url": "https://github.com/cosZone/astro-koharu/commit/61c0a9c7da78ae241918eea2595aba48289734ed",
+      "title": "feat: add new RSS feed layout with profile settings · cosZone/astro-koharu@61c0a9c",
+      "description": "[WIP] “小春日和” 是一个萌系 / 二次元 / 粉蓝配色的 astro 主题博客，灵感来自 Hexo 的 Shoka 主题，但不再追求一比一复刻，而是保留它的优点，用更轻量的技术栈，做一款属于自己的个人博客主题。 - feat: add new RSS feed layout with profile settings · cosZone/astro-koharu@61c0a9c",
+      "image": "https://opengraph.githubassets.com/2a19aba114232754fcd9d1c0079bafa6329d199b88409318ee03d7a5b57d9d20/cosZone/astro-koharu/commit/61c0a9c7da78ae241918eea2595aba48289734ed"
+    },
+    "timestamp": 1767118774826
+  },
+  "https://github.com/cosZone/astro-koharu/pull/30/files": {
+    "data": {
+      "originUrl": "https://github.com/cosZone/astro-koharu/pull/30/files",
+      "url": "https://github.com/cosZone/astro-koharu/pull/30",
+      "title": "feat: add link preview for tweets and general links by yusixian · Pull Request #30 · cosZone/astro-koharu",
+      "description": "[WIP] “小春日和” 是一个萌系 / 二次元 / 粉蓝配色的 astro 主题博客，灵感来自 Hexo 的 Shoka 主题，但不再追求一比一复刻，而是保留它的优点，用更轻量的技术栈，做一款属于自己的个人博客主题。 - feat: add link preview for tweets and general links by yusixian · Pull Request #30 · cosZone/astro-koharu",
+      "image": "https://avatars.githubusercontent.com/u/43498495?s=400&v=4"
+    },
+    "timestamp": 1767118774830
+  },
+  "https://www.amitmerchant.com/one-css-trick-to-eliminate-scrollbar-layout-shifts/": {
+    "data": {
+      "originUrl": "https://www.amitmerchant.com/one-css-trick-to-eliminate-scrollbar-layout-shifts/",
+      "url": "https://www.amitmerchant.com/one-css-trick-to-eliminate-scrollbar-layout-shifts/",
+      "title": "One CSS Trick to Eliminate Scrollbar Layout Shifts",
+      "description": "When a webpage’s content exceeds the viewport height, browsers typically introduce a vertical scrollbar. This can lead to layout shifts, especially when navigating between pages or toggling content visibility, as the presence or absence of the scrollbar alters the available width for content.",
+      "image": "https://www.amitmerchant.com/cdn/one-css-trick-to-eliminate-scrollbar-layout-shifts.png",
+      "logo": "https://www.amitmerchant.com/images/apple-touch-icon.png"
+    },
+    "timestamp": 1767881086163
+  },
+  "https://www.shopify.com/editions/winter2026": {
+    "data": {
+      "originUrl": "https://www.shopify.com/editions/winter2026",
+      "url": "https://www.shopify.com/editions/winter2026",
+      "title": "Shopify Editions | Winter ’26",
+      "description": "The commerce renaissance is here. Explore 150+ product updates across AI, retail, and more.",
+      "image": "https://cdn.shopify.com/s/files/1/0951/3130/4218/files/share.png?v=1765212809",
+      "logo": "https://cdn.shopify.com/s/files/1/0951/3130/4218/files/favicon_256.png?v=1760634627"
+    },
+    "timestamp": 1767881094338
+  },
+  "https://developer.mozilla.org/zh-CN/docs/Web/SVG/Reference/Attribute/vector-effect": {
+    "data": {
+      "originUrl": "https://developer.mozilla.org/zh-CN/docs/Web/SVG/Reference/Attribute/vector-effect",
+      "url": "https://developer.mozilla.org/zh-CN/docs/Web/SVG/Reference/Attribute/vector-effect",
+      "title": "vector-effect - SVG：可缩放矢量图形 | MDN",
+      "description": "vector-effect 属性指明绘制对象时要使用的矢量效果。在任何其他合成操作（如滤镜，蒙版和剪辑等）之前，都要应用矢量效果。",
+      "image": null,
+      "logo": "https://developer.mozilla.org/favicon.ico"
+    },
+    "timestamp": 1767881087114
+  },
+  "https://www.cve.org/CVERecord?id=CVE-2025-55182": {
+    "data": {
+      "originUrl": "https://www.cve.org/CVERecord?id=CVE-2025-55182",
+      "url": "https://www.cve.org/CVERecord?id=CVE-2025-55182",
+      "title": null,
+      "description": null,
+      "image": null
+    },
+    "timestamp": 1767118777594
+  },
+  "https://cos.afilmory.art/photos/IMG_20251219_183401": {
+    "data": {
+      "originUrl": "https://cos.afilmory.art/photos/IMG_20251219_183401",
+      "url": "https://cos.afilmory.art/IMG_20251219_183401",
+      "title": "IMG_20251219_183401 on cos’ Photos",
+      "description": "余弦的旅行照片与游戏截图~",
+      "image": "https://cos.afilmory.art/og/IMG_20251219_183401",
+      "logo": "https://cos.afilmory.art/static/web/apple-touch-icon.png"
+    },
+    "timestamp": 1767881085833
+  },
+  "https://cos.afilmory.art/photos/MVIMG_20251220_090431": {
+    "data": {
+      "originUrl": "https://cos.afilmory.art/photos/MVIMG_20251220_090431",
+      "url": "https://cos.afilmory.art/MVIMG_20251220_090431",
+      "title": "MVIMG_20251220_090431 on cos’ Photos",
+      "description": "余弦的旅行照片与游戏截图~",
+      "image": "https://cos.afilmory.art/og/MVIMG_20251220_090431",
+      "logo": "https://cos.afilmory.art/static/web/apple-touch-icon.png"
+    },
+    "timestamp": 1767881085602
+  },
+  "https://cos.afilmory.art/photos/IMG_20251219_182549": {
+    "data": {
+      "originUrl": "https://cos.afilmory.art/photos/IMG_20251219_182549",
+      "url": "https://cos.afilmory.art/IMG_20251219_182549",
+      "title": "IMG_20251219_182549 on cos’ Photos",
+      "description": "余弦的旅行照片与游戏截图~",
+      "image": "https://cos.afilmory.art/og/IMG_20251219_182549",
+      "logo": "https://cos.afilmory.art/static/web/apple-touch-icon.png"
+    },
+    "timestamp": 1767881085603
+  },
+  "https://github.com/yusixian/moe-copy-ai/releases/tag/0.2.0": {
+    "data": {
+      "originUrl": "https://github.com/yusixian/moe-copy-ai/releases/tag/0.2.0",
+      "url": "https://github.com/yusixian/moe-copy-ai/releases/tag/0.2.0",
+      "title": "Release v0.2.0 · yusixian/moe-copy-ai",
+      "description": "[v0.2.0] - 2025-12-31\nChrome 商店：https://chromewebstore.google.com/detail/moe-copy-ai/dfmlcfckmfgabpgbaobgapdfmjiihnck\nRelease Notes 新功能 侧边栏 (Side Panel) - 全新的扩展侧边栏界面，提供更高效的工作流程 分段式标签导航，在批量抓取和内容…",
+      "image": "https://opengraph.githubassets.com/d34c8ce481c93c99bd49af2eb6e44a9003439be8deff0d19b9e4e808c63a8b75/yusixian/moe-copy-ai/releases/tag/0.2.0",
+      "logo": "https://github.com/fluidicon.png"
+    },
+    "timestamp": 1767953840154
+  },
+  "https://github.com/yusixian/moe-copy-ai": {
+    "data": {
+      "originUrl": "https://github.com/yusixian/moe-copy-ai",
+      "url": "https://github.com/yusixian/moe-copy-ai",
+      "title": "GitHub - yusixian/moe-copy-ai: ✨ 萌萌哒的 AI 网页数据提取助手 ✨",
+      "description": "✨ 萌萌哒的 AI 网页数据提取助手 ✨. Contribute to yusixian/moe-copy-ai development by creating an account on GitHub.",
+      "image": "https://opengraph.githubassets.com/4e39f86d66d84a99f4dab9afb80e8643e52a656803339e6146d7deacbe04aa70/yusixian/moe-copy-ai",
+      "logo": "https://github.com/fluidicon.png"
+    },
+    "timestamp": 1767953841240
+  },
+  "https://blog.cosine.ren/post/astro-christmas-effects": {
+    "data": {
+      "originUrl": "https://blog.cosine.ren/post/astro-christmas-effects",
+      "url": "https://blog.cosine.ren/post/astro-christmas-effects/",
+      "title": "为 Astro 博客添加可插拔的圣诞特效模块 | 笔记 / 前端 | 余弦の博客",
+      "description": "本文由 AI 辅助写作，作记录用 圣诞节到了，想给博客加点节日氛围。最终实现了一套可插拔的圣诞特效模块，包括： 3D 雪花飘落（React Three Fiber + GLSL 着色器） 悬挂彩灯装饰（CSS 动画） 头像圣诞帽（SVG） 圣诞配色方案（CSS 变量） 可拖拽圣诞球开关…",
+      "image": "https://r2.cosine.ren/i/2025/12/7a36339bd35536b9ea9621db6cd238a2.webp",
+      "logo": "https://blog.cosine.ren/favicon.ico"
+    },
+    "timestamp": 1767953843339
+  },
+  "https://chromewebstore.google.com/detail/moe-copy-ai/dfmlcfckmfgabpgbaobgapdfmjiihnck": {
+    "data": {
+      "originUrl": "https://chromewebstore.google.com/detail/moe-copy-ai/dfmlcfckmfgabpgbaobgapdfmjiihnck",
+      "url": "https://chromewebstore.google.com/detail/moe-copy-ai/dfmlcfckmfgabpgbaobgapdfmjiihnck",
+      "title": "Moe Copy AI - Chrome Web Store",
+      "description": "✨ 萌萌哒的 AI 网页数据提取助手 ✨",
+      "image": "https://lh3.googleusercontent.com/S-T-SIPjgzoLP_8FJOAaVo4B1AbVLa6V1lg6rtl0nTePtQBrek9dnMNBDT5_mYYOwSIHUFucdA1PQGGy3_z8GYcON0s=s128-rj-sc0x00ffffff",
+      "logo": "https://ssl.gstatic.com/chrome/webstore/images/icon_144px.png"
+    },
+    "timestamp": 1767953843418
+  },
+  "https://blog.cosine.ren/post/astro-lqip-implementation": {
+    "data": {
+      "originUrl": "https://blog.cosine.ren/post/astro-lqip-implementation",
+      "url": "https://blog.cosine.ren/post/astro-lqip-implementation/",
+      "title": "在 Astro 博客中实现 LQIP（低质量图片占位符） | 笔记 / 前端 | 余弦の博客",
+      "description": "本文由 AI 辅助写作，作记录用 一开始想在博客中，实现类似 Minimal CSS-only blurry image placeholders 的 CSS-only LQIP（低质量图片占位符），使用单个 CSS 自定义属性 --lqip 编码图片的模糊预览。 这篇文章的技术原理是使用 20…",
+      "image": "https://r2.cosine.ren/i/2025/12/40e44c8ac166183d5f823d7aa81fa792.webp",
+      "logo": "https://blog.cosine.ren/favicon.ico"
+    },
+    "timestamp": 1767953843427
+  },
+  "https://book.cosine.ren/": {
+    "data": {
+      "originUrl": "https://book.cosine.ren/",
+      "url": "https://book.cosine.ren/",
+      "title": "前言及目录 | 前端学习记录",
+      "description": "🌸 你好，这里是余弦的学习记录",
+      "image": "https://book.cosine.ren/~gitbook/image?url=https%3A%2F%2F934551782-files.gitbook.io%2F%7E%2Ffiles%2Fv0%2Fb%2Fgitbook-x-prod.appspot.com%2Fo%2Fspaces%252FSKmC7C4KtqVvJxUTVKwQ%252Fsocialpreview%252FbwQcTEjPTCn8otbSJ17b%252F5.jpg%3Falt%3Dmedia%26token%3Da2a5f32e-283c-4b4c-9241-0ca7176af981&width=1200&height=630&sign=47632d7f&sv=2",
+      "logo": "https://book.cosine.ren/~gitbook/image?url=https%3A%2F%2F934551782-files.gitbook.io%2F%7E%2Ffiles%2Fv0%2Fb%2Fgitbook-x-prod.appspot.com%2Fo%2Fspaces%252FSKmC7C4KtqVvJxUTVKwQ%252Ficon%252FWcaoWRW35EESs2lJLWyW%252Ftx.jpg%3Falt%3Dmedia%26token%3Dde2dd12e-60c6-4078-8049-1f37d3c7e3ec&width=48&height=48&sign=66400c08&sv=2"
+    },
+    "timestamp": 1772376180077
+  },
+  "https://t.me/cosine_front_end": {
+    "data": {
+      "originUrl": "https://t.me/cosine_front_end",
+      "url": "https://t.me/cosine_front_end",
+      "title": "cosine - 前端人の日常频道",
+      "description": "呜啦！日常碎碎念，偶尔掉落优质前端博文推荐、学习资源等\t网页：https://tg.cosine.ren\t本频道的搜索Bot 来辣 👉 @cosSearchBot\t私聊直接发消息就可以搜索啦～\t🔖tags\t#优质博文 #资源推荐 #博客更新 #碎碎念 #项目更新 #手工 #书摘 #阮一峰的科技周刊 #新动态 图频：Cosine 🎨 Gallery @CosineGallery\t猫片： @cosine_cat\t联系频道主：@cosine_yu",
+      "image": "https://cdn5.telesco.pe/file/r0EhtSbPCT5QX9nuNtGHvvhDjd1OYH-K_3kCKCHYJHIoh3auxx7itvxr_uRNIcRwtiZYtY70JJO2tDNaFgLEbaWvttdA1k14mrxAc-KM0r2iTKATzyakqhYaRQBTsLv7zY6euo9mvuWIWuwPuDzIGjn-F0MZiwa6aGzHS0LTxZRpMd3aunU3DwtDwKSGH3HZHavhTsun_QC_-tie7i7qMz1_UFWx-7rH9OB84r2DdOPdMcRjW1ujzSeIhhMHoRDOrHn5gbUeTT_qFSuGybHODyOeOnlevRC1a3J7nEghEoclDxgiHeMQi1M2eFDP1yNdvlBQEDCJ6QnLBPiYEqvc8A.jpg",
+      "logo": "https://telegram.org/img/apple-touch-icon.png"
+    },
+    "timestamp": 1772376180446
+  },
+  "https://github.com/cosZone/astro-koharu/pull/39": {
+    "data": {
+      "originUrl": "https://github.com/cosZone/astro-koharu/pull/39",
+      "url": "https://github.com/cosZone/astro-koharu/pull/39",
+      "title": "Feat/announcement by yusixian · Pull Request #39 · cosZone/astro-koharu",
+      "description": "添加站点公告系统 在页面加载后，自动展示未读公告，5s 后自动关闭。 每条公告可以悬停标记为已读，或手动关闭。 点击「View all」可打开完整公告列表。 所有弹窗随全局交互状态自动关闭。",
+      "image": "https://opengraph.githubassets.com/a27f31cd457d2b83a9f7c38572100690e4694f70c69a198012c6c2079d3f5119/cosZone/astro-koharu/pull/39",
+      "logo": "https://github.com/fluidicon.png"
+    },
+    "timestamp": 1767363637371
+  },
+  "https://imagemagick.org/script/command-line-processing.php": {
+    "data": {
+      "originUrl": "https://imagemagick.org/script/command-line-processing.php",
+      "url": "https://imagemagick.org/script/command-line-processing.php",
+      "title": "ImageMagick | Command-line Processing",
+      "description": "ImageMagick is a powerful open-source software suite for creating, editing, converting, and manipulating images in over 200 formats. Ideal for developers, designers, and researchers.",
+      "image": "https://imagemagick.org/image/logo.png",
+      "logo": "https://imagemagick.org/image/logo.png"
+    },
+    "timestamp": 1767718876139
+  },
+  "https://www.libvips.org/API/8.17/using-vipsthumbnail.html": {
+    "data": {
+      "originUrl": "https://www.libvips.org/API/8.17/using-vipsthumbnail.html",
+      "url": "https://www.libvips.org/API/8.17/using-vipsthumbnail.html",
+      "title": "Vips: Using > vipsthumbnail",
+      "description": "Reference for Vips-8.0: Using > vipsthumbnail",
+      "image": "https://www.libvips.org/API/8.17/owl.jpg",
+      "logo": "https://www.libvips.org/favicon.ico"
+    },
+    "timestamp": 1767718876462
+  },
+  "https://docs.astro.build/en/recipes/add-yaml-support/": {
+    "data": {
+      "originUrl": "https://docs.astro.build/en/recipes/add-yaml-support/",
+      "url": "https://docs.astro.build/en/recipes/add-yaml-support/",
+      "title": "Installing a Vite or Rollup plugin",
+      "description": "Learn how you can import YAML data by adding a Rollup plugin to your project.",
+      "image": "https://docs.astro.build/open-graph/en/recipes/add-yaml-support.webp",
+      "logo": "https://docs.astro.build/favicon.ico"
+    },
+    "timestamp": 1768031593390
+  }
+}
