@@ -61,6 +61,8 @@ export interface SummaryPanelProps {
   typingSpeed?: number;
   /** 自定义类名 */
   className?: string;
+  /** 页面语言；SSR 岛屿必须传入以避免水合文本不匹配 */
+  locale?: string;
 }
 
 const SOURCE_ICONS: Record<SummarySource, ReactNode> = {
@@ -85,7 +87,7 @@ const SOURCE_LABEL_KEYS: Record<SummarySource, TranslationKey> = {
   auto: 'summary.auto',
 };
 
-function SummaryPanel({ summary, source = 'ai', typingSpeed = 25, className }: SummaryPanelProps) {
+function SummaryPanel({ summary, source = 'ai', typingSpeed = 25, className, locale }: SummaryPanelProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [isTyping, setIsTyping] = useState(false);
   const hasAnimatedRef = useRef(false);
@@ -93,7 +95,7 @@ function SummaryPanel({ summary, source = 'ai', typingSpeed = 25, className }: S
   const startTimeRef = useRef<number>(0);
   const textRef = useRef<HTMLSpanElement | null>(null);
 
-  const { t } = useTranslation();
+  const { t } = useTranslation(locale);
   const icon = SOURCE_ICONS[source];
   const label = t(SOURCE_LABEL_KEYS[source]);
 

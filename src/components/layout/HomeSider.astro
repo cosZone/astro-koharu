@@ -208,6 +208,18 @@ const nextPost = adjacentPosts.nextPost ? toPostRef(adjacentPosts.nextPost) : nu
     z-index: 5;
   }
 
+  /*
+   * 页头可见时（未隐藏）侧栏吸顶偏移到页头下方，避免 sticky 内容与固定页头重叠。
+   * 页头随下滚隐藏（-translate-y-full）后恢复 top-0，保持原有吸顶状态。
+   * 仅桌面宽度生效（>992px）：移动端抽屉内的 sider 不适用。
+   */
+  @media (width > 992px) {
+    :global(body:has(#site-header:not(.-translate-y-full))) .page-home-sider {
+      top: 3.5rem;
+      height: calc(100vh - 3.5rem);
+    }
+  }
+
   sider-content {
     position: relative;
   }

@@ -65,7 +65,11 @@ const LanguageSwitcherComponent = ({ locale: _ssrLocale, className }: LanguageSw
             >
               <div className="flex items-center gap-2 text-white transition-all duration-300 group-hover:translate-x-0.5 group-hover:text-white">
                 {entry.label}
-                {isActive && <Icon icon="ri:check-line" className="size-3.5" />}
+                {isActive && (
+                  <span className="inline-flex size-3.5 shrink-0 items-center justify-center">
+                    <Icon icon="ri:check-line" className="size-3.5" />
+                  </span>
+                )}
               </div>
             </a>
           );
@@ -88,7 +92,10 @@ const LanguageSwitcherComponent = ({ locale: _ssrLocale, className }: LanguageSw
         aria-label={`Language: ${currentLabel}`}
         aria-haspopup="true"
       >
-        <Icon icon="ri:translate" className="size-8" />
+        {/* 图标数据异步加载，固定尺寸容器保证 SSR/加载前后几何不变，避免 popover 重定位 */}
+        <span className="inline-flex size-8 items-center justify-center">
+          <Icon icon="ri:translate" className="size-8" />
+        </span>
       </button>
     </Popover>
   );
