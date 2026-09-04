@@ -375,7 +375,8 @@
 
   .code-block-wrapper.code-collapsed > pre > code {
     max-height: calc(13.6em + 2rem);
-    overflow: hidden;
+    overflow-x: auto;
+    overflow-y: hidden;
   }
 
   /* Reserve the toolbar row before the idle-hydrated controls mount. */
