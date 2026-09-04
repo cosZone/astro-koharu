@@ -26,12 +26,10 @@ const locale = getLocaleFromUrl(Astro.url.pathname);
   aria-modal="true"
 >
   <div class="flex h-full w-full flex-col overflow-auto">
-    <div class="flex items-center">
-      <button id="close-drawer" aria-label={t(locale, 'drawer.close')} class="invisible">
-        <Icon name="ri:close-line" class="h-6 w-6" />
-      </button>
+    {/* justify-end：语言切换与关闭按钮整体靠右，左上角让给汉堡按钮 morph 的 X */}
+    <div class="flex items-center justify-end gap-1">
       {localeEntries.length > 1 && (
-        <details class="language-switcher group relative ml-auto mr-4">
+        <details class="language-switcher group relative mr-1">
           <summary
             class="flex cursor-pointer list-none items-center gap-1.5 rounded-lg px-2.5 py-1 text-sm text-muted-foreground transition-colors hover:bg-foreground/10 hover:text-foreground [&::-webkit-details-marker]:hidden"
             aria-label={t(locale, 'common.language')}
@@ -61,6 +59,14 @@ const locale = getLocaleFromUrl(Astro.url.pathname);
           </div>
         </details>
       )}
+      {/* 抽屉内可见关闭按钮 */}
+      <button
+        id="close-drawer"
+        aria-label={t(locale, 'drawer.close')}
+        class="flex size-8 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-foreground/10 hover:text-foreground"
+      >
+        <Icon name="ri:close-line" class="h-6 w-6" />
+      </button>
     </div>
     <HomeSider className="tablet:flex tablet:mt-0 mt-4 hidden w-full min-w-full p-0" isDrawer type={type} post={post} />
   </div>

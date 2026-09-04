@@ -1,0 +1,455 @@
+/**
+ * Korean (ko) — UI strings
+ *
+ * Keys not present here will fall back to the default locale (zh).
+ */
+
+export const uiStrings = {
+  // ── Navigation ──────────────────────────────────────────────
+  'nav.home': '홈',
+  'nav.posts': '게시물',
+  'nav.categories': '카테고리',
+  'nav.tags': '태그',
+  'nav.archives': '아카이브',
+  'nav.friends': '링크',
+  'nav.about': '소개',
+  'nav.music': '플레이리스트',
+  'nav.weekly': '주간지',
+  'nav.bangumi': '감상 기록',
+
+  // ── Common ──────────────────────────────────────────────────
+  'common.search': '검색',
+  'common.close': '닫기',
+  'common.copy': '복사',
+  'common.copied': '복사 완료',
+  'common.copyFailed': '자동 복사 실패, 직접 복사해 주세요',
+  'common.loading': '불러오는 중...',
+  'common.noResults': '결과가 없어요',
+  'common.backToTop': '맨 위로',
+  'common.darkMode': '다크 모드',
+  'common.lightMode': '라이트 모드',
+  'common.toggleTheme': '테마 전환',
+  'common.language': '언어',
+  'common.toc': '목차',
+  'common.expand': '펼치기',
+  'common.collapse': '접기',
+  'common.menuLabel': '{name} 메뉴',
+
+  // ── Post ────────────────────────────────────────────────────
+  'post.readMore': '더 보기',
+  'post.totalPosts': '총 {count}개의 게시물',
+  'post.stickyPosts': '고정된 게시물',
+  'post.postList': '게시물 목록',
+  'post.featuredCategories': '추천 카테고리',
+  'post.yearPosts': '{count}개의 게시물',
+  'post.readingTime': '{time}분 소요',
+  'post.wordCount': '{count}자',
+  'post.publishedAt': '게시일: {date}',
+  'post.updatedAt': '수정일: {date}',
+  'post.prevPost': '이전 게시물',
+  'post.nextPost': '다음 게시물',
+  'post.relatedPosts': '관련 게시물',
+  'post.seriesNavigation': '시리즈 내비게이션',
+  'post.seriesPrev': '이전 편',
+  'post.seriesNext': '다음 편',
+  'post.fallbackNotice': '이 게시물은 아직 {lang} 번역이 없으므로 원문으로 표시돼요',
+  'post.draft': '초안',
+  'post.pinned': '고정됨',
+  'post.noPostsFound': '게시물이 없어요',
+
+  // ── Categories & Tags ───────────────────────────────────────
+  'category.allCategories': '모든 카테고리',
+  'category.postsInCategory': '{name} 카테고리의 게시물',
+  'category.totalCategories': '총 {count}개의 카테고리',
+  'category.categoryLabel': '카테고리',
+  'tag.allTags': '모든 태그',
+  'tag.postsWithTag': '「{name}」 태그가 달린 게시물',
+  'tag.totalTags': '총 {count}개의 태그',
+  'tag.all': '전체',
+  'tag.postCount': '{count}개의 게시물',
+
+  // ── Archives ────────────────────────────────────────────────
+  'archives.title': '아카이브',
+  'archives.totalPosts': '총 {count}개',
+
+  // ── Search ──────────────────────────────────────────────────
+  'search.placeholder': '검색어를 입력해 주세요',
+  'search.label': '이 사이트 검색',
+  'search.clear': '지우기',
+  'search.loadMore': '결과 더 보기',
+  'search.filters': '필터',
+  'search.noResults': '결과가 없어요',
+  'search.manyResults': '[COUNT]개의 결과',
+  'search.oneResult': '[COUNT]개의 결과',
+  'search.altSearch': '결과가 없어요. [DIFFERENT_TERM]에 대한 결과를 표시해요',
+  'search.suggestion': '결과가 없어요. 다음 검색어를 시도해 보세요:',
+  'search.searching': '[SEARCH_TERM] 검색 중...',
+  'search.dialogTitle': '게시물 검색',
+  'search.dialogHint': '검색어를 입력하여 블로그 게시물을 검색해 주세요',
+  'search.dialogClose': '닫기',
+  'search.dialogSelect': '선택',
+  'search.dialogOpen': '열기',
+
+  // ── Friends ─────────────────────────────────────────────────
+  'friends.title': '친구 링크',
+  'friends.applyTitle': '링크 교환 신청',
+  'friends.siteName': '사이트 이름',
+  'friends.siteUrl': '사이트 주소',
+  'friends.ownerName': '닉네임',
+  'friends.siteDesc': '사이트 소개',
+  'friends.avatarUrl': '프로필 사진 링크',
+  'friends.themeColor': '테마 색상',
+  'friends.submit': '제출',
+  'friends.copySuccess': '클립보드에 복사됐어요',
+  'friends.copyFail': '복사 실패, 직접 복사해 주세요',
+  'friends.generateFormat': '신청 양식 생성',
+  'friends.copyFormat': '양식 복사',
+  'friends.sitePlaceholder': '내 블로그',
+  'friends.ownerPlaceholder': '당신의 닉네임',
+  'friends.urlPlaceholder': 'https://your-site.com',
+  'friends.descPlaceholder': '한 줄 소개...',
+  'friends.imagePlaceholder': 'https://...',
+  'friends.previewTitle': '양식 미리보기',
+  'friends.copyConfig': '양식 복사',
+  'friends.copiedConfig': '복사 완료!',
+  'friends.hint': '팁: 위의 코드를 복사해서 아래 댓글란에 붙여넣고 전송해 주시면, 확인할게요~',
+
+  // ── Code Block ──────────────────────────────────────────────
+  'code.copy': '코드 복사',
+  'code.copied': '복사 완료!',
+  'code.fullscreen': '전체 화면',
+  'code.exitFullscreen': '전체 화면 종료',
+  'code.wrapLines': '자동 줄바꿈',
+  'code.viewSource': '소스 보기',
+  'code.viewRendered': '렌더링 결과 보기',
+  'code.collapse': '코드 접기',
+  'code.expand': '코드 펼치기',
+
+  // ── Diagram / Infographic ───────────────────────────────────
+  'diagram.fullscreen': '전체 화면',
+  'diagram.exitFullscreen': '전체 화면 종료',
+  'diagram.viewSource': '소스 보기',
+  'diagram.zoomIn': '확대',
+  'diagram.zoomOut': '축소',
+  'diagram.resetZoom': '확대/축소 초기화',
+  'diagram.fitToScreen': '화면에 맞춤',
+  'diagram.download': '이미지 다운로드',
+
+  // ── Image Lightbox ──────────────────────────────────────────
+  'image.zoomIn': '확대',
+  'image.zoomOut': '축소',
+  'image.resetZoom': '초기화',
+  'image.resetZoomRotate': '확대 및 회전 초기화',
+  'image.rotate': '90° 회전',
+  'image.close': '닫기',
+  'image.prev': '이전 이미지',
+  'image.next': '다음 이미지',
+  'image.counter': '{current} / {total}',
+  'image.hintDesktop': '두 번 클릭하여 확대 · 휠/두 손가락으로 확대/축소',
+  'image.hintMobile': '두 번 탭하여 확대 · 두 손가락으로 확대/축소',
+
+  // ── Media Controls ──────────────────────────────────────────
+  'media.play': '재생',
+  'media.pause': '일시정지',
+  'media.mute': '음소거',
+  'media.unmute': '음소거 해제',
+  'media.fullscreen': '전체 화면',
+  'media.exitFullscreen': '전체 화면 종료',
+  'media.pictureInPicture': 'PIP 모드',
+  'media.playbackSpeed': '재생 속도',
+  'media.download': '다운로드',
+  'media.prevTrack': '이전 곡',
+  'media.nextTrack': '다음 곡',
+  'media.volume': '볼륨 {percent}%',
+  'media.progress': '재생 진행률',
+  'media.playModeOrder': '순차 재생',
+  'media.playModeRandom': '랜덤 재생',
+  'media.playModeLoop': '한 곡 반복',
+
+  // ── Footer ──────────────────────────────────────────────────
+  'footer.poweredBy': '{name} 기반',
+  'footer.totalPosts': '{count}개의 게시물',
+  'footer.totalWords': '{count}자',
+  'footer.totalWordsTitle': '사이트 총 글자 수',
+  'footer.readingTimeTitle': '사이트 총 읽기 시간',
+  'footer.postCountTitle': '총 게시물 수',
+  'footer.runningDays': '{days}일째 가동 중',
+  'footer.wordUnit': '자',
+  'footer.postUnit': '개',
+
+  // ── Analytics Stats ─────────────────────────────────────────
+  'stats.pageviews': '조회수',
+
+  // ── Pagination ──────────────────────────────────────────────
+  'pagination.prev': '이전 페이지',
+  'pagination.next': '다음 페이지',
+  'pagination.page': '{page}페이지',
+  'pagination.currentPage': '현재 {page}페이지',
+  'pagination.of': '총 {total}페이지',
+
+  // ── Breadcrumb ──────────────────────────────────────────────
+  'breadcrumb.home': '홈',
+  'breadcrumb.goToCategory': '{name} 카테고리로 이동',
+
+  // ── Floating Group ──────────────────────────────────────────
+  'floating.backToTop': '맨 위로',
+  'floating.scrollToBottom': '맨 아래로',
+  'floating.toggleTheme': '테마 전환',
+  'floating.christmas': '크리스마스 효과 전환',
+  'floating.bgm': '배경 음악',
+  'floating.toggleToolbar': '툴바 펼치기/접기',
+  'floating.settings': '설정',
+
+  // ── Settings Panel ────────────────────────────────────────
+  'settings.title': '설정',
+  'settings.reader': '읽기',
+  'settings.general': '일반',
+  'settings.closePanel': '설정 패널 닫기',
+  'settings.fontPreset': '글꼴',
+  'settings.fontPreset.round': '굴림체',
+  'settings.fontPreset.system': '시스템 고딕체',
+  'settings.fontPreset.serif': '명조체',
+  'settings.fontPreset.wenkai': 'Wenkai체',
+  'settings.fontPreset.local': '로컬 글꼴',
+  'settings.localFont.title': '로컬 글꼴 선택',
+  'settings.localFont.description': '본문용 글꼴을 이 기기에 설치된 글꼴 중에서 선택해 주세요',
+  'settings.localFont.permission':
+    '브라우저가 로컬 글꼴 목록 읽기 권한을 요청해요. 글꼴 데이터는 로컬 미리보기 및 선택용으로만 사용되며 업로드되지 않아요.',
+  'settings.localFont.requestAccess': '로컬 글꼴 읽기',
+  'settings.localFont.loading': '글꼴 읽는 중…',
+  'settings.localFont.search': '글꼴 검색',
+  'settings.localFont.preview': '다람쥐 헌 쳇바퀴에 타고파 Aa 123',
+  'settings.localFont.empty': '일치하는 글꼴을 찾을 수 없어요',
+  'settings.localFont.unsupported':
+    '현재 브라우저에서 로컬 글꼴을 나열할 수 없지만, 글꼴 이름을 직접 입력하여 사용할 수 있어요.',
+  'settings.localFont.denied': '로컬 글꼴 권한을 얻지 못했지만, 글꼴 이름을 직접 입력할 수 있어요.',
+  'settings.localFont.error': '로컬 글꼴을 읽지 못했지만, 글꼴 이름을 직접 입력할 수 있어요.',
+  'settings.localFont.manualLabel': '글꼴 이름',
+  'settings.localFont.manualPlaceholder': '예: NanumGothic',
+  'settings.localFont.useFont': '사용',
+  'settings.localFont.change': '로컬 글꼴 변경',
+  'settings.fontSize': '글자 크기',
+  'settings.lineHeight': '줄 간격',
+  'settings.measure': '줄 너비',
+  'settings.auto': '자동',
+  'settings.justify': '양쪽 맞춤',
+  'settings.scrollProgress': '스크롤 진행 표시줄',
+  'settings.christmas': '크리스마스 효과',
+  'settings.bgmWidget': '배경 음악 컨트롤',
+  'settings.masterMotion': '애니메이션 줄이기',
+  'settings.wave': '커버 파도 효과',
+  'settings.reset': '기본값으로 재설정',
+  'settings.waveDisabledByMasterMotion': '「애니메이션 줄이기」 활성화 시 사용 불가',
+  'settings.invalidNumber': '양수를 입력해 주세요',
+
+  // ── Announcement ────────────────────────────────────────────
+  'announcement.title': '공지사항',
+  'announcement.new': '신규',
+  'announcement.count': '공지사항 {count}개',
+  'announcement.unreadCount': '미확인 {count}개',
+  'announcement.markAllRead': '모두 읽음으로 표시',
+  'announcement.dismiss': '공지사항 닫기',
+  'announcement.learnMore': '더 알아보기',
+  'announcement.empty': '공지사항이 없어요',
+  'announcement.emptyHint': '새로운 공지사항이 있을 때 여기에 표시돼요',
+
+  // ── Quiz ────────────────────────────────────────────────────
+  'quiz.check': '정답 확인',
+  'quiz.correct': '정답이에요!',
+  'quiz.incorrect': '틀렸어요. 다시 시도해 보세요',
+  'quiz.incorrectAnswer': '틀렸어요. 정답은 {answer}',
+  'quiz.submitAnswer': '정답 제출 ({count}개 선택됨)',
+  'quiz.commonMistakes': '자주 틀리는 항목:',
+  'quiz.parseFailed': '문제 분석 실패',
+  'quiz.showAnswer': '정답 보기',
+  'quiz.hideAnswer': '정답 숨기기',
+  'quiz.reset': '초기화',
+  'quiz.score': '점수: {score}/{total}',
+  'quiz.completed': '모두 완료했어요!',
+  'quiz.fillBlank': '정답을 입력해 주세요...',
+  'quiz.selectOption': '선택지를 골라 주세요',
+  'quiz.single': '객관식',
+  'quiz.multi': '복수 응답형',
+  'quiz.trueFalse': 'O/X 문제',
+  'quiz.fill': '주관식',
+  'quiz.optionTrue': '참',
+  'quiz.optionFalse': '거짓',
+  'quiz.clickToReveal': '정답을 보려면 클릭해 주세요',
+  'quiz.quizOptions': '{type} 선택지',
+  'quiz.trueFalseCorrect': '정답이에요!',
+  'quiz.trueFalseIncorrect': '틀렸어요. 이 명제는 {answer}이에요.',
+
+  // ── Encrypted Block ─────────────────────────────────────────
+  'encrypted.locked': '내용이 암호화됐어요',
+  'encrypted.placeholder': '내용을 보려면 비밀번호를 입력해 주세요',
+  'encrypted.submit': '잠금 해제',
+  'encrypted.incorrect': '비밀번호가 틀렸어요',
+
+  // ── Encrypted Post ─────────────────────────────────────────
+  'encrypted.post.title': '이 게시물은 암호화됐어요',
+  'encrypted.post.description': '게시물 내용을 보려면 비밀번호를 입력해 주세요',
+  'encrypted.post.rssNotice': '이 게시물은 암호화되어 있으니, 웹 페이지에서 확인해 주세요',
+
+  // ── 404 ─────────────────────────────────────────────────────
+  'notFound.title': '페이지를 찾을 수 없어요',
+  'notFound.description': '요청하신 페이지를 찾을 수 없어요',
+  'notFound.backHome': '홈으로 돌아가기',
+  'notFound.browseArchives': '아카이브 둘러보기',
+  'notFound.message': '야옹? 페이지를 찾을 수 없어요~',
+
+  // ── Category Stats ────────────────────────────────────────
+  'category.subCategoryCount': '{count}개의 하위 카테고리',
+  'category.postCount': '{count}개의 게시물',
+
+  // ── Post Card ─────────────────────────────────────────────
+  'post.readingTimeTooltip': '예상 읽기 시간: {time}',
+
+  // ── Featured Series ─────────────────────────────────────────
+  'series.latestPost': '최신 게시물',
+  'series.viewAll': '모두 보기',
+  'series.postCount': '{count}개',
+  'series.noPosts': '등록된 시리즈 게시물이 없어요',
+  'series.rss': 'RSS 구독',
+  'series.chromeExtension': 'Chrome 확장 프로그램',
+  'series.docs': '문서',
+
+  // ── Home Info ───────────────────────────────────────────────
+  'homeInfo.articles': '게시물',
+  'homeInfo.categories': '카테고리',
+  'homeInfo.tags': '태그',
+
+  // ── Drawer ──────────────────────────────────────────────────
+  'drawer.navMenu': '내비게이션 메뉴',
+  'drawer.close': '메뉴 닫기',
+  'drawer.openMenu': '메뉴 열기',
+
+  // ── Summary Panel ───────────────────────────────────────────
+  'summary.description': '수동 요약',
+  'summary.ai': 'AI 요약',
+  'summary.auto': '요약',
+
+  // ── Random Posts ────────────────────────────────────────────
+  'post.randomPosts': '랜덤 게시물',
+
+  // ── Tag Component ───────────────────────────────────────────
+  'tag.expandAll': '모두 보기',
+  'tag.viewTagPosts': '「{tag}」 태그의 게시물 {count}개 보기',
+
+  // ── Audio Player ────────────────────────────────────────────
+  'audio.loading': '재생 목록 불러오는 중…',
+  'audio.loadError': '불러오기 실패: {error}',
+  'audio.retry': '재시도',
+  'audio.empty': '등록된 곡이 없어요',
+  'audio.listTab': '목록 {index}',
+  'audio.closePanel': '패널 닫기',
+
+  // ── Table of Contents ───────────────────────────────────────
+  'toc.title': '목차',
+  'toc.expand': '목차 펼치기',
+  'toc.empty': '등록된 목차가 없어요',
+
+  // ── Embed ─────────────────────────────────────────────────
+  'embed.loadingTweet': '트윗 불러오는 중',
+
+  // ── Content ───────────────────────────────────────────────
+  'content.revealSpoiler': '클릭하여 숨겨진 내용 보기',
+
+  // ── Search Shortcut ───────────────────────────────────────
+  'search.searchShortcut': '검색 ({shortcut})',
+
+  // ── Sider Segmented ─────────────────────────────────────────
+  'sider.overview': '사이트 개요',
+  'sider.toc': '목차',
+  'sider.series': '시리즈 게시물',
+
+  // ── Copy Link ───────────────────────────────────────────────
+  'cover.copyLink': '링크 복사',
+
+  // ── Comment ────────────────────────────────────────────────
+  'comment.prompt': '마음에 드신다면, 댓글을 남겨주세요~',
+  'comment.error': '댓글 불러오기 실패, 페이지를 새로고침하여 다시 시도해 주세요',
+  'comment.retry': '새로고침',
+
+  // ── Bangumi ───────────────────────────────────────────────
+  'bangumi.title': '감상 기록',
+  'bangumi.description': '나의 감상 기록',
+  'bangumi.anime': '애니메이션',
+  'bangumi.book': '도서',
+  'bangumi.music': '음악',
+  'bangumi.game': '게임',
+  'bangumi.real': '실사',
+  'bangumi.all': '전체',
+  'bangumi.wish': '관심 있음',
+  'bangumi.collected': '감상 완료',
+  'bangumi.watching': '감상 중',
+  'bangumi.onHold': '보류',
+  'bangumi.dropped': '하차',
+  'bangumi.noImage': '이미지 없음',
+  'bangumi.noItems': '등록된 항목이 없어요',
+  'bangumi.error': '불러오기 실패, 나중에 다시 시도해 주세요',
+  'bangumi.retry': '재시도',
+
+  // ── Moments ────────────────────────────────────────────────
+  'nav.moments': '모먼트',
+  'moments.title': '모먼트',
+  'moments.description': '채널의 일상적인 메시지 기록',
+  'moments.channels': '모먼트 채널',
+  'moments.search': '모먼트 검색',
+  'moments.searchForm': '모먼트 내용 검색',
+  'moments.searchQuery': '검색어',
+  'moments.searchPlaceholder': '3자 이상 입력해 주세요',
+  'moments.searchEmpty': '검색어를 입력하여 모든 공개 채널의 메시지를 검색해 주세요',
+  'moments.searchHint': '유니코드 문자로 최소 3자를 입력해 주세요',
+  'moments.searchTooLong': '검색어는 유니코드 문자로 200자를 초과할 수 없어요',
+  'moments.channel': '채널',
+  'moments.allChannels': '모든 채널',
+  'moments.sort': '정렬',
+  'moments.relevance': '관련순',
+  'moments.newest': '최신순',
+  'moments.searchResults': '검색 결과',
+  'moments.noResults': '일치하는 모먼트를 찾을 수 없어요',
+  'moments.clearSearch': '검색 조건 초기화',
+  'moments.updated': '수정됨',
+  'moments.permalink': '영구 링크',
+  'moments.copyLink': '링크 복사',
+  'moments.copyFailed': '복사 실패, 직접 복사해 주세요',
+  'moments.viewSource': '원본 메시지 보기',
+  'moments.emptyMessage': '빈 메시지',
+  'moments.mediaMessage': '미디어 메시지',
+  'moments.expand': '모두 펼치기',
+  'moments.collapse': '모두 접기',
+  'moments.mediaProcessing': '미디어 처리 중',
+  'moments.mediaUnavailable': '미디어를 일시적으로 사용할 수 없어요',
+  'moments.image': '이미지',
+  'moments.video': '동영상',
+  'moments.audio': '오디오',
+  'moments.document': '문서',
+  'moments.openDocument': '문서 열기',
+  'moments.mediaMore': '외 {count}개의 미디어',
+  'moments.loadEarlier': '이전 내용 불러오기',
+  'moments.loadingEarlier': '이전 내용 불러오는 중',
+  'moments.loadedEarlier': '이전 내용을 불러왔어요',
+  'moments.allLoaded': '모든 내용을 불러왔어요',
+  'moments.loadEarlierFailed': '불러오기 실패, 다시 시도해 주세요',
+  'moments.back': '이전 페이지로 돌아가기',
+  'moments.pagination': '모먼트 페이지 이동',
+  'moments.newer': '최신 항목',
+  'moments.older': '이전 항목',
+  'moments.contextNavigation': '인접한 모먼트',
+  'moments.tags': '태그',
+  'moments.emptyChannels': '표시할 수 있는 채널이 없어요',
+  'moments.emptyChannel': '이 채널에는 아직 메시지가 없어요',
+  'moments.notFound': '이 모먼트를 찾을 수 없어요',
+  'moments.notFoundDescription': '링크가 만료되었거나 현재 채널에 포함되지 않은 내용이에요',
+  'moments.rateLimited': '요청이 너무 많아요',
+  'moments.rateLimitedDescription': '서비스 요청이 일시적으로 제한되었으니, 나중에 다시 시도해 주세요.',
+  'moments.unavailable': '모먼트를 일시적으로 사용할 수 없어요',
+  'moments.unavailableDescription':
+    '동적 콘텐츠 서비스에 일시적으로 연결할 수 없으나, 블로그 게시물은 정상적으로 보실 수 있어요.',
+  'moments.retry': '재시도',
+  'moments.backToIndex': '모먼트로 돌아가기',
+  'moments.cacheNotice': '내용에 최대 5분 정도의 지연이 발생할 수 있어요',
+  'moments.rss': 'RSS 구독',
+  'moments.globalRss': '모든 모먼트 구독',
+  'moments.channelRss': '이 채널 구독',
+} as const;

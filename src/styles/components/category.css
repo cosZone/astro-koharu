@@ -92,12 +92,14 @@ p.shoka-decoration-circle:hover {
 
 @media (max-width: 768px) {
   p.shoka-decoration-circle {
-    height: 70px;
+    /* 移动端条目标题可能折行，使用最小高度让条目随内容撑开，避免与下一条目重叠 */
+    min-height: 70px;
     &::before {
-      top: 35%;
+      /* 圆点对齐首行（日期行）中心，不随条目加高而漂移 */
+      top: 26px;
     }
     &::after {
-      height: 70px;
+      height: calc(100% - 24px);
       top: 24px;
     }
   }

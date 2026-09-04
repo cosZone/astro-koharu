@@ -17,7 +17,7 @@ interface SeriesPostListProps {
 }
 
 export function SeriesPostList({ posts, currentPostSlug, className, locale }: SeriesPostListProps) {
-  const { t } = useTranslation();
+  const { t } = useTranslation(locale);
   if (!posts?.length) {
     return <div className="py-8 text-center text-muted-foreground text-sm">{t('series.noPosts')}</div>;
   }

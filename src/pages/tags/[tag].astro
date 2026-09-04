@@ -53,7 +53,7 @@ const posts = allPosts.filter((post) => post.data.tags?.some((tg) => normalizeTa
                   >
                     {translateCategoryName(name, locale)}
                   </a>
-                  <a href={localizedPath(`/post/${encodeSlug(getPostSlug(post))}`, locale)} class="dashed-border md:absolute md:top-7 md:left-7">
+                  <a href={localizedPath(`/post/${encodeSlug(getPostSlug(post))}`, locale)} class="dashed-border md:mt-0.5 md:block md:w-fit">
                     {post?.data?.title}
                   </a>
                 </p>

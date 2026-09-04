@@ -19,7 +19,7 @@ interface SeriesNavigationProps {
 
 export function SeriesNavigation({ prevPost, nextPost, className, locale }: SeriesNavigationProps) {
   const isMounted = useIsMounted();
-  const { t } = useTranslation();
+  const { t } = useTranslation(locale);
 
   if (!prevPost && !nextPost) {
     return null;

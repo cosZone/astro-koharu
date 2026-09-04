@@ -1,7 +1,7 @@
 {
   "name": "astro-koharu",
   "type": "module",
-  "version": "6.2.2",
+  "version": "6.3.0",
   "packageManager": "pnpm@10.28.2",
   "engines": {
     "node": ">=22.20.0"
@@ -47,7 +47,10 @@
     "docker:rebuild": "bash docker/rebuild.sh",
     "docker:up:dynamic": "docker compose --env-file ./.env -f docker/docker-compose.dynamic.yml up -d --build",
     "docker:down:dynamic": "docker compose -f docker/docker-compose.dynamic.yml down",
-    "docker:logs:dynamic": "docker compose -f docker/docker-compose.dynamic.yml logs -f"
+    "docker:logs:dynamic": "docker compose -f docker/docker-compose.dynamic.yml logs -f",
+    "acceptance": "pnpm build && node acceptance/scripts/run.mjs",
+    "acceptance:report": "node acceptance/scripts/report.mjs",
+    "acceptance:open": "node acceptance/scripts/report.mjs && node acceptance/scripts/open.mjs"
   },
   "dependencies": {
     "@antv/infographic": "^0.2.4",
@@ -168,7 +171,8 @@
     "typescript": "^5.9.3",
     "vite": "^8.1.5",
     "vite-plugin-svgr": "^5.2.0",
-    "yaml": "^2.8.2"
+    "yaml": "^2.8.2",
+    "@playwright/test": "^1.62.1"
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx,json,astro}": [

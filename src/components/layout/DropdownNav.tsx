@@ -70,7 +70,11 @@ const DropdownNavComponent = ({ item, currentPath, className, locale = defaultLo
         aria-haspopup="true"
         aria-label={t(locale, 'common.menuLabel', { name })}
       >
-        {icon && <Icon icon={icon} className="mr-1.5" />}
+        {icon && (
+          <span className="mr-1.5 inline-flex h-4 w-4 shrink-0 items-center justify-center">
+            <Icon icon={icon} className="h-4 w-4" />
+          </span>
+        )}
         {name}
         <Icon
           icon="ri:arrow-drop-down-fill"

@@ -26,9 +26,16 @@ interface NavigatorProps {
 // Pre-filter navigation items at module load (config is static)
 const filteredRouters = filterNavItems(routers, configuredSeriesSlugs, enabledSeriesSlugs, RESERVED_ROUTES);
 
-// Icon component for navigation items - uses @iconify/react for dynamic icons
+// Icon component for navigation items - uses @iconify/react for dynamic icons.
+// Icon data loads asynchronously (Iconify API); the fixed-size wrapper reserves
+// space so late icon rendering does not shift nav geometry (which would yank
+// hover-opened dropdowns out from under the cursor).
 function NavIcon({ name }: { name: string }) {
-  return <Icon icon={name} className="mr-1.5 h-4 w-4" />;
+  return (
+    <span className="mr-1.5 inline-flex h-4 w-4 shrink-0 items-center justify-center">
+      <Icon icon={name} className="h-4 w-4" />
+    </span>
+  );
 }
 
 // Button link component

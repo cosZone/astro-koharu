@@ -211,7 +211,7 @@ if (post.data.description) {
       )}
       {
         !post.data.password && summaryText && summarySource && (
-          <SummaryPanel client:visible summary={summaryText} source={summarySource} className="mt-2" />
+          <SummaryPanel client:visible summary={summaryText} source={summarySource} className="mt-2" locale={locale} />
         )
       }
       <article class="prose dark:prose-invert" data-pagefind-body>
