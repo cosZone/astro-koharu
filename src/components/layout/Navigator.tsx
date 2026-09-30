@@ -73,7 +73,9 @@ const Navigator = memo(function Navigator({ currentPath, locale = defaultLocale 
   });
 
   const isTablet = useIsTablet();
-  const strippedPath = stripLocaleFromPath(currentPath);
+  // Built pages keep their trailing slash ("/friends/"); configured nav paths have none.
+  const pagePath = currentPath.replace(/(.)\/$/, '$1');
+  const strippedPath = stripLocaleFromPath(pagePath);
   const isPostPageMobile = isTablet && strippedPath.startsWith('/post/');
 
   const firstScrollRef = useRef(true);
@@ -144,7 +146,7 @@ const Navigator = memo(function Navigator({ currentPath, locale = defaultLocale 
               <DropdownNav
                 key={item.path ?? item.name}
                 item={item}
-                currentPath={currentPath}
+                currentPath={pagePath}
                 locale={locale}
                 glideKey={key}
                 onIntent={() => setIntent(key)}
