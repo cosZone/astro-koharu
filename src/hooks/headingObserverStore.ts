@@ -39,6 +39,7 @@ function createHeadingObserverStore({ selector, offsetTop, scopeSelector }: Head
   let observer: IntersectionObserver | null = null;
   let trackedHeadings: HTMLElement[] = [];
   let pendingRaf: number | null = null;
+  let settleTimer = 0;
   const listeners = new Set<() => void>();
   const visible = new Map<string, { top: number; element: HTMLElement }>();
 
@@ -102,6 +103,21 @@ function createHeadingObserverStore({ selector, offsetTop, scopeSelector }: Head
     }
 
     if (closest) update(toObservedHeading(closest));
+  };
+
+  /**
+   * A jump (End, Page Down, a dragged scrollbar, a restored position) can carry headings straight
+   * across the thin band without the observer ever firing, so re-read the position once scrolling stops.
+   */
+  const settle = () => {
+    window.clearTimeout(settleTimer);
+    if (visible.size > 0 || getLockedHeadingId() || trackedHeadings.length === 0) return;
+    update(findLastHeadingAboveOffset());
+  };
+
+  const handleScroll = () => {
+    window.clearTimeout(settleTimer);
+    settleTimer = window.setTimeout(settle, 120);
   };
 
   const handleEntries = (entries: IntersectionObserverEntry[]) => {
@@ -169,6 +185,8 @@ function createHeadingObserverStore({ selector, offsetTop, scopeSelector }: Head
         if (document.readyState !== 'loading') setupObserver();
         document.addEventListener('astro:page-load', handlePageLoad);
         document.addEventListener('content:decrypted', handlePageLoad);
+        window.addEventListener('scroll', handleScroll, { passive: true });
+        window.addEventListener('scrollend', settle);
       }
 
       listeners.add(listener);
@@ -181,6 +199,9 @@ function createHeadingObserverStore({ selector, offsetTop, scopeSelector }: Head
         observer = null;
         document.removeEventListener('astro:page-load', handlePageLoad);
         document.removeEventListener('content:decrypted', handlePageLoad);
+        window.removeEventListener('scroll', handleScroll);
+        window.removeEventListener('scrollend', settle);
+        window.clearTimeout(settleTimer);
         cancelPendingRaf();
         visible.clear();
         trackedHeadings = [];
