@@ -148,6 +148,16 @@ function createScrollStore(options: UseScrollTriggerOptions = {}) {
     lastScrollY = currentScrollY;
   };
 
+  /**
+   * Starts from the current position with no direction. A ClientRouter swap is a fresh page for
+   * subscribers that persist across it: the restored scroll position is not a scroll direction.
+   */
+  const reset = () => {
+    lastScrollY = window.scrollY;
+    firstScroll = skipFirstScroll;
+    updateState({ scrollY: lastScrollY, isBeyond: lastScrollY > getThreshold(), direction: 'none', isScrolling: false });
+  };
+
   const throttledHandleScroll = () => {
     const now = Date.now();
     if (now - lastRan >= throttleMs) {
@@ -171,19 +181,9 @@ function createScrollStore(options: UseScrollTriggerOptions = {}) {
     subscribe: (listener: () => void) => {
       // Only add scroll listener when first subscriber
       if (listeners.size === 0 && typeof window !== 'undefined') {
-        // Initialize state
-        const currentScrollY = window.scrollY;
-        const threshold = getThreshold();
-        state = {
-          scrollY: currentScrollY,
-          isBeyond: currentScrollY > threshold,
-          direction: 'none',
-          isScrolling: false,
-        };
-        lastScrollY = currentScrollY;
-        firstScroll = skipFirstScroll;
-
+        reset();
         window.addEventListener('scroll', throttledHandleScroll, { passive: true });
+        document.addEventListener('astro:after-swap', reset);
       }
 
       listeners.add(listener);
@@ -194,6 +194,7 @@ function createScrollStore(options: UseScrollTriggerOptions = {}) {
         // Remove scroll listener when no subscribers
         if (listeners.size === 0 && typeof window !== 'undefined') {
           window.removeEventListener('scroll', throttledHandleScroll);
+          document.removeEventListener('astro:after-swap', reset);
           if (timeoutId) clearTimeout(timeoutId);
           if (scrollEndTimer) clearTimeout(scrollEndTimer);
         }

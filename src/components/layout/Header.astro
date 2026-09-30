@@ -49,7 +49,7 @@ const locale = getLocaleFromUrl(Astro.url.pathname);
           logoSrc={logoSrc}
         />
       </div>
-      <Navigator client:load currentPath={Astro.url.pathname} locale={locale} />
+      <Navigator client:load transition:persist="site-nav" currentPath={Astro.url.pathname} locale={locale} />
     </div>
   </div>
   {christmasConfig.enabled && christmasConfig.features.christmasCoverDecoration && <ChristmasLights />}

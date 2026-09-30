@@ -7,6 +7,10 @@
   The view-transition-name is set here rather than with transition:name: a named element is a
   backdrop root, so on desktop only the content is named and the capsule, outside it, can still
   blur the page. The mobile bar blurs itself and stays named as a whole.
+
+  The capsule is named too, so a navigation never paints the incoming page over it. Its group copies
+  the capsule's live backdrop-filter every frame, which is why the blur is part of the capsule's state
+  and fades with it.
 */
 
 #site-header {
@@ -22,6 +26,20 @@
 #site-header.-translate-y-full {
   transition-duration: 260ms;
   transition-timing-function: var(--ease-in-quart);
+}
+
+/* Text and icons inherit the header color through one transition, so they turn together with the capsule. */
+.header-content {
+  transition: color 320ms var(--ease-out-quart);
+}
+
+/* A theme switch reveals the new colors from a snapshot, which must not catch the text mid-transition. */
+html.theme-transition .header-content {
+  transition: none;
+}
+
+#site-header :is(nav a, nav button, .site-logo) {
+  transition: text-shadow 320ms var(--ease-out-quart);
 }
 
 /*
@@ -64,6 +82,14 @@
   }
 }
 
+/* Set in both states: inheriting would chase the content's own color transition. */
+#site-header nav [aria-current="page"] {
+  color: #fff;
+  transition:
+    color 320ms var(--ease-out-quart),
+    text-shadow 320ms var(--ease-out-quart);
+}
+
 #site-header.with-background nav [aria-current="page"] {
   color: hsl(var(--primary));
 }
@@ -92,19 +118,20 @@
     position: absolute;
     inset: -0.375rem -1.25rem;
     z-index: -1;
+    view-transition-name: site-header-capsule;
     border: 1px solid hsl(var(--primary) / 0.16);
     border-radius: 9999px;
     background: color-mix(in oklab, var(--gradient-bg-start) 78%, transparent);
     box-shadow:
       0 0.75rem 2rem -1rem rgb(233 84 107 / 0.3),
       0 0.25rem 0.75rem -0.5rem rgb(40 20 40 / 0.12);
-    backdrop-filter: blur(16px) saturate(1.5);
     opacity: 0;
     scale: 0.96 0.85;
     pointer-events: none;
     transition:
       opacity 320ms var(--ease-out-quart),
-      scale 560ms var(--ease-out-expo);
+      scale 560ms var(--ease-out-expo),
+      backdrop-filter 320ms var(--ease-out-quart);
   }
 
   .dark .header-capsule {
@@ -129,6 +156,28 @@
   #site-header.with-background .header-capsule {
     opacity: 1;
     scale: 1;
+    backdrop-filter: blur(16px) saturate(1.5);
+  }
+
+  /*
+    Across a navigation the header layers are shown live rather than as two cross-faded snapshots:
+    the groups follow the live boxes, so the state change plays through the transitions above
+    (see src/lib/header-continuity.ts). The mobile bar keeps its cross-fade, which covers the
+    client-only heading island rendering in.
+  */
+  ::view-transition-group(site-header),
+  ::view-transition-group(site-header-capsule) {
+    animation: none;
+  }
+
+  ::view-transition-old(site-header),
+  ::view-transition-old(site-header-capsule) {
+    display: none;
+  }
+
+  ::view-transition-new(site-header),
+  ::view-transition-new(site-header-capsule) {
+    animation: none;
   }
 }
 

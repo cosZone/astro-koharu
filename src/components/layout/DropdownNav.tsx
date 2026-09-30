@@ -35,8 +35,10 @@ const DropdownNavComponent = ({
 
   const strippedPath = stripLocaleFromPath(currentPath);
 
+  // Picking an item closes the menu first: the Navigator persists across the page swap, and an open
+  // menu would stay open in a portal left behind on the old page.
   const renderDropdownContent = useCallback(
-    () => (
+    ({ close }: { close: () => void }) => (
       <div className="nav-dropdown flex flex-col">
         {children?.length
           ? children.map((child: Router, index) => {
@@ -50,6 +52,7 @@ const DropdownNavComponent = ({
                 <a
                   key={child.path}
                   href={childUrl}
+                  onClick={close}
                   className={cn(
                     'group px-4 py-2 text-base outline-none transition-colors duration-300 hover:bg-gradient-shoka-button focus-visible:bg-gradient-shoka-button',
                     {

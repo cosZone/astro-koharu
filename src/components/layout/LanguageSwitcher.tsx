@@ -45,7 +45,7 @@ const LanguageSwitcherComponent = ({ locale: _ssrLocale, className }: LanguageSw
   const currentLabel = localeEntries.find((l) => l.code === locale)?.label ?? locale;
 
   const renderDropdownContent = useCallback(
-    () => (
+    ({ close }: { close: () => void }) => (
       <div className="flex flex-col">
         {localeEntries.map((entry, index) => {
           const isActive = entry.code === locale;
@@ -54,6 +54,7 @@ const LanguageSwitcherComponent = ({ locale: _ssrLocale, className }: LanguageSw
             <a
               key={entry.code}
               href={targetUrl}
+              onClick={close}
               className={cn(
                 'group px-4 py-2 text-sm outline-none transition-colors duration-300 hover:bg-gradient-shoka-button focus-visible:bg-gradient-shoka-button',
                 {
