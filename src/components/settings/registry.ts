@@ -30,8 +30,8 @@ export interface SettingItem {
   options?: SettingOption[];
   /** Build-time feature gate that hides unavailable settings. */
   gatedBy?: 'christmas' | 'bgm';
-  /** Disable this setting while the master motion preference is enabled. */
-  disabledByMasterMotion?: boolean;
+  /** Disable this setting while the motion level is `reduced`. */
+  disabledByReducedMotion?: boolean;
 }
 
 export const SETTINGS_REGISTRY: SettingItem[] = [
@@ -101,17 +101,22 @@ export const SETTINGS_REGISTRY: SettingItem[] = [
     gatedBy: 'bgm',
   },
   {
-    key: 'masterMotion',
+    key: 'motionLevel',
     section: 'general',
-    type: 'switch',
-    i18nKey: 'settings.masterMotion',
+    type: 'segmented',
+    i18nKey: 'settings.motionLevel',
+    options: [
+      { value: 'lively', i18nKey: 'settings.motionLevel.lively' },
+      { value: 'subtle', i18nKey: 'settings.motionLevel.subtle' },
+      { value: 'reduced', i18nKey: 'settings.motionLevel.reduced' },
+    ],
   },
   {
     key: 'wave',
     section: 'general',
     type: 'switch',
     i18nKey: 'settings.wave',
-    disabledByMasterMotion: true,
+    disabledByReducedMotion: true,
   },
 ];
 

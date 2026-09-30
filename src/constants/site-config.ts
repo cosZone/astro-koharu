@@ -13,6 +13,7 @@ import {
   enabledSeriesSlugList,
   featuredSeriesList,
   i18nConfig,
+  motionConfig,
   siteConfig,
 } from '@lib/config/site';
 import type {
@@ -30,7 +31,7 @@ import type { UmamiStatsConfig } from '@/types/umami-stats';
 import yamlConfig from '../../config/site.yaml';
 import { DEFAULT_ROUTERS, RESERVED_ROUTES } from './router';
 
-export { contentConfig, i18nConfig, siteConfig };
+export { contentConfig, i18nConfig, motionConfig, siteConfig };
 
 export const socialConfig: SocialConfig = yamlConfig.social ?? {};
 

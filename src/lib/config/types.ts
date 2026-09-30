@@ -193,6 +193,29 @@ export interface ContentConfig {
 export type ResolvedContentConfig = Required<ContentConfig>;
 
 // =============================================================================
+// Motion
+// =============================================================================
+
+/** Site-wide motion intensity; visitors can override it in the Settings Center. */
+export type MotionLevel = 'lively' | 'subtle' | 'reduced';
+
+/**
+ * Raw `motion:` section of `config/site.yaml`. Every field is optional —
+ * use {@link ResolvedMotionConfig} for the value consumers see.
+ */
+export interface MotionConfig {
+  /** Default level for visitors who have not picked one. */
+  level?: MotionLevel;
+  /** Falling sakura petals over page covers; only runs at the `lively` level. */
+  heroPetals?: boolean;
+  /** Petal burst where interactive elements are clicked; only runs at the `lively` level. */
+  clickBurst?: boolean;
+}
+
+/** Motion config after defaults are applied — no optional fields. */
+export type ResolvedMotionConfig = Required<MotionConfig>;
+
+// =============================================================================
 // Navigation
 // =============================================================================
 
@@ -658,6 +681,8 @@ export interface SiteYamlConfig {
   announcements?: AnnouncementConfig[];
   defaultCoverList?: string[];
   content?: ContentConfig;
+  /** Motion intensity default and decorative sakura effects. */
+  motion?: MotionConfig;
   /** Optional dynamic moments archive backed by koharu-suite. */
   moments?: MomentsConfig;
   navigation?: RouterItem[];

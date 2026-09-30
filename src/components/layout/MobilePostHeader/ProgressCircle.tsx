@@ -5,9 +5,10 @@
  * Uses Motion's useScroll for tracking and useSpring for smooth animation.
  */
 
+import { useMotionLevel } from '@hooks/useMotionLevel';
 import { useStore } from '@nanostores/react';
-import { masterMotionEnabled, scrollProgressEnabled } from '@store/settings';
-import { m, useReducedMotion, useScroll, useSpring } from 'motion/react';
+import { scrollProgressEnabled } from '@store/settings';
+import { m, useScroll, useSpring } from 'motion/react';
 
 interface ProgressCircleProps {
   /** Circle size in pixels (default: 28) */
@@ -19,9 +20,8 @@ interface ProgressCircleProps {
 }
 
 export function ProgressCircle({ size = 28, strokeWidth = 2, className }: ProgressCircleProps) {
-  const shouldReduceMotion = useReducedMotion();
   const enabled = useStore(scrollProgressEnabled);
-  const masterMotion = useStore(masterMotionEnabled);
+  const isReduced = useMotionLevel() === 'reduced';
   const { scrollYProgress } = useScroll();
 
   const springProgress = useSpring(scrollYProgress, {
@@ -30,7 +30,7 @@ export function ProgressCircle({ size = 28, strokeWidth = 2, className }: Progre
     restDelta: 0.001,
   });
 
-  const progress = shouldReduceMotion || masterMotion ? scrollYProgress : springProgress;
+  const progress = isReduced ? scrollYProgress : springProgress;
 
   if (!enabled) return null;
 

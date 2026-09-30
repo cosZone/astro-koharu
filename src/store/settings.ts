@@ -6,6 +6,8 @@
  * data attributes, and classes. Defaults and keys live in ./settings-constants.
  */
 
+import { isMotionLevel } from '@lib/config/motion';
+import type { MotionLevel } from '@lib/config/types';
 import { quoteCssString } from '@lib/css-string';
 import { atom } from 'nanostores';
 import { closeBgmPanel } from './bgm';
@@ -33,7 +35,8 @@ export const readerJustify = atom<boolean>(READER_DEFAULTS.justify);
 // General preferences
 export const scrollProgressEnabled = atom<boolean>(GENERAL_DEFAULTS.scrollProgress);
 export const bgmWidgetEnabled = atom<boolean>(GENERAL_DEFAULTS.bgmWidget);
-export const masterMotionEnabled = atom<boolean>(GENERAL_DEFAULTS.masterMotion);
+/** The visitor's chosen level; islands read the effective level (OS-capped) via useMotionLevel. */
+export const motionLevel = atom<MotionLevel>('lively');
 export const waveEnabled = atom<boolean>(GENERAL_DEFAULTS.wave);
 
 /**
@@ -83,7 +86,9 @@ function applyReaderPreferences(): void {
 function applyGeneralPreferences(): void {
   if (typeof document === 'undefined') return;
   const root = document.documentElement;
-  root.classList.toggle('motion-off', masterMotionEnabled.get());
+  const level = motionLevel.get();
+  root.dataset.motion = level;
+  root.classList.toggle('motion-off', level === 'reduced');
   root.classList.toggle('wave-off', !waveEnabled.get());
 }
 
@@ -175,9 +180,10 @@ export function setBgmWidgetEnabled(enabled: boolean): void {
   if (!enabled) closeBgmPanel();
 }
 
-export function setMasterMotionEnabled(enabled: boolean): void {
-  masterMotionEnabled.set(enabled);
-  persist(STORAGE_KEYS.masterMotion, String(enabled));
+export function setMotionLevel(level: MotionLevel): void {
+  motionLevel.set(level);
+  persist(STORAGE_KEYS.motionLevel, level);
+  removePersisted(STORAGE_KEYS.legacyMasterMotion);
   applyGeneralPreferences();
 }
 
@@ -204,6 +210,15 @@ function readBoolean(key: string, fallback: boolean): boolean {
   return stored === null ? fallback : stored === 'true';
 }
 
+/** Mirrors BootScripts; without a stored choice, keep the site default it already resolved. */
+function readStoredMotionLevel(): MotionLevel {
+  const stored = localStorage.getItem(STORAGE_KEYS.motionLevel);
+  if (isMotionLevel(stored)) return stored;
+  if (localStorage.getItem(STORAGE_KEYS.legacyMasterMotion) === 'true') return 'reduced';
+  const resolved = document.documentElement.dataset.motion;
+  return isMotionLevel(resolved) ? resolved : 'lively';
+}
+
 /**
  * Initialize settings state from localStorage. Client-side only.
  */
@@ -226,7 +241,7 @@ export function initSettings(): void {
 
   scrollProgressEnabled.set(readBoolean(STORAGE_KEYS.scrollProgress, GENERAL_DEFAULTS.scrollProgress));
   bgmWidgetEnabled.set(readBoolean(STORAGE_KEYS.bgmWidget, GENERAL_DEFAULTS.bgmWidget));
-  masterMotionEnabled.set(readBoolean(STORAGE_KEYS.masterMotion, GENERAL_DEFAULTS.masterMotion));
+  motionLevel.set(readStoredMotionLevel());
   waveEnabled.set(readBoolean(STORAGE_KEYS.wave, GENERAL_DEFAULTS.wave));
 
   applyReaderPreferences();

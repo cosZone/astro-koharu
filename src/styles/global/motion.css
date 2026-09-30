@@ -1,8 +1,71 @@
 /*
-  The master motion preference disables continuous decorative motion while
-  preserving interaction feedback and loading indicators.
+  Motion system.
+
+  Easing and duration tokens are mirrored for Tailwind (`ease-out-expo`, …) and Motion
+  (`animation.bezier`) in src/constants/design-tokens.ts.
+
+  <html data-motion> is written before first paint by BootScripts:
+  - lively  — entrance choreography, scroll reveals (prose included), sakura effects
+  - subtle  — entrances and reveals with half the travel; no prose reveals, no petals
+  - reduced — no decorative motion; html.motion-off is toggled alongside
+  prefers-reduced-motion: reduce always behaves like `reduced`, and a page without the
+  attribute (scripts disabled) renders every element static and fully visible.
 */
 
+:root {
+  --ease-out-quart: cubic-bezier(0.25, 1, 0.5, 1);
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-quart: cubic-bezier(0.5, 0, 0.75, 0);
+  --ease-in-out-quart: cubic-bezier(0.76, 0, 0.24, 1);
+
+  --dur-instant: 120ms;
+  --dur-fast: 200ms;
+  --dur-base: 320ms;
+  --dur-slow: 480ms;
+  --dur-enter: 760ms;
+
+  /* Scales entrance travel and blur; the subtle level halves it. */
+  --motion-travel: 1;
+}
+
+html[data-motion="subtle"] {
+  --motion-travel: 0.5;
+}
+
+@keyframes motion-rise {
+  from {
+    opacity: 0;
+    translate: 0 calc(var(--rise-y, 1.5rem) * var(--motion-travel));
+    filter: blur(calc(var(--rise-blur, 0px) * var(--motion-travel)));
+  }
+}
+
+@media screen and (prefers-reduced-motion: no-preference) {
+  /* Load-time entrance: stagger with `--i` (and an optional `--rise-delay` offset). */
+  html:is([data-motion="lively"], [data-motion="subtle"]) .motion-rise {
+    animation: motion-rise var(--dur-enter) var(--ease-out-expo) both;
+    animation-delay: calc(var(--rise-delay, 0ms) + var(--i, 0) * var(--stagger, 90ms));
+  }
+
+  @supports (animation-timeline: view()) {
+    /* Scroll-linked reveal; the scroller must be a real scroll container (use overflow: clip on wrappers). */
+    html:is([data-motion="lively"], [data-motion="subtle"]) .motion-reveal,
+    html[data-motion="lively"] .motion-reveal-lively > * {
+      animation: motion-rise var(--ease-out-quart) both;
+      animation-timeline: view();
+      animation-range: entry 0% entry 90%;
+    }
+
+    html[data-motion="lively"] .motion-reveal-lively > * {
+      --rise-y: 1rem;
+    }
+  }
+}
+
+/*
+  The reduced level keeps interaction feedback and loading indicators but stops
+  continuous decorative motion.
+*/
 html.motion-off footer .animate-spin,
 html.motion-off .animate-spin.duration-10000,
 html.motion-off .hover\:animate-shake,

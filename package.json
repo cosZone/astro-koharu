@@ -32,7 +32,7 @@
     "migrate": "pnpm koharu migrate",
     "save-slugs": "npx tsx scripts/save-slugs.ts",
     "test": "npm run test:config && npm run test:markdown && npm run test:toc && npm run test:migrate && npm run test:moments",
-    "test:config": "tsx --test src/lib/config/content.test.ts src/lib/config/featured-series.test.ts",
+    "test:config": "tsx --test src/lib/config/content.test.ts src/lib/config/featured-series.test.ts src/lib/config/motion.test.ts",
     "test:markdown": "tsx --test src/lib/markdown/*.test.ts",
     "test:toc": "tsx --test src/lib/toc.test.ts",
     "test:migrate": "tsx --test scripts/koharu/utils/*.test.ts",

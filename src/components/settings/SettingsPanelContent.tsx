@@ -12,6 +12,7 @@ import { microReboundPreset } from '@constants/anim/spring';
 import { FloatingFocusManager, useDismiss, useFloating, useInteractions, useRole } from '@floating-ui/react';
 import { useTranslation } from '@hooks/useTranslation';
 import { Icon } from '@iconify/react';
+import type { MotionLevel } from '@lib/config/types';
 import { cn } from '@lib/utils';
 import { useStore } from '@nanostores/react';
 import { christmasEnabled, toggleChristmas } from '@store/christmas';
@@ -19,7 +20,7 @@ import { $isSettingsOpen, closeModal } from '@store/modal';
 import {
   bgmWidgetEnabled,
   type FontPreset,
-  masterMotionEnabled,
+  motionLevel,
   readerFontFamily,
   readerFontPreset,
   readerFontSize,
@@ -34,8 +35,8 @@ import {
   setJustify,
   setLineHeight,
   setLocalFontFamily,
-  setMasterMotionEnabled,
   setMeasure,
+  setMotionLevel,
   setScrollProgressEnabled,
   setWaveEnabled,
   waveEnabled,
@@ -43,10 +44,16 @@ import {
 import { READER_CUSTOM_MEASURE } from '@store/settings-constants';
 import { AnimatePresence, m, useReducedMotion } from 'motion/react';
 import { lazy, type MouseEvent, Suspense, useEffect, useRef, useState } from 'react';
+import type { TranslationKey } from '@/i18n/types';
 import { NumberField } from './NumberField';
 import { isSettingVisible, SETTINGS_REGISTRY, type SettingItem, type SettingSection } from './registry';
 
 const SECTIONS: SettingSection[] = ['reader', 'general'];
+const MOTION_HINT_KEYS: Record<MotionLevel, TranslationKey> = {
+  lively: 'settings.motionLevel.livelyHint',
+  subtle: 'settings.motionLevel.subtleHint',
+  reduced: 'settings.motionLevel.reducedHint',
+};
 const loadLocalFontPicker = () => import('./LocalFontPicker');
 
 function preloadLocalFontPicker(): void {
@@ -69,7 +76,8 @@ export default function SettingsPanelContent() {
   const justify = useStore(readerJustify);
   const scrollProgress = useStore(scrollProgressEnabled);
   const bgmWidget = useStore(bgmWidgetEnabled);
-  const masterMotion = useStore(masterMotionEnabled);
+  const level = useStore(motionLevel);
+  const reducedLevel = level === 'reduced';
   const wave = useStore(waveEnabled);
   const isChristmasEnabled = useStore(christmasEnabled);
   const [fontPickerLoaded, setFontPickerLoaded] = useState(false);
@@ -88,8 +96,21 @@ export default function SettingsPanelContent() {
     scrollProgress: { checked: scrollProgress, onChange: setScrollProgressEnabled },
     christmas: { checked: isChristmasEnabled, onChange: () => toggleChristmas() },
     bgmWidget: { checked: bgmWidget, onChange: setBgmWidgetEnabled },
-    masterMotion: { checked: masterMotion, onChange: setMasterMotionEnabled },
     wave: { checked: wave, onChange: setWaveEnabled },
+  };
+
+  const segmentedBindings: Record<
+    string,
+    { isActive: (value: string) => boolean; onSelect: (value: string, event: MouseEvent<HTMLButtonElement>) => void }
+  > = {
+    fontPreset: {
+      isActive: (value) => (value === 'local' ? fontFamily !== null : fontFamily === null && fontPreset === value),
+      onSelect: (value, event) => (value === 'local' ? openFontPicker(event) : setFontPreset(value as FontPreset)),
+    },
+    motionLevel: {
+      isActive: (value) => value === level,
+      onSelect: (value) => setMotionLevel(value as MotionLevel),
+    },
   };
 
   const numberBindings: Record<
@@ -135,20 +156,22 @@ export default function SettingsPanelContent() {
   const { getFloatingProps } = useInteractions([dismiss, role]);
 
   const renderControl = (item: SettingItem) => {
-    const disabled = Boolean(item.disabledByMasterMotion && masterMotion);
+    const disabled = Boolean(item.disabledByReducedMotion && reducedLevel);
 
     switch (item.type) {
-      case 'segmented':
+      case 'segmented': {
+        const binding = segmentedBindings[item.key];
+        if (!binding) return null;
         return (
           <div className="flex flex-wrap gap-1">
             {item.options?.map((option) => {
               const localOption = option.value === 'local';
-              const active = localOption ? fontFamily !== null : fontFamily === null && fontPreset === option.value;
+              const active = binding.isActive(option.value);
               return (
                 <button
                   key={option.value}
                   type="button"
-                  onClick={(event) => (localOption ? openFontPicker(event) : setFontPreset(option.value as FontPreset))}
+                  onClick={(event) => binding.onSelect(option.value, event)}
                   onPointerEnter={localOption ? preloadLocalFontPicker : undefined}
                   onPointerDown={localOption ? preloadLocalFontPicker : undefined}
                   onFocus={localOption ? preloadLocalFontPicker : undefined}
@@ -160,7 +183,7 @@ export default function SettingsPanelContent() {
                 >
                   {active && (
                     <m.span
-                      layoutId="settings-font-preset-pill"
+                      layoutId={`settings-${item.key}-pill`}
                       className="absolute inset-0 rounded-md bg-primary"
                       transition={shouldReduceMotion ? { duration: 0 } : microReboundPreset}
                     />
@@ -171,6 +194,7 @@ export default function SettingsPanelContent() {
             })}
           </div>
         );
+      }
       case 'number': {
         const binding = numberBindings[item.key];
         if (!binding) return null;
@@ -270,7 +294,7 @@ export default function SettingsPanelContent() {
                     >
                       <div className="flex flex-col divide-y divide-border">
                         {items.map((item) => {
-                          const disabled = Boolean(item.disabledByMasterMotion && masterMotion);
+                          const disabled = Boolean(item.disabledByReducedMotion && reducedLevel);
                           return (
                             <div key={item.key} className="py-2.5 first:pt-1 last:pb-1">
                               <div className="flex items-center justify-between gap-3">
@@ -293,8 +317,15 @@ export default function SettingsPanelContent() {
                                   <Icon icon="ri:arrow-right-s-line" className="size-4 shrink-0 text-muted-foreground" />
                                 </button>
                               )}
+                              {item.key === 'motionLevel' && (
+                                <p className="mt-1.5 text-muted-foreground text-xs">
+                                  {t(shouldReduceMotion ? 'settings.motionLevel.systemReduced' : MOTION_HINT_KEYS[level])}
+                                </p>
+                              )}
                               {disabled && (
-                                <p className="mt-1 text-muted-foreground text-xs">{t('settings.waveDisabledByMasterMotion')}</p>
+                                <p className="mt-1 text-muted-foreground text-xs">
+                                  {t('settings.waveDisabledByReducedMotion')}
+                                </p>
                               )}
                             </div>
                           );

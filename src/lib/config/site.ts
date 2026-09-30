@@ -11,8 +11,9 @@ import yamlConfig from '../../../config/site.yaml';
 import { DEFAULT_TIMEZONE, isValidTimezone } from '../timezone';
 import { normalizeContentConfig } from './content';
 import { enabledFeaturedSeriesSlugs, normalizeFeaturedSeries } from './featured-series';
+import { normalizeMotionConfig } from './motion';
 import { RESERVED_ROUTES } from './reserved-routes';
-import type { I18nConfig, ResolvedContentConfig, ResolvedSiteConfig } from './types';
+import type { I18nConfig, ResolvedContentConfig, ResolvedMotionConfig, ResolvedSiteConfig } from './types';
 
 /** Category name → URL slug map, e.g. `{ '随笔': 'life' }`. */
 export const categoryMap: Record<string, string> = yamlConfig.categoryMap ?? {};
@@ -36,6 +37,9 @@ export const enabledLocaleCodes = i18nConfig.locales.flatMap((locale) => (locale
 
 /** Content processing flags with field-level defaults applied. */
 export const contentConfig: ResolvedContentConfig = normalizeContentConfig(yamlConfig.content);
+
+/** Default motion level and sakura effect switches with field-level defaults applied. */
+export const motionConfig: ResolvedMotionConfig = normalizeMotionConfig(yamlConfig.motion);
 
 /**
  * Site timezone in IANA format.
