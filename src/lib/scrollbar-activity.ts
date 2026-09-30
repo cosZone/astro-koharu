@@ -1,8 +1,8 @@
 /**
  * Marks a region with `data-scroll-active` while it scrolls, and the page while the mouse nears the
- * right edge where its scrollbar lives, until things have been still for a moment. That is when a
- * classic scrollbar shows (see src/styles/global/scrollbar.css). Scroll events do not bubble, hence one
- * capturing listener for the page and every scroll container in it.
+ * right edge where its scrollbar lives, until things have been still for a moment. That is when the
+ * silk-thread scrollbar lights up (see src/styles/global/scrollbar.css). Scroll events do not bubble,
+ * hence one capturing listener for the page and every scroll container in it.
  */
 
 const IDLE_MS = 900;
@@ -29,7 +29,7 @@ function onPointerMove(event: PointerEvent): void {
 }
 
 export function setupScrollbarActivity(): void {
-  if (document.documentElement.dataset.scrollbar !== 'classic') return;
+  if (!window.matchMedia('(hover: hover) and (pointer: fine)').matches) return;
   document.addEventListener('scroll', onScroll, { capture: true, passive: true });
   document.addEventListener('pointermove', onPointerMove, { passive: true });
 }

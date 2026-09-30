@@ -55,24 +55,6 @@ import {
     });
   })();
 </script>
-<script is:inline>
-  // Classic scrollbars take up room and never hide, so they get the quiet styling in
-  // src/styles/global/scrollbar.css. Overlay scrollbars already fade on their own and stay native.
-  (function () {
-    if (!CSS.supports('selector(::-webkit-scrollbar)')) return;
-    var probe = document.createElement('div');
-    probe.style.cssText = 'position:absolute;top:-100px;width:100px;height:100px;overflow:scroll';
-    document.documentElement.appendChild(probe);
-    var classic = probe.offsetWidth > probe.clientWidth;
-    probe.remove();
-    if (!classic) return;
-    function markClassic() {
-      document.documentElement.dataset.scrollbar = 'classic';
-    }
-    markClassic();
-    document.addEventListener('astro:after-swap', markClassic);
-  })();
-</script>
 <script is:inline define:vars={{ christmasFeatureEnabled: christmasConfig.enabled }}>
   // 立即执行圣诞状态检查 否则彩灯等会闪烁
   (function () {

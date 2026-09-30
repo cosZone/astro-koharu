@@ -1,59 +1,109 @@
 /*
-  Overlay scrollbars (macOS trackpads, phones, tablets) float over the content and fade by themselves,
-  and any ::-webkit-scrollbar styling would turn them into classic ones. So only classic, space-taking
-  scrollbars are restyled (BootScripts marks them as html[data-scrollbar="classic"]): a slim thumb that
-  stays hidden until its region scrolls or is hovered, and turns pink under the pointer. The page is
-  always hovered, so its thumb waits for scrolling or the pointer nearing the right edge instead
-  (src/lib/scrollbar-activity.ts sets data-scroll-active). <body> is left out because Chromium styles the
-  page scrollbar from <body> whenever <body> has scrollbar styles of its own.
+  Silk-thread scrollbars for mouse and trackpad users; touch devices keep their native overlay bars.
+  A slim bead rides a 1px pink thread that ends in a hanging petal, echoing the theme's button
+  gradient and the petals falling across the cover. Nothing shows at rest: hovering a scroll area
+  brings up the thread and a faint bead, scrolling it (src/lib/scrollbar-activity.ts sets
+  data-scroll-active) lights the bead up, and the bead widens under the pointer. The page is always
+  hovered, so its bar waits for scrolling or for the pointer nearing the right edge instead. <body>
+  is left out because Chromium styles the page scrollbar from <body> whenever <body> has scrollbar
+  styles of its own.
 
-  Chromium ignores ::-webkit-scrollbar on elements with scrollbar-width or scrollbar-color, so the
-  standard properties are left to engines without the pseudo-elements (Firefox): thin native scrollbars.
+  Chromium restyles a nested scrollbar only when its element's own style changes, hence the
+  non-inherited --scrollbar-live companion to every hover and data-scroll-active state. It also
+  ignores ::-webkit-scrollbar on elements with scrollbar-width or scrollbar-color, so those standard
+  properties are left to engines without the pseudo-elements (Firefox), which get a thin pink thumb.
 */
 
-:is([data-scrollbar="classic"], [data-scrollbar="classic"] :not(body))::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
-  background: transparent;
-}
-
-:is([data-scrollbar="classic"], [data-scrollbar="classic"] :not(body))::-webkit-scrollbar-corner {
-  background: transparent;
-}
-
-:is([data-scrollbar="classic"], [data-scrollbar="classic"] :not(body))::-webkit-scrollbar-thumb {
-  border: 2px solid transparent;
-  border-radius: 9999px;
-  background-color: transparent;
-  background-clip: padding-box;
-}
-
-/* Chromium restyles a nested scrollbar only when its element's own style changes, so :hover alone is not enough. */
 @property --scrollbar-live {
   syntax: "<number>";
   inherits: false;
   initial-value: 0;
 }
 
-:is([data-scrollbar="classic"][data-scroll-active], [data-scrollbar="classic"] :is([data-scroll-active], :hover):not(body)) {
-  --scrollbar-live: 1;
+:root {
+  --silk-thread: hsl(var(--primary) / 0.28);
+  /* The thread and the petal hung by its narrow end from its end are shared with the TOC (toc.css). */
+  /* Petal shape: src/lib/sakura/petal.ts. */
+  --silk-petal: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 24'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='0' y2='1'%3E%3Cstop offset='0' stop-color='%23ffd9e5'/%3E%3Cstop offset='1' stop-color='%23f7879f'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cpath transform='rotate(180 10 12)' fill='url(%23g)' d='M10 24C4.6 20.4.4 14 1.3 7.9 2 3.3 5.4.6 8.7 1.3L10 4.1l1.3-2.8c3.3-.7 6.7 2 7.4 6.6.9 6.1-3.3 12.5-8.7 16.1Z'/%3E%3C/svg%3E");
+  --silk-petal-side: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 20'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='0' y2='1'%3E%3Cstop offset='0' stop-color='%23ffd9e5'/%3E%3Cstop offset='1' stop-color='%23f7879f'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cpath transform='translate(24 0) rotate(90)' fill='url(%23g)' d='M10 24C4.6 20.4.4 14 1.3 7.9 2 3.3 5.4.6 8.7 1.3L10 4.1l1.3-2.8c3.3-.7 6.7 2 7.4 6.6.9 6.1-3.3 12.5-8.7 16.1Z'/%3E%3C/svg%3E");
 }
 
-:is(
-    [data-scrollbar="classic"][data-scroll-active],
-    [data-scrollbar="classic"] :is([data-scroll-active], :hover):not(body)
-  )::-webkit-scrollbar-thumb {
-  background-color: hsl(var(--foreground) / 0.2);
+.dark {
+  --silk-thread: hsl(var(--primary) / 0.34);
 }
 
-:is([data-scrollbar="classic"], [data-scrollbar="classic"] :not(body))::-webkit-scrollbar-thumb:hover,
-:is([data-scrollbar="classic"], [data-scrollbar="classic"] :not(body))::-webkit-scrollbar-thumb:active {
-  border-width: 1px;
-  background-color: hsl(var(--primary) / 0.6);
-}
+@media (hover: hover) and (pointer: fine) {
+  :is(html, html :not(body))::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+    background: transparent;
+  }
 
-@supports not selector(::-webkit-scrollbar) {
-  :where(:not(.scrollbar-hidden)) {
-    scrollbar-width: thin;
+  :is(html, html :not(body))::-webkit-scrollbar-corner {
+    background: transparent;
+  }
+
+  :is(html, html :not(body))::-webkit-scrollbar-track:vertical {
+    margin-block: 6px;
+  }
+
+  :is(html, html :not(body))::-webkit-scrollbar-track:horizontal {
+    margin-inline: 6px;
+  }
+
+  :is(html, html :not(body))::-webkit-scrollbar-thumb {
+    border: 2.5px solid transparent;
+    border-radius: 9999px;
+    background: transparent padding-box;
+  }
+
+  :is(html[data-scroll-active], html :is([data-scroll-active], :hover):not(body)) {
+    --scrollbar-live: 1;
+  }
+
+  :is(html[data-scroll-active], html :is([data-scroll-active], :hover):not(body))::-webkit-scrollbar-track:vertical {
+    background:
+      var(--silk-petal) no-repeat 50% 100% / 7px 8.4px,
+      linear-gradient(to right, transparent 3.5px, var(--silk-thread) 3.5px 4.5px, transparent 4.5px) no-repeat 0 0 / 100%
+      calc(100% - 6px);
+  }
+
+  :is(html[data-scroll-active], html :is([data-scroll-active], :hover):not(body))::-webkit-scrollbar-track:horizontal {
+    background:
+      var(--silk-petal-side) no-repeat 100% 50% / 8.4px 7px,
+      linear-gradient(to bottom, transparent 3.5px, var(--silk-thread) 3.5px 4.5px, transparent 4.5px) no-repeat 0 0 /
+      calc(100% - 6px) 100%;
+  }
+
+  html :hover:not(body)::-webkit-scrollbar-thumb {
+    background-color: hsl(var(--primary) / 0.3);
+  }
+
+  :is(html[data-scroll-active], html [data-scroll-active])::-webkit-scrollbar-thumb:vertical,
+  :is(html, html :not(body))::-webkit-scrollbar-thumb:vertical:hover,
+  :is(html, html :not(body))::-webkit-scrollbar-thumb:vertical:active {
+    background-image: linear-gradient(to bottom, var(--gradient-shoka-button-start), var(--gradient-shoka-button-end));
+  }
+
+  :is(html[data-scroll-active], html [data-scroll-active])::-webkit-scrollbar-thumb:horizontal,
+  :is(html, html :not(body))::-webkit-scrollbar-thumb:horizontal:hover,
+  :is(html, html :not(body))::-webkit-scrollbar-thumb:horizontal:active {
+    background-image: linear-gradient(to right, var(--gradient-shoka-button-start), var(--gradient-shoka-button-end));
+  }
+
+  :is(html, html :not(body))::-webkit-scrollbar-thumb:hover,
+  :is(html, html :not(body))::-webkit-scrollbar-thumb:active {
+    border-width: 1px;
+  }
+
+  @supports not selector(::-webkit-scrollbar) {
+    :where(:not(.scrollbar-hidden)) {
+      scrollbar-width: thin;
+      scrollbar-color: transparent transparent;
+    }
+
+    :where(html[data-scroll-active], html :is([data-scroll-active], :hover):not(body, .scrollbar-hidden)) {
+      scrollbar-color: hsl(var(--primary) / 0.55) transparent;
+    }
   }
 }
