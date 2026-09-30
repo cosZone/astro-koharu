@@ -23,7 +23,7 @@ export function SeriesPostList({ posts, currentPostSlug, className, locale }: Se
   }
 
   return (
-    <div className={cn('flex flex-col gap-1 md:pb-3 md:pl-2', className)}>
+    <div className={cn('flex flex-col gap-1 md:pb-3 md:pl-2', className)} data-series-list>
       {posts.map((post) => {
         const href = localizedPath(routeBuilder(Routes.Post, post), locale);
         const isActive = post.slug === currentPostSlug;

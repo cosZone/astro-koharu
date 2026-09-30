@@ -96,107 +96,144 @@ const nextPost = adjacentPosts.nextPost ? toPostRef(adjacentPosts.nextPost) : nu
 </div>
 
 <script>
-  import { HomeSiderType, HomeSiderSegmentType } from '@constants/enum';
+  import { HomeSiderSegmentType, HomeSiderType } from '@constants/enum';
+  import { readMotionLevel } from '@lib/motion-level';
   import { homeSiderSegmentType } from '@store/app';
 
-  // 定义SiderContent自定义元素
+  const PANEL_ORDER = [HomeSiderSegmentType.INFO, HomeSiderSegmentType.DIRECTORY, HomeSiderSegmentType.SERIES];
+  const EASE_OUT_EXPO = 'cubic-bezier(0.16, 1, 0.3, 1)';
+  const EASE_IN_QUART = 'cubic-bezier(0.5, 0, 0.75, 0)';
+  /** Rows that cascade in on a lively switch: profile blocks and nav buttons, TOC entries, series posts. */
+  const CASCADE_ROWS =
+    '[data-home-info-container] > :not([data-home-nav]), [data-home-nav] > *, .toc-container > :not([data-toc-rail]), [data-series-list] > *';
+  const CASCADE_SPREAD_MS = 180;
+
+  type Frame = { opacity: string; translate: string };
+
+  function frameOf(element: HTMLElement): Frame {
+    const style = getComputedStyle(element);
+    return { opacity: style.opacity, translate: style.translate };
+  }
+
+  /**
+   * Shows the sider panel picked in the segmented control. Panels travel along the tab order: the
+   * outgoing one drifts away while the incoming one arrives from the side of the chosen tab, and on
+   * the lively level its visible rows cascade in. Everything runs as Web Animations, so a second
+   * switch mid-flight cancels cleanly and carries on from what is on screen.
+   */
   class SiderContent extends HTMLElement {
-    // 私有属性定义
-    private infoContent: HTMLElement | null = null;
-    private directoryContent: HTMLElement | null = null;
-    private seriesContent: HTMLElement | null = null;
-    private pageType: string | null = null;
-    private defaultType: string | null = null;
+    private panels = new Map<HomeSiderSegmentType, HTMLElement>();
+    private currentType: HomeSiderSegmentType | null = null;
+    private animations: Animation[] = [];
     private unsubscribe: (() => void) | null = null;
-    private animationFrame: number | null = null;
 
     connectedCallback() {
-      this.infoContent = this.querySelector('[slot="info"]');
-      this.directoryContent = this.querySelector('[slot="directory"]');
-      this.seriesContent = this.querySelector('[slot="series"]');
-      this.pageType = this.getAttribute('data-type');
-      this.defaultType = this.getAttribute('data-default-type');
-      this.initContent();
-    }
-
-    initContent() {
-      // 首页直接显示HomeInfo（无动画）
-      if (this.pageType === HomeSiderType.HOME) {
-        this.showContent(HomeSiderSegmentType.INFO, true);
-      } else {
-        // 设置初始值（无动画）
-        const initialType = (this.defaultType as HomeSiderSegmentType) || HomeSiderSegmentType.INFO;
-        homeSiderSegmentType.set(initialType);
-        this.showContent(initialType, true);
-
-        // 监听状态变化（有动画）
-        this.unsubscribe?.();
-        this.unsubscribe = homeSiderSegmentType.listen((value) => {
-          this.showContent(value, false);
-        });
+      for (const type of PANEL_ORDER) {
+        const panel = this.querySelector<HTMLElement>(`[data-slot-type="${type}"]`);
+        if (panel) this.panels.set(type, panel);
       }
-    }
-
-    showContent(type: HomeSiderSegmentType, skipAnimation = false) {
-      const contentPanels = [this.infoContent, this.directoryContent, this.seriesContent];
-
-      // 确定目标内容
-      let targetContent: HTMLElement | null = null;
-      if (type === HomeSiderSegmentType.DIRECTORY) {
-        targetContent = this.directoryContent;
-      } else if (type === HomeSiderSegmentType.SERIES) {
-        targetContent = this.seriesContent;
-      } else {
-        targetContent = this.infoContent;
-      }
-
-      // 如果是初始化或者跳过动画，直接切换
-      if (skipAnimation) {
-        // 先隐藏所有
-        contentPanels.forEach((content) => {
-          content?.classList.add('hidden');
-        });
-        // 再显示目标
-        targetContent?.classList.remove('hidden');
+      if (this.dataset.type === HomeSiderType.HOME) {
+        this.show(HomeSiderSegmentType.INFO, false);
         return;
       }
-
-      // 如果已经在显示目标内容，直接返回
-      if (targetContent && !targetContent.classList.contains('hidden')) {
-        return;
-      }
-
-      if (this.animationFrame !== null) {
-        cancelAnimationFrame(this.animationFrame);
-        this.animationFrame = null;
-      }
-
-      // Hide the previous panel immediately so expensive drawer content never animates in parallel.
-      contentPanels.forEach((content) => {
-        content?.classList.toggle('hidden', content !== targetContent);
-        content?.classList.remove('entering');
-      });
-
-      // A single lightweight entrance keeps feedback without timers that can outlive rapid switches.
-      if (targetContent) {
-        this.animationFrame = requestAnimationFrame(() => {
-          targetContent.classList.add('entering');
-          this.animationFrame = null;
-        });
-      }
+      const initialType = (this.dataset.defaultType as HomeSiderSegmentType) || HomeSiderSegmentType.INFO;
+      homeSiderSegmentType.set(initialType);
+      this.show(initialType, false);
+      this.unsubscribe?.();
+      this.unsubscribe = homeSiderSegmentType.listen((value) => this.show(value, true));
     }
 
     disconnectedCallback() {
       this.unsubscribe?.();
       this.unsubscribe = null;
-      if (this.animationFrame !== null) {
-        cancelAnimationFrame(this.animationFrame);
-        this.animationFrame = null;
+      this.settle();
+    }
+
+    private show(type: HomeSiderSegmentType, animate: boolean) {
+      const next = this.panels.get(type);
+      const prevType = this.currentType;
+      const prev = prevType ? this.panels.get(prevType) : undefined;
+      if (!next || next === prev) return;
+
+      const level = readMotionLevel();
+      const moving = animate && prevType !== null && level !== 'reduced' && this.getClientRects().length > 0;
+      // Read before settle() so an interrupted switch carries on from what is on screen.
+      const prevFrame = moving && prev ? frameOf(prev) : null;
+      const nextFrame = moving && !next.classList.contains('hidden') ? frameOf(next) : null;
+      // Absolutely positioned panels (desktop) cross over; in-flow ones (narrow drawer) swap in place.
+      const crossover = prev && prevFrame && this.scrollTop === 0 && getComputedStyle(prev).position === 'absolute';
+
+      this.settle();
+      this.currentType = type;
+      for (const panel of this.panels.values()) {
+        panel.classList.toggle('hidden', panel !== next && !(crossover && panel === prev));
+      }
+      this.scrollTop = 0;
+      if (!moving || prevType === null) return;
+
+      const lively = level === 'lively';
+      const direction = Math.sign(PANEL_ORDER.indexOf(type) - PANEL_ORDER.indexOf(prevType)) || 1;
+      const travel = (lively ? 16 : 8) * direction;
+      const cascade = lively && !nextFrame && !this.closest('#mobile-drawer');
+      const delay = crossover ? 60 : 0;
+
+      if (crossover) {
+        prev.inert = true;
+        const exit = prev.animate([prevFrame, { opacity: '0', translate: `${-travel / 2}px 0` }], {
+          duration: 150,
+          easing: EASE_IN_QUART,
+          fill: 'forwards',
+        });
+        exit.onfinish = () => {
+          prev.classList.add('hidden');
+          prev.inert = false;
+          exit.cancel();
+        };
+        this.animations.push(exit);
+      }
+
+      const from = nextFrame ?? { opacity: '0', translate: cascade ? 'none' : `${travel}px 0` };
+      this.animations.push(
+        next.animate([{ ...from, offset: 0 }], {
+          duration: cascade ? 260 : 380,
+          delay,
+          easing: EASE_OUT_EXPO,
+          fill: 'backwards',
+        }),
+      );
+      if (cascade) this.cascade(next, travel, delay);
+    }
+
+    private cascade(panel: HTMLElement, travel: number, delay: number) {
+      const view = this.getBoundingClientRect();
+      const rows = [...panel.querySelectorAll<HTMLElement>(CASCADE_ROWS)].filter((row) => {
+        const box = row.getBoundingClientRect();
+        return box.height > 0 && box.bottom > view.top && box.top < view.bottom;
+      });
+      const step = Math.min(30, CASCADE_SPREAD_MS / Math.max(rows.length - 1, 1));
+      // A lone start keyframe animates toward each row's own resting style (some nav rows rest dimmed).
+      // Rows are left to finish on their own, so a quick second switch fades them out mid-glide.
+      rows.forEach((row, index) => {
+        row.animate([{ opacity: '0', translate: `${travel}px 0`, offset: 0 }], {
+          duration: 520,
+          delay: delay + 40 + index * step,
+          easing: EASE_OUT_EXPO,
+          fill: 'backwards',
+        });
+      });
+    }
+
+    private settle() {
+      for (const animation of this.animations) animation.cancel();
+      this.animations = [];
+      const current = this.currentType ? this.panels.get(this.currentType) : undefined;
+      for (const panel of this.panels.values()) {
+        panel.inert = false;
+        panel.classList.toggle('hidden', panel !== current);
       }
     }
   }
 
-  // 注册自定义元素
   if (!customElements.get('sider-content')) {
     customElements.define('sider-content', SiderContent);
   }
@@ -242,28 +279,5 @@ const nextPost = adjacentPosts.nextPost ? toPostRef(adjacentPosts.nextPost) : nu
 
   .sider-slot.hidden {
     display: none;
-  }
-
-  /* 默认无动画，适用于 prefers-reduced-motion: reduce */
-  .sider-slot.entering {
-    animation: none;
-  }
-
-  /* 只在用户未设置 reduce-motion 时应用动画 */
-  @media (prefers-reduced-motion: no-preference) {
-    @keyframes slide-in-from-right {
-      from {
-        opacity: 0;
-        transform: translateX(12px);
-      }
-      to {
-        opacity: 1;
-        transform: translateX(0);
-      }
-    }
-
-    .sider-slot.entering {
-      animation: slide-in-from-right 0.15s ease-out;
-    }
   }
 </style>
