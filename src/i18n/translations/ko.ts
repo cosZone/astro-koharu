@@ -133,6 +133,8 @@ export const uiStrings = {
   'diagram.resetZoom': '확대/축소 초기화',
   'diagram.fitToScreen': '화면에 맞춤',
   'diagram.download': '이미지 다운로드',
+  'diagram.resize': '다이어그램 크기 조절',
+  'diagram.resizeHint': '드래그하여 크기 조절, 더블클릭하여 원래대로',
 
   // ── Image Lightbox ──────────────────────────────────────────
   'image.zoomIn': '확대',

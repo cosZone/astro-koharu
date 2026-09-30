@@ -134,6 +134,8 @@ export const uiStrings = {
   'diagram.resetZoom': '重置缩放',
   'diagram.fitToScreen': '适应屏幕',
   'diagram.download': '下载图片',
+  'diagram.resize': '调整图表大小',
+  'diagram.resizeHint': '拖动调整大小，双击还原',
 
   // ── Image Lightbox ──────────────────────────────────────────
   'image.zoomIn': '放大',

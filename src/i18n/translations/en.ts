@@ -135,6 +135,8 @@ export const uiStrings: UIStrings = {
   'diagram.resetZoom': 'Reset zoom',
   'diagram.fitToScreen': 'Fit to screen',
   'diagram.download': 'Download image',
+  'diagram.resize': 'Resize diagram',
+  'diagram.resizeHint': 'Drag to resize, double-click to reset',
 
   // ── Image Lightbox ──────────────────────────────────────────
   'image.zoomIn': 'Zoom in',

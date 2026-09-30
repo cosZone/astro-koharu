@@ -135,6 +135,8 @@ export const uiStrings: UIStrings = {
   'diagram.resetZoom': 'リセット',
   'diagram.fitToScreen': '画面に合わせる',
   'diagram.download': '画像をダウンロード',
+  'diagram.resize': '図のサイズを変更',
+  'diagram.resizeHint': 'ドラッグでサイズ変更、ダブルクリックで元に戻す',
 
   // ── Lightboxでの画像表示 ──────────────────────────────────────────
   'image.zoomIn': '拡大',

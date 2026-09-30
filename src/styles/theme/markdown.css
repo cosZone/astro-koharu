@@ -716,19 +716,37 @@ html.dark .prose .astro-code {
 /* ========== Mermaid layout styles ========== */
 
 .mermaid-wrapper {
+  position: relative;
   margin-bottom: 1.25rem;
 }
 
-/* Mermaid pre styling when in wrapper */
+/* Mermaid pre styling when in wrapper; the bottom padding holds the resize grip */
 .mermaid-wrapper > pre.mermaid {
   border-radius: 0 0 0.75rem 0.75rem;
   border: 1px solid hsl(var(--border));
   border-top: none;
-  padding: 1rem;
+  padding: 1rem 1rem 1.5rem;
   margin: 0;
   overflow: hidden;
   background-color: hsl(var(--card));
   box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+}
+
+/* Once useDiagramScale sizes it, the same canvas as infographics: centered, scrolling sideways when zoomed past the column.
+   Block layout instead of astro-mermaid's flex centering, which would clip the left edge of an overflowing diagram. */
+.mermaid-wrapper > pre.mermaid[data-diagram-sized] {
+  display: block;
+  overflow: auto hidden;
+  overscroll-behavior-x: contain;
+
+  & > svg {
+    display: block;
+    width: var(--diagram-width);
+    height: var(--diagram-height);
+    /* biome-ignore lint/complexity/noImportantStyles: mermaid writes max-width inline on every SVG, which would stop zooming at natural size. */
+    max-width: none !important;
+    margin-inline: auto;
+  }
 }
 
 /* Fullscreen SVG container */
@@ -748,6 +766,7 @@ html.dark .prose .astro-code {
 /* ========== Infographic layout styles ========== */
 
 .infographic-wrapper {
+  position: relative;
   margin-bottom: 1.25rem;
 }
 
@@ -764,6 +783,28 @@ html.dark .prose .astro-code {
   min-width: min(920px, 100%);
 }
 
+/* In-article canvas (the fullscreen viewer reuses .infographic-container): useDiagramScale sizes the SVG,
+   it centers in the column and scrolls sideways once zoomed past it. The bottom padding holds the resize grip. */
+.infographic-wrapper > .infographic-container {
+  padding: 1rem 1rem 1.5rem;
+  overflow: auto hidden;
+  /* Panning a zoomed diagram to its edge must not turn into a trackpad back-navigation swipe. */
+  overscroll-behavior-x: contain;
+
+  &:not(:empty) {
+    min-height: 0;
+  }
+
+  & > svg {
+    display: block;
+    width: var(--diagram-width, 100%);
+    height: var(--diagram-height, auto);
+    margin-inline: auto;
+    /* The viewBox hugs the content, so item drop shadows paint into the padding instead of being clipped. */
+    overflow: visible;
+  }
+}
+
 /* Override infographic text wrapping - prevent title and label wrapping */
 .infographic-container foreignObject[data-element-type="title"] span,
 .infographic-container foreignObject[data-element-type="desc"] span {
@@ -777,11 +818,13 @@ html.dark .prose .astro-code {
   justify-content: center;
   width: 100%;
   height: 100%;
+  padding: 1.5rem;
 }
 
 .infographic-svg-container svg {
   max-width: 100%;
   max-height: 100%;
+  overflow: visible;
 }
 
 /* ========== View Source Toggle Styles ========== */
