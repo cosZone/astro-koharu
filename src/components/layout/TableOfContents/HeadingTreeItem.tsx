@@ -1,33 +1,32 @@
 /**
  * HeadingTreeItem Component
  *
- * A single heading row in the table of contents. Active state and the click
- * handler come from TocContext; nested levels arrive as children.
+ * A single heading row in the table of contents: a knot on the silk thread plus the heading text
+ * (see toc.css). Active and expanded state and the click handler come from TocContext; nested levels
+ * arrive as children and stay mounted so they can unfold and fold smoothly.
  */
 
-import { animation } from '@constants/design-tokens';
 import type { Heading } from '@lib/toc';
-import { m } from 'motion/react';
 import { cn } from '@/lib/utils';
 import { useTocContext } from './TocContext';
 
 // Constants
-const INDENT_BASE = 0.75; // Base left padding in rem
-const INDENT_PER_LEVEL = 1; // Additional padding per nesting level in rem
+const INDENT_BASE = 1.625; // Base left padding in rem, clear of the thread
+const INDENT_PER_LEVEL = 0.875; // Additional padding per nesting level in rem
 
 interface HeadingTreeItemProps {
   /** The heading node to render */
   heading: Heading;
   /** Current nesting depth (0 for top level) */
   depth?: number;
-  /** Rendered child level, when expanded */
+  /** Rendered child level */
   children?: React.ReactNode;
 }
 
 export function HeadingTreeItem({ heading, depth = 0, children }: HeadingTreeItemProps) {
-  const { activeId, onHeadingClick } = useTocContext();
+  const { activeId, expandedIds, onHeadingClick } = useTocContext();
   const isActive = activeId === heading.id;
-  const hasChildren = heading.children.length > 0;
+  const isOpen = expandedIds.has(heading.id);
 
   return (
     <div className="heading-tree-item relative">
@@ -38,31 +37,28 @@ export function HeadingTreeItem({ heading, depth = 0, children }: HeadingTreeIte
           onHeadingClick(heading.id);
         }}
         className={cn(
-          'heading-link group relative isolate flex items-center rounded-md py-2 text-sm transition-colors duration-200',
+          'heading-link group relative isolate flex items-center rounded-lg py-2 text-sm transition-colors duration-200',
           isActive ? 'font-medium text-primary' : 'hover:bg-foreground/5',
         )}
         style={{
           paddingLeft: `${INDENT_BASE + depth * INDENT_PER_LEVEL}rem`,
-          paddingRight: hasChildren ? '0.5rem' : '0.75rem',
+          paddingRight: '0.75rem',
         }}
         data-level={heading.level}
+        data-toc-row={heading.id}
         aria-label={heading.text}
         aria-current={isActive ? 'location' : undefined}
       >
-        {/* Glides to the active heading as the reader scrolls */}
-        {isActive && (
-          <m.span
-            layoutId="toc-active"
-            aria-hidden="true"
-            className="absolute inset-0 -z-10 rounded-md bg-primary/10 before:absolute before:inset-y-1.5 before:left-0 before:w-[3px] before:rounded-full before:bg-primary"
-            transition={animation.spring.nav}
-          />
-        )}
+        <span className="toc-node" aria-hidden="true" />
         {/* Heading text - numbering will be added via CSS ::before */}
         <span className="heading-text block flex-1 truncate leading-relaxed">{heading.text}</span>
       </a>
 
-      {children && <div className="heading-children">{children}</div>}
+      {children && (
+        <div className="heading-children" data-open={isOpen || undefined} inert={!isOpen}>
+          <div className="heading-children-inner">{children}</div>
+        </div>
+      )}
     </div>
   );
 }

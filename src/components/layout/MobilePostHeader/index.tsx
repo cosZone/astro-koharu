@@ -12,7 +12,9 @@ import { useMediaQuery } from '@hooks/index';
 import { useCurrentHeading } from '@hooks/useCurrentHeading';
 import { useTocController } from '@hooks/useTocController';
 import { useTranslation } from '@hooks/useTranslation';
+import { chapterIndexOf, flattenHeadings } from '@lib/toc';
 import { AnimatePresence, m, useReducedMotion } from 'motion/react';
+import { useMemo, useState } from 'react';
 import { siteConfig } from '@/constants/site-config';
 import { HeadingTitle } from './HeadingTitle';
 import { MobileTOCDropdown } from './MobileTOCDropdown';
@@ -68,6 +70,15 @@ export function MobilePostHeader({
   // Determine if we should show heading mode
   const showHeadingMode = isPostPage && isMobile && headings.length > 0 && currentHeading !== null;
 
+  // Which way the reader travelled to the current heading, so its title rolls in from that side
+  const order = useMemo(() => flattenHeadings(headings).map((heading) => heading.id), [headings]);
+  const [travel, setTravel] = useState<{ id: string; direction: 1 | -1 }>({ id: '', direction: 1 });
+  if (currentHeading && currentHeading.id !== travel.id) {
+    const from = order.indexOf(travel.id);
+    setTravel({ id: currentHeading.id, direction: from === -1 || order.indexOf(currentHeading.id) >= from ? 1 : -1 });
+  }
+  const chapter = currentHeading ? chapterIndexOf(headings, currentHeading.id) : 0;
+
   // If not mobile or not a post page, always show logo
   if (!isMobile) {
     return <Logo logoElement={logoElement} logoText={logoText} logoSrc={logoSrc} />;
@@ -96,12 +107,20 @@ export function MobilePostHeader({
                       className="flex w-[calc(100vw-12rem)] items-center gap-2.5 rounded-full bg-foreground/10 py-1 pr-3 pl-1.5 backdrop-blur-sm transition-colors hover:bg-foreground/20"
                       aria-label={t('toc.expand')}
                     >
-                      {/* Progress circle - fixed size container */}
+                      {/* Progress circle - fixed size container, with the current chapter number inside */}
                       <div className="relative shrink-0">
                         <ProgressCircle size={32} strokeWidth={2.5} />
+                        {enableNumbering && chapter > 0 && (
+                          <span
+                            aria-hidden="true"
+                            className="absolute inset-0 flex-center font-semibold text-[0.625rem] text-primary tabular-nums"
+                          >
+                            {chapter}
+                          </span>
+                        )}
                       </div>
                       <div className="overflow-hidden">
-                        <HeadingTitle heading={currentHeading} />
+                        <HeadingTitle heading={currentHeading} direction={travel.direction} />
                       </div>
                     </button>
                   }

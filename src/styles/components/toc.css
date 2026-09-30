@@ -1,0 +1,174 @@
+/*
+  The table of contents is the same silk thread as the scrollbars (scrollbar.css): every heading is a
+  knot on a 1px thread that ends in a hanging petal. A petal glides to the current heading with a
+  soft wash behind it, the thread fills with the theme gradient down to it, and the knots it has
+  passed turn pink; src/hooks/useTocGlide.ts moves those parts. Sections unfold as the reader
+  reaches them. Rows stay direct children of .toc-container (the sider cascade in HomeSider.astro
+  animates them); the moving parts carry data-toc-rail so it skips them.
+*/
+
+.toc-container {
+  --toc-thread-x: 0.8125rem;
+  --toc-gap: 0.5rem;
+  position: relative;
+}
+
+.toc-container::after {
+  content: "";
+  flex: none;
+  height: 0.625rem;
+  margin-top: calc(var(--toc-gap) * -1);
+  background: var(--silk-petal) no-repeat calc(var(--toc-thread-x) - 3.5px) 0 / 7px 8.4px;
+}
+
+/* One piece of thread per row, reaching up across the gap so a folded section's clipped ends never show. */
+.heading-link::after {
+  content: "";
+  position: absolute;
+  top: calc(var(--toc-gap) * -1);
+  bottom: 0;
+  left: calc(var(--toc-thread-x) - 0.5px);
+  width: 1px;
+  background: var(--silk-thread);
+  pointer-events: none;
+}
+
+.toc-container > .heading-tree-item:first-of-type > .heading-link::after {
+  top: 50%;
+}
+
+.heading-link:focus-visible {
+  outline-offset: -2px;
+}
+
+.toc-node {
+  position: absolute;
+  top: 50%;
+  left: var(--toc-thread-x);
+  width: 5px;
+  height: 5px;
+  border-radius: 9999px;
+  translate: -50% -50%;
+  box-shadow: inset 0 0 0 1px hsl(var(--foreground) / 0.32);
+  transition:
+    background-color 240ms,
+    box-shadow 240ms,
+    opacity 200ms,
+    scale 320ms var(--ease-out-expo);
+  pointer-events: none;
+}
+
+.heading-link:not([data-level="1"], [data-level="2"]) .toc-node {
+  width: 3px;
+  height: 3px;
+}
+
+.heading-link[data-passed] .toc-node {
+  background-color: hsl(var(--primary) / 0.85);
+  box-shadow: none;
+}
+
+.heading-link[aria-current] .toc-node {
+  opacity: 0;
+  scale: 0.4;
+}
+
+.heading-link:hover:not([aria-current]) .toc-node {
+  scale: 1.6;
+}
+
+.heading-link .heading-text {
+  transition: translate 220ms var(--ease-out-quart);
+}
+
+.heading-link:hover:not([aria-current]) .heading-text {
+  translate: 2px 0;
+}
+
+.toc-wash,
+.toc-tail,
+.toc-petal {
+  position: absolute;
+  top: 0;
+  opacity: 0;
+  transition: opacity 220ms;
+  pointer-events: none;
+}
+
+.toc-container[data-toc-live] :is(.toc-wash, .toc-tail, .toc-petal) {
+  opacity: 1;
+}
+
+.toc-wash {
+  left: calc(var(--toc-thread-x) - 0.4375rem);
+  right: 0;
+  border-radius: 0.75rem;
+  background: linear-gradient(90deg, hsl(var(--primary) / 0.16), hsl(var(--primary) / 0.06) 55%, transparent);
+}
+
+.toc-tail {
+  z-index: 1;
+  left: calc(var(--toc-thread-x) - 1px);
+  width: 2px;
+  border-radius: 9999px;
+  background: linear-gradient(to bottom, var(--gradient-shoka-button-start), var(--gradient-shoka-button-end));
+}
+
+.toc-petal {
+  z-index: 1;
+  left: calc(var(--toc-thread-x) - 6.5px);
+  width: 13px;
+  height: 15.6px;
+  margin-top: -7.8px;
+  rotate: calc(-18deg + var(--toc-lean, 0deg));
+  filter: drop-shadow(0 0 3px hsl(var(--primary) / 0.55));
+}
+
+.toc-petal > span {
+  display: block;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(#ffc5d4, #ef7396);
+  mask-position: center;
+  mask-repeat: no-repeat;
+  mask-size: contain;
+}
+
+.dark .toc-petal > span {
+  background: linear-gradient(#ffe0e9, #f7879f);
+}
+
+.heading-children {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 240ms var(--ease-in-quart);
+}
+
+.heading-children[data-open] {
+  grid-template-rows: 1fr;
+  transition-duration: 420ms;
+  transition-timing-function: var(--ease-out-expo);
+}
+
+.heading-children-inner {
+  min-height: 0;
+  overflow: hidden;
+  opacity: 0;
+  transition: opacity 160ms;
+}
+
+.heading-children[data-open] > .heading-children-inner {
+  opacity: 1;
+  transition-duration: 320ms;
+  transition-delay: 80ms;
+}
+
+html.motion-off :is(.heading-children, .heading-children-inner, .toc-node, .heading-text, .toc-wash, .toc-tail, .toc-petal) {
+  transition: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :is(.heading-children, .heading-children-inner, .toc-node, .heading-text, .toc-wash, .toc-tail, .toc-petal) {
+    transition: none;
+  }
+}

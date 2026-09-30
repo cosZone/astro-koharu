@@ -129,3 +129,13 @@ export function collectExpandableIds(headings: Heading[]): Set<string> {
   walk(headings);
   return ids;
 }
+
+/** Every heading in document order */
+export function flattenHeadings(headings: Heading[]): Heading[] {
+  return headings.flatMap((heading) => [heading, ...flattenHeadings(heading.children)]);
+}
+
+/** 1-based position of the top-level section containing `id`, or 0 when the tree has no such heading */
+export function chapterIndexOf(headings: Heading[], id: string): number {
+  return headings.findIndex((heading) => heading.id === id || findHeadingById(heading.children, id) !== null) + 1;
+}

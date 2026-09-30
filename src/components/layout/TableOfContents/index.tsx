@@ -5,11 +5,11 @@
  * Uses custom hooks for state management and sub-components for better organization.
  */
 
-import { LazyMotionProvider } from '@components/common/LazyMotionProvider';
 import { useTocController } from '@hooks/useTocController';
 import { useTranslation } from '@hooks/useTranslation';
 import { HeadingList } from './HeadingList';
 import { TocProvider } from './TocContext';
+import { TocGlide } from './TocGlide';
 
 // Constants
 const SCROLL_OFFSET_TOP = 120; // Offset for header height when detecting active heading
@@ -44,12 +44,12 @@ export function TableOfContents({ defaultExpanded = false, enableNumbering = tru
     <nav
       className={`toc-container scroll-gutter-stable flex h-full flex-col gap-2 overflow-y-auto overflow-x-hidden pr-1 md:pb-3 md:pl-1 ${enableNumbering ? '' : 'toc-no-numbering'}`}
       aria-label={t('toc.title')}
+      data-toc-scroller
     >
-      <LazyMotionProvider>
-        <TocProvider value={toc}>
-          <HeadingList headings={headings} />
-        </TocProvider>
-      </LazyMotionProvider>
+      <TocProvider value={toc}>
+        <TocGlide headings={headings} />
+        <HeadingList headings={headings} />
+      </TocProvider>
     </nav>
   );
 }

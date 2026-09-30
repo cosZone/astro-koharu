@@ -1,6 +1,14 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { buildHeadingTree, collectExpandableIds, getSiblingIds, type Heading, revealPath } from './toc';
+import {
+  buildHeadingTree,
+  chapterIndexOf,
+  collectExpandableIds,
+  flattenHeadings,
+  getSiblingIds,
+  type Heading,
+  revealPath,
+} from './toc';
 
 /**
  * h2 a
@@ -102,4 +110,24 @@ test('revealPath on an empty tree is a no-op', () => {
 test('collectExpandableIds returns every heading that owns children', () => {
   assert.deepEqual(ids(collectExpandableIds(tree())), ['a', 'a1', 'a2', 'b']);
   assert.equal(collectExpandableIds([]).size, 0);
+});
+
+test('flattenHeadings lists every heading in document order', () => {
+  assert.deepEqual(
+    flattenHeadings(tree()).map((h) => h.id),
+    flat.map((h) => h.id),
+  );
+});
+
+test('chapterIndexOf reports the top-level section of any heading', () => {
+  const headings = tree();
+  assert.equal(chapterIndexOf(headings, 'a'), 1);
+  assert.equal(chapterIndexOf(headings, 'a2x'), 1);
+  assert.equal(chapterIndexOf(headings, 'b1'), 2);
+  assert.equal(chapterIndexOf(headings, 'c'), 3);
+});
+
+test('chapterIndexOf is 0 for an unknown heading or an empty tree', () => {
+  assert.equal(chapterIndexOf(tree(), 'missing'), 0);
+  assert.equal(chapterIndexOf([], 'a'), 0);
 });
