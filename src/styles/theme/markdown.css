@@ -692,6 +692,7 @@
 /* ========== Infographic layout styles ========== */
 
 .infographic-wrapper {
+  position: relative;
   margin-bottom: 1.25rem;
 }
 
@@ -708,6 +709,28 @@
   min-width: min(920px, 100%);
 }
 
+/* In-article canvas (the fullscreen viewer reuses .infographic-container): useDiagramScale sizes the SVG,
+   it centers in the column and scrolls sideways once zoomed past it. The bottom padding holds the resize grip. */
+.infographic-wrapper > .infographic-container {
+  padding: 1rem 1rem 1.5rem;
+  overflow: auto hidden;
+  /* Panning a zoomed diagram to its edge must not turn into a trackpad back-navigation swipe. */
+  overscroll-behavior-x: contain;
+
+  &:not(:empty) {
+    min-height: 0;
+  }
+
+  & > svg {
+    display: block;
+    width: var(--diagram-width, 100%);
+    height: var(--diagram-height, auto);
+    margin-inline: auto;
+    /* The viewBox hugs the content, so item drop shadows paint into the padding instead of being clipped. */
+    overflow: visible;
+  }
+}
+
 /* Override infographic text wrapping - prevent title and label wrapping */
 .infographic-container foreignObject[data-element-type="title"] span,
 .infographic-container foreignObject[data-element-type="desc"] span {
@@ -721,11 +744,13 @@
   justify-content: center;
   width: 100%;
   height: 100%;
+  padding: 1.5rem;
 }
 
 .infographic-svg-container svg {
   max-width: 100%;
   max-height: 100%;
+  overflow: visible;
 }
 
 /* ========== View Source Toggle Styles ========== */
