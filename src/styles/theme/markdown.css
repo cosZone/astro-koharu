@@ -1,4 +1,21 @@
 .prose {
+  /* Typography plugin colors mapped to theme tokens, so light and dark prose share the site palette. */
+  --tw-prose-body: hsl(var(--foreground) / 0.9);
+  --tw-prose-headings: hsl(var(--foreground));
+  --tw-prose-lead: hsl(var(--muted-foreground));
+  --tw-prose-links: hsl(var(--primary));
+  --tw-prose-bold: hsl(var(--foreground));
+  --tw-prose-counters: hsl(var(--primary));
+  --tw-prose-bullets: hsl(var(--primary) / 0.7);
+  --tw-prose-hr: hsl(var(--border));
+  --tw-prose-quotes: hsl(var(--foreground) / 0.78);
+  --tw-prose-quote-borders: hsl(var(--primary) / 0.45);
+  --tw-prose-captions: hsl(var(--muted-foreground));
+  --tw-prose-kbd: hsl(var(--foreground));
+  --tw-prose-code: hsl(var(--primary));
+  --tw-prose-th-borders: hsl(var(--border));
+  --tw-prose-td-borders: hsl(var(--border) / 0.7);
+
   /* Reader variables are set by src/store/settings.ts and the inline Layout.astro script. */
   font-size: var(--reader-font-size, 1rem);
   line-height: var(--reader-line-height, 1.8);
@@ -21,6 +38,32 @@
 
   a {
     @apply text-primary hover:text-blue no-underline transition-colors duration-300 hover:underline;
+  }
+
+  /* Inline links carry a quiet underline so they are recognizable without relying on color alone. */
+  :where(p, li, td, th, blockquote, figcaption, dd, dt) > a:not(.anchor-link) {
+    text-decoration-line: underline;
+    text-decoration-color: hsl(var(--primary) / 0.35);
+    text-decoration-thickness: 0.075em;
+    text-underline-offset: 0.24em;
+    transition:
+      color var(--dur-fast) var(--ease-out-quart),
+      text-decoration-color var(--dur-fast) var(--ease-out-quart);
+
+    &:hover {
+      text-decoration-color: currentColor;
+    }
+  }
+
+  /* CJK text has no true italic; keep quotes upright and let the border mark them. */
+  blockquote {
+    font-style: normal;
+    font-weight: 400;
+
+    p:first-of-type::before,
+    p:last-of-type::after {
+      content: none;
+    }
   }
 
   /* ========== 行内代码样式 ========== */
@@ -124,6 +167,13 @@
   h5:hover::before,
   h6:hover::before {
     opacity: 0.8;
+  }
+
+  /* The level label sits in the gutter, which is too narrow on phones. */
+  @media (max-width: 768px) {
+    :is(h1, h2, h3, h4, h5, h6)::before {
+      display: none;
+    }
   }
 
   /* 调整锚点链接居中对齐 */
@@ -641,6 +691,12 @@
 }
 
 /* ========== 深色模式样式 ========== */
+
+/* Night-sakura code surface instead of github-dark's cool grey (beats Shiki's inline variable). */
+html.dark .prose .astro-code {
+  /* biome-ignore lint/complexity/noImportantStyles: overrides the inline --shiki-dark-bg Shiki writes on each <pre>. */
+  --shiki-dark-bg: hsl(256 24% 10%) !important;
+}
 
 /* 深色模式 - 行内代码 */
 .dark .prose :not(pre) > code {

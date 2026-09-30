@@ -1,32 +1,33 @@
 /* shadCN theme - https://ui.shadcn.com/themes */
 @layer base {
   :root {
+    /* Neutrals lean toward the sakura hue so greys and the pink accent read as one palette. */
     --background: 0 12% 99%;
-    --foreground: 0 0% 20%;
+    --foreground: 340 10% 18%;
 
     --card: 0 12% 99%;
-    --card-foreground: 240 10% 3.9%;
+    --card-foreground: 340 12% 12%;
 
     --popover: 0 12% 99%;
-    --popover-foreground: 240 10% 3.9%;
+    --popover-foreground: 340 12% 12%;
 
     --primary: 351 77% 62%;
     --primary-foreground: 355.7 100% 97.3%;
 
-    --secondary: 240 4.8% 95.9%;
-    --secondary-foreground: 240 5.9% 10%;
+    --secondary: 340 22% 95.5%;
+    --secondary-foreground: 340 12% 12%;
 
-    --muted: 240 4.8% 95.9%;
-    --muted-foreground: 0 0% 35%;
+    --muted: 340 22% 95.5%;
+    --muted-foreground: 340 6% 36%;
 
-    --accent: 240 4.8% 95.9%;
-    --accent-foreground: 240 5.9% 10%;
+    --accent: 340 30% 94.5%;
+    --accent-foreground: 340 12% 12%;
 
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 98%;
 
-    --border: 240 5.9% 90%;
-    --input: 240 5.9% 90%;
+    --border: 340 16% 90%;
+    --input: 340 16% 90%;
     --ring: 346.8 77.2% 49.8%;
 
     --badge-primary: 351 49% 50%;
@@ -35,32 +36,33 @@
   }
 
   .dark {
-    --background: 216 13% 15%;
-    --foreground: 0 0% 95%;
+    /* Night sakura: plum-indigo neutrals under an unchanged pink accent; text is kept below pure white to cut glare. */
+    --background: 256 18% 13%;
+    --foreground: 300 14% 93%;
 
-    --card: 216 13% 15%;
-    --card-foreground: 0 0% 95%;
+    --card: 256 18% 15%;
+    --card-foreground: 300 14% 93%;
 
-    --popover: 216 13% 15%;
-    --popover-foreground: 0 0% 95%;
+    --popover: 257 20% 16%;
+    --popover-foreground: 300 14% 93%;
 
     --primary: 350 77% 70%;
     --primary-foreground: 355.7 100% 97.3%;
 
-    --secondary: 216 13% 22%;
-    --secondary-foreground: 0 0% 98%;
+    --secondary: 258 16% 21%;
+    --secondary-foreground: 300 14% 96%;
 
-    --muted: 216 13% 22%;
-    --muted-foreground: 0 0% 63%;
+    --muted: 258 16% 21%;
+    --muted-foreground: 262 10% 68%;
 
-    --accent: 216 13% 22%;
-    --accent-foreground: 0 0% 98%;
+    --accent: 258 18% 23%;
+    --accent-foreground: 300 14% 96%;
 
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 0 85.7% 97.3%;
 
-    --border: 216 13% 25%;
-    --input: 216 13% 25%;
+    --border: 258 14% 25%;
+    --input: 258 14% 25%;
     --ring: 346.8 77.2% 49.8%;
 
     --badge-primary: 350 77% 70%;

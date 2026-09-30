@@ -40,15 +40,15 @@
 }
 
 .dark {
-  --gradient-bg-start: #21252b;
-  --gradient-bg-end: #000;
+  --gradient-bg-start: #1d1a27;
+  --gradient-bg-end: #0d0b13;
   --gradient-bg: linear-gradient(180deg, var(--gradient-bg-start) 10%, var(--gradient-bg-end) 100%);
   --gradient-pink: linear-gradient(279deg, #f96676 0%, #e91e63 100%);
-  --gradient-header: linear-gradient(-225deg, #2d3230 0, #322d31 100%);
+  --gradient-header: linear-gradient(-225deg, #2a2438 0, #372739 100%);
 
   /* shoka migrate */
-  --box-bg-shadow: rgba(0, 0, 0, 0.5);
-  --grey-1-a5: rgba(34, 34, 34, 0.5);
+  --box-bg-shadow: rgba(6, 2, 16, 0.55);
+  --grey-1-a5: rgba(29, 26, 39, 0.5);
 
   --gradient-shoka-button-start: #f18bb3cc;
   --gradient-shoka-button-end: #f0a387cc;
@@ -58,7 +58,7 @@
     var(--gradient-shoka-button-end) 100%
   );
   --shoka-blue: 201 69% 77%;
-  --grey-4: 0 0% 40%;
+  --grey-4: 262 8% 42%;
   --color-pink: #f18bb3;
   --color-pink-a3: rgba(237, 110, 160, 0.3);
 
