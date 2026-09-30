@@ -7,6 +7,7 @@
 
 import { LazyMotionProvider } from '@components/common/LazyMotionProvider';
 import { Dialog, DialogPortal } from '@components/ui/dialog';
+import { animation } from '@constants/design-tokens';
 import { useIsMounted } from '@hooks/useIsMounted';
 import { useEscapeKey, useKeyboardShortcut } from '@hooks/useKeyboardShortcut';
 import { useTranslation } from '@hooks/useTranslation';
@@ -92,11 +93,11 @@ export default function SearchDialog() {
               <>
                 {/* Overlay */}
                 <m.div
-                  className="fixed inset-0 z-40 bg-black/50 backdrop-blur-sm"
+                  className="fixed inset-0 z-40 bg-[rgb(18_10_26/0.5)] backdrop-blur-[3px]"
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  transition={{ duration: 0.2 }}
+                  exit={{ opacity: 0, transition: { duration: 0.2, ease: animation.bezier.inQuart } }}
+                  transition={{ duration: 0.3, ease: animation.bezier.outQuart }}
                 />
 
                 {/* Dialog */}
@@ -109,11 +110,11 @@ export default function SearchDialog() {
                   transition={{ duration: 0.2 }}
                 >
                   <m.div
-                    className="w-full max-w-3xl overflow-auto rounded-xl bg-gradient-start text-foreground shadow-box"
-                    initial={{ opacity: 0, scale: 0.95, y: -10 }}
+                    className="w-full max-w-3xl overflow-auto rounded-2xl bg-gradient-start text-foreground shadow-[0_2rem_4rem_-1.5rem_rgb(233_84_107/0.35),0_0.75rem_1.5rem_-0.75rem_rgb(20_10_28/0.3)] ring-1 ring-primary/10"
+                    initial={{ opacity: 0, scale: 0.96, y: -14 }}
                     animate={{ opacity: 1, scale: 1, y: 0 }}
-                    exit={{ opacity: 0, scale: 0.95, y: -10 }}
-                    transition={{ duration: 0.2 }}
+                    exit={{ opacity: 0, scale: 0.97, y: -8, transition: { duration: 0.15, ease: animation.bezier.inQuart } }}
+                    transition={animation.spring.popover}
                   >
                     <div className="relative p-6 md:p-3">
                       <div className="search-dialog">

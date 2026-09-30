@@ -8,6 +8,7 @@
 import { CopyButton } from '@components/markdown/shared/CopyButton';
 import { MacToolbar } from '@components/markdown/shared/MacToolbar';
 import { ModalLayer } from '@components/ui/ModalLayer';
+import { useRetainedValue } from '@hooks/useRetainedValue';
 import { cn } from '@lib/utils';
 import { useStore } from '@nanostores/react';
 import { $codeFullscreenData, closeModal } from '@store/modal';
@@ -37,14 +38,15 @@ function parseInlineStyles(styleString: string): React.CSSProperties {
 }
 
 export default function CodeBlockFullscreen() {
-  const data = useStore($codeFullscreenData);
+  const liveData = useStore($codeFullscreenData);
+  const data = useRetainedValue(liveData);
 
   if (!data) return null;
 
   const preStyles = parseInlineStyles(data.preStyle);
 
   return (
-    <ModalLayer open onClose={closeModal}>
+    <ModalLayer open={liveData !== null} onClose={closeModal}>
       <MacToolbar language={data.language} onClose={closeModal}>
         <CopyButton text={data.code} showLabel />
       </MacToolbar>

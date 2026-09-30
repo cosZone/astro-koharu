@@ -5,7 +5,9 @@
  * handler come from TocContext; nested levels arrive as children.
  */
 
+import { animation } from '@constants/design-tokens';
 import type { Heading } from '@lib/toc';
+import { m } from 'motion/react';
 import { cn } from '@/lib/utils';
 import { useTocContext } from './TocContext';
 
@@ -36,10 +38,8 @@ export function HeadingTreeItem({ heading, depth = 0, children }: HeadingTreeIte
           onHeadingClick(heading.id);
         }}
         className={cn(
-          'heading-link group relative flex items-center rounded-md py-2 text-sm transition-all duration-200 hover:border-l-2 hover:bg-foreground/5',
-          {
-            'border-l-primary bg-primary/10 font-medium text-primary hover:bg-primary/10 hover:text-primary': isActive,
-          },
+          'heading-link group relative isolate flex items-center rounded-md py-2 text-sm transition-colors duration-200',
+          isActive ? 'font-medium text-primary' : 'hover:bg-foreground/5',
         )}
         style={{
           paddingLeft: `${INDENT_BASE + depth * INDENT_PER_LEVEL}rem`,
@@ -49,10 +49,17 @@ export function HeadingTreeItem({ heading, depth = 0, children }: HeadingTreeIte
         aria-label={heading.text}
         aria-current={isActive ? 'location' : undefined}
       >
+        {/* Glides to the active heading as the reader scrolls */}
+        {isActive && (
+          <m.span
+            layoutId="toc-active"
+            aria-hidden="true"
+            className="absolute inset-0 -z-10 rounded-md bg-primary/10 before:absolute before:inset-y-1.5 before:left-0 before:w-[3px] before:rounded-full before:bg-primary"
+            transition={animation.spring.nav}
+          />
+        )}
         {/* Heading text - numbering will be added via CSS ::before */}
         <span className="heading-text block flex-1 truncate leading-relaxed">{heading.text}</span>
-        {/* Active state indicator */}
-        {isActive && <span className="ml-2 text-primary text-xs">•</span>}
       </a>
 
       {children && <div className="heading-children">{children}</div>}

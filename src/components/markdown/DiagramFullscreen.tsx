@@ -9,6 +9,7 @@
 import { CopyButton } from '@components/markdown/shared/CopyButton';
 import { MacToolbar } from '@components/markdown/shared/MacToolbar';
 import { ModalLayer } from '@components/ui/ModalLayer';
+import { useRetainedValue } from '@hooks/useRetainedValue';
 import { useTranslation } from '@hooks/useTranslation';
 import { useZoomPan } from '@hooks/useZoomPan';
 import { Icon } from '@iconify/react';
@@ -18,8 +19,9 @@ import { $diagramFullscreenData, closeModal, type DiagramFullscreenData } from '
 import { useEffect } from 'react';
 
 export default function DiagramFullscreen() {
-  const data = useStore($diagramFullscreenData);
-  const isOpen = data !== null;
+  const liveData = useStore($diagramFullscreenData);
+  const data = useRetainedValue(liveData);
+  const isOpen = liveData !== null;
   const { containerRef, state, reset, zoomLevel } = useZoomPan(isOpen);
 
   // Reset zoom when opening
@@ -30,7 +32,7 @@ export default function DiagramFullscreen() {
   if (!data) return null;
 
   return (
-    <ModalLayer open onClose={closeModal}>
+    <ModalLayer open={isOpen} onClose={closeModal}>
       <DiagramToolbar data={data} zoomLevel={zoomLevel} onReset={reset} />
       <div
         ref={containerRef}

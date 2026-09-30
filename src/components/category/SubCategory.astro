@@ -23,7 +23,7 @@ const locale = getLocaleFromUrl(Astro.url.pathname);
   category.children?.length && (
     <div class="category-second-level-container flex flex-col">
       {category.children.map((grandChild) => (
-        <p class="shoka-decoration-circle relative px-7.5 py-2 text-base/9 text-primary hover:text-blue">
+        <p class="motion-reveal shoka-decoration-circle relative px-7.5 py-2 text-base/9 text-primary hover:text-blue [--rise-y:0.5rem]">
           <a href={localizedPath(buildCategoryPath([parentName, category.name, grandChild.name]), locale)} class="dashed-border">
             {translateCategoryName(grandChild.name, locale)}
           </a>

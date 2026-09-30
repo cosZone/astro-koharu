@@ -62,7 +62,7 @@ const categoryPosts: CategoryWithPosts[] = await Promise.all(
       const posts = category?.posts?.slice(0, 6 - (childrenLen ?? 0));
       const displayName = translateCategoryName(category?.label ?? categoryInfo?.name ?? '', locale);
       return (
-        <FlippedCard>
+        <FlippedCard className="motion-reveal">
           <div slot="front" class="flex-center relative h-full rounded-md px-2 py-4">
             <img
               style={getLqipStyle(category.image)}

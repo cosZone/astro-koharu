@@ -88,28 +88,6 @@
   display: none;
 }
 
-/* 目录项的平滑过渡动画 */
-.toc-item {
-  position: relative;
-  overflow: hidden;
-}
-
-.toc-item::before {
-  content: "";
-  position: absolute;
-  left: 0;
-  top: 0;
-  height: 100%;
-  width: 0;
-  background: hsl(var(--primary) / 0.1);
-  transition: width 0.2s ease;
-  z-index: -1;
-}
-
-.toc-item:hover::before {
-  width: 100%;
-}
-
 .typewriter-cursor {
   display: inline-block;
   width: 2px;

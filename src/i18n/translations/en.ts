@@ -183,6 +183,7 @@ export const uiStrings: UIStrings = {
   'stats.pageviews': 'Page views',
 
   // ── Pagination ──────────────────────────────────────────────
+  'pagination.label': 'Pagination',
   'pagination.prev': 'Previous',
   'pagination.next': 'Next',
   'pagination.page': 'Page {page}',

@@ -183,6 +183,7 @@ export const uiStrings: UIStrings = {
   'stats.pageviews': 'ページビュー',
 
   // ── ページ付け ──────────────────────────────────────────────
+  'pagination.label': 'ページ送り',
   'pagination.prev': '前へ',
   'pagination.next': '次へ',
   'pagination.page': 'ページ: {page}',

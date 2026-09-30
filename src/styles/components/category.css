@@ -84,9 +84,14 @@ p.shoka-decoration-circle:last-child {
   }
 }
 
+p.shoka-decoration-circle::before {
+  transition-property: color, background-color, border-color, scale;
+}
+
 p.shoka-decoration-circle:hover {
   &::before {
     @apply bg-blue;
+    scale: 1.6;
   }
 }
 

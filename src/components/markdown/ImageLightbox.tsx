@@ -7,10 +7,14 @@
  */
 
 import { ModalLayer } from '@components/ui/ModalLayer';
+import { animation } from '@constants/design-tokens';
 import { useKeyboardShortcut } from '@hooks/useKeyboardShortcut';
+import { useMotionLevel } from '@hooks/useMotionLevel';
+import { useRetainedValue } from '@hooks/useRetainedValue';
 import { useTranslation } from '@hooks/useTranslation';
 import { useZoomPan } from '@hooks/useZoomPan';
 import { Icon } from '@iconify/react';
+import { flipFromOrigin, intersectsViewport } from '@lib/lightbox-flip';
 import { useStore } from '@nanostores/react';
 import { $imageLightboxData, closeModal, type ImageLightboxData, navigateImage, openModal } from '@store/modal';
 import { m } from 'motion/react';
@@ -18,8 +22,10 @@ import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react
 
 export default function ImageLightbox() {
   const { t } = useTranslation();
-  const data = useStore($imageLightboxData);
-  const isOpen = data !== null;
+  const liveData = useStore($imageLightboxData);
+  const data = useRetainedValue(liveData);
+  const isOpen = liveData !== null;
+  const reduced = useMotionLevel() === 'reduced';
   const [imageLoaded, setImageLoaded] = useState(false);
   const [rotation, setRotation] = useState(0);
 
@@ -35,6 +41,13 @@ export default function ImageLightbox() {
   const handleResetAll = useCallback(() => {
     reset();
     setRotation(0);
+  }, [reset]);
+
+  // Undo zoom and rotation first so the image flies back to the page in its original framing.
+  const close = useCallback(() => {
+    reset();
+    setRotation(0);
+    closeModal();
   }, [reset]);
 
   const handleZoomIn = useCallback(() => zoomTo(scaleRef.current * 1.5), [zoomTo]);
@@ -94,12 +107,13 @@ export default function ImageLightbox() {
     return () => window.removeEventListener('open-image-lightbox', handleOpen as EventListener);
   }, []);
 
-  // Reset zoom, rotation, and image state when opening/closing
+  // Reset zoom and rotation when opening. The first image is already loaded in the article,
+  // so it shows at once and can zoom straight out of the page; navigation resets it to unloaded.
   useEffect(() => {
     if (isOpen) {
       reset();
       setRotation(0);
-      setImageLoaded(false);
+      setImageLoaded(true);
     }
   }, [isOpen, reset]);
 
@@ -124,13 +138,31 @@ export default function ImageLightbox() {
 
   if (!data) return null;
 
+  const origin = data.images[data.currentIndex]?.origin;
+  const flip =
+    !reduced && origin && intersectsViewport(origin.box, window.innerWidth, window.innerHeight)
+      ? flipFromOrigin(origin.box, origin.naturalWidth, origin.naturalHeight, {
+          centerX: document.documentElement.clientWidth / 2,
+          centerY: document.documentElement.clientHeight / 2,
+          maxWidth: window.innerWidth * 0.9,
+          maxHeight: window.innerHeight * 0.8,
+        })
+      : null;
+
   return (
-    <ModalLayer open onClose={closeModal} variant="fill" backdropClassName="bg-black/90" outsidePress={outsidePress}>
+    <ModalLayer
+      open={isOpen}
+      onClose={close}
+      variant="fill"
+      backdropClassName="bg-[rgb(12_6_18/0.92)]"
+      outsidePress={outsidePress}
+    >
       {/* Toolbar: vertical right on desktop, horizontal top on tablet */}
       <m.div
         className="absolute tablet:top-4 top-1/2 right-4 tablet:right-auto tablet:left-1/2 z-10 flex tablet:-translate-x-1/2 -translate-y-1/2 tablet:translate-y-0 tablet:flex-row flex-col items-center gap-1 rounded-2xl bg-black/50 p-1.5 backdrop-blur-sm"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
+        exit={{ opacity: 0, transition: { duration: 0.12 } }}
         transition={{ duration: 0.2, delay: 0.1 }}
       >
         <ToolbarButton icon="ri:zoom-in-line" label={t('image.zoomIn')} onClick={handleZoomIn} disabled={state.scale >= 4.9} />
@@ -152,7 +184,7 @@ export default function ImageLightbox() {
         <div className="h-px tablet:h-5 tablet:w-px w-5 bg-white/20" />
         <ToolbarButton icon="ri:clockwise-line" label={t('image.rotate')} onClick={handleRotate} />
         <div className="h-px tablet:h-5 tablet:w-px w-5 bg-white/20" />
-        <ToolbarButton icon="ri:close-line" label={t('image.close')} onClick={() => closeModal()} />
+        <ToolbarButton icon="ri:close-line" label={t('image.close')} onClick={close} />
       </m.div>
 
       {/* Image viewport with zoom/pan */}
@@ -162,12 +194,15 @@ export default function ImageLightbox() {
         className="flex h-full w-full touch-none select-none items-center justify-center p-4"
         onDoubleClick={handleDoubleClick}
       >
+        {/* Zooms out of the on-page image and back into it on close (FLIP), else a soft scale-fade. */}
         <m.div
           className="flex items-center justify-center"
-          initial={{ scale: 0.95 }}
-          animate={{ scale: 1 }}
-          exit={{ scale: 0.95 }}
-          transition={{ duration: 0.2 }}
+          initial={flip ? { x: flip.x, y: flip.y, scale: flip.scale } : { opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, x: 0, y: 0, scale: 1 }}
+          exit={
+            flip ? { x: flip.x, y: flip.y, scale: flip.scale } : { opacity: 0, scale: 0.95, transition: { duration: 0.16 } }
+          }
+          transition={animation.spring.lightbox}
         >
           <m.img
             src={data.src}
@@ -192,13 +227,19 @@ export default function ImageLightbox() {
 
       {/* Navigation bar */}
       {data.images.length > 1 && (
-        <div className="absolute bottom-12 left-1/2 flex -translate-x-1/2 items-center gap-0.5 rounded-full bg-black/50 p-1 backdrop-blur-sm">
+        <m.div
+          className="absolute bottom-12 left-1/2 flex -translate-x-1/2 items-center gap-0.5 rounded-full bg-black/50 p-1 backdrop-blur-sm"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0, transition: { duration: 0.12 } }}
+          transition={{ duration: 0.2, delay: 0.1 }}
+        >
           <NavButton direction={-1} disabled={data.currentIndex === 0} onClick={() => navigateTo(-1)} />
           <span className="min-w-14 px-1 text-center font-mono text-sm text-white/80 tabular-nums">
             {data.currentIndex + 1} / {data.images.length}
           </span>
           <NavButton direction={1} disabled={data.currentIndex === data.images.length - 1} onClick={() => navigateTo(1)} />
-        </div>
+        </m.div>
       )}
 
       {/* Zoom hint */}
@@ -273,6 +314,7 @@ function ZoomHint() {
       className="pointer-events-none absolute bottom-4 left-1/2 -translate-x-1/2 rounded-full bg-black/50 px-4 py-2 text-white/70 text-xs"
       initial={{ opacity: 0 }}
       animate={{ opacity: visible ? 1 : 0 }}
+      exit={{ opacity: 0, transition: { duration: 0.12 } }}
       transition={{ duration: 0.3 }}
     >
       <span className="hidden touch-none sm:inline">{t('image.hintDesktop')}</span>

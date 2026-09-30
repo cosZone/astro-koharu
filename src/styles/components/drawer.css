@@ -1,0 +1,68 @@
+/* Mobile navigation drawer: fading overlay, asymmetric slide, staggered profile rows. */
+
+.drawer-overlay {
+  visibility: hidden;
+  background: rgb(20 10 28 / 0.5);
+  opacity: 0;
+  transition:
+    opacity 280ms var(--ease-in-quart),
+    visibility 0s linear 280ms;
+}
+
+.drawer-overlay.is-open {
+  visibility: visible;
+  opacity: 1;
+  transition:
+    opacity 420ms var(--ease-out-quart),
+    visibility 0s;
+}
+
+#mobile-drawer {
+  transition: translate 540ms var(--ease-out-expo);
+}
+
+#mobile-drawer.-translate-x-full {
+  transition-duration: 280ms;
+  transition-timing-function: var(--ease-in-quart);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  html:is([data-motion="lively"], [data-motion="subtle"])
+    #mobile-drawer:not(.-translate-x-full)
+    :is([data-home-info-container] > :not([data-home-nav]), [data-home-nav] > *) {
+    --rise-y: 0.75rem;
+    animation: motion-rise var(--dur-slow) var(--ease-out-expo) both;
+    animation-delay: calc(90ms + var(--drawer-i, 0) * 45ms);
+  }
+}
+
+#mobile-drawer [data-home-info-container] > :nth-child(2) {
+  --drawer-i: 1;
+}
+#mobile-drawer [data-home-info-container] > :nth-child(3) {
+  --drawer-i: 2;
+}
+#mobile-drawer [data-home-info-container] > :nth-child(4) {
+  --drawer-i: 3;
+}
+#mobile-drawer [data-home-info-container] > :nth-child(5) {
+  --drawer-i: 4;
+}
+#mobile-drawer [data-home-nav] > :nth-child(1) {
+  --drawer-i: 5;
+}
+#mobile-drawer [data-home-nav] > :nth-child(2) {
+  --drawer-i: 6;
+}
+#mobile-drawer [data-home-nav] > :nth-child(3) {
+  --drawer-i: 7;
+}
+#mobile-drawer [data-home-nav] > :nth-child(4) {
+  --drawer-i: 8;
+}
+#mobile-drawer [data-home-nav] > :nth-child(5) {
+  --drawer-i: 9;
+}
+#mobile-drawer [data-home-nav] > :nth-child(n + 6) {
+  --drawer-i: 10;
+}

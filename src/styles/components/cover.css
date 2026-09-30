@@ -32,6 +32,10 @@
 }
 
 @media screen and (prefers-reduced-motion: no-preference) {
+  html:is([data-motion="lively"], [data-motion="subtle"]) .cover-copy .motion-rise {
+    animation-name: motion-rise-focus;
+  }
+
   html:is([data-motion="lively"], [data-motion="subtle"]) .cover-hero .wave-wrap {
     animation: cover-tide calc(var(--dur-enter) * 1.4) var(--ease-out-expo) both;
     animation-delay: 80ms;

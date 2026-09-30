@@ -10,6 +10,7 @@
  */
 
 import { LazyMotionProvider } from '@components/common/LazyMotionProvider';
+import { animation } from '@constants/design-tokens';
 import { FloatingFocusManager, FloatingPortal, useDismiss, useFloating, useInteractions, useRole } from '@floating-ui/react';
 import { cn } from '@lib/utils';
 import { AnimatePresence, m } from 'motion/react';
@@ -52,9 +53,10 @@ export function ModalLayer({
   const { getFloatingProps } = useInteractions([dismiss, role]);
 
   useEffect(() => {
+    if (!open) return;
     document.addEventListener('astro:before-preparation', onClose);
     return () => document.removeEventListener('astro:before-preparation', onClose);
-  }, [onClose]);
+  }, [open, onClose]);
 
   const isPanel = variant === 'panel';
 
@@ -63,24 +65,25 @@ export function ModalLayer({
       <FloatingPortal>
         <AnimatePresence>
           {open && (
-            <m.div
-              className={cn('fixed inset-0', isPanel ? 'z-40' : 'z-50')}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.2 }}
-            >
-              <div className={cn('fixed inset-0 backdrop-blur-sm', backdropClassName ?? 'bg-black/80')} />
+            <m.div className={cn('fixed inset-0', isPanel ? 'z-40' : 'z-50')}>
+              {/* Only the backdrop fades as a whole; the content owns its own entrance and exit. */}
+              <m.div
+                className={cn('fixed inset-0 backdrop-blur-sm', backdropClassName ?? 'bg-[rgb(18_10_26/0.72)]')}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0, transition: { duration: 0.22, ease: animation.bezier.inQuart } }}
+                transition={{ duration: 0.3, ease: animation.bezier.outQuart }}
+              />
               <FloatingFocusManager context={context}>
                 {isPanel ? (
                   <div className="fixed inset-0 z-50 grid place-items-center px-4">
                     <m.div
                       ref={refs.setFloating}
                       className={cn(PANEL_CLASS, className)}
-                      initial={{ opacity: 0, scale: 0.95 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      exit={{ opacity: 0, scale: 0.95 }}
-                      transition={{ duration: 0.2 }}
+                      initial={{ opacity: 0, scale: 0.96, y: 10 }}
+                      animate={{ opacity: 1, scale: 1, y: 0 }}
+                      exit={{ opacity: 0, scale: 0.97, y: 6, transition: { duration: 0.16, ease: animation.bezier.inQuart } }}
+                      transition={animation.spring.popover}
                       {...getFloatingProps()}
                     >
                       {children}

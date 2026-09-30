@@ -5,6 +5,7 @@
  * Uses custom hooks for state management and sub-components for better organization.
  */
 
+import { LazyMotionProvider } from '@components/common/LazyMotionProvider';
 import { useTocController } from '@hooks/useTocController';
 import { useTranslation } from '@hooks/useTranslation';
 import { HeadingList } from './HeadingList';
@@ -44,9 +45,11 @@ export function TableOfContents({ defaultExpanded = false, enableNumbering = tru
       className={`toc-container vertical-scrollbar scroll-gutter-stable flex h-full flex-col gap-2 overflow-auto pr-1 md:pb-3 md:pl-1 ${enableNumbering ? '' : 'toc-no-numbering'}`}
       aria-label={t('toc.title')}
     >
-      <TocProvider value={toc}>
-        <HeadingList headings={headings} />
-      </TocProvider>
+      <LazyMotionProvider>
+        <TocProvider value={toc}>
+          <HeadingList headings={headings} />
+        </TocProvider>
+      </LazyMotionProvider>
     </nav>
   );
 }

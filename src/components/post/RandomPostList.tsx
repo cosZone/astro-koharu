@@ -29,7 +29,7 @@ export default function RandomPostList({ postsPool, count, locale }: Props) {
           <a
             key={post.slug}
             href={localizedPath(`/post/${encodeSlug(post.link ?? post.slug)}`, locale)}
-            className="group flex gap-3 rounded-md p-2 text-sm transition-colors duration-300 hover:bg-foreground/5 hover:text-primary"
+            className="motion-reveal group flex gap-3 rounded-md p-2 text-sm transition-colors duration-300 [--rise-y:0.75rem] hover:bg-foreground/5 hover:text-primary"
           >
             <span className="shrink-0 font-mono text-foreground/30">{index + 1}</span>
             <div className="flex min-w-0 flex-col gap-0.5">

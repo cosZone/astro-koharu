@@ -15,12 +15,12 @@ const locale = getLocaleFromUrl(Astro.url.pathname);
 ---
 
 <!-- 遮罩层 -->
-<div id="drawer-overlay" class="fixed inset-0 z-40 hidden bg-black/50" role="presentation" aria-hidden="true"></div>
+<div id="drawer-overlay" class="drawer-overlay fixed inset-0 z-40" role="presentation" aria-hidden="true"></div>
 
 <!-- 移动端抽屉导航 -->
 <div
   id="mobile-drawer"
-  class="bg-gradient-start tablet:flex fixed inset-y-0 left-0 z-50 hidden h-screen w-[70vw] min-w-64 -translate-x-full transform px-4 pt-3 shadow-lg backdrop-blur-sm transition-transform duration-300 md:px-0"
+  class="bg-gradient-start tablet:flex fixed inset-y-0 left-0 z-50 hidden h-screen w-[70vw] min-w-64 -translate-x-full px-4 pt-3 shadow-lg md:px-0"
   role="dialog"
   aria-label={t(locale, 'drawer.navMenu')}
   aria-modal="true"
@@ -59,11 +59,11 @@ const locale = getLocaleFromUrl(Astro.url.pathname);
           </div>
         </details>
       )}
-      {/* 抽屉内可见关闭按钮 */}
+      {/* Pointer users close with the morphing menu button or the overlay; this in-dialog button serves keyboard and screen reader users. */}
       <button
         id="close-drawer"
         aria-label={t(locale, 'drawer.close')}
-        class="flex size-8 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-foreground/10 hover:text-foreground"
+        class="sr-only flex size-8 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-foreground/10 hover:text-foreground focus-visible:not-sr-only"
       >
         <Icon name="ri:close-line" class="h-6 w-6" />
       </button>
@@ -88,7 +88,7 @@ const locale = getLocaleFromUrl(Astro.url.pathname);
   } as const;
 
   const DRAWER_CLASSES = {
-    hidden: 'hidden',
+    open: 'is-open',
     translateX: '-translate-x-full',
   } as const;
 
@@ -166,7 +166,7 @@ const locale = getLocaleFromUrl(Astro.url.pathname);
       if (!drawer || !overlay) return;
 
       drawer.classList.remove(DRAWER_CLASSES.translateX);
-      overlay.classList.remove(DRAWER_CLASSES.hidden);
+      overlay.classList.add(DRAWER_CLASSES.open);
       document.body.style.overflow = 'hidden';
       closeBtn?.focus();
     }
@@ -176,7 +176,7 @@ const locale = getLocaleFromUrl(Astro.url.pathname);
       if (!drawer || !overlay) return;
 
       drawer.classList.add(DRAWER_CLASSES.translateX);
-      overlay.classList.add(DRAWER_CLASSES.hidden);
+      overlay.classList.remove(DRAWER_CLASSES.open);
       drawer.querySelector('details.language-switcher')?.removeAttribute('open');
       document.body.style.overflow = '';
     }

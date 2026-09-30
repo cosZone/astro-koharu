@@ -181,6 +181,7 @@ export const uiStrings = {
   'stats.pageviews': '조회수',
 
   // ── Pagination ──────────────────────────────────────────────
+  'pagination.label': '페이지 이동',
   'pagination.prev': '이전 페이지',
   'pagination.next': '다음 페이지',
   'pagination.page': '{page}페이지',

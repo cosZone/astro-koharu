@@ -214,6 +214,10 @@ export const shadows = {
   card: '0 0.625rem 1.875rem rgba(90, 97, 105, 0.12)',
   'card-darker': '0 0.625rem 1.875rem rgba(90, 97, 105, 0.2)',
   'shoka-button': '0px 0px 16px 0px rgb(233, 84, 105, 0.8)',
+
+  // Sakura-tinted elevation for floating controls
+  'sakura-sm': '0 6px 16px -8px rgb(233 84 107 / 0.45), 0 2px 6px -3px rgb(40 20 40 / 0.12)',
+  'sakura-md': '0 10px 24px -10px rgb(233 84 107 / 0.55), 0 3px 8px -4px rgb(40 20 40 / 0.14)',
 } as const;
 
 /**
@@ -346,6 +350,14 @@ export const animation = {
       type: 'spring' as const,
       stiffness: 460,
       damping: 32,
+    },
+
+    // Lightbox zoom out of / back into the page
+    lightbox: {
+      type: 'spring' as const,
+      stiffness: 300,
+      damping: 32,
+      mass: 0.9,
     },
 
     // Navigation pill: glides between items without overshoot

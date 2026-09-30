@@ -71,7 +71,7 @@ const strippedPath = stripLocaleFromPath(Astro.url.pathname);
       {t(locale, 'homeInfo.tags')}
     </a>
   </div>
-  <div class="mt-6 flex w-full flex-col items-center gap-2.5">
+  <div class="mt-6 flex w-full flex-col items-center gap-2.5" data-home-nav>
     {
       filteredRouters.map((item, index) => {
         const displayName = resolveNavName(item.nameKey, item.name, locale);

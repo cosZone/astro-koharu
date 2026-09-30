@@ -64,3 +64,36 @@
     --pf-searchbox-dropdown-max-height: calc(80dvh - 11rem);
   }
 }
+
+/* Each new result list cascades in top to bottom (capped so long lists do not lag). */
+@media (prefers-reduced-motion: no-preference) {
+  html:is([data-motion="lively"], [data-motion="subtle"])
+    .search-dialog
+    :is(.pf-searchbox-group, .pf-searchbox-result:not(.pf-searchbox-group *)) {
+    --rise-y: 0.5rem;
+    animation: motion-rise 380ms var(--ease-out-expo) both;
+    animation-delay: calc(var(--result-i, 7) * 30ms);
+  }
+}
+
+.search-dialog :is(.pf-searchbox-group, .pf-searchbox-result):nth-child(1) {
+  --result-i: 0;
+}
+.search-dialog :is(.pf-searchbox-group, .pf-searchbox-result):nth-child(2) {
+  --result-i: 1;
+}
+.search-dialog :is(.pf-searchbox-group, .pf-searchbox-result):nth-child(3) {
+  --result-i: 2;
+}
+.search-dialog :is(.pf-searchbox-group, .pf-searchbox-result):nth-child(4) {
+  --result-i: 3;
+}
+.search-dialog :is(.pf-searchbox-group, .pf-searchbox-result):nth-child(5) {
+  --result-i: 4;
+}
+.search-dialog :is(.pf-searchbox-group, .pf-searchbox-result):nth-child(6) {
+  --result-i: 5;
+}
+.search-dialog :is(.pf-searchbox-group, .pf-searchbox-result):nth-child(7) {
+  --result-i: 6;
+}

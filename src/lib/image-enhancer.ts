@@ -6,6 +6,10 @@
  * This module dispatches 'open-image-lightbox' custom events instead.
  */
 
+import { containBox, type LightboxOrigin } from './lightbox-flip';
+
+type LightboxImage = { src: string; alt: string; origin?: LightboxOrigin };
+
 // WeakSet to track enhanced images and avoid re-processing
 const enhancedImages = new WeakSet<HTMLImageElement>();
 
@@ -45,10 +49,20 @@ function createErrorPlaceholder(img: HTMLImageElement): HTMLElement {
   return placeholder;
 }
 
+/** Painted image box on screen (object-fit: contain aware), so the lightbox can zoom out of it. */
+function measureOrigin(img: HTMLImageElement): LightboxOrigin {
+  const { left, top, width, height } = img.getBoundingClientRect();
+  return {
+    box: containBox({ left, top, width, height }, img.naturalWidth, img.naturalHeight),
+    naturalWidth: img.naturalWidth,
+    naturalHeight: img.naturalHeight,
+  };
+}
+
 /**
  * Open image in React lightbox via custom event
  */
-function openImageLightbox(src: string, alt: string, images: { src: string; alt: string }[], currentIndex: number): void {
+function openImageLightbox(src: string, alt: string, images: LightboxImage[], currentIndex: number): void {
   window.dispatchEvent(
     new CustomEvent('open-image-lightbox', {
       detail: { src, alt, images, currentIndex },
@@ -77,7 +91,7 @@ function handleImageClick(e: Event): void {
   // Collect all loaded images from the nearest content container
   const container = img.closest('.custom-content') ?? document.body;
   const allImages = Array.from(container.querySelectorAll<HTMLImageElement>('.markdown-image.loaded'));
-  const images = allImages.map((i) => ({ src: i.src, alt: i.alt || '图片' }));
+  const images = allImages.map((i) => ({ src: i.src, alt: i.alt || '图片', origin: measureOrigin(i) }));
   const currentIndex = Math.max(0, allImages.indexOf(img));
 
   openImageLightbox(img.src, img.alt || '图片', images, currentIndex);

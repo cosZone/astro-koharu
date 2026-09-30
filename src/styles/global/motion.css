@@ -36,7 +36,15 @@ html[data-motion="subtle"] {
   from {
     opacity: 0;
     translate: 0 calc(var(--rise-y, 1.5rem) * var(--motion-travel));
-    filter: blur(calc(var(--rise-blur, 0px) * var(--motion-travel)));
+  }
+}
+
+/* Rise with a focus pull; reserve for a few large elements, blur is costly and flattens 3D children. */
+@keyframes motion-rise-focus {
+  from {
+    opacity: 0;
+    translate: 0 calc(var(--rise-y, 1.5rem) * var(--motion-travel));
+    filter: blur(calc(var(--rise-blur, 8px) * var(--motion-travel)));
   }
 }
 
@@ -117,4 +125,66 @@ html.motion-off .sider-slot.entering {
     /* biome-ignore lint/complexity/noImportantStyles: same specificity as the source animations, which are imported after this file, so !important is required to win. */
     animation: none !important;
   }
+}
+
+/* Section dividers: rules draw outward from the title and the blossoms unfurl as they scroll in. */
+@supports (animation-timeline: view()) {
+  @media screen and (prefers-reduced-motion: no-preference) {
+    html:is([data-motion="lively"], [data-motion="subtle"]) .section-divider {
+      view-timeline: --section-divider block;
+    }
+
+    html:is([data-motion="lively"], [data-motion="subtle"]) :is(.section-divider-line, .section-divider-title) {
+      animation-timeline: --section-divider;
+      animation-range: entry 0% entry 10rem;
+      animation-fill-mode: both;
+      animation-timing-function: var(--ease-out-quart);
+    }
+
+    html:is([data-motion="lively"], [data-motion="subtle"]) .section-divider-line {
+      animation-name: divider-draw;
+    }
+
+    html:is([data-motion="lively"], [data-motion="subtle"]) .section-divider-title {
+      --rise-y: 0.5rem;
+      animation-name: motion-rise;
+    }
+
+    html[data-motion="lively"] .section-divider-bloom {
+      animation: divider-bloom var(--ease-out-quart) both;
+      animation-timeline: --section-divider;
+      animation-range: entry 0% entry 12rem;
+    }
+  }
+}
+
+@keyframes divider-draw {
+  from {
+    scale: 0 1;
+  }
+}
+
+@keyframes divider-bloom {
+  from {
+    opacity: 0;
+    rotate: -120deg;
+    scale: 0.3;
+  }
+}
+
+/* Click petal burst layer (see src/lib/sakura/petal-burst.ts). */
+.petal-burst-layer {
+  position: fixed;
+  inset: 0;
+  z-index: 2147483000;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.petal-burst {
+  position: absolute;
+  top: 0;
+  left: 0;
+  mask: var(--petal-mask) center / contain no-repeat;
+  will-change: transform, opacity;
 }

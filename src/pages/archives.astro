@@ -44,17 +44,17 @@ const years = Object.keys(postsByYear).sort((a, b) => Number(b) - Number(a));
         <span class="text-muted-foreground text-lg md:text-base"> / </span>
         {t(locale, 'post.totalPosts', { count: posts.length })}
       </h2>
-      <div class="flex flex-col gap-4 md:gap-5">
+      <div class="flex flex-col gap-4 [--rise-y:0.5rem] md:gap-5">
         {
           years.map((year) => (
             <div>
-              <h3 class="text-xl font-bold md:text-base">
+              <h3 class="motion-reveal text-xl font-bold md:text-base">
                 {year}
                 <span class="text-muted-foreground ml-2 text-base md:text-sm">{t(locale, 'post.yearPosts', { count: postsByYear[Number(year)].length })}</span>
               </h3>
               <div class="mt-2">
                 {postsByYear[Number(year)].map((post) => (
-                  <p class="shoka-decoration-circle group text-primary hover:text-blue relative px-6 py-2 text-base/9 md:flex md:flex-col md:items-stretch md:text-sm/9">
+                  <p class="motion-reveal shoka-decoration-circle group text-primary hover:text-blue relative px-6 py-2 text-base/9 md:flex md:flex-col md:items-stretch md:text-sm/9">
                     <span class="text-muted-foreground mr-2 text-xs">
                       {displayDate.date(post.data.date)}
                     </span>
