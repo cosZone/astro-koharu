@@ -5,7 +5,7 @@
 
 export const PETAL_VIEWBOX = { width: 20, height: 24 } as const;
 
-export const PETAL_PATH =
+const PETAL_PATH =
   'M10 24C4.6 20.4.4 14 1.3 7.9 2 3.3 5.4.6 8.7 1.3L10 4.1l1.3-2.8c3.3-.7 6.7 2 7.4 6.6.9 6.1-3.3 12.5-8.7 16.1Z';
 
 /** Tip and base colors per variant; the gradient runs from the notched tip to the base. */
