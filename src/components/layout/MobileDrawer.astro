@@ -59,11 +59,11 @@ const locale = getLocaleFromUrl(Astro.url.pathname);
           </div>
         </details>
       )}
-      {/* Pointer users close with the morphing menu button or the overlay; this in-dialog button serves keyboard and screen reader users. */}
+      {/* 抽屉内可见关闭按钮 */}
       <button
         id="close-drawer"
         aria-label={t(locale, 'drawer.close')}
-        class="sr-only flex size-8 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-foreground/10 hover:text-foreground focus-visible:not-sr-only"
+        class="flex size-8 items-center justify-center rounded-full text-muted-foreground transition-[color,background-color,scale] duration-200 ease-out-quart hover:bg-foreground/10 hover:text-foreground active:scale-90"
       >
         <Icon name="ri:close-line" class="h-6 w-6" />
       </button>
