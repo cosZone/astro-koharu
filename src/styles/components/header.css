@@ -1,12 +1,21 @@
 /*
   Site header. Over the cover it stays transparent; once scrolled (.with-background) the
   desktop header condenses into a floating capsule while the mobile header keeps its bar.
-  The capsule is a pseudo-element around the unchanged content box, so the change never
+  The capsule is an absolutely positioned sibling of the content, so the change never
   touches layout.
+
+  The view-transition-name is set here rather than with transition:name: a named element is a
+  backdrop root, so on desktop only the content is named and the capsule, outside it, can still
+  blur the page. The mobile bar blurs itself and stays named as a whole.
 */
 
 #site-header {
+  view-transition-name: site-header;
   transition: translate 480ms var(--ease-out-expo);
+}
+
+.header-capsule {
+  display: none;
 }
 
 /* Hiding accelerates away quickly; revealing settles in more slowly. */
@@ -29,6 +38,14 @@
 }
 
 @media (width > 992px) {
+  #site-header {
+    view-transition-name: none;
+  }
+
+  .header-content {
+    view-transition-name: site-header;
+  }
+
   #site-header.-translate-y-full {
     translate: 0 calc(-100% - 1.5rem);
   }
@@ -39,8 +56,8 @@
     transition: translate 520ms var(--ease-out-expo);
   }
 
-  .header-inner::before {
-    content: "";
+  .header-capsule {
+    display: block;
     position: absolute;
     inset: -0.375rem -1.25rem;
     z-index: -1;
@@ -59,7 +76,7 @@
       scale 560ms var(--ease-out-expo);
   }
 
-  .dark .header-inner::before {
+  .dark .header-capsule {
     border-color: hsl(var(--primary) / 0.22);
     box-shadow:
       0 0.75rem 2rem -1rem rgb(0 0 0 / 0.65),
@@ -78,7 +95,7 @@
     translate: 0 0.375rem;
   }
 
-  #site-header.with-background .header-inner::before {
+  #site-header.with-background .header-capsule {
     opacity: 1;
     scale: 1;
   }

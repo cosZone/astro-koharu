@@ -23,32 +23,34 @@ const locale = getLocaleFromUrl(Astro.url.pathname);
 <div
   id="site-header"
   class={`shadow-text fixed tablet:backdrop-blur inset-x-0 top-0 z-30 gap-4 py-2.5 text-white select-none tablet:py-2 tablet:pl-3 tablet:pr-0 overflow-visible`}
-  transition:name="site-header"
 >
-  <div class={`header-inner mx-auto flex items-center justify-between tablet:w-full px-6 tablet:pl-10 tablet:pr-3 ${MAX_WIDTH.content}`}>
-    <!-- Desktop: Always show logo -->
-    <a
-      transition:persist="page-header-avatar"
-      class="site-logo tablet:hidden -my-4 mr-4 flex cursor-pointer items-center justify-center gap-1 whitespace-nowrap"
-      href="/"
-      target="_self"
-      title={alternate || title}
-      aria-label={alternate || title}
-    >
-      {showLogo ? <LogoSvg className="h-8" /> : <p class="logo-text">{alternate || title}</p>}
-    </a>
-    <!-- Mobile: MobilePostHeader (shows heading on post pages, logo otherwise) -->
-    <div class="tablet:flex tablet:grow hidden items-center justify-center">
-      <MobilePostHeader
-        client:only="react"
-        isPostPage={isPostPage}
-        enableNumbering={tocNumbering}
-        logoElement={showLogo ? 'svg' : 'text'}
-        logoText={alternate || title}
-        logoSrc={logoSrc}
-      />
+  <div class={`header-inner mx-auto tablet:w-full px-6 tablet:pl-10 tablet:pr-3 ${MAX_WIDTH.content}`}>
+    <div class="header-capsule" aria-hidden="true"></div>
+    <div class="header-content flex items-center justify-between">
+      <!-- Desktop: Always show logo -->
+      <a
+        transition:persist="page-header-avatar"
+        class="site-logo tablet:hidden -my-4 mr-4 flex cursor-pointer items-center justify-center gap-1 whitespace-nowrap"
+        href="/"
+        target="_self"
+        title={alternate || title}
+        aria-label={alternate || title}
+      >
+        {showLogo ? <LogoSvg className="h-8" /> : <p class="logo-text">{alternate || title}</p>}
+      </a>
+      <!-- Mobile: MobilePostHeader (shows heading on post pages, logo otherwise) -->
+      <div class="tablet:flex tablet:grow hidden items-center justify-center">
+        <MobilePostHeader
+          client:only="react"
+          isPostPage={isPostPage}
+          enableNumbering={tocNumbering}
+          logoElement={showLogo ? 'svg' : 'text'}
+          logoText={alternate || title}
+          logoSrc={logoSrc}
+        />
+      </div>
+      <Navigator client:load currentPath={Astro.url.pathname} locale={locale} />
     </div>
-    <Navigator client:load currentPath={Astro.url.pathname} locale={locale} />
   </div>
   {christmasConfig.enabled && christmasConfig.features.christmasCoverDecoration && <ChristmasLights />}
   {christmasConfig.enabled && <ChristmasOrnamentToggle client:only="react" />}
