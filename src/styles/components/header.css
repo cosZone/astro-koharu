@@ -24,13 +24,44 @@
   transition-timing-function: var(--ease-in-quart);
 }
 
-/* Sliding pill behind the hovered, focused or current navigation item (Motion owns its opacity). */
+/*
+  Sliding pill behind the hovered, focused or current navigation item. useGlideIndicator springs its
+  translate and width; CSS blooms it open where it first lands and shrinks it away when nothing is
+  targeted.
+*/
 .nav-indicator {
+  position: absolute;
+  inset-block: 0.25rem;
+  left: 0;
+  z-index: -1;
+  border-radius: 9999px;
   background-color: color-mix(in oklab, currentColor 18%, transparent);
+  pointer-events: none;
+}
+
+.nav-indicator[data-visible="false"] {
+  opacity: 0;
+  scale: 0.8 0.6;
 }
 
 #site-header.with-background .nav-indicator {
   background-color: hsl(var(--primary) / 0.14);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  html:is([data-motion="lively"], [data-motion="subtle"]) .nav-indicator {
+    transition:
+      opacity 200ms var(--ease-out-quart),
+      scale 480ms var(--ease-out-expo),
+      background-color 320ms var(--ease-out-quart);
+  }
+
+  html:is([data-motion="lively"], [data-motion="subtle"]) .nav-indicator[data-visible="false"] {
+    transition:
+      opacity 160ms var(--ease-in-quart),
+      scale 180ms var(--ease-in-quart),
+      background-color 320ms var(--ease-out-quart);
+  }
 }
 
 #site-header.with-background nav [aria-current="page"] {

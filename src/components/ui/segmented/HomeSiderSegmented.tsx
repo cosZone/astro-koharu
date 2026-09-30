@@ -40,10 +40,7 @@ export const HomeSiderSegmented = ({ className, ...props }: HomeSiderSegmentedPr
     <Segmented<HomeSiderSegmentType>
       {...props}
       options={options}
-      className={cn(
-        'flex w-fit cursor-pointer select-none rounded-sm bg-black/8 p-1 font-semibold text-xs backdrop-blur-lg',
-        className,
-      )}
+      className={cn('bg-foreground/6', className)}
       onChange={(value) => homeSiderSegmentType.set(value)}
     />
   );

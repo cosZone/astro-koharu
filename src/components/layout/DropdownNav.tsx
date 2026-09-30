@@ -4,15 +4,16 @@ import { Icon } from '@iconify/react';
 import { cn } from '@lib/utils';
 import { memo, useCallback, useState } from 'react';
 import { defaultLocale, localizedPath, resolveNavName, stripLocaleFromPath, t } from '@/i18n';
-import { NavIndicator } from './NavIndicator';
 
 interface DropdownNavProps {
   item: Router;
   currentPath: string;
   className?: string;
   locale?: string;
-  showIndicator?: boolean;
+  /** `data-glide-key` the header's sliding pill targets. */
+  glideKey?: string;
   onIntent?: () => void;
+  onOpenChange?: (open: boolean) => void;
 }
 
 const DropdownNavComponent = ({
@@ -20,10 +21,15 @@ const DropdownNavComponent = ({
   currentPath,
   className,
   locale = defaultLocale,
-  showIndicator = false,
+  glideKey,
   onIntent,
+  onOpenChange,
 }: DropdownNavProps) => {
   const [isOpen, setIsOpen] = useState(false);
+  const handleOpenChange = (open: boolean) => {
+    setIsOpen(open);
+    onOpenChange?.(open);
+  };
   const { icon, children } = item;
   const name = resolveNavName(item.nameKey, item.name, locale);
 
@@ -72,20 +78,23 @@ const DropdownNavComponent = ({
   );
 
   return (
-    <Popover open={isOpen} onOpenChange={setIsOpen} placement="bottom-start" trigger="hover" render={renderDropdownContent}>
+    <Popover
+      open={isOpen}
+      onOpenChange={handleOpenChange}
+      placement="bottom-start"
+      trigger="hover"
+      render={renderDropdownContent}
+    >
       <button
         type="button"
-        className={cn(
-          'relative isolate inline-flex h-10 items-center py-2 pr-5 pl-3 text-base tracking-wider outline-none',
-          className,
-        )}
+        className={cn('relative inline-flex h-10 items-center py-2 pr-5 pl-3 text-base tracking-wider outline-none', className)}
         aria-expanded={isOpen}
         aria-haspopup="true"
         aria-label={t(locale, 'common.menuLabel', { name })}
+        data-glide-key={glideKey}
         onPointerEnter={onIntent}
         onFocus={onIntent}
       >
-        <NavIndicator show={showIndicator} />
         {icon && (
           <span className="mr-1.5 inline-flex h-4 w-4 shrink-0 items-center justify-center">
             <Icon icon={icon} className="h-4 w-4" />

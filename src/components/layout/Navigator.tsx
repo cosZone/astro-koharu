@@ -5,10 +5,10 @@
  * Uses useScrollTrigger hook for optimized scroll handling.
  */
 
-import { LazyMotionProvider } from '@components/common/LazyMotionProvider';
 import ThemeToggle from '@components/theme/ThemeToggle';
 import { RESERVED_ROUTES } from '@constants/router';
 import { configuredSeriesSlugs, enabledSeriesSlugs, routers } from '@constants/site-config';
+import { useGlideIndicator } from '@hooks/useGlideIndicator';
 import { useIsTablet } from '@hooks/useMediaQuery';
 import { useScrollTrigger } from '@hooks/useScrollTrigger';
 import { Icon } from '@iconify/react';
@@ -17,7 +17,6 @@ import { memo, useEffect, useRef, useState } from 'react';
 import { defaultLocale, localizedPath, resolveNavName, stripLocaleFromPath } from '@/i18n';
 import DropdownNav from './DropdownNav';
 import LanguageSwitcher from './LanguageSwitcher';
-import { NavIndicator } from './NavIndicator';
 import { SearchTrigger } from './SearchDialog';
 
 interface NavigatorProps {
@@ -46,22 +45,22 @@ interface ButtonLinkProps {
   url: string;
   label: string;
   isActive: boolean;
-  showIndicator: boolean;
+  glideKey: string;
   onIntent: () => void;
   children: React.ReactNode;
 }
 
-function ButtonLink({ url, label, isActive, showIndicator, onIntent, children }: ButtonLinkProps) {
+function ButtonLink({ url, label, isActive, glideKey, onIntent, children }: ButtonLinkProps) {
   return (
     <a
       href={url}
       aria-label={label}
       aria-current={isActive ? 'page' : undefined}
+      data-glide-key={glideKey}
       onPointerEnter={onIntent}
       onFocus={onIntent}
-      className="relative isolate flex items-center px-3 py-2 text-base tracking-wider outline-none"
+      className="relative flex items-center px-3 py-2 text-base tracking-wider outline-none"
     >
-      <NavIndicator show={showIndicator} />
       {children}
     </a>
   );
@@ -79,13 +78,17 @@ const Navigator = memo(function Navigator({ currentPath, locale = defaultLocale 
 
   const firstScrollRef = useRef(true);
   const [intent, setIntent] = useState<string | null>(null);
+  // An open dropdown holds the pill on its trigger while the pointer is inside the menu.
+  const [openKey, setOpenKey] = useState<string | null>(null);
   const activeItem = filteredRouters.find((item) =>
     item.children?.length
       ? item.children.some((child) => child.path && strippedPath.startsWith(child.path))
       : item.path === strippedPath,
   );
   const activeKey = activeItem ? navKey(activeItem) : null;
-  const indicatorKey = intent ?? activeKey;
+  const navRef = useRef<HTMLElement>(null);
+  const indicatorRef = useRef<HTMLSpanElement>(null);
+  useGlideIndicator(navRef, indicatorRef, intent ?? openKey ?? activeKey);
 
   // Apply with-background class based on scroll position
   useEffect(() => {
@@ -124,47 +127,48 @@ const Navigator = memo(function Navigator({ currentPath, locale = defaultLocale 
   return (
     <div className="flex grow tablet:grow-0 items-center">
       {/* Desktop navigation */}
-      <LazyMotionProvider>
-        <nav
-          className="flex tablet:hidden grow items-center"
-          onPointerLeave={() => setIntent(null)}
-          onBlur={(event) => {
-            if (!event.currentTarget.contains(event.relatedTarget)) setIntent(null);
-          }}
-        >
-          {filteredRouters.map((item) => {
-            const displayName = resolveNavName(item.nameKey, item.name, locale);
-            const key = navKey(item);
-            if (item.children?.length) {
-              return (
-                <DropdownNav
-                  key={item.path ?? item.name}
-                  item={item}
-                  currentPath={currentPath}
-                  locale={locale}
-                  showIndicator={indicatorKey === key}
-                  onIntent={() => setIntent(key)}
-                />
-              );
-            }
-            if (!item.path || !displayName) return null;
-            const localizedUrl = item.localeIndependent ? item.path : localizedPath(item.path, locale);
+      <nav
+        ref={navRef}
+        className="relative isolate flex tablet:hidden grow items-center"
+        onPointerLeave={() => setIntent(null)}
+        onBlur={(event) => {
+          if (!event.currentTarget.contains(event.relatedTarget)) setIntent(null);
+        }}
+      >
+        <span ref={indicatorRef} aria-hidden="true" className="nav-indicator" />
+        {filteredRouters.map((item) => {
+          const displayName = resolveNavName(item.nameKey, item.name, locale);
+          const key = navKey(item);
+          if (item.children?.length) {
             return (
-              <ButtonLink
-                key={item.path}
-                url={localizedUrl}
-                label={displayName}
-                isActive={item.path === strippedPath}
-                showIndicator={indicatorKey === key}
+              <DropdownNav
+                key={item.path ?? item.name}
+                item={item}
+                currentPath={currentPath}
+                locale={locale}
+                glideKey={key}
                 onIntent={() => setIntent(key)}
-              >
-                {item.icon && <NavIcon name={item.icon} />}
-                {displayName}
-              </ButtonLink>
+                onOpenChange={(open) => setOpenKey((current) => (open ? key : current === key ? null : current))}
+              />
             );
-          })}
-        </nav>
-      </LazyMotionProvider>
+          }
+          if (!item.path || !displayName) return null;
+          const localizedUrl = item.localeIndependent ? item.path : localizedPath(item.path, locale);
+          return (
+            <ButtonLink
+              key={item.path}
+              url={localizedUrl}
+              label={displayName}
+              isActive={item.path === strippedPath}
+              glideKey={key}
+              onIntent={() => setIntent(key)}
+            >
+              {item.icon && <NavIcon name={item.icon} />}
+              {displayName}
+            </ButtonLink>
+          );
+        })}
+      </nav>
 
       <div className="ml-auto flex items-center gap-2">
         <SearchTrigger />
