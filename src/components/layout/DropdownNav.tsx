@@ -39,9 +39,9 @@ const DropdownNavComponent = ({
   // menu would stay open in a portal left behind on the old page.
   const renderDropdownContent = useCallback(
     ({ close }: { close: () => void }) => (
-      <div className="nav-dropdown flex flex-col">
+      <div className="nav-dropdown">
         {children?.length
-          ? children.map((child: Router, index) => {
+          ? children.map((child: Router) => {
               const childName = resolveNavName(child.nameKey, child.name, locale);
               const childUrl = child.path
                 ? child.localeIndependent
@@ -53,24 +53,15 @@ const DropdownNavComponent = ({
                   key={child.path}
                   href={childUrl}
                   onClick={close}
-                  className={cn(
-                    'group px-4 py-2 text-base outline-none transition-colors duration-300 hover:bg-gradient-shoka-button focus-visible:bg-gradient-shoka-button',
-                    {
-                      'rounded-ss-2xl': index === 0,
-                      'rounded-ee-2xl': index === children.length - 1,
-                      'bg-gradient-shoka-button': strippedPath === child.path,
-                    },
-                  )}
+                  aria-current={strippedPath === child.path ? 'page' : undefined}
+                  className="nav-dropdown-item text-base"
                 >
-                  <div
-                    className={cn(
-                      'flex items-center gap-2 transition-[translate,color] duration-300 ease-out-expo group-hover:translate-x-1 group-hover:text-white group-focus-visible:text-white',
-                      strippedPath === child.path ? 'text-white' : 'text-popover-foreground/85',
-                    )}
-                  >
-                    {child.icon && <Icon icon={child.icon} className="size-4" />}
-                    {childName}
-                  </div>
+                  {child.icon && (
+                    <span className="inline-flex size-4 shrink-0 items-center justify-center">
+                      <Icon icon={child.icon} className="size-4" />
+                    </span>
+                  )}
+                  {childName}
                 </a>
               );
             })
@@ -87,6 +78,7 @@ const DropdownNavComponent = ({
       placement="bottom-start"
       trigger="hover"
       render={renderDropdownContent}
+      className="nav-popover"
     >
       <button
         type="button"

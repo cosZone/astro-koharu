@@ -43,12 +43,13 @@
     background: transparent;
   }
 
+  /* Keep the hanging petal outside the thumb track, including at the scroll endpoint. */
   :is(html, html :not(body))::-webkit-scrollbar-track:vertical {
-    margin-block: 6px;
+    margin-block: 6px 18px;
   }
 
   :is(html, html :not(body))::-webkit-scrollbar-track:horizontal {
-    margin-inline: 6px;
+    margin-inline: 6px 18px;
   }
 
   :is(html, html :not(body))::-webkit-scrollbar-thumb {
@@ -61,18 +62,18 @@
     --scrollbar-live: 1;
   }
 
-  :is(html[data-scroll-active], html :is([data-scroll-active], :hover):not(body))::-webkit-scrollbar-track:vertical {
+  :is(html[data-scroll-active], html :is([data-scroll-active], :hover):not(body))::-webkit-scrollbar:vertical {
     background:
-      var(--silk-petal) no-repeat 50% 100% / 7px 8.4px,
-      linear-gradient(to right, transparent 3.5px, var(--silk-thread) 3.5px 4.5px, transparent 4.5px) no-repeat 0 0 / 100%
-      calc(100% - 6px);
+      var(--silk-petal) no-repeat 50% calc(100% - 6px) / 7px 8.4px,
+      linear-gradient(to right, transparent 3.5px, var(--silk-thread) 3.5px 4.5px, transparent 4.5px) no-repeat 0 6px / 100%
+      calc(100% - 18px);
   }
 
-  :is(html[data-scroll-active], html :is([data-scroll-active], :hover):not(body))::-webkit-scrollbar-track:horizontal {
+  :is(html[data-scroll-active], html :is([data-scroll-active], :hover):not(body))::-webkit-scrollbar:horizontal {
     background:
-      var(--silk-petal-side) no-repeat 100% 50% / 8.4px 7px,
-      linear-gradient(to bottom, transparent 3.5px, var(--silk-thread) 3.5px 4.5px, transparent 4.5px) no-repeat 0 0 /
-      calc(100% - 6px) 100%;
+      var(--silk-petal-side) no-repeat calc(100% - 6px) 50% / 8.4px 7px,
+      linear-gradient(to bottom, transparent 3.5px, var(--silk-thread) 3.5px 4.5px, transparent 4.5px) no-repeat 6px 0 /
+      calc(100% - 18px) 100%;
   }
 
   html :hover:not(body)::-webkit-scrollbar-thumb {

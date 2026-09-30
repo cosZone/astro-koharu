@@ -46,8 +46,8 @@ const LanguageSwitcherComponent = ({ locale: _ssrLocale, className }: LanguageSw
 
   const renderDropdownContent = useCallback(
     ({ close }: { close: () => void }) => (
-      <div className="flex flex-col">
-        {localeEntries.map((entry, index) => {
+      <div className="nav-dropdown">
+        {localeEntries.map((entry) => {
           const isActive = entry.code === locale;
           const targetUrl = getAlternateUrl(currentPath, entry.code);
           return (
@@ -55,28 +55,15 @@ const LanguageSwitcherComponent = ({ locale: _ssrLocale, className }: LanguageSw
               key={entry.code}
               href={targetUrl}
               onClick={close}
-              className={cn(
-                'group px-4 py-2 text-sm outline-none transition-colors duration-300 hover:bg-gradient-shoka-button focus-visible:bg-gradient-shoka-button',
-                {
-                  'rounded-ss-2xl': index === 0,
-                  'rounded-ee-2xl': index === localeEntries.length - 1,
-                  'bg-gradient-shoka-button': isActive,
-                },
-              )}
+              aria-current={isActive ? 'page' : undefined}
+              className="nav-dropdown-item text-sm"
             >
-              <div
-                className={cn(
-                  'flex items-center gap-2 transition-[translate,color] duration-300 ease-out-expo group-hover:translate-x-1 group-hover:text-white group-focus-visible:text-white',
-                  isActive ? 'text-white' : 'text-popover-foreground/85',
-                )}
-              >
-                {entry.label}
-                {isActive && (
-                  <span className="inline-flex size-3.5 shrink-0 items-center justify-center">
-                    <Icon icon="ri:check-line" className="size-3.5" />
-                  </span>
-                )}
-              </div>
+              {entry.label}
+              {isActive && (
+                <span className="ml-auto inline-flex size-3.5 shrink-0 items-center justify-center">
+                  <Icon icon="ri:check-line" className="size-3.5" />
+                </span>
+              )}
             </a>
           );
         })}
@@ -91,7 +78,7 @@ const LanguageSwitcherComponent = ({ locale: _ssrLocale, className }: LanguageSw
   }
 
   return (
-    <Popover placement="bottom-end" trigger="hover" render={renderDropdownContent}>
+    <Popover placement="bottom-end" trigger="hover" render={renderDropdownContent} className="nav-popover">
       <button
         type="button"
         className={cn(
