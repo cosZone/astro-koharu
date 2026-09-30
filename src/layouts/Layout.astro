@@ -45,7 +45,7 @@ const isPostPage = stripLocaleFromPath(Astro.url.pathname).startsWith('/post/');
 ---
 
 <!doctype html>
-<html transition:name="root" transition:animate={pageTransition} lang={getHtmlLang(locale)} class="vertical-scrollbar">
+<html transition:name="root" transition:animate={pageTransition} lang={getHtmlLang(locale)}>
   <head>
     <HeadMeta meta={meta} />
 

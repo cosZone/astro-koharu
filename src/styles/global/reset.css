@@ -1,10 +1,14 @@
 @layer reset {
+  /* Follow the site theme rather than the OS, so native scrollbars and controls match the page. */
   html {
-    color-scheme: light dark;
+    color-scheme: light;
     tab-size: 2;
     hanging-punctuation: first allow-end last;
     word-break: break-word;
     text-autospace: normal;
+  }
+  html.dark {
+    color-scheme: dark;
   }
 
   *,
@@ -133,10 +137,6 @@
     white-space: nowrap;
     width: 1px;
   }
-  :focus-visible {
-    outline-offset: 2px;
-  }
-
   /* 选中文本样式 */
   ::selection {
     background-color: var(--color-pink-a3);

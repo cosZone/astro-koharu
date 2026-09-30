@@ -1,0 +1,59 @@
+/*
+  Overlay scrollbars (macOS trackpads, phones, tablets) float over the content and fade by themselves,
+  and any ::-webkit-scrollbar styling would turn them into classic ones. So only classic, space-taking
+  scrollbars are restyled (BootScripts marks them as html[data-scrollbar="classic"]): a slim thumb that
+  stays hidden until its region scrolls or is hovered, and turns pink under the pointer. The page is
+  always hovered, so its thumb waits for scrolling or the pointer nearing the right edge instead
+  (src/lib/scrollbar-activity.ts sets data-scroll-active). <body> is left out because Chromium styles the
+  page scrollbar from <body> whenever <body> has scrollbar styles of its own.
+
+  Chromium ignores ::-webkit-scrollbar on elements with scrollbar-width or scrollbar-color, so the
+  standard properties are left to engines without the pseudo-elements (Firefox): thin native scrollbars.
+*/
+
+:is([data-scrollbar="classic"], [data-scrollbar="classic"] :not(body))::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+  background: transparent;
+}
+
+:is([data-scrollbar="classic"], [data-scrollbar="classic"] :not(body))::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+:is([data-scrollbar="classic"], [data-scrollbar="classic"] :not(body))::-webkit-scrollbar-thumb {
+  border: 2px solid transparent;
+  border-radius: 9999px;
+  background-color: transparent;
+  background-clip: padding-box;
+}
+
+/* Chromium restyles a nested scrollbar only when its element's own style changes, so :hover alone is not enough. */
+@property --scrollbar-live {
+  syntax: "<number>";
+  inherits: false;
+  initial-value: 0;
+}
+
+:is([data-scrollbar="classic"][data-scroll-active], [data-scrollbar="classic"] :is([data-scroll-active], :hover):not(body)) {
+  --scrollbar-live: 1;
+}
+
+:is(
+    [data-scrollbar="classic"][data-scroll-active],
+    [data-scrollbar="classic"] :is([data-scroll-active], :hover):not(body)
+  )::-webkit-scrollbar-thumb {
+  background-color: hsl(var(--foreground) / 0.2);
+}
+
+:is([data-scrollbar="classic"], [data-scrollbar="classic"] :not(body))::-webkit-scrollbar-thumb:hover,
+:is([data-scrollbar="classic"], [data-scrollbar="classic"] :not(body))::-webkit-scrollbar-thumb:active {
+  border-width: 1px;
+  background-color: hsl(var(--primary) / 0.6);
+}
+
+@supports not selector(::-webkit-scrollbar) {
+  :where(:not(.scrollbar-hidden)) {
+    scrollbar-width: thin;
+  }
+}

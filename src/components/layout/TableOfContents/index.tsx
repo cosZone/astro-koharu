@@ -42,7 +42,7 @@ export function TableOfContents({ defaultExpanded = false, enableNumbering = tru
 
   return (
     <nav
-      className={`toc-container vertical-scrollbar scroll-gutter-stable flex h-full flex-col gap-2 overflow-auto pr-1 md:pb-3 md:pl-1 ${enableNumbering ? '' : 'toc-no-numbering'}`}
+      className={`toc-container scroll-gutter-stable flex h-full flex-col gap-2 overflow-auto pr-1 md:pb-3 md:pl-1 ${enableNumbering ? '' : 'toc-no-numbering'}`}
       aria-label={t('toc.title')}
     >
       <LazyMotionProvider>

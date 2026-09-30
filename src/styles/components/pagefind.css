@@ -93,8 +93,6 @@
 
 :is(*, #\#):is(*, #\#):is(*, #\#) .search-dialog .pf-searchbox-results {
   padding: 0.5rem;
-  scrollbar-width: thin;
-  scrollbar-color: hsl(var(--primary) / 0.3) transparent;
 }
 
 :is(*, #\#):is(*, #\#):is(*, #\#) .search-dialog .pf-searchbox-result {

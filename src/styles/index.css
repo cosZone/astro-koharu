@@ -5,6 +5,7 @@
 @import "./global/animate.css";
 @import "./global/motion.css";
 @import "./global/tailwind.css";
+@import "./global/scrollbar.css";
 
 @import "./theme/markdown.css";
 @import "./theme/shoka-effects.css";

@@ -53,7 +53,7 @@ const nextPost = adjacentPosts.nextPost ? toPostRef(adjacentPosts.nextPost) : nu
   }
 
   <sider-content
-    class="vertical-scrollbar flex-1 overflow-x-hidden overflow-y-auto"
+    class="flex-1 overflow-x-hidden overflow-y-auto"
     data-type={type}
     data-default-type={defaultSegmentType}
   >
@@ -225,43 +225,6 @@ const nextPost = adjacentPosts.nextPost ? toPostRef(adjacentPosts.nextPost) : nu
 
   sider-content {
     position: relative;
-  }
-
-  /*
-   * Side-pane scrollbars stay out of sight until the pane is hovered. The global .vertical-scrollbar
-   * styling forces a permanent classic scrollbar, which reads as a pink rule running down the sider.
-   */
-  .page-home-sider sider-content::-webkit-scrollbar,
-  .page-home-sider :global(.toc-container)::-webkit-scrollbar {
-    background: transparent;
-  }
-
-  .page-home-sider sider-content::-webkit-scrollbar-thumb,
-  .page-home-sider :global(.toc-container)::-webkit-scrollbar-thumb {
-    background: transparent;
-  }
-
-  .page-home-sider:hover sider-content::-webkit-scrollbar-thumb,
-  .page-home-sider:hover :global(.toc-container)::-webkit-scrollbar-thumb {
-    background: hsl(var(--foreground) / 0.16);
-  }
-
-  .page-home-sider sider-content::-webkit-scrollbar-thumb:hover,
-  .page-home-sider :global(.toc-container)::-webkit-scrollbar-thumb:hover {
-    background: hsl(var(--primary) / 0.5);
-  }
-
-  @supports not selector(::-webkit-scrollbar) {
-    .page-home-sider sider-content,
-    .page-home-sider :global(.toc-container) {
-      scrollbar-width: thin;
-      scrollbar-color: transparent transparent;
-    }
-
-    .page-home-sider:hover sider-content,
-    .page-home-sider:hover :global(.toc-container) {
-      scrollbar-color: hsl(var(--foreground) / 0.2) transparent;
-    }
   }
 
   .sider-slot {
