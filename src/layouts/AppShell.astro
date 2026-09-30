@@ -52,3 +52,9 @@ const { post, siderType, isPostPage } = Astro.props;
   <AnnouncementProvider />
   <CodePenEmbed />
 </div>
+
+<script>
+  import { setupMorphTransitions } from '@lib/morph-transitions';
+
+  setupMorphTransitions();
+</script>

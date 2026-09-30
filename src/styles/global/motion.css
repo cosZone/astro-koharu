@@ -48,17 +48,42 @@ html[data-motion="subtle"] {
   }
 
   @supports (animation-timeline: view()) {
-    /* Scroll-linked reveal; the scroller must be a real scroll container (use overflow: clip on wrappers). */
+    /*
+      Scroll-linked reveal. A fixed-length range finishes within the bottom band of the viewport
+      whatever the element's height, so tall blocks never stay translucent while being read.
+      Wrappers must use overflow: clip, not hidden, or they become the (static) scroller.
+    */
     html:is([data-motion="lively"], [data-motion="subtle"]) .motion-reveal,
     html[data-motion="lively"] .motion-reveal-lively > * {
       animation: motion-rise var(--ease-out-quart) both;
       animation-timeline: view();
-      animation-range: entry 0% entry 90%;
+      animation-range: entry 0% entry 8rem;
     }
 
     html[data-motion="lively"] .motion-reveal-lively > * {
       --rise-y: 1rem;
     }
+  }
+}
+
+/* Shared-element morphs (e.g. post card title → cover title) between ClientRouter pages. */
+::view-transition-group(*) {
+  animation-duration: 520ms;
+  animation-timing-function: var(--ease-in-out-quart);
+}
+
+html[data-motion="reduced"]::view-transition-group(*),
+html[data-motion="reduced"]::view-transition-old(*),
+html[data-motion="reduced"]::view-transition-new(*) {
+  animation-duration: 0s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    /* biome-ignore lint/complexity/noImportantStyles: Astro injects per-page animation rules after this sheet. */
+    animation-duration: 0s !important;
   }
 }
 

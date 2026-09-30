@@ -1,0 +1,116 @@
+---
+/**
+ * Falling sakura petals over a page cover.
+ * Persisted across navigations so the petals keep drifting instead of restarting;
+ * only animates at the `lively` motion level while the cover is on screen.
+ */
+---
+
+<sakura-petals class="pointer-events-none absolute inset-0" aria-hidden="true" transition:persist="cover-petals">
+  <canvas class="block h-full w-full"></canvas>
+</sakura-petals>
+
+<script>
+  import { readMotionLevel, subscribeMotionLevel } from '@lib/motion-level';
+  import { PetalField } from '@lib/sakura/petal-field';
+
+  const FADE_MS = 900;
+
+  const whenIdle = (callback: () => void) =>
+    'requestIdleCallback' in window ? requestIdleCallback(callback, { timeout: 1500 }) : setTimeout(callback, 600);
+
+  class SakuraPetals extends HTMLElement {
+    private field: PetalField | null = null;
+    private ready = false;
+    private visible = false;
+    private stopTimer = 0;
+    private cleanups: Array<() => void> = [];
+
+    connectedCallback() {
+      const canvas = this.querySelector('canvas');
+      if (!canvas) return;
+      if (!this.field) {
+        try {
+          this.field = new PetalField(canvas);
+        } catch {
+          return;
+        }
+      }
+      const field = this.field;
+
+      const resizeObserver = new ResizeObserver(([entry]) => {
+        field.resize(entry.contentRect.width, entry.contentRect.height);
+      });
+      resizeObserver.observe(this);
+
+      const intersectionObserver = new IntersectionObserver(([entry]) => {
+        this.visible = entry.isIntersecting;
+        this.sync();
+      });
+      intersectionObserver.observe(this);
+
+      const onVisibilityChange = () => this.sync();
+      const onPointerMove = (event: PointerEvent) => {
+        if (event.pointerType === 'mouse') field.brush(event.clientX, event.clientY);
+      };
+      document.addEventListener('visibilitychange', onVisibilityChange);
+      window.addEventListener('pointermove', onPointerMove, { passive: true });
+      const unsubscribe = subscribeMotionLevel(() => this.sync());
+
+      this.cleanups = [
+        () => resizeObserver.disconnect(),
+        () => intersectionObserver.disconnect(),
+        () => document.removeEventListener('visibilitychange', onVisibilityChange),
+        () => window.removeEventListener('pointermove', onPointerMove),
+        unsubscribe,
+      ];
+
+      if (this.ready) {
+        this.sync();
+      } else {
+        whenIdle(() => {
+          this.ready = true;
+          this.sync();
+        });
+      }
+    }
+
+    disconnectedCallback() {
+      for (const cleanup of this.cleanups) cleanup();
+      this.cleanups = [];
+      window.clearTimeout(this.stopTimer);
+      this.field?.stop();
+    }
+
+    private sync() {
+      const field = this.field;
+      if (!field) return;
+      const onScreen = this.visible && document.visibilityState === 'visible';
+      const allowed =
+        this.ready && readMotionLevel() === 'lively' && !document.documentElement.classList.contains('christmas');
+      this.classList.toggle('is-active', allowed);
+      window.clearTimeout(this.stopTimer);
+      if (allowed && onScreen) {
+        field.start();
+      } else if (!onScreen) {
+        field.stop();
+      } else {
+        // Keep drifting while the canvas fades out after a motion-level change.
+        this.stopTimer = window.setTimeout(() => field.stop(), FADE_MS);
+      }
+    }
+  }
+
+  if (!customElements.get('sakura-petals')) customElements.define('sakura-petals', SakuraPetals);
+</script>
+
+<style>
+  sakura-petals {
+    opacity: 0;
+    transition: opacity 900ms var(--ease-out-quart);
+  }
+
+  sakura-petals.is-active {
+    opacity: 1;
+  }
+</style>

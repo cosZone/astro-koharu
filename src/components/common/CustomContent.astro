@@ -18,7 +18,7 @@ const spoilerRevealLabel = t(getLocaleFromUrl(Astro.url.pathname), 'content.reve
 ---
 
 <div
-  class:list={['custom-content', { 'relative z-5': christmasConfig.enabled && christmasConfig.features.snowfall }]}
+  class:list={['custom-content motion-reveal-lively', { 'relative z-5': christmasConfig.enabled && christmasConfig.features.snowfall }]}
   data-config={JSON.stringify(finalConfig)}
   data-spoiler-reveal-label={spoilerRevealLabel}
 >

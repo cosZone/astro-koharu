@@ -26,7 +26,7 @@ const description = t(locale, 'bangumi.description');
     <Cover slot="cover" title={t(locale, 'bangumi.title')} />
     <HomeSider slot="sider" />
     <div
-      class={`bg-gradient-start shadow-box tablet:shadow-none flex flex-col overflow-hidden ${CONTENT_PADDING.standard}`}
+      class={`bg-gradient-start shadow-box tablet:shadow-none flex flex-col overflow-clip ${CONTENT_PADDING.standard}`}
     >
       <BangumiCollection client:load userId={bangumiConfig.userId} />
       <Comment />

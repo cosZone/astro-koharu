@@ -25,7 +25,7 @@ const description = t(locale, 'friends.title');
     <Cover slot="cover" title={t(locale, 'friends.title')} />
     <HomeSider slot="sider" />
     <div
-      class={`bg-gradient-start shadow-box tablet:shadow-none flex flex-col gap-10 overflow-hidden ${CONTENT_PADDING.standard}`}
+      class={`bg-gradient-start shadow-box tablet:shadow-none flex flex-col gap-10 overflow-clip ${CONTENT_PADDING.standard}`}
     >
       <div class="mt-4">
         <FriendsGrid client:load />

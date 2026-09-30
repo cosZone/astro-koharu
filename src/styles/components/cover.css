@@ -1,0 +1,73 @@
+/* Page cover: scrim, title choreography and scroll depth. */
+
+/*
+  Light-weight scrim: the artwork stays vivid at the edges while a soft pool of shade
+  behind the title and under the navigation keeps white text legible.
+*/
+.cover-scrim {
+  --scrim: 24 10 22;
+  background:
+    radial-gradient(ellipse 62% 52% at 50% 44%, rgb(var(--scrim) / 0.34), transparent 72%),
+    linear-gradient(to bottom, rgb(var(--scrim) / 0.38), rgb(var(--scrim) / 0) 24%), rgb(var(--scrim) / 0.14);
+}
+
+.dark .cover-scrim {
+  --scrim: 16 10 30;
+  background:
+    radial-gradient(ellipse 62% 52% at 50% 44%, rgb(var(--scrim) / 0.42), transparent 72%),
+    linear-gradient(to bottom, rgb(var(--scrim) / 0.46), rgb(var(--scrim) / 0) 26%), rgb(var(--scrim) / 0.3);
+}
+
+.cover-copy {
+  --rise-y: 1.75rem;
+  --rise-blur: 10px;
+  --rise-delay: 120ms;
+  --stagger: 110ms;
+}
+
+.cover-copy :is(h1, h2) {
+  text-shadow:
+    0 0.15rem 0.35rem rgb(28 8 20 / 0.45),
+    0 0.4rem 1.6rem rgb(233 84 107 / 0.35);
+}
+
+@media screen and (prefers-reduced-motion: no-preference) {
+  html:is([data-motion="lively"], [data-motion="subtle"]) .cover-hero .wave-wrap {
+    animation: cover-tide calc(var(--dur-enter) * 1.4) var(--ease-out-expo) both;
+    animation-delay: 80ms;
+  }
+
+  @supports (animation-timeline: scroll()) {
+    /* The banner drifts slower than the page and the title lifts away as the cover scrolls off. */
+    html:is([data-motion="lively"], [data-motion="subtle"]) #banner-box > img {
+      animation: cover-drift linear both;
+      animation-timeline: scroll(root block);
+      animation-range: 0 100dvh;
+    }
+
+    html:is([data-motion="lively"], [data-motion="subtle"]) .cover-copy {
+      animation: cover-copy-out linear both;
+      animation-timeline: scroll(root block);
+      animation-range: 0 50dvh;
+    }
+  }
+}
+
+@keyframes cover-tide {
+  from {
+    translate: 0 calc(45% * var(--motion-travel));
+  }
+}
+
+@keyframes cover-drift {
+  to {
+    translate: 0 calc(26dvh * var(--motion-travel));
+  }
+}
+
+@keyframes cover-copy-out {
+  to {
+    opacity: 0;
+    translate: 0 calc(-9dvh * var(--motion-travel));
+  }
+}
