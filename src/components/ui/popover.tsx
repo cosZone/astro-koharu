@@ -83,12 +83,15 @@ function Popover({
           <FloatingPortal>
             <FloatingFocusManager context={context} modal={false}>
               <m.div
-                className={cn('z-30 rounded-ss-2xl rounded-ee-2xl bg-black/30 backdrop-blur-sm', className)}
-                initial={{ opacity: 0, scale: 0.85 }}
-                animate={{ opacity: 1, scale: 1, originY: 0 }}
-                exit={{ opacity: 0, scale: 0.85 }}
-                transition={animation.spring.popoverContent}
-                style={{ ...floatingStyles }}
+                className={cn(
+                  'z-30 overflow-hidden rounded-ss-2xl rounded-ee-2xl bg-popover/85 text-popover-foreground shadow-lg ring-1 ring-primary/15 backdrop-blur-xl',
+                  className,
+                )}
+                initial={{ opacity: 0, scale: 0.92, y: -6 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.96, y: -4, transition: { duration: 0.14, ease: animation.bezier.inQuart } }}
+                transition={animation.spring.popover}
+                style={{ ...floatingStyles, transformOrigin: placement?.endsWith('end') ? 'top right' : 'top left' }}
                 {...motionProps}
                 {...getFloatingProps({ ref: refs.setFloating })}
               >

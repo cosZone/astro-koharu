@@ -2,11 +2,14 @@
  * ThemeToggle Component
  *
  * A sun/moon toggle for switching between light and dark themes.
- * Features View Transitions API for smooth theme changes.
+ * The new theme is revealed as a circle growing from the button (View Transitions API).
  *
  * Inspired by https://codepen.io/aaroniker/pen/raaMMGx
  */
 
+import { useIsMounted } from '@hooks/useIsMounted';
+import { useTranslation } from '@hooks/useTranslation';
+import { cn } from '@lib/utils';
 import { useCallback, useEffect, useState } from 'react';
 import './theme-toggle.css';
 
@@ -14,13 +17,8 @@ import './theme-toggle.css';
  * Hook to manage theme state
  */
 function useTheme() {
-  const [isDark, setIsDark] = useState(() => {
-    // Initialize from DOM on client
-    if (typeof document !== 'undefined') {
-      return document.documentElement.classList.contains('dark');
-    }
-    return false;
-  });
+  // Starts false to match the server render; the effect below syncs it from <html class="dark">.
+  const [isDark, setIsDark] = useState(false);
 
   // Sync with DOM changes (e.g., from other tabs or initial state)
   useEffect(() => {
@@ -52,66 +50,70 @@ function useTheme() {
     localStorage.setItem('theme', theme);
   }, []);
 
-  const toggle = useCallback(() => {
-    const newIsDark = !isDark;
-    const rootElement = document.documentElement;
+  const toggle = useCallback(
+    (origin: HTMLElement) => {
+      const newIsDark = !isDark;
+      const rootElement = document.documentElement;
 
-    // Add theme transition class
-    rootElement.classList.add('theme-transition');
+      if (!document.startViewTransition) {
+        applyTheme(newIsDark);
+        setIsDark(newIsDark);
+        return;
+      }
 
-    // Use View Transitions API if available
-    if (!document.startViewTransition) {
-      // Fallback for browsers without View Transitions API
-      applyTheme(newIsDark);
-      setIsDark(newIsDark);
-      setTimeout(() => {
+      // The reveal circle starts at the button and must reach the farthest viewport corner.
+      const rect = origin.getBoundingClientRect();
+      const x = rect.left + rect.width / 2;
+      const y = rect.top + rect.height / 2;
+      const radius = Math.hypot(Math.max(x, window.innerWidth - x), Math.max(y, window.innerHeight - y));
+      rootElement.style.setProperty('--theme-x', `${x}px`);
+      rootElement.style.setProperty('--theme-y', `${y}px`);
+      rootElement.style.setProperty('--theme-r', `${radius}px`);
+      rootElement.classList.add('theme-transition');
+
+      const transition = document.startViewTransition(() => {
+        applyTheme(newIsDark);
+        setIsDark(newIsDark);
+      });
+
+      transition.finished.finally(() => {
         rootElement.classList.remove('theme-transition');
-      }, 100);
-      return;
-    }
-
-    const transition = document.startViewTransition(() => {
-      applyTheme(newIsDark);
-      setIsDark(newIsDark);
-    });
-
-    transition.finished.finally(() => {
-      rootElement.classList.remove('theme-transition');
-    });
-  }, [isDark, applyTheme]);
+      });
+    },
+    [isDark, applyTheme],
+  );
 
   return { isDark, toggle };
 }
 
 interface ThemeToggleProps {
   className?: string;
+  /** Page locale for server-rendered islands (avoids a hydration text mismatch). */
+  locale?: string;
 }
 
-export default function ThemeToggle({ className }: ThemeToggleProps) {
+export default function ThemeToggle({ className, locale }: ThemeToggleProps) {
+  const { t } = useTranslation(locale);
   const { isDark, toggle } = useTheme();
-
-  const handleChange = () => {
-    toggle();
-  };
-
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' || e.key === ' ') {
-      e.preventDefault();
-      toggle();
-    }
-  };
+  const isMounted = useIsMounted();
+  const label = t('common.toggleTheme');
 
   return (
     <button
-      className={`theme-toggle scale-80 cursor-pointer transition duration-300 hover:scale-90 ${className || ''}`}
-      aria-label="toggle theme"
-      onKeyDown={handleKeyDown}
+      className={cn(
+        'theme-toggle size-10 flex-center cursor-pointer rounded-full transition-[background-color,scale] duration-200 ease-out-quart hover:bg-current/15 active:scale-90',
+        className,
+      )}
+      aria-label={label}
+      aria-pressed={isMounted ? isDark : undefined}
+      title={label}
       type="button"
+      onClick={(event) => toggle(event.currentTarget)}
     >
-      <label className="toggle block cursor-pointer" aria-label="toggle theme">
-        <input type="checkbox" className="hidden" checked={isDark} onChange={handleChange} />
-        <div className="toggle-indicator" />
-      </label>
+      <span className="toggle block scale-80">
+        {/* The sun/moon state follows html.dark in CSS, so it is correct from the first paint. */}
+        <span className="toggle-indicator block" />
+      </span>
     </button>
   );
 }

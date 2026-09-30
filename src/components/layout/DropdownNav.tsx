@@ -4,15 +4,25 @@ import { Icon } from '@iconify/react';
 import { cn } from '@lib/utils';
 import { memo, useCallback, useState } from 'react';
 import { defaultLocale, localizedPath, resolveNavName, stripLocaleFromPath, t } from '@/i18n';
+import { NavIndicator } from './NavIndicator';
 
 interface DropdownNavProps {
   item: Router;
   currentPath: string;
   className?: string;
   locale?: string;
+  showIndicator?: boolean;
+  onIntent?: () => void;
 }
 
-const DropdownNavComponent = ({ item, currentPath, className, locale = defaultLocale }: DropdownNavProps) => {
+const DropdownNavComponent = ({
+  item,
+  currentPath,
+  className,
+  locale = defaultLocale,
+  showIndicator = false,
+  onIntent,
+}: DropdownNavProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const { icon, children } = item;
   const name = resolveNavName(item.nameKey, item.name, locale);
@@ -35,15 +45,20 @@ const DropdownNavComponent = ({ item, currentPath, className, locale = defaultLo
                   key={child.path}
                   href={childUrl}
                   className={cn(
-                    'group px-4 py-2 text-base outline-hidden transition-colors duration-300 hover:bg-gradient-shoka-button',
+                    'group px-4 py-2 text-base outline-none transition-colors duration-300 hover:bg-gradient-shoka-button focus-visible:bg-gradient-shoka-button',
                     {
                       'rounded-ss-2xl': index === 0,
                       'rounded-ee-2xl': index === children.length - 1,
-                      'bg-gradient-shoka-button text-muted': strippedPath === child.path,
+                      'bg-gradient-shoka-button': strippedPath === child.path,
                     },
                   )}
                 >
-                  <div className="flex items-center gap-2 text-white transition-all duration-300 group-hover:translate-x-0.5 group-hover:text-white">
+                  <div
+                    className={cn(
+                      'flex items-center gap-2 transition-[translate,color] duration-300 ease-out-expo group-hover:translate-x-1 group-hover:text-white group-focus-visible:text-white',
+                      strippedPath === child.path ? 'text-white' : 'text-popover-foreground/85',
+                    )}
+                  >
                     {child.icon && <Icon icon={child.icon} className="size-4" />}
                     {childName}
                   </div>
@@ -61,15 +76,16 @@ const DropdownNavComponent = ({ item, currentPath, className, locale = defaultLo
       <button
         type="button"
         className={cn(
-          'inline-flex h-10 items-center px-4 py-2 text-base tracking-wider',
-          'relative after:absolute after:bottom-1 after:left-1/2 after:h-0.5 after:w-0',
-          'after:-translate-x-1/2 after:bg-white after:transition-all after:duration-300 after:content-[""]',
+          'relative isolate inline-flex h-10 items-center py-2 pr-5 pl-3 text-base tracking-wider outline-none',
           className,
         )}
         aria-expanded={isOpen}
         aria-haspopup="true"
         aria-label={t(locale, 'common.menuLabel', { name })}
+        onPointerEnter={onIntent}
+        onFocus={onIntent}
       >
+        <NavIndicator show={showIndicator} />
         {icon && (
           <span className="mr-1.5 inline-flex h-4 w-4 shrink-0 items-center justify-center">
             <Icon icon={icon} className="h-4 w-4" />
@@ -78,7 +94,7 @@ const DropdownNavComponent = ({ item, currentPath, className, locale = defaultLo
         {name}
         <Icon
           icon="ri:arrow-drop-down-fill"
-          className={cn('absolute -right-1.5 size-6 transition-transform duration-300', {
+          className={cn('absolute right-0 size-6 transition-transform duration-300 ease-out-expo', {
             'rotate-180': isOpen,
           })}
         />

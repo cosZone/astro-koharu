@@ -215,8 +215,11 @@ const nextPost = adjacentPosts.nextPost ? toPostRef(adjacentPosts.nextPost) : nu
    */
   @media (width > 992px) {
     :global(body:has(#site-header:not(.-translate-y-full))) .page-home-sider {
-      top: 3.5rem;
-      height: calc(100vh - 3.5rem);
+      top: 4.25rem;
+      height: calc(100vh - 4.25rem);
+      transition:
+        top 480ms var(--ease-out-expo),
+        height 480ms var(--ease-out-expo);
     }
   }
 

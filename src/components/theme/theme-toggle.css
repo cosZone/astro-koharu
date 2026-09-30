@@ -53,7 +53,7 @@
 }
 
 /* Dark mode (moon) */
-input:checked + .toggle-indicator {
+.dark .toggle-indicator {
   box-shadow: inset 32px -32px 0 0 var(--theme-background-color, #17181c);
   transform: scale(0.5) rotate(0deg);
   transition:
@@ -61,12 +61,12 @@ input:checked + .toggle-indicator {
     box-shadow 0.2s ease 0s;
 }
 
-input:checked + .toggle-indicator::before {
+.dark .toggle-indicator::before {
   background: var(--theme-toggle-color, #ffbb52);
   transition: background 0.3s ease 0.1s;
 }
 
-input:checked + .toggle-indicator::after {
+.dark .toggle-indicator::after {
   transform: scale(1.5);
   transition: transform 0.5s ease 0.15s;
 }

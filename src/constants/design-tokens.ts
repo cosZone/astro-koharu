@@ -341,6 +341,21 @@ export const animation = {
       damping: 30,
     },
 
+    // Menus and popovers: quick, settled entrance
+    popover: {
+      type: 'spring' as const,
+      stiffness: 460,
+      damping: 32,
+    },
+
+    // Navigation pill: glides between items without overshoot
+    nav: {
+      type: 'spring' as const,
+      stiffness: 480,
+      damping: 38,
+      mass: 0.9,
+    },
+
     // Playful pop for lively-level entrances (floating buttons, badges)
     pop: {
       type: 'spring' as const,

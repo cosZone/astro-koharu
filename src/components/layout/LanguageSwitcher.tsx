@@ -55,15 +55,20 @@ const LanguageSwitcherComponent = ({ locale: _ssrLocale, className }: LanguageSw
               key={entry.code}
               href={targetUrl}
               className={cn(
-                'group px-4 py-2 text-sm outline-hidden transition-colors duration-300 hover:bg-gradient-shoka-button',
+                'group px-4 py-2 text-sm outline-none transition-colors duration-300 hover:bg-gradient-shoka-button focus-visible:bg-gradient-shoka-button',
                 {
                   'rounded-ss-2xl': index === 0,
                   'rounded-ee-2xl': index === localeEntries.length - 1,
-                  'bg-gradient-shoka-button text-muted': isActive,
+                  'bg-gradient-shoka-button': isActive,
                 },
               )}
             >
-              <div className="flex items-center gap-2 text-white transition-all duration-300 group-hover:translate-x-0.5 group-hover:text-white">
+              <div
+                className={cn(
+                  'flex items-center gap-2 transition-[translate,color] duration-300 ease-out-expo group-hover:translate-x-1 group-hover:text-white group-focus-visible:text-white',
+                  isActive ? 'text-white' : 'text-popover-foreground/85',
+                )}
+              >
                 {entry.label}
                 {isActive && (
                   <span className="inline-flex size-3.5 shrink-0 items-center justify-center">
@@ -88,13 +93,16 @@ const LanguageSwitcherComponent = ({ locale: _ssrLocale, className }: LanguageSw
     <Popover placement="bottom-end" trigger="hover" render={renderDropdownContent}>
       <button
         type="button"
-        className={cn('cursor-pointer transition duration-300 hover:scale-110', className)}
+        className={cn(
+          'size-10 flex-center cursor-pointer rounded-full transition-[background-color,scale] duration-200 ease-out-quart hover:bg-current/15 active:scale-90',
+          className,
+        )}
         aria-label={`Language: ${currentLabel}`}
         aria-haspopup="true"
       >
         {/* 图标数据异步加载，固定尺寸容器保证 SSR/加载前后几何不变，避免 popover 重定位 */}
-        <span className="inline-flex size-8 items-center justify-center">
-          <Icon icon="ri:translate" className="size-8" />
+        <span className="inline-flex size-7 items-center justify-center">
+          <Icon icon="ri:translate" className="size-7" />
         </span>
       </button>
     </Popover>

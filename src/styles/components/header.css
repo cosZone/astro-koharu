@@ -1,0 +1,109 @@
+/*
+  Site header. Over the cover it stays transparent; once scrolled (.with-background) the
+  desktop header condenses into a floating capsule while the mobile header keeps its bar.
+  The capsule is a pseudo-element around the unchanged content box, so the change never
+  touches layout.
+*/
+
+#site-header {
+  transition: translate 480ms var(--ease-out-expo);
+}
+
+/* Hiding accelerates away quickly; revealing settles in more slowly. */
+#site-header.-translate-y-full {
+  transition-duration: 260ms;
+  transition-timing-function: var(--ease-in-quart);
+}
+
+/* Sliding pill behind the hovered, focused or current navigation item (Motion owns its opacity). */
+.nav-indicator {
+  background-color: color-mix(in oklab, currentColor 18%, transparent);
+}
+
+#site-header.with-background .nav-indicator {
+  background-color: hsl(var(--primary) / 0.14);
+}
+
+#site-header.with-background nav [aria-current="page"] {
+  color: hsl(var(--primary));
+}
+
+@media (width > 992px) {
+  #site-header.-translate-y-full {
+    translate: 0 calc(-100% - 1.5rem);
+  }
+
+  .header-inner {
+    position: relative;
+    isolation: isolate;
+    transition: translate 520ms var(--ease-out-expo);
+  }
+
+  .header-inner::before {
+    content: "";
+    position: absolute;
+    inset: -0.375rem -1.25rem;
+    z-index: -1;
+    border: 1px solid hsl(var(--primary) / 0.16);
+    border-radius: 9999px;
+    background: color-mix(in oklab, var(--gradient-bg-start) 78%, transparent);
+    box-shadow:
+      0 0.75rem 2rem -1rem rgb(233 84 107 / 0.3),
+      0 0.25rem 0.75rem -0.5rem rgb(40 20 40 / 0.12);
+    backdrop-filter: blur(16px) saturate(1.5);
+    opacity: 0;
+    scale: 0.96 0.85;
+    pointer-events: none;
+    transition:
+      opacity 320ms var(--ease-out-quart),
+      scale 560ms var(--ease-out-expo);
+  }
+
+  .dark .header-inner::before {
+    border-color: hsl(var(--primary) / 0.22);
+    box-shadow:
+      0 0.75rem 2rem -1rem rgb(0 0 0 / 0.65),
+      inset 0 1px 0 rgb(255 255 255 / 0.04);
+  }
+
+  #site-header.with-background {
+    border-bottom-color: transparent;
+  }
+
+  #site-header.with-background::before {
+    opacity: 0;
+  }
+
+  #site-header.with-background .header-inner {
+    translate: 0 0.375rem;
+  }
+
+  #site-header.with-background .header-inner::before {
+    opacity: 1;
+    scale: 1;
+  }
+}
+
+@media (992px >= width) {
+  #site-header.with-background {
+    border-bottom-color: transparent;
+    box-shadow: 0 0.5rem 1.5rem -1rem rgb(233 84 107 / 0.4);
+  }
+
+  #site-header.with-background::before {
+    opacity: 0.92;
+  }
+}
+
+.site-logo svg {
+  transition:
+    scale 420ms var(--ease-out-expo),
+    rotate 420ms var(--ease-out-expo);
+}
+
+@media (hover: hover) {
+  .site-logo:hover svg {
+    scale: 1.06;
+    rotate: -3deg;
+  }
+}

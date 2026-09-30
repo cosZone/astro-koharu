@@ -1,12 +1,11 @@
-/* 主题过渡动画样式 - 渐变扫过效果 */
+/* 主题过渡动画：新主题从切换按钮处以圆形扩散揭示（--theme-x/y/r 由 ThemeToggle 写入） */
 
-/* 渐变遮罩从左向右扫过 */
-@keyframes gradient-sweep {
+@keyframes theme-reveal {
   from {
-    mask-position: 100% 0;
+    clip-path: circle(0 at var(--theme-x, 50%) var(--theme-y, 0));
   }
   to {
-    mask-position: 0 0;
+    clip-path: circle(var(--theme-r, 150vmax) at var(--theme-x, 50%) var(--theme-y, 0));
   }
 }
 
@@ -30,20 +29,19 @@ html.theme-transition::view-transition-old(root) {
   object-position: left top;
 }
 
-/* 新主题通过渐变遮罩从左到右揭示 */
+/* 新主题从按钮位置圆形扩散 */
 html.theme-transition::view-transition-new(root) {
-  mask-image: linear-gradient(to right, black 40%, transparent 60%);
-  mask-size: 300% 100%;
-  animation: gradient-sweep 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  animation: theme-reveal 640ms var(--ease-in-out-quart) both;
   z-index: 1;
   height: 100%;
   object-fit: cover;
   object-position: left top;
 }
 
-/* During theme transition, merge header into root snapshot */
-html.theme-transition #site-header {
-  view-transition-name: none;
+/* During a theme switch every named element (header, sider, post titles) joins the root snapshot so the reveal stays uniform. */
+html.theme-transition * {
+  /* biome-ignore lint/complexity/noImportantStyles: must beat Astro's scoped transition names and inline view-transition-name styles. */
+  view-transition-name: none !important;
 }
 
 /* 尊重用户的减少动画偏好 */
