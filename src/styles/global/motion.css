@@ -83,6 +83,11 @@ html[data-motion="subtle"] {
   animation-timing-function: var(--ease-in-out-quart);
 }
 
+/* Group morphs scale their image pair from the top-left (see compositeGroupMorphs). */
+::view-transition-image-pair(*) {
+  transform-origin: 0 0;
+}
+
 html[data-motion="reduced"]::view-transition-group(*),
 html[data-motion="reduced"]::view-transition-old(*),
 html[data-motion="reduced"]::view-transition-new(*) {

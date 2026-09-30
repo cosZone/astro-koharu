@@ -27,6 +27,37 @@ function unname(element: HTMLElement): void {
   element.style.viewTransitionName = 'none';
 }
 
+/**
+ * The UA morphs every named group by animating its width and height, which only runs on the main
+ * thread, so a flying title stalls whenever a long incoming page is still rendering. Each morph is
+ * replaced by its transform-only equivalent, which the compositor runs on its own: the group only
+ * translates, and the image pair (laid out at the final width) scales from its top-left corner.
+ * Old and new images are sized from the group width alone, so the result is pixel-identical.
+ */
+function compositeGroupMorphs(): void {
+  for (const animation of document.getAnimations()) {
+    const effect = animation.effect;
+    if (!(effect instanceof KeyframeEffect)) continue;
+    const group = effect.pseudoElement;
+    if (!group?.startsWith('::view-transition-group(') || group === '::view-transition-group(root)') continue;
+
+    const [from, to] = effect.getKeyframes();
+    const fromWidth = Number.parseFloat(String(from?.width));
+    const toWidth = Number.parseFloat(String(to?.width));
+    const { duration, delay } = effect.getTiming();
+    if (!from || !to || !fromWidth || !toWidth || typeof duration !== 'number' || duration <= 0) continue;
+
+    const timing: KeyframeAnimationOptions = { duration, delay, easing: from.easing ?? 'linear', fill: 'both' };
+    const target = effect.target ?? document.documentElement;
+    animation.cancel();
+    target.animate([{ transform: from.transform }, { transform: to.transform }], { ...timing, pseudoElement: group });
+    target.animate([{ transform: `scale(${fromWidth / toWidth})` }, { transform: 'none' }], {
+      ...timing,
+      pseudoElement: group.replace('-group(', '-image-pair('),
+    });
+  }
+}
+
 export function setupMorphTransitions(): void {
   let pairs = new Set<string>();
 
@@ -47,6 +78,7 @@ export function setupMorphTransitions(): void {
   });
 
   document.addEventListener('astro:before-swap', (event) => {
+    event.viewTransition.ready.then(compositeGroupMorphs).catch(() => {});
     for (const element of morphElements(event.newDocument)) {
       if (pairs.has(element.dataset.morph ?? '')) element.classList.remove('motion-rise');
       else unname(element);

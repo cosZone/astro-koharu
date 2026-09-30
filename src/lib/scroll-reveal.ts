@@ -111,11 +111,20 @@ function onAnimationEnd(event: AnimationEvent): void {
 }
 
 export function setupScrollReveal(): void {
+  // A swapped-in page is scanned only after its view transition has played, never during the morph.
+  let settled: Promise<unknown> = Promise.resolve();
   const scanNewPage = () => {
-    if (document.body !== scannedBody) scan();
+    const body = document.body;
+    settled.then(() => {
+      if (document.body === body && body !== scannedBody) scan();
+    });
   };
   if (document.readyState !== 'loading') scanNewPage();
   document.addEventListener('DOMContentLoaded', scanNewPage);
+  document.addEventListener('astro:before-swap', (event) => {
+    settled = event.viewTransition.finished.catch(() => undefined);
+  });
+  document.addEventListener('astro:after-swap', scanNewPage);
   document.addEventListener('astro:page-load', scanNewPage);
   document.addEventListener('animationend', onAnimationEnd);
   document.addEventListener('animationcancel', onAnimationEnd);
