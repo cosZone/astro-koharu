@@ -149,7 +149,8 @@
 
     html {
       interpolate-size: allow-keywords;
-      &:focus-within {
+      /* Not while ClientRouter restores the scroll position: focus can stay inside a persisted island. */
+      &:focus-within:not([data-astro-transition]) {
         scroll-behavior: smooth;
       }
     }

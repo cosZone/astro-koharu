@@ -32,8 +32,8 @@ import {
       return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
     }
 
-    function applyTheme(theme) {
-      var root = document.documentElement;
+    function applyTheme(theme, target) {
+      var root = target || document.documentElement;
       root.classList.toggle('dark', theme === 'dark');
       root.dataset.theme = theme; // For astro-mermaid autoTheme
     }
@@ -47,6 +47,11 @@ import {
       if (!('theme' in localStorage)) {
         applyTheme(getTheme());
       }
+    });
+
+    // 先写进新页面的 <html>：swap 会清空根元素属性，期间若有样式计算（如恢复持久化元素的焦点）也能拿到正确主题
+    document.addEventListener('astro:before-swap', function(event) {
+      applyTheme(getTheme(), event.newDocument.documentElement);
     });
 
     // View Transition 切换页面后重新应用主题（在 DOM 渲染前）
@@ -111,8 +116,8 @@ import {
       }
       return serialized + '"';
     }
-    function applySettings() {
-      var root = document.documentElement;
+    function applySettings(target) {
+      var root = target || document.documentElement;
       var stored = localStorage.getItem(STORAGE_KEYS.fontPreset);
       var preset = FONT_PRESETS.indexOf(stored) !== -1 ? stored : READER_DEFAULTS.fontPreset;
       root.setAttribute('data-font-preset', preset);
@@ -154,8 +159,16 @@ import {
     // Apply before the first frame.
     applySettings();
 
+    // Write into the incoming <html> as well: the swap clears the root's attributes, and a style pass
+    // during it (e.g. re-focusing a persisted element) must not see the defaults.
+    document.addEventListener('astro:before-swap', function (event) {
+      applySettings(event.newDocument.documentElement);
+    });
+
     // Reapply before Astro renders the swapped page.
-    document.addEventListener('astro:after-swap', applySettings);
+    document.addEventListener('astro:after-swap', function () {
+      applySettings();
+    });
   })();
 </script>
 
