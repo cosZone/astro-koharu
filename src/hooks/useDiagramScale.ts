@@ -1,7 +1,8 @@
 /**
- * Sizes the diagram SVG inside `container` through `--diagram-width` / `--diagram-height`:
- * the fit scale from `getScaleRange` until the reader picks one with the resize handle.
- * Call `measure` after every render so the natural size follows the SVG's viewBox.
+ * Sizes the diagram SVG inside `container` through `--diagram-width` / `--diagram-height`
+ * (and marks it `data-diagram-sized`): the fit scale from `getScaleRange` until the reader
+ * picks one with the resize handle. Call `measure` after every render so the natural size
+ * follows the SVG's viewBox.
  */
 
 import { clampScale, type DiagramSize, getScaleRange, type ScaleRange } from '@lib/diagram-sizing';
@@ -60,6 +61,7 @@ export function useDiagramScale(container: HTMLElement | null) {
     const size = { width: natural.width * scale, height: natural.height * scale };
     container.style.setProperty('--diagram-width', `${size.width}px`);
     container.style.setProperty('--diagram-height', `${size.height}px`);
+    container.dataset.diagramSized = '';
     appliedRef.current = size;
     if (container.scrollWidth > clientWidth) container.scrollLeft = center * container.scrollWidth - clientWidth / 2;
   }, [container, natural, scale]);

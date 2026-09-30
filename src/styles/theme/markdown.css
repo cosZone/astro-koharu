@@ -660,19 +660,37 @@
 /* ========== Mermaid layout styles ========== */
 
 .mermaid-wrapper {
+  position: relative;
   margin-bottom: 1.25rem;
 }
 
-/* Mermaid pre styling when in wrapper */
+/* Mermaid pre styling when in wrapper; the bottom padding holds the resize grip */
 .mermaid-wrapper > pre.mermaid {
   border-radius: 0 0 0.75rem 0.75rem;
   border: 1px solid hsl(var(--border));
   border-top: none;
-  padding: 1rem;
+  padding: 1rem 1rem 1.5rem;
   margin: 0;
   overflow: hidden;
   background-color: hsl(var(--card));
   box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+}
+
+/* Once useDiagramScale sizes it, the same canvas as infographics: centered, scrolling sideways when zoomed past the column.
+   Block layout instead of astro-mermaid's flex centering, which would clip the left edge of an overflowing diagram. */
+.mermaid-wrapper > pre.mermaid[data-diagram-sized] {
+  display: block;
+  overflow: auto hidden;
+  overscroll-behavior-x: contain;
+
+  & > svg {
+    display: block;
+    width: var(--diagram-width);
+    height: var(--diagram-height);
+    /* biome-ignore lint/complexity/noImportantStyles: mermaid writes max-width inline on every SVG, which would stop zooming at natural size. */
+    max-width: none !important;
+    margin-inline: auto;
+  }
 }
 
 /* Fullscreen SVG container */

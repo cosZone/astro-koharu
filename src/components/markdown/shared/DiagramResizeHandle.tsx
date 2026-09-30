@@ -79,7 +79,7 @@ export function DiagramResizeHandle({ scale, range, naturalHeight, onScaleChange
       onPointerCancel={endDrag}
       onDoubleClick={onReset}
       onKeyDown={handleKeyDown}
-      className="group/resize absolute bottom-0 left-1/2 flex h-6 w-24 -translate-x-1/2 cursor-ns-resize touch-none select-none items-center justify-center rounded-full outline-none focus-visible:ring-2 focus-visible:ring-ring print:hidden"
+      className="group/resize absolute bottom-0 left-1/2 z-10 flex h-6 w-24 -translate-x-1/2 cursor-ns-resize touch-none select-none items-center justify-center rounded-full outline-none focus-visible:ring-2 focus-visible:ring-ring print:hidden"
     >
       <span
         className={cn(
