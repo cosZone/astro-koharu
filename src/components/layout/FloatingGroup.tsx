@@ -45,9 +45,15 @@ const listVariants: Variants = {
   closed: { transition: { staggerChildren: 0.03 } },
 };
 
+// Whole-transform values (not x/y/scale) run on the compositor through WAAPI, so the stagger stays smooth
+// while the main thread is busy.
 const itemVariants: Variants = {
-  open: { opacity: 1, y: 0, scale: 1, transition: animation.spring.pop },
-  closed: { opacity: 0, y: 14, scale: 0.6, transition: { duration: 0.16, ease: animation.bezier.inQuart } },
+  open: { opacity: 1, transform: 'translate3d(0px, 0px, 0px) scale(1)', transition: animation.spring.pop },
+  closed: {
+    opacity: 0,
+    transform: 'translate3d(0px, 14px, 0px) scale(0.6)',
+    transition: { duration: 0.16, ease: animation.bezier.inQuart },
+  },
 };
 
 const fadeVariants: Variants = {
@@ -158,7 +164,7 @@ export default function FloatingGroup() {
       <m.div
         className="fixed right-4 bottom-4 z-50 flex flex-col items-center gap-2 text-primary"
         animate={{
-          x: isHidden ? 200 : 0,
+          transform: isHidden ? 'translateX(200px)' : 'translateX(0px)',
           opacity: isHidden ? 0 : 1,
           pointerEvents: isHidden ? 'none' : 'auto',
         }}
@@ -235,9 +241,9 @@ export default function FloatingGroup() {
             <m.span
               key={isExpanded ? 'close' : 'magic'}
               className="flex-center"
-              initial={reduced ? { opacity: 0 } : { opacity: 0, rotate: -90, scale: 0.5 }}
-              animate={{ opacity: 1, rotate: 0, scale: 1 }}
-              exit={reduced ? { opacity: 0 } : { opacity: 0, rotate: 90, scale: 0.5 }}
+              initial={reduced ? { opacity: 0 } : { opacity: 0, transform: 'rotate(-90deg) scale(0.5)' }}
+              animate={reduced ? { opacity: 1 } : { opacity: 1, transform: 'rotate(0deg) scale(1)' }}
+              exit={reduced ? { opacity: 0 } : { opacity: 0, transform: 'rotate(90deg) scale(0.5)' }}
               transition={animation.spring.press}
             >
               <Icon icon={isExpanded ? 'ri:close-large-fill' : 'ri:magic-fill'} className="size-4" />

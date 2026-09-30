@@ -9,6 +9,7 @@
 import { LazyMotionProvider } from '@components/common/LazyMotionProvider';
 import { Switch } from '@components/ui/switch';
 import { microReboundPreset } from '@constants/anim/spring';
+import { animation } from '@constants/design-tokens';
 import { FloatingFocusManager, useDismiss, useFloating, useInteractions, useRole } from '@floating-ui/react';
 import { useTranslation } from '@hooks/useTranslation';
 import { Icon } from '@iconify/react';
@@ -42,13 +43,23 @@ import {
   waveEnabled,
 } from '@store/settings';
 import { READER_CUSTOM_MEASURE } from '@store/settings-constants';
-import { AnimatePresence, m, useReducedMotion } from 'motion/react';
+import { AnimatePresence, m, type Transition, useReducedMotion } from 'motion/react';
 import { lazy, type MouseEvent, Suspense, useEffect, useRef, useState } from 'react';
 import type { TranslationKey } from '@/i18n/types';
 import { NumberField } from './NumberField';
 import { isSettingVisible, SETTINGS_REGISTRY, type SettingItem, type SettingSection } from './registry';
 
 const SECTIONS: SettingSection[] = ['reader', 'general'];
+
+// Whole-transform keyframes (not x/y/scale) let Motion hand the panel to WAAPI, so it unfolds from the
+// settings button smoothly even while the main thread is busy; the exit is quicker than the entrance.
+const PANEL_HIDDEN = 'translate3d(8px, 12px, 0px) scale(0.94)';
+const PANEL_SHOWN = 'translate3d(0px, 0px, 0px) scale(1)';
+const PANEL_ENTER: Transition = {
+  transform: animation.spring.popover,
+  opacity: { duration: 0.16, ease: animation.bezier.outQuart },
+};
+const PANEL_EXIT: Transition = { duration: 0.14, ease: animation.bezier.inQuart };
 const MOTION_HINT_KEYS: Record<MotionLevel, TranslationKey> = {
   lively: 'settings.motionLevel.livelyHint',
   subtle: 'settings.motionLevel.subtleHint',
@@ -78,6 +89,7 @@ export default function SettingsPanelContent() {
   const bgmWidget = useStore(bgmWidgetEnabled);
   const level = useStore(motionLevel);
   const reducedLevel = level === 'reduced';
+  const fadeOnly = shouldReduceMotion || reducedLevel;
   const wave = useStore(waveEnabled);
   const isChristmasEnabled = useStore(christmasEnabled);
   const [fontPickerLoaded, setFontPickerLoaded] = useState(false);
@@ -234,11 +246,18 @@ export default function SettingsPanelContent() {
             <m.div
               ref={refs.setFloating}
               {...getFloatingProps()}
-              className="fixed right-16 bottom-20 z-40 w-[320px] max-w-[calc(100vw-5rem)]"
-              initial={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, y: 20, scale: 0.95 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, y: 20, scale: 0.95 }}
-              transition={shouldReduceMotion ? { duration: 0.15 } : microReboundPreset}
+              className="fixed right-16 bottom-20 z-40 w-[320px] max-w-[calc(100vw-5rem)] origin-bottom-right"
+              initial={fadeOnly ? { opacity: 0 } : { opacity: 0, transform: PANEL_HIDDEN }}
+              animate={
+                fadeOnly
+                  ? { opacity: 1, transition: { duration: 0.15 } }
+                  : { opacity: 1, transform: PANEL_SHOWN, transition: PANEL_ENTER }
+              }
+              exit={
+                fadeOnly
+                  ? { opacity: 0, transition: { duration: 0.12 } }
+                  : { opacity: 0, transform: PANEL_HIDDEN, transition: PANEL_EXIT }
+              }
             >
               <div className="flex h-[calc(100dvh-6rem)] max-h-96 flex-col overflow-hidden rounded-2xl border border-border bg-popover p-4 text-popover-foreground shadow-xl">
                 {/* Header */}
