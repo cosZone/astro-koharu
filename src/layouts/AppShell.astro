@@ -57,7 +57,9 @@ const { post, siderType, isPostPage } = Astro.props;
   import { motionConfig } from '@constants/site-config';
   import { setupMorphTransitions } from '@lib/morph-transitions';
   import { setupPetalBurst } from '@lib/sakura/petal-burst';
+  import { setupScrollReveal } from '@lib/scroll-reveal';
 
   setupMorphTransitions();
+  setupScrollReveal();
   if (motionConfig.clickBurst) setupPetalBurst();
 </script>

@@ -39,6 +39,12 @@ html[data-motion="subtle"] {
   }
 }
 
+@keyframes motion-fade {
+  from {
+    opacity: 0;
+  }
+}
+
 /* Rise with a focus pull; reserve for a few large elements, blur is costly and flattens 3D children. */
 @keyframes motion-rise-focus {
   from {
@@ -55,22 +61,19 @@ html[data-motion="subtle"] {
     animation-delay: calc(var(--rise-delay, 0ms) + var(--i, 0) * var(--stagger, 90ms));
   }
 
-  @supports (animation-timeline: view()) {
-    /*
-      Scroll-linked reveal. A fixed-length range finishes within the bottom band of the viewport
-      whatever the element's height, so tall blocks never stay translucent while being read.
-      Wrappers must use overflow: clip, not hidden, or they become the (static) scroller.
-    */
-    html:is([data-motion="lively"], [data-motion="subtle"]) .motion-reveal,
-    html[data-motion="lively"] .motion-reveal-lively > * {
-      animation: motion-rise var(--ease-out-quart) both;
-      animation-timeline: view();
-      animation-range: entry 0% entry 8rem;
-    }
+  /* Scroll reveals; src/lib/scroll-reveal.ts marks which elements wait and when they play. */
+  html:is([data-motion="lively"], [data-motion="subtle"]) [data-reveal="pending"] {
+    opacity: 0;
+  }
 
-    html[data-motion="lively"] .motion-reveal-lively > * {
-      --rise-y: 1rem;
-    }
+  html:is([data-motion="lively"], [data-motion="subtle"]) [data-reveal="in"] {
+    animation: motion-rise var(--dur-enter) var(--ease-out-expo) backwards;
+    animation-delay: calc(var(--reveal-i, 0) * 70ms);
+  }
+
+  /* Prose only fades: a moving block suppresses scroll anchoring while embeds above it are still growing. */
+  html[data-motion="lively"] .motion-reveal-lively > [data-reveal="in"] {
+    animation-name: motion-fade;
   }
 }
 
@@ -127,7 +130,10 @@ html.motion-off .sider-slot.entering {
   }
 }
 
-/* Section dividers: rules draw outward from the title and the blossoms unfurl as they scroll in. */
+/*
+  Section dividers: rules draw outward from the title and the blossoms unfurl as they scroll in.
+  Wrappers must use overflow: clip, not hidden, or they become the (static) scroller of the view timeline.
+*/
 @supports (animation-timeline: view()) {
   @media screen and (prefers-reduced-motion: no-preference) {
     html:is([data-motion="lively"], [data-motion="subtle"]) .section-divider {
