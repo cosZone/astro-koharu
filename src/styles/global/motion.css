@@ -199,3 +199,13 @@ html.motion-off .sider-slot.entering {
   mask: var(--petal-mask) center / contain no-repeat;
   will-change: transform, opacity;
 }
+
+/* During a view transition the layer is shown live above both pages, never from its frozen snapshot. */
+::view-transition-group(petal-burst),
+::view-transition-new(petal-burst) {
+  animation: none;
+}
+
+::view-transition-old(petal-burst) {
+  display: none;
+}

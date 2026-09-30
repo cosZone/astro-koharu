@@ -38,8 +38,11 @@ html.theme-transition::view-transition-new(root) {
   object-position: left top;
 }
 
-/* During a theme switch every named element (header, sider, post titles) joins the root snapshot so the reveal stays uniform. */
-html.theme-transition * {
+/*
+  During a theme switch every named element (header, sider, post titles) joins the root snapshot so the
+  reveal stays uniform; only the petal burst layer keeps its name so pressed petals float above the reveal.
+*/
+html.theme-transition *:not(.petal-burst-layer) {
   /* biome-ignore lint/complexity/noImportantStyles: must beat Astro's scoped transition names and inline view-transition-name styles. */
   view-transition-name: none !important;
 }
