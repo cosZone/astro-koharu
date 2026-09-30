@@ -208,7 +208,7 @@
   font-size: 0.6875rem;
 }
 
-.toc-silk-container .silk-heading-link[data-depth="0"][data-level="2"]::before {
+.toc-silk-container:not(.toc-no-numbering) .silk-heading-link[data-depth="0"][data-level="2"]::before {
   content: attr(data-chapter-number);
   display: grid;
   place-items: center;

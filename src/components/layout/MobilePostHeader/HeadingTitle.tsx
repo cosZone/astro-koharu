@@ -6,7 +6,8 @@
  */
 
 import type { CurrentHeading } from '@hooks/useCurrentHeading';
-import { AnimatePresence, m, useReducedMotion, type Variants } from 'motion/react';
+import { useMotionLevel } from '@hooks/useMotionLevel';
+import { AnimatePresence, m, type Variants } from 'motion/react';
 
 interface HeadingTitleProps {
   /** Current heading info */
@@ -30,7 +31,7 @@ const fading: Variants = {
 };
 
 export function HeadingTitle({ heading, direction = 1, className }: HeadingTitleProps) {
-  const shouldReduceMotion = useReducedMotion();
+  const shouldReduceMotion = useMotionLevel() === 'reduced';
 
   return (
     <AnimatePresence mode="wait" custom={direction}>
