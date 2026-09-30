@@ -6,7 +6,7 @@
  */
 
 import { clampScale, type DiagramSize, getScaleRange, type ScaleRange } from '@lib/diagram-sizing';
-import { useReducedMotion } from 'motion/react';
+import { readMotionLevel } from '@lib/motion-level';
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { flushSync } from 'react-dom';
 
@@ -34,7 +34,6 @@ function readFrame(container: HTMLElement): Frame {
 const toKeyframe = ({ width, height }: DiagramSize) => ({ width: `${width}px`, height: `${height}px` });
 
 export function useDiagramScale(container: HTMLElement | null) {
-  const shouldReduceMotion = useReducedMotion();
   const [natural, setNatural] = useState<DiagramSize | null>(null);
   const [frame, setFrame] = useState<Frame | null>(null);
   const [userScale, setUserScale] = useState<number | null>(null);
@@ -86,9 +85,10 @@ export function useDiagramScale(container: HTMLElement | null) {
     flushSync(() => setUserScale(null));
     const to = appliedRef.current;
     const svg = container?.querySelector('svg');
-    if (!svg || !from || !to || shouldReduceMotion || (from.width === to.width && from.height === to.height)) return;
+    if (!svg || !from || !to || readMotionLevel() === 'reduced') return;
+    if (from.width === to.width && from.height === to.height) return;
     svg.animate([toKeyframe(from), toKeyframe(to)], RESET_TIMING);
-  }, [container, shouldReduceMotion]);
+  }, [container]);
 
   const zoom: DiagramZoom | null = natural && range && scale !== null ? { scale, range, naturalHeight: natural.height } : null;
   return { zoom, setScale: setUserScale, reset, measure };
