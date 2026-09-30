@@ -16,14 +16,21 @@
 
   const FADE_MS = 900;
 
-  const whenIdle = (callback: () => void) =>
-    'requestIdleCallback' in window ? requestIdleCallback(callback, { timeout: 1500 }) : setTimeout(callback, 600);
+  const whenIdle = (callback: () => void): (() => void) => {
+    if (typeof window.requestIdleCallback === 'function') {
+      const handle = window.requestIdleCallback(callback, { timeout: 1500 });
+      return () => window.cancelIdleCallback(handle);
+    }
+    const handle = window.setTimeout(callback, 600);
+    return () => window.clearTimeout(handle);
+  };
 
   class SakuraPetals extends HTMLElement {
     private field: PetalField | null = null;
     private ready = false;
     private visible = false;
     private stopTimer = 0;
+    private cancelIdle: (() => void) | null = null;
     private cleanups: Array<() => void> = [];
 
     connectedCallback() {
@@ -57,9 +64,20 @@
       window.addEventListener('pointermove', onPointerMove, { passive: true });
       const unsubscribe = subscribeMotionLevel(() => this.sync());
 
+      let christmas = document.documentElement.classList.contains('christmas');
+      const effectsObserver = new MutationObserver(() => {
+        const next = document.documentElement.classList.contains('christmas');
+        if (next !== christmas) {
+          christmas = next;
+          this.sync();
+        }
+      });
+      effectsObserver.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+
       this.cleanups = [
         () => resizeObserver.disconnect(),
         () => intersectionObserver.disconnect(),
+        () => effectsObserver.disconnect(),
         () => document.removeEventListener('visibilitychange', onVisibilityChange),
         () => window.removeEventListener('pointermove', onPointerMove),
         unsubscribe,
@@ -68,7 +86,9 @@
       if (this.ready) {
         this.sync();
       } else {
-        whenIdle(() => {
+        this.cancelIdle = whenIdle(() => {
+          this.cancelIdle = null;
+          if (!this.isConnected) return;
           this.ready = true;
           this.sync();
         });
@@ -76,6 +96,9 @@
     }
 
     disconnectedCallback() {
+      this.cancelIdle?.();
+      this.cancelIdle = null;
+      this.visible = false;
       for (const cleanup of this.cleanups) cleanup();
       this.cleanups = [];
       window.clearTimeout(this.stopTimer);
@@ -84,7 +107,7 @@
 
     private sync() {
       const field = this.field;
-      if (!field) return;
+      if (!field || !this.isConnected) return;
       const onScreen = this.visible && document.visibilityState === 'visible';
       const allowed =
         this.ready && readMotionLevel() === 'lively' && !document.documentElement.classList.contains('christmas');
