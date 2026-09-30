@@ -124,7 +124,8 @@ html.motion-off .wave .parallax > use {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .wave .parallax > use {
+  /* Matches the .wave-wrap-nested source rule's specificity and comes later, so it wins. */
+  .wave-wrap .wave .parallax > use {
     animation: none;
   }
 }
