@@ -48,7 +48,7 @@ export function useHeadingTree(): Heading[] {
         return;
       }
 
-      // Numbering is handled by CSS counters (see post.css)
+      // HeadingList numbers the tree in document order.
       setHeadings(
         buildHeadingTree(
           elements.map((element, index) => {

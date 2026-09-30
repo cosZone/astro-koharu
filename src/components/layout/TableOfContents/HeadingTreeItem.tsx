@@ -1,62 +1,74 @@
-/**
- * HeadingTreeItem Component
- *
- * A single heading row in the table of contents: a knot on the silk thread plus the heading text
- * (see toc.css). Active and expanded state and the click handler come from TocContext; nested levels
- * arrive as children and stay mounted so they can unfold and fold smoothly.
- */
-
-import type { Heading } from '@lib/toc';
+import { useTranslation } from '@hooks/useTranslation';
+import { findHeadingById, type Heading } from '@lib/toc';
+import type { CSSProperties } from 'react';
 import { cn } from '@/lib/utils';
 import { useTocContext } from './TocContext';
 
-// Constants
-const INDENT_BASE = 1.625; // Base left padding in rem, clear of the thread
-const INDENT_PER_LEVEL = 0.875; // Additional padding per nesting level in rem
+const INDENT_BASE = 1.75;
+const INDENT_PER_LEVEL = 1;
 
 interface HeadingTreeItemProps {
-  /** The heading node to render */
   heading: Heading;
-  /** Current nesting depth (0 for top level) */
   depth?: number;
-  /** Rendered child level */
+  numberPath: number[];
   children?: React.ReactNode;
 }
 
-export function HeadingTreeItem({ heading, depth = 0, children }: HeadingTreeItemProps) {
+export function HeadingTreeItem({ heading, depth = 0, numberPath, children }: HeadingTreeItemProps) {
   const { activeId, expandedIds, onHeadingClick } = useTocContext();
+  const { t } = useTranslation();
   const isActive = activeId === heading.id;
+  const isAncestor = heading.children.some((child) => findHeadingById([child], activeId) !== null);
   const isOpen = expandedIds.has(heading.id);
+  const hasChildren = heading.children.length > 0;
+  const isVisibleCurrent = isActive || (isAncestor && !isOpen);
 
   return (
-    <div className="heading-tree-item relative">
-      <a
-        href={`#${heading.id}`}
-        onClick={(e) => {
-          e.preventDefault();
-          onHeadingClick(heading.id);
-        }}
-        className={cn(
-          'heading-link group relative isolate flex items-center rounded-lg py-2 text-sm transition-colors duration-200',
-          isActive ? 'font-medium text-primary' : 'hover:bg-foreground/5',
+    <div className="heading-tree-item relative" data-depth={depth} data-current-branch={isActive || isAncestor || undefined}>
+      <div className="toc-heading-row">
+        <a
+          href={`#${heading.id}`}
+          onClick={(event) => {
+            event.preventDefault();
+            onHeadingClick(heading.id);
+          }}
+          className={cn('heading-link silk-heading-link group', isVisibleCurrent && 'text-primary')}
+          style={
+            {
+              paddingLeft: `${INDENT_BASE + depth * INDENT_PER_LEVEL}rem`,
+              paddingRight: isVisibleCurrent ? '2.75rem' : '0.5rem',
+              '--toc-thread-x': `${0.8125 + depth * INDENT_PER_LEVEL}rem`,
+            } as CSSProperties
+          }
+          data-number={numberPath.join('.')}
+          data-chapter-number={String(numberPath.at(-1) ?? '').padStart(2, '0')}
+          data-level={heading.level}
+          data-depth={depth}
+          data-toc-row={heading.id}
+          data-ancestor={isAncestor || undefined}
+          aria-label={heading.text}
+          aria-current={isVisibleCurrent ? 'location' : undefined}
+          title={heading.text}
+        >
+          <span className="toc-node" aria-hidden="true" />
+          <span className="heading-text">{heading.text}</span>
+        </a>
+        {isVisibleCurrent && (
+          <span
+            className="toc-section-progress"
+            role="progressbar"
+            aria-label={`${heading.text}: ${t('toc.sectionProgress')}`}
+            aria-valuemin={0}
+            aria-valuemax={100}
+            aria-valuenow={0}
+          >
+            0%
+          </span>
         )}
-        style={{
-          paddingLeft: `${INDENT_BASE + depth * INDENT_PER_LEVEL}rem`,
-          paddingRight: '0.75rem',
-        }}
-        data-level={heading.level}
-        data-toc-row={heading.id}
-        aria-label={heading.text}
-        aria-current={isActive ? 'location' : undefined}
-      >
-        <span className="toc-node" aria-hidden="true" />
-        {/* Heading text - numbering will be added via CSS ::before */}
-        <span className="heading-text block flex-1 truncate leading-relaxed">{heading.text}</span>
-      </a>
-
-      {children && (
-        <div className="heading-children" data-open={isOpen || undefined} inert={!isOpen}>
-          <div className="heading-children-inner">{children}</div>
+      </div>
+      {hasChildren && (
+        <div className="heading-children silk-heading-children" data-open={isOpen || undefined} inert={!isOpen}>
+          <div className="heading-children-inner silk-heading-children-inner">{children}</div>
         </div>
       )}
     </div>

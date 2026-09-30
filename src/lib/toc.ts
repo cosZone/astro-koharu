@@ -139,3 +139,34 @@ export function flattenHeadings(headings: Heading[]): Heading[] {
 export function chapterIndexOf(headings: Heading[], id: string): number {
   return headings.findIndex((heading) => heading.id === id || findHeadingById(heading.children, id) !== null) + 1;
 }
+
+export interface ReadingPosition {
+  /** Index into the section list, -1 while the line is above the first section */
+  index: number;
+  /** Fraction of the current section above the reading line, 0–1 */
+  progress: number;
+}
+
+const clamp01 = (value: number) => Math.min(Math.max(value, 0), 1);
+
+/**
+ * Document-space y of the reading line. It rides `offsetTop` below the viewport top, then sweeps
+ * down to the viewport bottom over the last screen of scroll: the closing sections of a page may
+ * never reach the offset line, and they should still read to the end.
+ */
+export function readingLineAt(scrollY: number, viewportHeight: number, maxScrollY: number, offsetTop: number): number {
+  const sweep = Math.min(viewportHeight, maxScrollY);
+  const reach = sweep > 0 ? clamp01((scrollY - (maxScrollY - sweep)) / sweep) : 1;
+  return scrollY + offsetTop + reach * (viewportHeight - offsetTop);
+}
+
+/** Locate `line` among consecutive sections that open at `starts` (ascending) and close at `end` */
+export function locateReading(starts: number[], end: number, line: number): ReadingPosition {
+  let index = -1;
+  while (index + 1 < starts.length && starts[index + 1] <= line) index++;
+  if (index < 0) return { index, progress: 0 };
+
+  const start = starts[index];
+  const span = (starts[index + 1] ?? end) - start;
+  return { index, progress: span > 0 ? clamp01((line - start) / span) : 1 };
+}

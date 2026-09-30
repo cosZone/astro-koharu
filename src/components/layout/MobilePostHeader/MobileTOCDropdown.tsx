@@ -11,6 +11,7 @@ import { FloatingFocusManager, FloatingPortal, useClick, useDismiss, useInteract
 import { useControlledState } from '@hooks/useControlledState';
 import { useFloatingUI } from '@hooks/useFloatingUI';
 import { useMotionLevel } from '@hooks/useMotionLevel';
+import type { ReadingProgress } from '@hooks/useReadingProgress';
 import { useTranslation } from '@hooks/useTranslation';
 import { chapterIndexOf, type Heading } from '@lib/toc';
 import { AnimatePresence, m, type Transition } from 'motion/react';
@@ -37,6 +38,7 @@ const COMPACT_GAP = { '--toc-gap': '0.25rem' } as React.CSSProperties;
 interface MobileTOCDropdownProps {
   /** Hierarchical heading tree */
   headings: Heading[];
+  subscribeFrame: ReadingProgress['subscribeFrame'];
   /** Trigger element that opens the dropdown */
   trigger: React.JSX.Element;
   /** Controlled open state */
@@ -49,6 +51,7 @@ interface MobileTOCDropdownProps {
 
 export function MobileTOCDropdown({
   headings,
+  subscribeFrame,
   trigger,
   open: passedOpen,
   onOpenChange,
@@ -124,12 +127,14 @@ export function MobileTOCDropdown({
                 </div>
                 <div className="overflow-y-auto overflow-x-hidden px-2 pb-2" data-toc-scroller>
                   <nav
-                    className={cn('toc-container flex flex-col gap-1', { 'toc-no-numbering': !enableNumbering })}
+                    className={cn('toc-container toc-silk-container flex flex-col gap-1', {
+                      'toc-no-numbering': !enableNumbering,
+                    })}
                     style={COMPACT_GAP}
                     aria-label={t('toc.title')}
                   >
                     <TocProvider value={toc}>
-                      <TocGlide headings={headings} />
+                      <TocGlide headings={headings} subscribeFrame={subscribeFrame} />
                       <HeadingList headings={headings} />
                     </TocProvider>
                   </nav>

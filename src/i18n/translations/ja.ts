@@ -356,6 +356,7 @@ export const uiStrings: UIStrings = {
 
   // ── 目次のコンテンツ ───────────────────────────────────────
   'toc.title': '目次',
+  'toc.sectionProgress': 'この節の読書進捗',
   'toc.expand': '目次のコンテンツを展開',
   'toc.empty': '見出しはありません',
 

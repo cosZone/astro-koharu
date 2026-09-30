@@ -1,14 +1,3 @@
-/**
- * useTocGlide Hook
- *
- * Drives the moving parts of the silk-thread TOC (see src/styles/components/toc.css). A wash and a
- * petal spring onto the current heading's row with the nav pill's glide physics (`@lib/glide`), the
- * tail fills the thread from the first knot down to the petal, and each row gets `data-passed` the
- * moment the petal crosses it. The petal leans against its motion, and the current row is kept in
- * view inside its scroll area (`[data-toc-scroller]`). Everything is written to the DOM per frame, so
- * the TOC never re-renders for the motion.
- */
-
 import {
   GLIDE_FEELS,
   type GlideFeel,
@@ -19,9 +8,10 @@ import {
   type Span,
   stepGlide,
 } from '@lib/glide';
-import { readMotionLevel } from '@lib/motion-level';
+import { readMotionLevel, subscribeMotionLevel } from '@lib/motion-level';
 import { clamp } from 'es-toolkit';
 import { type RefObject, useLayoutEffect, useRef } from 'react';
+import type { ReadingFrame, ReadingProgress } from './useReadingProgress';
 
 /** Petal lean in degrees per px/s of glide speed, and its cap. */
 const LEAN_PER_SPEED = -0.03;
@@ -32,12 +22,14 @@ const FOLLOW_AT = 0.35;
 
 interface TocGlideParts {
   wash: HTMLElement;
-  tail: HTMLElement;
+  thread: SVGPathElement;
+  tail: SVGPathElement;
   petal: HTMLElement;
 }
 
 interface TocGlideController {
   moveTo(id: string | null): void;
+  setProgress(progress: ReadingFrame): void;
   destroy(): void;
 }
 
@@ -45,7 +37,9 @@ function createTocGlide(nav: HTMLElement, parts: TocGlideParts): TocGlideControl
   let row: HTMLElement | null = null;
   let rows: HTMLElement[] = [];
   let centers: number[] = [];
-  let firstCenter = 0;
+  let knots: { x: number; y: number }[] = [];
+  let latest: ReadingFrame = { id: '', progress: 0 };
+  let threadLength = 0;
   let state: GlideState | null = null;
   let feel: GlideFeel | null = null;
   let frame = 0;
@@ -61,34 +55,120 @@ function createTocGlide(nav: HTMLElement, parts: TocGlideParts): TocGlideControl
   };
 
   const measureRows = () => {
+    if (nav.getClientRects().length === 0) return;
     const at = toNav();
-    rows = Array.from(nav.querySelectorAll<HTMLElement>('[data-toc-row]'));
+    const navBox = nav.getBoundingClientRect();
+    const scale = navBox.width / nav.offsetWidth || 1;
+    rows = Array.from(nav.querySelectorAll<HTMLElement>('[data-toc-row]')).filter((element) => !element.closest('[inert]'));
     centers = rows.map((element) => {
       const rect = element.getBoundingClientRect();
       return at(rect.top + rect.height / 2);
     });
-    firstCenter = centers[0] ?? 0;
+    const points = rows.map((element, index) => {
+      const knot = element.querySelector<HTMLElement>('.toc-node');
+      const rect = (knot ?? element).getBoundingClientRect();
+      return { x: (rect.left + rect.width / 2 - navBox.left) / scale + nav.scrollLeft, y: centers[index] };
+    });
+    knots = points;
+    let path = '';
+    if (points.length) {
+      path = `M ${points[0].x} ${points[0].y}`;
+      for (let index = 1; index < points.length; index++) {
+        const previous = points[index - 1];
+        const next = points[index];
+        const delta = next.x - previous.x;
+        if (Math.abs(delta) < 0.5) {
+          path += ` L ${next.x} ${next.y}`;
+          continue;
+        }
+        const middle = (previous.y + next.y) / 2;
+        const radius = Math.min(6, Math.abs(delta) / 2, Math.max(next.y - previous.y, 0) / 4);
+        const direction = Math.sign(delta);
+        path += ` L ${previous.x} ${middle - radius}`;
+        path += ` Q ${previous.x} ${middle} ${previous.x + direction * radius} ${middle}`;
+        path += ` L ${next.x - direction * radius} ${middle}`;
+        path += ` Q ${next.x} ${middle} ${next.x} ${middle + radius}`;
+        path += ` L ${next.x} ${next.y}`;
+      }
+      const last = points[points.length - 1];
+      path += ` L ${last.x} ${last.y + 12}`;
+    }
+    parts.thread.setAttribute('d', path);
+    parts.tail.setAttribute('d', path);
+    const svg = parts.thread.ownerSVGElement;
+    svg?.setAttribute('width', String(nav.clientWidth));
+    // An absolute SVG must not keep its previous height in the scroller's overflow.
+    svg?.setAttribute('height', String((points.at(-1)?.y ?? 0) + 12));
+    threadLength = path ? parts.thread.getTotalLength() : 0;
+    parts.tail.style.strokeDasharray = String(threadLength);
+  };
+
+  // The path always travels downwards; find a row's position along it only when targeting that row.
+  const lengthAtY = (y: number) => {
+    let low = 0;
+    let high = threadLength;
+    for (let index = 0; index < 16; index++) {
+      const middle = (low + high) / 2;
+      if (parts.thread.getPointAtLength(middle).y < y) low = middle;
+      else high = middle;
+    }
+    return (low + high) / 2;
+  };
+
+  const visibleRow = () => {
+    let visible = row;
+    while (visible) {
+      const collapsed = visible.closest<HTMLElement>('[inert]');
+      if (!collapsed) return visible;
+      visible = collapsed.parentElement?.querySelector<HTMLElement>(':scope > .toc-heading-row > [data-toc-row]') ?? null;
+    }
+    return null;
+  };
+
+  const readFraction = (visible: HTMLElement | null) => {
+    if (!visible) return 0;
+    const id = visible.dataset.tocRow;
+    if (latest.id === id) return latest.progress;
+    return latest.chapterId === id ? (latest.chapterProgress ?? 0) : 0;
   };
 
   const measure = (): Span | null => {
-    if (!row?.isConnected || nav.getClientRects().length === 0) return null;
-    const rect = row.getBoundingClientRect();
-    if (rect.height === 0) return null;
+    const visible = visibleRow();
+    if (!visible?.isConnected || nav.getClientRects().length === 0 || threadLength === 0) return null;
+    const index = rows.indexOf(visible);
+    if (index < 0) return null;
+    const rect = visible.getBoundingClientRect();
     const at = toNav();
-    return { left: at(rect.top), right: at(rect.bottom) };
+    const height = at(rect.bottom) - at(rect.top);
+    const start = lengthAtY(centers[index]);
+    const end = index + 1 < centers.length ? lengthAtY(centers[index + 1]) : threadLength;
+    const center = start + (end - start) * clamp(readFraction(visible), 0, 1);
+    return { left: center - height / 2, right: center + height / 2 };
   };
 
   const paint = (span: Span, speed: number) => {
     const height = Math.max(span.right - span.left, 0);
-    const center = span.left + height / 2;
-    parts.wash.style.translate = `0 ${span.left}px`;
+    const distance = clamp(span.left + height / 2, 0, threadLength);
+    const point = parts.thread.getPointAtLength(distance);
+    const visible = visibleRow();
+    const index = visible ? rows.indexOf(visible) : -1;
+    const knot = knots[index] ?? point;
+    parts.wash.style.translate = `0 ${knot.y - height / 2}px`;
+    parts.wash.style.left = `${Math.max(knot.x - 7, 0)}px`;
     parts.wash.style.height = `${height}px`;
-    parts.petal.style.translate = `0 ${center}px`;
+    const readout = visible?.parentElement?.querySelector<HTMLElement>('.toc-section-progress');
+    if (readout) {
+      const percent = Math.round(readFraction(visible) * 100);
+      if (readout.getAttribute('aria-valuenow') !== String(percent)) {
+        readout.textContent = `${percent}%`;
+        readout.setAttribute('aria-valuenow', String(percent));
+      }
+    }
+    parts.petal.style.translate = `${point.x}px ${point.y}px`;
     parts.petal.style.setProperty('--toc-lean', `${clamp(speed * LEAN_PER_SPEED, -MAX_LEAN, MAX_LEAN)}deg`);
-    parts.tail.style.translate = `0 ${firstCenter}px`;
-    parts.tail.style.height = `${Math.max(center - firstCenter, 0)}px`;
+    parts.tail.style.strokeDashoffset = String(threadLength - distance);
     rows.forEach((element, index) => {
-      const passed = centers[index] < center - 1;
+      const passed = centers[index] < point.y - 1;
       if (element.hasAttribute('data-passed') !== passed) element.toggleAttribute('data-passed', passed);
     });
   };
@@ -122,13 +202,20 @@ function createTocGlide(nav: HTMLElement, parts: TocGlideParts): TocGlideControl
     frame = requestAnimationFrame(tick);
   };
 
+  const kick = () => {
+    if (frame || document.hidden || nav.getClientRects().length === 0) return;
+    lastTime = performance.now();
+    frame = requestAnimationFrame(tick);
+  };
+
   /** Brings the current row back into view, unless the reader has the pointer on the list. */
   const follow = (instant: boolean) => {
     const scroller = nav.closest<HTMLElement>('[data-toc-scroller]');
-    if (!scroller || !row || scroller.scrollHeight <= scroller.clientHeight + 1) return;
+    const visible = visibleRow();
+    if (!scroller || !visible || scroller.scrollHeight <= scroller.clientHeight + 1) return;
     if (!instant && scroller.matches(':hover')) return;
     const view = scroller.clientHeight;
-    const rect = row.getBoundingClientRect();
+    const rect = visible.getBoundingClientRect();
     const offset = rect.top + rect.height / 2 - scroller.getBoundingClientRect().top;
     if (offset >= view * COMFORT_BAND[0] && offset <= view * COMFORT_BAND[1]) return;
     scroller.scrollTo({
@@ -145,8 +232,28 @@ function createTocGlide(nav: HTMLElement, parts: TocGlideParts): TocGlideControl
   observer.observe(nav);
   for (const item of nav.querySelectorAll(':scope > .heading-tree-item')) observer.observe(item);
 
+  const unsubscribeMotion = subscribeMotionLevel(() => {
+    const level = readMotionLevel();
+    feel = level === 'reduced' ? null : GLIDE_FEELS[level];
+    stop();
+    if (feel) kick();
+    else snap();
+  });
+  const onVisibility = () => {
+    if (document.hidden) stop();
+    else snap();
+  };
+  document.addEventListener('visibilitychange', onVisibility);
+
   return {
+    setProgress(progress) {
+      latest = progress;
+      if (!row) return;
+      if (!feel) snap();
+      else kick();
+    },
     moveTo(id) {
+      measureRows();
       nav.toggleAttribute('data-toc-live', id !== null);
       if (id === null) {
         stop();
@@ -175,21 +282,25 @@ function createTocGlide(nav: HTMLElement, parts: TocGlideParts): TocGlideControl
     destroy() {
       stop();
       observer.disconnect();
+      unsubscribeMotion();
+      document.removeEventListener('visibilitychange', onVisibility);
     },
   };
 }
 
 /**
- * Glides the TOC's wash, tail and petal (first children of the `.toc-container` nav) to the row marked
+ * Glides the TOC's wash, tail and petal to the row marked
  * `data-toc-row={activeId}`. `rowsKey` must change whenever the heading tree does, so the rows are
  * observed afresh.
  */
 export function useTocGlide(
   washRef: RefObject<HTMLElement | null>,
-  tailRef: RefObject<HTMLElement | null>,
+  threadRef: RefObject<SVGPathElement | null>,
+  tailRef: RefObject<SVGPathElement | null>,
   petalRef: RefObject<HTMLElement | null>,
   activeId: string | null,
   rowsKey: unknown,
+  subscribeFrame: ReadingProgress['subscribeFrame'],
 ) {
   const controllerRef = useRef<TocGlideController | null>(null);
   const activeRef = useRef(activeId);
@@ -197,18 +308,21 @@ export function useTocGlide(
   // biome-ignore lint/correctness/useExhaustiveDependencies: rowsKey is the trigger that re-observes a new heading tree.
   useLayoutEffect(() => {
     const wash = washRef.current;
+    const thread = threadRef.current;
     const tail = tailRef.current;
     const petal = petalRef.current;
     const nav = wash?.parentElement;
-    if (!wash || !tail || !petal || !nav) return;
-    const controller = createTocGlide(nav, { wash, tail, petal });
+    if (!wash || !thread || !tail || !petal || !nav) return;
+    const controller = createTocGlide(nav, { wash, thread, tail, petal });
     controllerRef.current = controller;
     controller.moveTo(activeRef.current);
+    const unsubscribe = subscribeFrame(controller.setProgress);
     return () => {
+      unsubscribe();
       controller.destroy();
       controllerRef.current = null;
     };
-  }, [washRef, tailRef, petalRef, rowsKey]);
+  }, [washRef, threadRef, tailRef, petalRef, rowsKey, subscribeFrame]);
 
   useLayoutEffect(() => {
     activeRef.current = activeId;

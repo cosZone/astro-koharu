@@ -354,6 +354,7 @@ export const uiStrings = {
 
   // ── Table of Contents ───────────────────────────────────────
   'toc.title': '목차',
+  'toc.sectionProgress': '현재 절 읽기 진행률',
   'toc.expand': '목차 펼치기',
   'toc.empty': '등록된 목차가 없어요',
 

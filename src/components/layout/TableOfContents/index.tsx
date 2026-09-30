@@ -17,7 +17,7 @@ const SCROLL_OFFSET_TOP = 120; // Offset for header height when detecting active
 interface TableOfContentsProps {
   /** Whether headings should be expanded by default */
   defaultExpanded?: boolean;
-  /** Whether to enable CSS counter numbering (default: true) */
+  /** Whether to enable heading numbering (default: true) */
   enableNumbering?: boolean;
 }
 
@@ -29,7 +29,7 @@ interface TableOfContentsProps {
  */
 export function TableOfContents({ defaultExpanded = false, enableNumbering = true }: TableOfContentsProps = {}) {
   const { t } = useTranslation();
-  const { headings, toc } = useTocController({ offsetTop: SCROLL_OFFSET_TOP, defaultExpanded });
+  const { headings, toc, subscribeFrame } = useTocController({ offsetTop: SCROLL_OFFSET_TOP, defaultExpanded });
 
   // Empty state
   if (headings.length === 0) {
@@ -42,12 +42,12 @@ export function TableOfContents({ defaultExpanded = false, enableNumbering = tru
 
   return (
     <nav
-      className={`toc-container scroll-gutter-stable flex h-full flex-col gap-2 overflow-y-auto overflow-x-hidden pr-1 md:pb-3 md:pl-1 ${enableNumbering ? '' : 'toc-no-numbering'}`}
+      className={`toc-container toc-silk-container scroll-gutter-stable flex h-full flex-col gap-1 overflow-y-auto overflow-x-hidden pr-1 md:pb-3 md:pl-1 ${enableNumbering ? '' : 'toc-no-numbering'}`}
       aria-label={t('toc.title')}
       data-toc-scroller
     >
       <TocProvider value={toc}>
-        <TocGlide headings={headings} />
+        <TocGlide headings={headings} subscribeFrame={subscribeFrame} />
         <HeadingList headings={headings} />
       </TocProvider>
     </nav>

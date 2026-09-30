@@ -13,14 +13,26 @@ interface HeadingListProps {
   headings: Heading[];
   /** Current nesting depth (0 for top level) */
   depth?: number;
+  numberPath?: number[];
 }
 
-export function HeadingList({ headings, depth = 0 }: HeadingListProps) {
+export function HeadingList({ headings, depth = 0, numberPath = [] }: HeadingListProps) {
   return (
     <>
-      {headings.map((heading) => (
-        <HeadingTreeItem key={heading.id} heading={heading} depth={depth}>
-          {heading.children.length > 0 && <HeadingList headings={heading.children} depth={depth + 1} />}
+      {headings.map((heading, index) => (
+        <HeadingTreeItem
+          key={heading.id}
+          heading={heading}
+          depth={depth}
+          numberPath={heading.level === 1 ? [] : [...numberPath, index + 1]}
+        >
+          {heading.children.length > 0 && (
+            <HeadingList
+              headings={heading.children}
+              depth={depth + 1}
+              numberPath={heading.level === 1 ? [] : [...numberPath, index + 1]}
+            />
+          )}
         </HeadingTreeItem>
       ))}
     </>

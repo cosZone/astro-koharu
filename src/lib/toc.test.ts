@@ -7,6 +7,8 @@ import {
   flattenHeadings,
   getSiblingIds,
   type Heading,
+  locateReading,
+  readingLineAt,
   revealPath,
 } from './toc';
 
@@ -130,4 +132,42 @@ test('chapterIndexOf reports the top-level section of any heading', () => {
 test('chapterIndexOf is 0 for an unknown heading or an empty tree', () => {
   assert.equal(chapterIndexOf(tree(), 'missing'), 0);
   assert.equal(chapterIndexOf([], 'a'), 0);
+});
+
+test('readingLineAt rides the offset line until the last screen of scroll', () => {
+  // viewport 800, document scrolls to 3000
+  assert.equal(readingLineAt(0, 800, 3000, 120), 120);
+  assert.equal(readingLineAt(2200, 800, 3000, 120), 2320);
+});
+
+test('readingLineAt sweeps to the viewport bottom over the last screen', () => {
+  assert.equal(readingLineAt(2600, 800, 3000, 120), 2600 + 120 + 340);
+  assert.equal(readingLineAt(3000, 800, 3000, 120), 3800);
+});
+
+test('readingLineAt treats a page that cannot scroll as fully in view', () => {
+  assert.equal(readingLineAt(0, 800, 0, 120), 800);
+});
+
+const starts = [100, 400, 1000];
+const end = 1600;
+
+test('locateReading is -1 above the first section', () => {
+  assert.deepEqual(locateReading(starts, end, 50), { index: -1, progress: 0 });
+  assert.deepEqual(locateReading([], end, 500), { index: -1, progress: 0 });
+});
+
+test('locateReading reports the fraction of the current section above the line', () => {
+  assert.deepEqual(locateReading(starts, end, 250), { index: 0, progress: 0.5 });
+  assert.deepEqual(locateReading(starts, end, 400), { index: 1, progress: 0 });
+  assert.deepEqual(locateReading(starts, end, 1300), { index: 2, progress: 0.5 });
+});
+
+test('locateReading clamps the last section at the end of the article', () => {
+  assert.deepEqual(locateReading(starts, end, 2000), { index: 2, progress: 1 });
+});
+
+test('locateReading counts an empty section as read', () => {
+  assert.deepEqual(locateReading([100, 100], 300, 100), { index: 1, progress: 0 });
+  assert.deepEqual(locateReading([100], 100, 100), { index: 0, progress: 1 });
 });

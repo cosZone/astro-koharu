@@ -9,10 +9,9 @@ import { LazyMotionProvider } from '@components/common/LazyMotionProvider';
 import { TocProvider } from '@components/layout/TableOfContents/TocContext';
 import { animation } from '@constants/design-tokens';
 import { useMediaQuery } from '@hooks/index';
-import { useCurrentHeading } from '@hooks/useCurrentHeading';
 import { useTocController } from '@hooks/useTocController';
 import { useTranslation } from '@hooks/useTranslation';
-import { chapterIndexOf, flattenHeadings } from '@lib/toc';
+import { chapterIndexOf, findHeadingById, flattenHeadings } from '@lib/toc';
 import { AnimatePresence, m, useReducedMotion } from 'motion/react';
 import { useMemo, useState } from 'react';
 import { siteConfig } from '@/constants/site-config';
@@ -61,11 +60,9 @@ export function MobilePostHeader({
   // Check if we're on mobile (tablet breakpoint: max-width 992px)
   const isMobile = useMediaQuery('(max-width: 992px)');
 
-  // Get current H2/H3 heading for title display
-  const currentHeading = useCurrentHeading({ offsetTop: SCROLL_OFFSET_TOP });
-
-  // Heading tree + accordion state for the TOC dropdown
-  const { headings, toc } = useTocController({ offsetTop: SCROLL_OFFSET_TOP + 40 });
+  // The header title and dropdown follow the same reading position.
+  const { headings, toc, subscribeFrame } = useTocController({ offsetTop: SCROLL_OFFSET_TOP + 40 });
+  const currentHeading = findHeadingById(headings, toc.activeId);
 
   // Determine if we should show heading mode
   const showHeadingMode = isPostPage && isMobile && headings.length > 0 && currentHeading !== null;
@@ -100,6 +97,7 @@ export function MobilePostHeader({
               <TocProvider value={toc}>
                 <MobileTOCDropdown
                   headings={headings}
+                  subscribeFrame={subscribeFrame}
                   enableNumbering={enableNumbering}
                   trigger={
                     <button
