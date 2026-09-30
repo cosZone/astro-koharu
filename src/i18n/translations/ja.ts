@@ -87,7 +87,6 @@ export const uiStrings: UIStrings = {
   'search.suggestion': '検索結果が見つかりません。 こちらの検索をお試しください:',
   'search.searching': '[SEARCH_TERM]を検索中...',
   'search.dialogTitle': '投稿を検索',
-  'search.dialogHint': 'キーワードを入力して投稿を検索します',
   'search.dialogClose': '閉じる',
   'search.dialogSelect': '選択',
   'search.dialogOpen': '開く',

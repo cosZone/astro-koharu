@@ -34,34 +34,123 @@
   width: 100%;
 }
 
-.search-dialog:has(.pf-searchbox.open) .search-empty-hint {
+/*
+  Search dialog. The Pagefind input is the dialog's header row and its results flow below it
+  instead of floating in a dropdown, so the panel stays a compact bar until there is something
+  to show. Pagefind scopes its own rules with :is(*, #\#) three times, hence the same prefix.
+*/
+.search-dialog {
+  --pf-text: hsl(var(--foreground));
+  --pf-text-secondary: hsl(var(--muted-foreground));
+  --pf-text-muted: hsl(var(--muted-foreground));
+  --pf-input-height: 3.5rem;
+  --pf-input-font-size: 1.0625rem;
+  --pf-searchbox-dropdown-max-height: min(58dvh, 32rem);
+}
+
+/* Keyboard hints only mean something once there is a result to move through. */
+.search-dialog:not(:has(.pf-searchbox.open .pf-searchbox-result:not(.pf-searchbox-placeholder))) .search-dialog-footer {
   display: none;
 }
 
-.search-dialog .pf-searchbox-input {
-  transition:
-    border-color 200ms ease,
-    box-shadow 200ms ease;
+.search-dialog .kbd {
+  color: hsl(var(--muted-foreground));
+  background: hsl(var(--muted));
+  border-color: hsl(var(--border));
+  box-shadow: 0 1px 0 hsl(var(--border));
+}
+
+:is(*, #\#):is(*, #\#):is(*, #\#) .search-dialog .pf-searchbox-input-wrapper::before {
+  inset-inline-start: 1.125rem;
+  top: calc((var(--pf-input-height) - 1.125rem) / 2);
+  width: 1.125rem;
+  height: 1.125rem;
+  background-color: hsl(var(--primary));
+}
+
+:is(*, #\#):is(*, #\#):is(*, #\#) .search-dialog .pf-searchbox-input {
+  padding-inline: 3rem 5rem;
+  border: 0;
+  border-bottom: 1px solid transparent;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  caret-color: hsl(var(--primary));
+  transition: border-color 200ms var(--ease-out-quart);
+}
+
+:is(*, #\#):is(*, #\#):is(*, #\#) .search-dialog .pf-searchbox.open .pf-searchbox-input {
+  border-bottom-color: color-mix(in oklab, currentColor 10%, transparent);
+}
+
+:is(*, #\#):is(*, #\#):is(*, #\#) .search-dialog .pf-searchbox-dropdown {
+  position: static;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+:is(*, #\#):is(*, #\#):is(*, #\#) .search-dialog .pf-searchbox-results {
+  padding: 0.5rem;
+  scrollbar-width: thin;
+  scrollbar-color: hsl(var(--primary) / 0.3) transparent;
+}
+
+:is(*, #\#):is(*, #\#):is(*, #\#) .search-dialog .pf-searchbox-result {
+  padding: 0.625rem 0.875rem;
+  border-radius: 0.75rem;
+  transition: background-color 160ms var(--ease-out-quart);
+}
+
+:is(*, #\#):is(*, #\#):is(*, #\#) .search-dialog .pf-searchbox-result:hover {
+  background: hsl(var(--primary) / 0.06);
+}
+
+:is(*, #\#):is(*, #\#):is(*, #\#) .search-dialog .pf-searchbox-result[data-pf-selected] {
+  outline: none;
+  background: hsl(var(--primary) / 0.1);
 }
 
 :is(*, #\#):is(*, #\#):is(*, #\#) .search-dialog .pf-searchbox-result-title {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  transition: color 160ms var(--ease-out-quart);
+}
+
+:is(*, #\#):is(*, #\#):is(*, #\#) .search-dialog .pf-searchbox-result[data-pf-selected] .pf-searchbox-result-title {
   color: hsl(var(--primary));
-  font-size: 0.95rem;
 }
 
 :is(*, #\#):is(*, #\#):is(*, #\#) .search-dialog .pf-searchbox-result-excerpt {
   display: -webkit-box;
+  margin-top: 0.25rem;
   overflow: hidden;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 2;
+  font-size: 0.8125rem;
+  line-height: 1.6;
   white-space: normal;
   text-overflow: clip;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+:is(*, #\#):is(*, #\#):is(*, #\#) .search-dialog .pf-searchbox-result-excerpt mark {
+  padding: 0 0.1em;
+  border-radius: 0.2em;
+  background: hsl(var(--primary) / 0.12);
+  color: hsl(var(--primary));
+}
+
+:is(*, #\#):is(*, #\#):is(*, #\#) .search-dialog :is(.pf-searchbox-empty, .pf-searchbox-loading) {
+  padding: 2rem 1rem;
+  font-size: 0.875rem;
 }
 
 @media (max-width: 768px) {
-  :root {
-    --pf-input-font-size: 0.875rem;
-    --pf-searchbox-dropdown-max-height: calc(80dvh - 11rem);
+  .search-dialog {
+    /* 16px keeps iOS from zooming the page when the input takes focus. */
+    --pf-input-font-size: 1rem;
+    --pf-searchbox-dropdown-max-height: calc(100dvh - 7rem);
   }
 }
 

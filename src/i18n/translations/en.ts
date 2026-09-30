@@ -87,7 +87,6 @@ export const uiStrings: UIStrings = {
   'search.suggestion': 'No results found. Try searching for:',
   'search.searching': 'Searching [SEARCH_TERM]...',
   'search.dialogTitle': 'Search Posts',
-  'search.dialogHint': 'Type keywords to search blog posts',
   'search.dialogClose': 'Close',
   'search.dialogSelect': 'Select',
   'search.dialogOpen': 'Open',

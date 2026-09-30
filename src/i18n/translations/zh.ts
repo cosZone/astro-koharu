@@ -86,7 +86,6 @@ export const uiStrings = {
   'search.suggestion': '没有找到结果。尝试以下搜索：',
   'search.searching': '搜索 [SEARCH_TERM]...',
   'search.dialogTitle': '搜索文章',
-  'search.dialogHint': '输入关键词搜索博客文章',
   'search.dialogClose': '关闭',
   'search.dialogSelect': '选择',
   'search.dialogOpen': '打开',

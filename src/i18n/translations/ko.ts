@@ -85,7 +85,6 @@ export const uiStrings = {
   'search.suggestion': '결과가 없어요. 다음 검색어를 시도해 보세요:',
   'search.searching': '[SEARCH_TERM] 검색 중...',
   'search.dialogTitle': '게시물 검색',
-  'search.dialogHint': '검색어를 입력하여 블로그 게시물을 검색해 주세요',
   'search.dialogClose': '닫기',
   'search.dialogSelect': '선택',
   'search.dialogOpen': '열기',
