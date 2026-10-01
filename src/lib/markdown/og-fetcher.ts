@@ -24,13 +24,19 @@ export interface OGData {
 
 const TIMEOUT_MS = 5000; // 5 second timeout (most sites respond within 1-2s)
 
+// Favicon probes run on got 11 (via reachable-url, which retries once by default). A retry that
+// fires after the request already settled throws "The `onCancel` handler was attached after the
+// promise settled" from an event listener, outside any promise, and crashes the build. Probe once,
+// with a bounded wait.
+const FAVICON_PROBE = { retry: 0, timeout: TIMEOUT_MS };
+
 const scraper = metascraper([
   metascraperDescription(),
   metascraperImage(),
   metascraperLogo(),
   metascraperTitle(),
   metascraperUrl(),
-  metascraperLogoFavicon(),
+  metascraperLogoFavicon({ gotOpts: FAVICON_PROBE }),
 ]);
 
 /**
