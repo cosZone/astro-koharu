@@ -59,15 +59,13 @@ export function HeadingTreeItem({ heading, depth = 0, numberPath, numbered, chil
         </a>
         {isVisibleCurrent && (
           <span
-            className="toc-section-progress"
+            className="toc-section-progress sr-only"
             role="progressbar"
             aria-label={`${heading.text}: ${t('toc.sectionProgress')}`}
             aria-valuemin={0}
             aria-valuemax={100}
             aria-valuenow={0}
-          >
-            0%
-          </span>
+          />
         )}
       </div>
       {hasChildren && (

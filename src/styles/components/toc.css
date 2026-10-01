@@ -2,13 +2,12 @@
   Silk-ribbon table of contents. Each level steps the ribbon, its knot and the text one lane to the
   right; the ribbon folds in the gap between two rows (src/lib/toc-ribbon.ts), so a row's own
   stretch of ribbon lies inside the row, where the wash and the petal stay while it is read.
-  Numbers hang right-aligned against the text on its first line, and the right gutter keeps room for
-  the section readout on every row, so a row never rewraps when it becomes current.
+  Numbers hang right-aligned against the text on its first line. The ribbon and petal carry the
+  visible section progress; its numeric value remains available to screen readers.
 */
 .toc-silk-container {
   --toc-axis: 0.625rem;
   --toc-lane: 1rem;
-  --toc-gutter: 1.75rem;
   position: relative;
 }
 
@@ -61,7 +60,7 @@
 .silk-heading-link {
   position: relative;
   display: block;
-  padding: var(--toc-pad) var(--toc-gutter) var(--toc-pad) calc(var(--toc-x) + var(--toc-indent));
+  padding: var(--toc-pad) 0.5rem var(--toc-pad) calc(var(--toc-x) + var(--toc-indent));
   border-radius: 0.625rem;
   color: var(--toc-ink);
   font-size: var(--toc-size);
@@ -156,17 +155,6 @@
 .silk-heading-link:focus-visible {
   outline: 2px solid hsl(var(--primary) / 0.65);
   outline-offset: -2px;
-}
-
-.toc-section-progress {
-  position: absolute;
-  top: var(--toc-pad);
-  right: 0.375rem;
-  color: hsl(var(--primary) / 0.8);
-  font-size: 0.625rem;
-  line-height: var(--toc-line);
-  font-variant-numeric: tabular-nums;
-  pointer-events: none;
 }
 
 .silk-heading-children {

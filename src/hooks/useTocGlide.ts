@@ -169,7 +169,6 @@ function createTocGlide(nav: HTMLElement, parts: TocGlideParts): TocGlideControl
     if (readout) {
       const percent = String(Math.round(readFraction(visible) * 100));
       if (readout.getAttribute('aria-valuenow') !== percent) {
-        readout.textContent = `${percent}%`;
         readout.setAttribute('aria-valuenow', percent);
       }
     }
