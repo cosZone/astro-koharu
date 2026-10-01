@@ -261,6 +261,10 @@ export default defineConfig({
     build: {
       // Enable sourcemap for Sonda bundle analysis
       sourcemap: isAnalyze,
+      // Astro builds for "esnext", which leaves the CSS minifier (lightningcss) without browser
+      // targets; it then folds `animation-timeline` into the `animation` shorthand, which browsers
+      // reject, dropping every scroll-driven animation. Minify for Tailwind v4's browser floor.
+      cssTarget: ['chrome111', 'edge111', 'firefox128', 'safari16.4'],
     },
     plugins: [...(isAnalyze ? [Sonda({ open: false })] : []), yaml(), conditionalSnowfall(), svgr(), tailwindcss()],
     resolve: {
