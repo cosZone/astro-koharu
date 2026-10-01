@@ -86,9 +86,16 @@ test('revealPath is idempotent and preserves reference identity', () => {
   assert.equal(second, first);
 });
 
-test('a childless top-level target is a no-op', () => {
+test('a childless top-level target closes the other chapters', () => {
   const headings = tree();
-  const current = new Set(['a', 'a1']);
+  // `a1` sits inside the closed chapter, as with any branch off the touched levels
+  assert.deepEqual(ids(revealPath(headings, 'c', new Set(['a', 'a1']))), ['a1']);
+  assert.deepEqual(ids(revealPath(headings, 'c', new Set(['a', 'b']))), []);
+});
+
+test('a childless top-level target keeps the reference when no chapter is open', () => {
+  const headings = tree();
+  const current = new Set(['a1']);
   assert.equal(revealPath(headings, 'c', current), current);
 });
 

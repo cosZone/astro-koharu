@@ -91,10 +91,12 @@ function hasSameMembers(a: Set<string>, b: Set<string>): boolean {
 /**
  * Expanded-set transition that reveals `targetId`: opens every ancestor on its
  * path (plus the target itself when it has children) and collapses the
- * child-bearing siblings at each of those levels — the accordion effect.
+ * child-bearing siblings at each of those levels — the accordion effect. A
+ * childless top-level target opens nothing but still closes the other
+ * chapters, so only the current chapter is ever unfolded.
  *
- * Returns `currentExpanded` unchanged (same reference) when there is nothing to
- * reveal, so React can bail out of the update.
+ * Returns `currentExpanded` unchanged (same reference) when nothing changes,
+ * so React can bail out of the update.
  */
 export function revealPath(headings: Heading[], targetId: string, currentExpanded: Set<string>): Set<string> {
   const target = findHeadingById(headings, targetId);
@@ -102,9 +104,11 @@ export function revealPath(headings: Heading[], targetId: string, currentExpande
 
   const path = getParentIds(target);
   if (target.children.length > 0) path.unshift(target.id);
-  if (path.length === 0) return currentExpanded;
 
   const next = new Set(currentExpanded);
+  if (path.length === 0) {
+    for (const siblingId of getSiblingIds(target, headings)) next.delete(siblingId);
+  }
   for (const id of path) {
     const node = findHeadingById(headings, id);
     if (!node) continue;
