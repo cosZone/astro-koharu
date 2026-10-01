@@ -14,6 +14,7 @@ import { useScrollTrigger } from '@hooks/useScrollTrigger';
 import { Icon } from '@iconify/react';
 import { filterNavItems } from '@lib/utils';
 import { memo, useEffect, useRef, useState } from 'react';
+import { flushSync } from 'react-dom';
 import { defaultLocale, localizedPath, resolveNavName, stripLocaleFromPath } from '@/i18n';
 import DropdownNav from './DropdownNav';
 import LanguageSwitcher from './LanguageSwitcher';
@@ -60,7 +61,7 @@ function ButtonLink({ url, label, isActive, glideKey, onIntent, children }: Butt
       data-glide-key={glideKey}
       onPointerEnter={onIntent}
       onFocus={onIntent}
-      className="relative flex items-center px-3 py-2 text-base tracking-wider outline-none"
+      className="relative flex items-center px-3 py-2 text-base tracking-wider"
     >
       {children}
     </a>
@@ -92,6 +93,22 @@ const Navigator = memo(function Navigator({ currentPath, locale = defaultLocale 
   const navRef = useRef<HTMLElement>(null);
   const indicatorRef = useRef<HTMLSpanElement>(null);
   useGlideIndicator(navRef, indicatorRef, intent ?? (openKey === languageMenuKey ? null : openKey) ?? activeKey);
+
+  useEffect(() => {
+    // Portals live outside the persisted island; close them before Astro replaces the body.
+    const closeForNavigation = () => {
+      flushSync(() => {
+        setOpenKey(null);
+        setIntent(null);
+      });
+    };
+    document.addEventListener('astro:before-preparation', closeForNavigation);
+    document.addEventListener('astro:before-swap', closeForNavigation);
+    return () => {
+      document.removeEventListener('astro:before-preparation', closeForNavigation);
+      document.removeEventListener('astro:before-swap', closeForNavigation);
+    };
+  }, []);
 
   // Apply with-background class based on scroll position
   useEffect(() => {

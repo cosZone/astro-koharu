@@ -69,7 +69,7 @@ const DropdownNavComponent = ({
     >
       <button
         type="button"
-        className={cn('relative inline-flex h-10 items-center py-2 pr-5 pl-3 text-base tracking-wider outline-none', className)}
+        className={cn('relative inline-flex h-10 items-center py-2 pr-5 pl-3 text-base tracking-wider', className)}
         aria-expanded={open}
         aria-haspopup="true"
         aria-label={t(locale, 'common.menuLabel', { name })}
