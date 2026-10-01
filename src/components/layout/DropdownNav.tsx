@@ -2,8 +2,9 @@ import Popover from '@components/ui/popover';
 import type { Router } from '@constants/router';
 import { Icon } from '@iconify/react';
 import { cn } from '@lib/utils';
-import { memo, useCallback, useState } from 'react';
+import { memo, useCallback, useMemo, useState } from 'react';
 import { defaultLocale, localizedPath, resolveNavName, stripLocaleFromPath, t } from '@/i18n';
+import { NavMenu, type NavMenuItem } from './NavMenu';
 
 interface DropdownNavProps {
   item: Router;
@@ -35,40 +36,29 @@ const DropdownNavComponent = ({
 
   const strippedPath = stripLocaleFromPath(currentPath);
 
+  const menuItems = useMemo<NavMenuItem[]>(
+    () =>
+      (children ?? []).flatMap((child) =>
+        child.path
+          ? [
+              {
+                key: child.path,
+                href: child.localeIndependent ? child.path : localizedPath(child.path, locale),
+                label: resolveNavName(child.nameKey, child.name, locale),
+                icon: child.icon,
+                current: strippedPath === child.path,
+              },
+            ]
+          : [],
+      ),
+    [children, strippedPath, locale],
+  );
+
   // Picking an item closes the menu first: the Navigator persists across the page swap, and an open
   // menu would stay open in a portal left behind on the old page.
   const renderDropdownContent = useCallback(
-    ({ close }: { close: () => void }) => (
-      <div className="nav-dropdown">
-        {children?.length
-          ? children.map((child: Router) => {
-              const childName = resolveNavName(child.nameKey, child.name, locale);
-              const childUrl = child.path
-                ? child.localeIndependent
-                  ? child.path
-                  : localizedPath(child.path, locale)
-                : child.path;
-              return (
-                <a
-                  key={child.path}
-                  href={childUrl}
-                  onClick={close}
-                  aria-current={strippedPath === child.path ? 'page' : undefined}
-                  className="nav-dropdown-item text-base"
-                >
-                  {child.icon && (
-                    <span className="inline-flex size-4 shrink-0 items-center justify-center">
-                      <Icon icon={child.icon} className="size-4" />
-                    </span>
-                  )}
-                  {childName}
-                </a>
-              );
-            })
-          : null}
-      </div>
-    ),
-    [children, strippedPath, locale],
+    ({ close }: { close: () => void }) => <NavMenu items={menuItems} onSelect={close} />,
+    [menuItems],
   );
 
   return (

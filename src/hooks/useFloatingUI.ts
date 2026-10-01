@@ -42,6 +42,7 @@ import {
   arrow,
   autoUpdate,
   flip,
+  type OpenChangeReason,
   offset as offsetMiddleware,
   type Placement,
   shift,
@@ -63,8 +64,8 @@ export interface UseFloatingUIOptions {
   autoUpdate?: boolean;
   /** Open state for stateful floating elements (popovers, tooltips) */
   open?: boolean;
-  /** Callback when open state changes */
-  onOpenChange?: (open: boolean) => void;
+  /** Callback when open state changes, with the event and reason Floating UI reports */
+  onOpenChange?: (open: boolean, event?: Event, reason?: OpenChangeReason) => void;
   /** Disable transform CSS for better compatibility */
   transform?: boolean;
   /** Flip fallback direction */

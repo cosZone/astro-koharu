@@ -14,6 +14,7 @@ import { Icon } from '@iconify/react';
 import { cn } from '@lib/utils';
 import { memo, useCallback, useSyncExternalStore } from 'react';
 import { getAlternateUrl, getLocaleFromUrl, localeEntries } from '@/i18n';
+import { NavMenu } from './NavMenu';
 
 /** Subscribe to pathname changes via Astro's `astro:page-load` event. */
 function subscribePathname(callback: () => void) {
@@ -46,28 +47,15 @@ const LanguageSwitcherComponent = ({ locale: _ssrLocale, className }: LanguageSw
 
   const renderDropdownContent = useCallback(
     ({ close }: { close: () => void }) => (
-      <div className="nav-dropdown">
-        {localeEntries.map((entry) => {
-          const isActive = entry.code === locale;
-          const targetUrl = getAlternateUrl(currentPath, entry.code);
-          return (
-            <a
-              key={entry.code}
-              href={targetUrl}
-              onClick={close}
-              aria-current={isActive ? 'page' : undefined}
-              className="nav-dropdown-item text-sm"
-            >
-              {entry.label}
-              {isActive && (
-                <span className="ml-auto inline-flex size-3.5 shrink-0 items-center justify-center">
-                  <Icon icon="ri:check-line" className="size-3.5" />
-                </span>
-              )}
-            </a>
-          );
-        })}
-      </div>
+      <NavMenu
+        items={localeEntries.map((entry) => ({
+          key: entry.code,
+          href: getAlternateUrl(currentPath, entry.code),
+          label: entry.label,
+          current: entry.code === locale,
+        }))}
+        onSelect={close}
+      />
     ),
     [locale, currentPath],
   );

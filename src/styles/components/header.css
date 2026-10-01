@@ -205,48 +205,90 @@ html.theme-transition .header-content {
   }
 }
 
-/* Portaled navigation menus share the capsule's surface and inset, rounded highlights. */
+/*
+  Portaled header menus are cut from the capsule's glass, a little denser so they stay legible over
+  the cover. One highlight glides between their items like the nav pill (NavMenu): it rests on the
+  current page and follows the pointer or keyboard focus.
+*/
 .nav-popover {
-  border-radius: 1.25rem;
-  background: hsl(var(--popover) / 0.94);
+  border: 1px solid hsl(var(--primary) / 0.16);
+  border-radius: 1rem;
+  background: color-mix(in oklab, var(--gradient-bg-start) 86%, transparent);
   box-shadow:
-    0 0 0 1px hsl(var(--primary) / 0.12),
-    0 0.75rem 2rem -0.75rem hsl(var(--primary) / 0.18),
-    0 0.25rem 0.75rem -0.25rem rgb(40 20 40 / 0.08);
+    0 0.75rem 2rem -1rem rgb(233 84 107 / 0.3),
+    0 0.25rem 0.75rem -0.5rem rgb(40 20 40 / 0.12);
+  backdrop-filter: blur(16px) saturate(1.5);
 }
 
 .dark .nav-popover {
+  border-color: hsl(var(--primary) / 0.22);
   box-shadow:
-    0 0 0 1px hsl(var(--primary) / 0.18),
-    0 0.75rem 2rem -0.75rem rgb(0 0 0 / 0.45);
+    0 0.75rem 2rem -1rem rgb(0 0 0 / 0.65),
+    inset 0 1px 0 rgb(255 255 255 / 0.04);
 }
 
 .nav-dropdown {
+  position: relative;
+  isolation: isolate;
   display: flex;
-  min-width: 8.5rem;
+  min-width: 9rem;
   flex-direction: column;
   gap: 0.125rem;
   padding: 0.375rem;
 }
 
-.nav-dropdown-item {
-  display: flex;
-  min-height: 2.75rem;
-  align-items: center;
-  gap: 0.625rem;
-  padding: 0.625rem 0.875rem;
-  border-radius: 0.875rem;
-  color: hsl(var(--popover-foreground) / 0.85);
-  text-shadow: none;
-  white-space: nowrap;
-  transition:
-    background-color 150ms ease-out,
-    color 150ms ease-out;
+.nav-dropdown-indicator {
+  position: absolute;
+  top: 0;
+  inset-inline: 0.375rem;
+  z-index: -1;
+  border-radius: 0.625rem;
+  background: hsl(var(--primary) / 0.12);
+  pointer-events: none;
 }
 
-.nav-dropdown-item:is(:hover, :focus-visible, [aria-current="page"]) {
-  background: hsl(var(--primary) / 0.12);
+.nav-dropdown-indicator[data-visible="false"] {
+  opacity: 0;
+  scale: 0.92 0.7;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  html:is([data-motion="lively"], [data-motion="subtle"]) .nav-dropdown-indicator {
+    transition:
+      opacity 200ms var(--ease-out-quart),
+      scale 420ms var(--ease-out-expo);
+  }
+
+  html:is([data-motion="lively"], [data-motion="subtle"]) .nav-dropdown-indicator[data-visible="false"] {
+    transition:
+      opacity 140ms var(--ease-in-quart),
+      scale 160ms var(--ease-in-quart);
+  }
+}
+
+.nav-dropdown-item {
+  display: flex;
+  min-height: 2.25rem;
+  align-items: center;
+  gap: 0.625rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.625rem;
+  color: hsl(var(--popover-foreground) / 0.78);
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  letter-spacing: 0.04em;
+  text-shadow: none;
+  white-space: nowrap;
+  transition: color 160ms var(--ease-out-quart);
+}
+
+.nav-dropdown-item:is(:hover, :focus-visible) {
+  color: hsl(var(--foreground));
+}
+
+.nav-dropdown-item[aria-current="page"] {
   color: hsl(var(--primary));
+  font-weight: 500;
 }
 
 .nav-dropdown-item:focus-visible {
