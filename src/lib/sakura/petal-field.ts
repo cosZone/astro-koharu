@@ -138,10 +138,11 @@ export class PetalField {
 
   private update(dt: number): void {
     const breeze = 14 + Math.sin(this.clock * 0.13) * 10 + Math.sin(this.clock * 0.37) * 4;
-    const rect = this.canvas.getBoundingClientRect();
-    const px = this.pointer.x - rect.left;
-    const py = this.pointer.y - rect.top;
-    const pointerFresh = performance.now() - this.pointer.time < 120;
+    const pointerFresh = this.pointer.time !== 0 && performance.now() - this.pointer.time < 120;
+    // The cover's position only matters while a recent pointer movement is brushing petals.
+    const rect = pointerFresh ? this.canvas.getBoundingClientRect() : null;
+    const px = this.pointer.x - (rect?.left ?? 0);
+    const py = this.pointer.y - (rect?.top ?? 0);
     const decay = Math.exp(-2.6 * dt);
 
     for (const petal of this.petals) {

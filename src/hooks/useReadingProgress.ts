@@ -37,7 +37,7 @@ export interface ReadingProgress {
   subscribeFrame: (listener: ReadingFrameListener) => () => void;
 }
 
-export function useReadingProgress(headings: Heading[], offsetTop: number): ReadingProgress {
+export function useReadingProgress(headings: Heading[], offsetTop: number, enabled = true): ReadingProgress {
   const flat = useMemo(() => flattenHeadings(headings), [headings]);
   const order = useMemo(() => new Map(flat.map((heading, index) => [heading.id, index])), [flat]);
   const [activeIndex, setActiveIndex] = useState(-1);
@@ -55,6 +55,7 @@ export function useReadingProgress(headings: Heading[], offsetTop: number): Read
   useEffect(() => {
     setActiveIndex(-1);
     latest.current = { id: '', progress: 0 };
+    if (!enabled) return;
 
     const article = document.querySelector('article');
     const elements = flat.map((heading) => document.getElementById(heading.id));
@@ -111,7 +112,7 @@ export function useReadingProgress(headings: Heading[], offsetTop: number): Read
       // A TOC click pins its heading while the smooth scroll runs. The sections it flies past were
       // skipped: they should not become active.
       const lockedIndex = order.get(getLockedHeadingId() ?? '') ?? -1;
-      const lockedVisibleIndex = visibleIndexes.indexOf(lockedIndex);
+      const lockedVisibleIndex = lockedIndex >= 0 ? visibleIndexes.indexOf(lockedIndex) : -1;
       if (lockedVisibleIndex >= 0) {
         position = { index: lockedVisibleIndex, progress: position.index === lockedVisibleIndex ? position.progress : 0 };
       }
@@ -169,7 +170,7 @@ export function useReadingProgress(headings: Heading[], offsetTop: number): Read
       observer.disconnect();
       visibilityObserver.disconnect();
     };
-  }, [flat, order, offsetTop]);
+  }, [flat, order, offsetTop, enabled]);
 
   return { flat, activeIndex, subscribeFrame };
 }

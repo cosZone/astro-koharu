@@ -48,6 +48,7 @@ function ownerRow(element: HTMLElement): HTMLElement | null {
 function createTocGlide(nav: HTMLElement, parts: TocGlideParts): TocGlideController {
   let row: HTMLElement | null = null;
   let rows: HTMLElement[] = [];
+  let passedRows: boolean[] = [];
   let boxes: RibbonRow[] = [];
   let knots: number[] = [];
   let ribbon: Ribbon = buildRibbon([]);
@@ -105,6 +106,7 @@ function createTocGlide(nav: HTMLElement, parts: TocGlideParts): TocGlideControl
       knots.push(knot.y + node.offsetHeight / 2);
     }
     ribbon = buildRibbon(boxes);
+    passedRows = rows.map((element) => element.hasAttribute('data-passed'));
     parts.thread.setAttribute('d', ribbon.d);
     parts.tail.setAttribute('d', ribbon.d);
     // Dash lengths in the ribbon's own units, so the dyed stretch ends exactly under the petal.
@@ -162,7 +164,10 @@ function createTocGlide(nav: HTMLElement, parts: TocGlideParts): TocGlideControl
     parts.tail.style.strokeDashoffset = String(ribbon.length - at);
     rows.forEach((element, index) => {
       const passed = knots[index] < point.y - 1;
-      if (element.hasAttribute('data-passed') !== passed) element.toggleAttribute('data-passed', passed);
+      if (passedRows[index] !== passed) {
+        passedRows[index] = passed;
+        element.toggleAttribute('data-passed', passed);
+      }
     });
     const visible = visibleRow();
     const readout = visible?.parentElement?.querySelector<HTMLElement>('.toc-section-progress');
@@ -269,6 +274,7 @@ function createTocGlide(nav: HTMLElement, parts: TocGlideParts): TocGlideControl
         wash = null;
         petal = null;
         for (const element of rows) element.removeAttribute('data-passed');
+        passedRows.fill(false);
         return;
       }
       const onScreen = wash !== null;

@@ -61,7 +61,10 @@ export function MobilePostHeader({
   const isMobile = useMediaQuery('(max-width: 992px)');
 
   // The header title and dropdown follow the same reading position.
-  const { headings, toc, subscribeFrame } = useTocController({ offsetTop: SCROLL_OFFSET_TOP + 40 });
+  const { headings, toc, subscribeFrame } = useTocController({
+    offsetTop: SCROLL_OFFSET_TOP + 40,
+    enabled: isMobile && isPostPage,
+  });
   const currentHeading = findHeadingById(headings, toc.activeId);
 
   // Determine if we should show heading mode
@@ -78,7 +81,12 @@ export function MobilePostHeader({
 
   // If not mobile or not a post page, always show logo
   if (!isMobile) {
-    return <Logo logoElement={logoElement} logoText={logoText} logoSrc={logoSrc} />;
+    // Keep motion features ready when a breakpoint change enables reading tracking.
+    return (
+      <LazyMotionProvider>
+        <Logo logoElement={logoElement} logoText={logoText} logoSrc={logoSrc} />
+      </LazyMotionProvider>
+    );
   }
 
   return (

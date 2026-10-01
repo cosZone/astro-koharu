@@ -5,9 +5,12 @@
  * Uses custom hooks for state management and sub-components for better organization.
  */
 
+import { useMediaQuery } from '@hooks/useMediaQuery';
 import { useTocController } from '@hooks/useTocController';
 import { useTranslation } from '@hooks/useTranslation';
 import { cn } from '@lib/utils';
+import { useStore } from '@nanostores/react';
+import { $isDrawerOpen } from '@store/modal';
 import { HeadingList } from './HeadingList';
 import { TocProvider } from './TocContext';
 import { TocGlide } from './TocGlide';
@@ -16,6 +19,8 @@ import { TocGlide } from './TocGlide';
 const SCROLL_OFFSET_TOP = 120; // Offset for header height when detecting active heading
 
 interface TableOfContentsProps {
+  /** Drawer navigation tracks only while it is open on a narrow viewport. */
+  isDrawer?: boolean;
   /** Whether headings should be expanded by default */
   defaultExpanded?: boolean;
   /** Whether to enable heading numbering (default: true) */
@@ -28,9 +33,19 @@ interface TableOfContentsProps {
  * Main container for the table of contents. Manages heading state and
  * delegates rendering to HeadingList sub-component.
  */
-export function TableOfContents({ defaultExpanded = false, enableNumbering = true }: TableOfContentsProps = {}) {
+export function TableOfContents({
+  isDrawer = false,
+  defaultExpanded = false,
+  enableNumbering = true,
+}: TableOfContentsProps = {}) {
   const { t } = useTranslation();
-  const { headings, toc, subscribeFrame } = useTocController({ offsetTop: SCROLL_OFFSET_TOP, defaultExpanded });
+  const isMobile = useMediaQuery('(max-width: 992px)');
+  const drawerOpen = useStore($isDrawerOpen);
+  const { headings, toc, subscribeFrame } = useTocController({
+    offsetTop: SCROLL_OFFSET_TOP,
+    defaultExpanded,
+    enabled: isDrawer ? isMobile && drawerOpen : !isMobile,
+  });
 
   // Empty state
   if (headings.length === 0) {

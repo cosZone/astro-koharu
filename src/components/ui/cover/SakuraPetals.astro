@@ -58,7 +58,7 @@
 
       const onVisibilityChange = () => this.sync();
       const onPointerMove = (event: PointerEvent) => {
-        if (event.pointerType === 'mouse') field.brush(event.clientX, event.clientY);
+        if (field.running && event.pointerType === 'mouse') field.brush(event.clientX, event.clientY);
       };
       document.addEventListener('visibilitychange', onVisibilityChange);
       window.addEventListener('pointermove', onPointerMove, { passive: true });

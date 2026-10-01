@@ -84,13 +84,37 @@ function isMetingSong(obj: unknown): obj is MetingSong {
   return typeof o.name === 'string' && typeof o.artist === 'string' && typeof o.url === 'string';
 }
 
+/** Some HTTPS Meting servers return HTTP links whose redirects fail browser CORS checks. */
+function normalizeMediaUrls(songs: MetingSong[], apiUrl: URL): MetingSong[] {
+  if (apiUrl.protocol !== 'https:') return songs;
+
+  const normalize = (source: string): string => {
+    if (!source?.startsWith('http://')) return source;
+    try {
+      const url = new URL(source);
+      if (url.host !== apiUrl.host) return source;
+      url.protocol = 'https:';
+      return url.href;
+    } catch {
+      return source;
+    }
+  };
+
+  return songs.map((song) => ({
+    ...song,
+    url: normalize(song.url),
+    pic: normalize(song.pic),
+    lrc: normalize(song.lrc),
+  }));
+}
+
 /** Fetch songs from Meting API for a single parsed URL. */
 export async function fetchMeting(server: string, type: string, id: string, apiUrl?: string): Promise<MetingSong[]> {
+  const url = new URL(apiUrl || DEFAULT_API);
   const cacheKey = getCacheKey(server, type, id);
   const cached = getFromCache(cacheKey);
-  if (cached) return cached;
+  if (cached) return normalizeMediaUrls(cached, url);
 
-  const url = new URL(apiUrl || DEFAULT_API);
   const params = new URLSearchParams({ server, type, id });
   url.search = params.toString();
   const response = await fetch(url);
@@ -98,7 +122,7 @@ export async function fetchMeting(server: string, type: string, id: string, apiU
 
   const data: unknown = await response.json();
   if (!Array.isArray(data)) return [];
-  const songs = data.filter(isMetingSong) as MetingSong[];
+  const songs = normalizeMediaUrls(data.filter(isMetingSong), url);
   if (songs.length > 0) setCache(cacheKey, songs);
   return songs;
 }

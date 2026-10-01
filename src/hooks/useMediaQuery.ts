@@ -16,7 +16,7 @@
  * ```
  */
 
-import { useSyncExternalStore } from 'react';
+import { useMemo, useSyncExternalStore } from 'react';
 
 /**
  * Hook for media query matching
@@ -25,25 +25,21 @@ import { useSyncExternalStore } from 'react';
  * @returns Whether the media query matches
  */
 export function useMediaQuery(query: string): boolean {
-  return useSyncExternalStore(
-    (callback) => {
-      // Ensure we're in browser environment
-      if (typeof window === 'undefined' || !window.matchMedia) {
-        return () => {};
-      }
+  // Reuse the live query and subscription across unrelated renders and snapshot reads.
+  const store = useMemo(() => {
+    const mediaQuery = typeof window !== 'undefined' && window.matchMedia ? window.matchMedia(query) : null;
+    return {
+      subscribe(callback: () => void) {
+        mediaQuery?.addEventListener('change', callback);
+        return () => mediaQuery?.removeEventListener('change', callback);
+      },
+      getSnapshot: () => mediaQuery?.matches ?? false,
+    };
+  }, [query]);
 
-      const mediaQuery = window.matchMedia(query);
-      // Use callback as the listener (it triggers re-render)
-      mediaQuery.addEventListener('change', callback);
-      return () => mediaQuery.removeEventListener('change', callback);
-    },
-    () => {
-      // Get current snapshot
-      if (typeof window === 'undefined' || !window.matchMedia) {
-        return false;
-      }
-      return window.matchMedia(query).matches;
-    },
+  return useSyncExternalStore(
+    store.subscribe,
+    store.getSnapshot,
     () => false, // SSR snapshot - always false to avoid hydration mismatch
   );
 }

@@ -55,10 +55,6 @@ const SECTIONS: SettingSection[] = ['reader', 'general'];
 // settings button smoothly even while the main thread is busy; the exit is quicker than the entrance.
 const PANEL_HIDDEN = 'translate3d(8px, 12px, 0px) scale(0.94)';
 const PANEL_SHOWN = 'translate3d(0px, 0px, 0px) scale(1)';
-const PANEL_ENTER: Transition = {
-  transform: animation.spring.popover,
-  opacity: { duration: 0.16, ease: animation.bezier.outQuart },
-};
 const PANEL_EXIT: Transition = { duration: 0.14, ease: animation.bezier.inQuart };
 const MOTION_HINT_KEYS: Record<MotionLevel, TranslationKey> = {
   lively: 'settings.motionLevel.livelyHint',
@@ -167,6 +163,26 @@ export default function SettingsPanelContent() {
   const role = useRole(context, { role: 'dialog' });
   const { getFloatingProps } = useInteractions([dismiss, role]);
 
+  const panelTransition = (visible: boolean): Transition => {
+    const fade = fadeOnly
+      ? { duration: visible ? 0.15 : 0.12 }
+      : visible
+        ? { duration: 0.16, ease: animation.bezier.outQuart }
+        : PANEL_EXIT;
+    // Motion 11 cancels each native animation before its final styles render on the next frame.
+    // Commit each property synchronously so neither the fade nor spring reveals the initial style.
+    return {
+      opacity: {
+        ...fade,
+        onComplete: () => refs.floating.current?.style.setProperty('opacity', visible ? '1' : '0'),
+      },
+      transform: {
+        ...(visible ? animation.spring.popover : PANEL_EXIT),
+        onComplete: () => refs.floating.current?.style.setProperty('transform', visible ? PANEL_SHOWN : PANEL_HIDDEN),
+      },
+    };
+  };
+
   const renderControl = (item: SettingItem) => {
     const disabled = Boolean(item.disabledByReducedMotion && reducedLevel);
 
@@ -193,13 +209,15 @@ export default function SettingsPanelContent() {
                     active ? 'text-primary-foreground' : 'bg-muted text-muted-foreground hover:bg-accent hover:text-foreground',
                   )}
                 >
-                  {active && (
-                    <m.span
-                      layoutId={`settings-${item.key}-pill`}
-                      className="absolute inset-0 rounded-md bg-primary"
-                      transition={shouldReduceMotion ? { duration: 0 } : microReboundPreset}
-                    />
-                  )}
+                  <AnimatePresence initial={false}>
+                    {active && (
+                      <m.span
+                        layoutId={`settings-${item.key}-pill`}
+                        className="absolute inset-0 rounded-md bg-primary"
+                        transition={shouldReduceMotion ? { duration: 0 } : microReboundPreset}
+                      />
+                    )}
+                  </AnimatePresence>
                   <span className="relative">{t(option.i18nKey)}</span>
                 </button>
               );
@@ -250,13 +268,13 @@ export default function SettingsPanelContent() {
               initial={fadeOnly ? { opacity: 0 } : { opacity: 0, transform: PANEL_HIDDEN }}
               animate={
                 fadeOnly
-                  ? { opacity: 1, transition: { duration: 0.15 } }
-                  : { opacity: 1, transform: PANEL_SHOWN, transition: PANEL_ENTER }
+                  ? { opacity: 1, transition: panelTransition(true) }
+                  : { opacity: 1, transform: PANEL_SHOWN, transition: panelTransition(true) }
               }
               exit={
                 fadeOnly
-                  ? { opacity: 0, transition: { duration: 0.12 } }
-                  : { opacity: 0, transform: PANEL_HIDDEN, transition: PANEL_EXIT }
+                  ? { opacity: 0, transition: panelTransition(false) }
+                  : { opacity: 0, transform: PANEL_HIDDEN, transition: panelTransition(false) }
               }
             >
               <div className="flex h-[calc(100dvh-6rem)] max-h-96 flex-col overflow-hidden rounded-2xl border border-border bg-popover p-4 text-popover-foreground shadow-xl">
@@ -287,13 +305,16 @@ export default function SettingsPanelContent() {
                           active ? 'text-foreground' : 'text-muted-foreground hover:text-foreground',
                         )}
                       >
-                        {active && (
-                          <m.span
-                            layoutId="settings-section-pill"
-                            className="absolute inset-0 rounded-md bg-background shadow-sm"
-                            transition={shouldReduceMotion ? { duration: 0 } : microReboundPreset}
-                          />
-                        )}
+                        {/* Keep replaced layout pills out of the panel's exit-completion registry. */}
+                        <AnimatePresence initial={false}>
+                          {active && (
+                            <m.span
+                              layoutId="settings-section-pill"
+                              className="absolute inset-0 rounded-md bg-background shadow-sm"
+                              transition={shouldReduceMotion ? { duration: 0 } : microReboundPreset}
+                            />
+                          )}
+                        </AnimatePresence>
                         <span className="relative">{t(key === 'reader' ? 'settings.reader' : 'settings.general')}</span>
                       </button>
                     );

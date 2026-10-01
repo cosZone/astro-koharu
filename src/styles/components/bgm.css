@@ -5,12 +5,107 @@
   box-shadow: none;
   border-radius: 0;
   font-size: 0.875rem;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  background: hsl(var(--popover));
+  transition: none;
+}
+
+.bgm-panel-player.audio-player-loading {
+  justify-content: flex-start;
+  align-items: stretch;
+  gap: 0;
+  padding: 0;
+}
+
+.bgm-panel-player:is(.audio-player-error, .audio-player-empty) {
+  padding: 2em;
+  text-align: center;
+}
+
+.bgm-panel-placeholder {
+  display: block;
+  background: hsl(var(--muted));
+  border-radius: 0.5em;
+}
+
+.bgm-panel-placeholder-cover {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  margin: 5px;
+}
+
+.bgm-panel-loading-label {
+  display: flex;
+  align-items: center;
+  gap: 0.6em;
+}
+
+.bgm-panel-placeholder-artist {
+  width: 6em;
+  height: 1.5em;
+}
+
+.bgm-panel-placeholder-lyrics {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 1em;
+}
+
+.bgm-panel-placeholder-lyrics span {
+  width: 70%;
+  height: 0.8em;
+}
+
+.bgm-panel-placeholder-lyrics span:nth-child(2) {
+  width: 90%;
+}
+
+.bgm-panel-placeholder-button {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+}
+
+.bgm-panel-placeholder-button:nth-child(3) {
+  width: 38px;
+  height: 38px;
+}
+
+.bgm-panel-placeholder-tab {
+  width: 6em;
+  height: 1.8em;
+  border-radius: 1em;
+}
+
+.bgm-panel-placeholder-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1.1em;
+  padding: 1em;
+}
+
+.bgm-panel-placeholder-list span {
+  width: 80%;
+  height: 0.85em;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  html:is([data-motion="lively"], [data-motion="subtle"]) .bgm-panel-ready {
+    animation: motion-fade 160ms var(--ease-out-quart);
+  }
 }
 
 /* ── Preview: smaller disc + tighter padding ── */
 .bgm-panel .audio-player-preview {
   padding: 0.8em 1.2em;
   gap: 1em;
+  flex-shrink: 0;
 }
 
 .bgm-panel .audio-player-disc-wrapper {
@@ -97,6 +192,7 @@
 
 .bgm-panel .audio-player-artist {
   font-size: 0.8em;
+  min-height: 1.5em;
 }
 
 /* Lyrics — 5 lines visible (5 × 28px) */
@@ -114,6 +210,7 @@
 /* ── Controls: compact spacing ── */
 .bgm-panel .audio-player-controls {
   padding: 0 1.2em 0.8em;
+  flex-shrink: 0;
 }
 
 .bgm-panel .audio-player-buttons {
@@ -164,8 +261,21 @@
 }
 
 /* Song list */
+.bgm-panel .audio-player-playlist {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-height: 100px;
+}
+
+.bgm-panel .audio-player-tabs {
+  flex-shrink: 0;
+}
+
 .bgm-panel .audio-player-song-list {
-  max-height: 160px;
+  flex: 1;
+  min-height: 0;
+  max-height: none;
 }
 
 .bgm-panel .audio-player-song-item {
@@ -175,6 +285,10 @@
 
 /* ── Mobile: hide scrollbar when panel overflows ── */
 .bgm-panel {
+  height: min(480px, calc(100dvh - 10rem));
+  overflow: hidden;
+  border: 1px solid hsl(var(--border));
+  background: hsl(var(--popover));
   scrollbar-width: none;
   -ms-overflow-style: none;
 }
@@ -185,11 +299,19 @@
 
 /* ── Mobile: taller lyrics area for column layout ── */
 @media (max-width: 600px) {
+  .bgm-panel {
+    height: min(560px, calc(100dvh - 10rem));
+  }
+
   .bgm-panel .audio-player-lrc {
     height: 168px;
   }
 
-  .bgm-panel .audio-player-song-list {
-    max-height: 120px;
+  .bgm-panel-loading-label {
+    justify-content: center;
+  }
+
+  .bgm-panel-placeholder-lyrics span {
+    align-self: center;
   }
 }
