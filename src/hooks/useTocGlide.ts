@@ -9,6 +9,7 @@ import {
   stepGlide,
 } from '@lib/glide';
 import { readMotionLevel, subscribeMotionLevel } from '@lib/motion-level';
+import { buildRibbon, type Ribbon, type RibbonRow } from '@lib/toc-ribbon';
 import { clamp } from 'es-toolkit';
 import { type RefObject, useLayoutEffect, useRef } from 'react';
 import type { ReadingFrame, ReadingProgress } from './useReadingProgress';
@@ -19,6 +20,8 @@ const MAX_LEAN = 24;
 /** The current row may drift within this band of its scroll area before it is brought back to FOLLOW_AT. */
 const COMFORT_BAND = [0.15, 0.75] as const;
 const FOLLOW_AT = 0.35;
+/** The wash starts this far left of the ribbon, so the ribbon runs inside it. */
+const WASH_INSET = 7;
 
 interface TocGlideParts {
   wash: HTMLElement;
@@ -33,96 +36,90 @@ interface TocGlideController {
   destroy(): void;
 }
 
+/** The row a folded or still-closed section shows in place of the rows inside it. */
+function ownerRow(element: HTMLElement): HTMLElement | null {
+  return (
+    element
+      .closest('.silk-heading-children')
+      ?.parentElement?.querySelector<HTMLElement>(':scope > .toc-heading-row > [data-toc-row]') ?? null
+  );
+}
+
 function createTocGlide(nav: HTMLElement, parts: TocGlideParts): TocGlideController {
   let row: HTMLElement | null = null;
   let rows: HTMLElement[] = [];
-  let centers: number[] = [];
-  let knots: { x: number; y: number }[] = [];
+  let boxes: RibbonRow[] = [];
+  let knots: number[] = [];
+  let ribbon: Ribbon = buildRibbon([]);
   let latest: ReadingFrame = { id: '', progress: 0 };
-  let threadLength = 0;
-  let state: GlideState | null = null;
+  // The wash springs between rows in nav y; the petal springs along the ribbon's length.
+  let wash: GlideState | null = null;
+  let petal: GlideState | null = null;
   let feel: GlideFeel | null = null;
   let frame = 0;
   let lastTime = 0;
   let followed = false;
+  let followedRow: HTMLElement | null = null;
 
-  /** Maps a viewport y onto the nav's own coordinates, where the absolutely placed parts live. */
-  const toNav = () => {
-    const box = nav.getBoundingClientRect();
-    const scale = box.height / nav.offsetHeight || 1;
-    const origin = box.top + nav.clientTop * scale;
-    return (y: number) => (y - origin) / scale + nav.scrollTop;
+  /**
+   * Layout position in the nav's scrolled content, where the absolutely placed parts live. Offsets
+   * ignore transforms, so rows caught mid-way through the sider's cascade still measure at rest.
+   */
+  const offsetIn = (element: HTMLElement) => {
+    let x = 0;
+    let y = 0;
+    for (let node: HTMLElement | null = element; node && node !== nav; node = node.offsetParent as HTMLElement | null) {
+      x += node.offsetLeft;
+      y += node.offsetTop;
+    }
+    return { x, y };
   };
 
   const measureRows = () => {
     if (nav.getClientRects().length === 0) return;
-    const at = toNav();
-    const navBox = nav.getBoundingClientRect();
-    const scale = navBox.width / nav.offsetWidth || 1;
-    rows = Array.from(nav.querySelectorAll<HTMLElement>('[data-toc-row]')).filter((element) => !element.closest('[inert]'));
-    centers = rows.map((element) => {
-      const rect = element.getBoundingClientRect();
-      return at(rect.top + rect.height / 2);
-    });
-    const points = rows.map((element, index) => {
-      const knot = element.querySelector<HTMLElement>('.toc-node');
-      const rect = (knot ?? element).getBoundingClientRect();
-      return { x: (rect.left + rect.width / 2 - navBox.left) / scale + nav.scrollLeft, y: centers[index] };
-    });
-    knots = points;
-    let path = '';
-    if (points.length) {
-      path = `M ${points[0].x} ${points[0].y}`;
-      for (let index = 1; index < points.length; index++) {
-        const previous = points[index - 1];
-        const next = points[index];
-        const delta = next.x - previous.x;
-        if (Math.abs(delta) < 0.5) {
-          path += ` L ${next.x} ${next.y}`;
-          continue;
-        }
-        const middle = (previous.y + next.y) / 2;
-        const radius = Math.min(6, Math.abs(delta) / 2, Math.max(next.y - previous.y, 0) / 4);
-        const direction = Math.sign(delta);
-        path += ` L ${previous.x} ${middle - radius}`;
-        path += ` Q ${previous.x} ${middle} ${previous.x + direction * radius} ${middle}`;
-        path += ` L ${next.x - direction * radius} ${middle}`;
-        path += ` Q ${next.x} ${middle} ${next.x} ${middle + radius}`;
-        path += ` L ${next.x} ${next.y}`;
+    rows = [];
+    boxes = [];
+    knots = [];
+    let floor = Number.NEGATIVE_INFINITY;
+    for (const element of nav.querySelectorAll<HTMLElement>('[data-toc-row]')) {
+      if (element.closest('[inert]')) continue;
+      let top = offsetIn(element).y;
+      let bottom = top + element.offsetHeight;
+      // A section that is still unfolding clips its rows; the ribbon only reaches what shows.
+      for (
+        let clip = element.parentElement?.closest<HTMLElement>('.silk-heading-children-inner');
+        clip;
+        clip = clip.parentElement?.closest<HTMLElement>('.silk-heading-children-inner')
+      ) {
+        const clipTop = offsetIn(clip).y;
+        top = Math.max(top, clipTop);
+        bottom = Math.min(bottom, clipTop + clip.offsetHeight);
       }
-      const last = points[points.length - 1];
-      path += ` L ${last.x} ${last.y + 12}`;
+      top = Math.max(top, floor);
+      if (bottom - top < 1) continue;
+      floor = bottom;
+      const node = element.querySelector<HTMLElement>('.toc-node') ?? element;
+      const knot = offsetIn(node);
+      rows.push(element);
+      boxes.push({ x: knot.x + node.offsetWidth / 2, top, bottom });
+      knots.push(knot.y + node.offsetHeight / 2);
     }
-    parts.thread.setAttribute('d', path);
-    parts.tail.setAttribute('d', path);
+    ribbon = buildRibbon(boxes);
+    parts.thread.setAttribute('d', ribbon.d);
+    parts.tail.setAttribute('d', ribbon.d);
+    // Dash lengths in the ribbon's own units, so the dyed stretch ends exactly under the petal.
+    parts.tail.setAttribute('pathLength', String(ribbon.length || 1));
+    parts.tail.style.strokeDasharray = String(ribbon.length);
     const svg = parts.thread.ownerSVGElement;
     svg?.setAttribute('width', String(nav.clientWidth));
     // An absolute SVG must not keep its previous height in the scroller's overflow.
-    svg?.setAttribute('height', String((points.at(-1)?.y ?? 0) + 12));
-    threadLength = path ? parts.thread.getTotalLength() : 0;
-    parts.tail.style.strokeDasharray = String(threadLength);
-  };
-
-  // The path always travels downwards; find a row's position along it only when targeting that row.
-  const lengthAtY = (y: number) => {
-    let low = 0;
-    let high = threadLength;
-    for (let index = 0; index < 16; index++) {
-      const middle = (low + high) / 2;
-      if (parts.thread.getPointAtLength(middle).y < y) low = middle;
-      else high = middle;
-    }
-    return (low + high) / 2;
+    svg?.setAttribute('height', String(ribbon.pointAt(ribbon.length).y));
   };
 
   const visibleRow = () => {
     let visible = row;
-    while (visible) {
-      const collapsed = visible.closest<HTMLElement>('[inert]');
-      if (!collapsed) return visible;
-      visible = collapsed.parentElement?.querySelector<HTMLElement>(':scope > .toc-heading-row > [data-toc-row]') ?? null;
-    }
-    return null;
+    while (visible && !rows.includes(visible)) visible = ownerRow(visible);
+    return visible;
   };
 
   const readFraction = (visible: HTMLElement | null) => {
@@ -132,52 +129,58 @@ function createTocGlide(nav: HTMLElement, parts: TocGlideParts): TocGlideControl
     return latest.chapterId === id ? (latest.chapterProgress ?? 0) : 0;
   };
 
-  const measure = (): Span | null => {
-    const visible = visibleRow();
-    if (!visible?.isConnected || nav.getClientRects().length === 0 || threadLength === 0) return null;
-    const index = rows.indexOf(visible);
-    if (index < 0) return null;
-    const rect = visible.getBoundingClientRect();
-    const at = toNav();
-    const height = at(rect.bottom) - at(rect.top);
-    const start = lengthAtY(centers[index]);
-    const end = index + 1 < centers.length ? lengthAtY(centers[index + 1]) : threadLength;
-    const center = start + (end - start) * clamp(readFraction(visible), 0, 1);
-    return { left: center - height / 2, right: center + height / 2 };
-  };
-
-  const paint = (span: Span, speed: number) => {
-    const height = Math.max(span.right - span.left, 0);
-    const distance = clamp(span.left + height / 2, 0, threadLength);
-    const point = parts.thread.getPointAtLength(distance);
+  /** Where the wash and the petal are heading: the current row, and how far down its stretch of ribbon. */
+  const measure = (): { row: Span; along: number } | null => {
     const visible = visibleRow();
     const index = visible ? rows.indexOf(visible) : -1;
-    const knot = knots[index] ?? point;
-    parts.wash.style.translate = `0 ${knot.y - height / 2}px`;
-    parts.wash.style.left = `${Math.max(knot.x - 7, 0)}px`;
-    parts.wash.style.height = `${height}px`;
-    const readout = visible?.parentElement?.querySelector<HTMLElement>('.toc-section-progress');
-    if (readout) {
-      const percent = Math.round(readFraction(visible) * 100);
-      if (readout.getAttribute('aria-valuenow') !== String(percent)) {
-        readout.textContent = `${percent}%`;
-        readout.setAttribute('aria-valuenow', String(percent));
-      }
+    if (index < 0 || ribbon.length === 0) return null;
+    const start = ribbon.starts[index];
+    const end = ribbon.ends[index];
+    return {
+      row: { left: boxes[index].top, right: boxes[index].bottom },
+      along: start + (end - start) * clamp(readFraction(visible), 0, 1),
+    };
+  };
+
+  const paint = (washSpan: Span, along: number, speed: number) => {
+    const top = washSpan.left;
+    const bottom = Math.max(washSpan.right, top);
+    const lane = ribbon.pointAt(ribbon.lengthAt((top + bottom) / 2)).x;
+    parts.wash.style.translate = `0 ${top}px`;
+    parts.wash.style.left = `${Math.max(lane - WASH_INSET, 0)}px`;
+    parts.wash.style.height = `${bottom - top}px`;
+    // Racing through short sections, the wash trails the petal for a few frames; the petal then rides
+    // the wash's edge, so it never shows outside the current row.
+    let at = clamp(along, 0, ribbon.length);
+    let point = ribbon.pointAt(at);
+    if (point.y < top || point.y > bottom) {
+      at = ribbon.lengthAt(clamp(point.y, top, bottom));
+      point = ribbon.pointAt(at);
     }
     parts.petal.style.translate = `${point.x}px ${point.y}px`;
     parts.petal.style.setProperty('--toc-lean', `${clamp(speed * LEAN_PER_SPEED, -MAX_LEAN, MAX_LEAN)}deg`);
-    parts.tail.style.strokeDashoffset = String(threadLength - distance);
+    parts.tail.style.strokeDashoffset = String(ribbon.length - at);
     rows.forEach((element, index) => {
-      const passed = centers[index] < point.y - 1;
+      const passed = knots[index] < point.y - 1;
       if (element.hasAttribute('data-passed') !== passed) element.toggleAttribute('data-passed', passed);
     });
+    const visible = visibleRow();
+    const readout = visible?.parentElement?.querySelector<HTMLElement>('.toc-section-progress');
+    if (readout) {
+      const percent = String(Math.round(readFraction(visible) * 100));
+      if (readout.getAttribute('aria-valuenow') !== percent) {
+        readout.textContent = `${percent}%`;
+        readout.setAttribute('aria-valuenow', percent);
+      }
+    }
   };
 
   const snap = () => {
     const target = measure();
     if (!target) return;
-    state = glideAt(target);
-    paint(target, 0);
+    wash = glideAt(target.row);
+    petal = glideAt({ left: target.along, right: target.along });
+    paint(target.row, target.along, 0);
   };
 
   const stop = () => {
@@ -188,17 +191,20 @@ function createTocGlide(nav: HTMLElement, parts: TocGlideParts): TocGlideControl
   const tick = (now: number) => {
     frame = 0;
     const target = measure();
-    if (!target || !state || !feel) {
+    if (!target || !wash || !petal || !feel) {
       snap();
       return;
     }
-    state = stepGlide(state, target, feel, now - lastTime);
+    const elapsed = now - lastTime;
     lastTime = now;
-    if (isGlideAtRest(state, target)) {
+    const along = { left: target.along, right: target.along };
+    wash = stepGlide(wash, target.row, feel, elapsed);
+    petal = stepGlide(petal, along, feel, elapsed);
+    if (isGlideAtRest(wash, target.row) && isGlideAtRest(petal, along)) {
       snap();
       return;
     }
-    paint(glideSpan(state, feel), state.centerVelocity);
+    paint(glideSpan(wash, feel), petal.center, petal.centerVelocity);
     frame = requestAnimationFrame(tick);
   };
 
@@ -212,6 +218,7 @@ function createTocGlide(nav: HTMLElement, parts: TocGlideParts): TocGlideControl
   const follow = (instant: boolean) => {
     const scroller = nav.closest<HTMLElement>('[data-toc-scroller]');
     const visible = visibleRow();
+    followedRow = visible;
     if (!scroller || !visible || scroller.scrollHeight <= scroller.clientHeight + 1) return;
     if (!instant && scroller.matches(':hover')) return;
     const view = scroller.clientHeight;
@@ -224,10 +231,12 @@ function createTocGlide(nav: HTMLElement, parts: TocGlideParts): TocGlideControl
     });
   };
 
-  // Sections unfolding or folding move every row below them; keep the parts on their rows.
+  // Sections unfolding or folding move every row below them; keep the parts on their rows. Once a
+  // chapter has unfolded far enough to show the current row, that row is brought into view too.
   const observer = new ResizeObserver(() => {
     measureRows();
     if (!frame) snap();
+    if (row && visibleRow() !== followedRow) follow(false);
   });
   observer.observe(nav);
   for (const item of nav.querySelectorAll(':scope > .heading-tree-item')) observer.observe(item);
@@ -258,15 +267,15 @@ function createTocGlide(nav: HTMLElement, parts: TocGlideParts): TocGlideControl
       if (id === null) {
         stop();
         row = null;
-        state = null;
+        wash = null;
+        petal = null;
         for (const element of rows) element.removeAttribute('data-passed');
         return;
       }
-      const onScreen = state !== null;
+      const onScreen = wash !== null;
       row = nav.querySelector<HTMLElement>(`[data-toc-row="${CSS.escape(id)}"]`);
       const level = readMotionLevel();
       feel = level === 'reduced' ? null : GLIDE_FEELS[level];
-      measureRows();
       follow(!followed);
       followed = true;
       if (!onScreen || !feel) {
@@ -274,10 +283,7 @@ function createTocGlide(nav: HTMLElement, parts: TocGlideParts): TocGlideControl
         snap();
         return;
       }
-      if (!frame) {
-        lastTime = performance.now();
-        frame = requestAnimationFrame(tick);
-      }
+      kick();
     },
     destroy() {
       stop();
@@ -289,9 +295,9 @@ function createTocGlide(nav: HTMLElement, parts: TocGlideParts): TocGlideControl
 }
 
 /**
- * Glides the TOC's wash, tail and petal to the row marked
- * `data-toc-row={activeId}`. `rowsKey` must change whenever the heading tree does, so the rows are
- * observed afresh.
+ * Glides the TOC's wash, tail and petal to the row marked `data-toc-row={activeId}`: the wash
+ * settles on the row while the petal follows the reading position down that row's stretch of
+ * ribbon. `rowsKey` must change whenever the heading tree does, so the rows are observed afresh.
  */
 export function useTocGlide(
   washRef: RefObject<HTMLElement | null>,

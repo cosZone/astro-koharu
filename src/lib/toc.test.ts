@@ -10,6 +10,8 @@ import {
   locateReading,
   readingLineAt,
   revealPath,
+  stripRepeatedOrdinal,
+  tocNumberLabel,
 } from './toc';
 
 /**
@@ -134,6 +136,37 @@ test('chapterIndexOf reports the top-level section of any heading', () => {
   assert.equal(chapterIndexOf(headings, 'a2x'), 1);
   assert.equal(chapterIndexOf(headings, 'b1'), 2);
   assert.equal(chapterIndexOf(headings, 'c'), 3);
+});
+
+test('tocNumberLabel pads chapters and dots subsections', () => {
+  assert.equal(tocNumberLabel([6]), '06');
+  assert.equal(tocNumberLabel([12]), '12');
+  assert.equal(tocNumberLabel([6, 1]), '6.1');
+  assert.equal(tocNumberLabel([2, 3, 4]), '2.3.4');
+  assert.equal(tocNumberLabel([]), '');
+});
+
+test('stripRepeatedOrdinal drops an ordinal that repeats the TOC number', () => {
+  assert.equal(stripRepeatedOrdinal('1. Markdown 插件配置开始弃用', 1), 'Markdown 插件配置开始弃用');
+  assert.equal(stripRepeatedOrdinal('3、总结', 3), '总结');
+  assert.equal(stripRepeatedOrdinal('2) Setup', 2), 'Setup');
+  assert.equal(stripRepeatedOrdinal('4：配置', 4), '配置');
+  assert.equal(stripRepeatedOrdinal(' 1. Intro', 1), 'Intro');
+  assert.equal(stripRepeatedOrdinal('1.总结', 1), '总结');
+  assert.equal(stripRepeatedOrdinal('2．はじめに', 2), 'はじめに');
+});
+
+test('stripRepeatedOrdinal keeps every other leading number', () => {
+  assert.equal(stripRepeatedOrdinal('2. react-tweet', 1), '2. react-tweet');
+  assert.equal(stripRepeatedOrdinal('10. Foo', 1), '10. Foo');
+  assert.equal(stripRepeatedOrdinal('1.5 版本说明', 1), '1.5 版本说明');
+  assert.equal(stripRepeatedOrdinal('1 Password', 1), '1 Password');
+  assert.equal(stripRepeatedOrdinal('1.', 1), '1.');
+  // Versions, file names and times start with a number that is not an ordinal
+  assert.equal(stripRepeatedOrdinal('2.x 迁移指南', 2), '2.x 迁移指南');
+  assert.equal(stripRepeatedOrdinal('3.js 入门', 3), '3.js 入门');
+  assert.equal(stripRepeatedOrdinal('1.Intro', 1), '1.Intro');
+  assert.equal(stripRepeatedOrdinal('2:30 会议', 2), '2:30 会议');
 });
 
 test('chapterIndexOf is 0 for an unknown heading or an empty tree', () => {

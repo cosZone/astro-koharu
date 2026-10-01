@@ -139,6 +139,27 @@ export function flattenHeadings(headings: Heading[]): Heading[] {
   return headings.flatMap((heading) => [heading, ...flattenHeadings(heading.children)]);
 }
 
+/** Number shown beside a TOC entry: "01" for a chapter, "6.1" below it, "" for an unnumbered heading */
+export function tocNumberLabel(numberPath: number[]): string {
+  if (numberPath.length === 0) return '';
+  return numberPath.length === 1 ? String(numberPath[0]).padStart(2, '0') : numberPath.join('.');
+}
+
+/**
+ * Drops a heading's own leading ordinal ("1. ", "2、", "3) ", "1.总结") when it repeats the number
+ * the TOC already shows beside it, so an entry never reads "6.1 1. …". A dot or colon only counts
+ * before a space or CJK text, so "1.5 版本", "2.x 迁移", "3.js" and "2:30" keep their number.
+ */
+export function stripRepeatedOrdinal(text: string, ordinal: number): string {
+  const match = new RegExp(
+    `^\\s*${ordinal}(?:[.．:：](?=\\s|\\p{sc=Han}|\\p{sc=Hiragana}|\\p{sc=Katakana}|\\p{sc=Hangul})|[、)）])\\s*`,
+    'u',
+  ).exec(text);
+  if (!match) return text;
+  const rest = text.slice(match[0].length);
+  return rest.trim() ? rest : text;
+}
+
 /** 1-based position of the top-level section containing `id`, or 0 when the tree has no such heading */
 export function chapterIndexOf(headings: Heading[], id: string): number {
   return headings.findIndex((heading) => heading.id === id || findHeadingById(heading.children, id) !== null) + 1;

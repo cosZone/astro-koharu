@@ -16,7 +16,7 @@ import { useTranslation } from '@hooks/useTranslation';
 import { chapterIndexOf, type Heading } from '@lib/toc';
 import { AnimatePresence, m, type Transition } from 'motion/react';
 import type React from 'react';
-import { cloneElement, useMemo } from 'react';
+import { cloneElement, useMemo, useRef } from 'react';
 import { cn } from '@/lib/utils';
 import { HeadingList } from '../TableOfContents/HeadingList';
 import { TocProvider, useTocContext } from '../TableOfContents/TocContext';
@@ -33,7 +33,6 @@ const PANEL_EXIT: Transition = {
   clipPath: { duration: 0.2, ease: animation.bezier.inQuart },
   opacity: { duration: 0.16, delay: 0.04, ease: animation.bezier.inQuart },
 };
-const COMPACT_GAP = { '--toc-gap': '0.25rem' } as React.CSSProperties;
 
 interface MobileTOCDropdownProps {
   /** Hierarchical heading tree */
@@ -80,6 +79,9 @@ export function MobileTOCDropdown({
   const role = useRole(context);
 
   const { getReferenceProps, getFloatingProps } = useInteractions([click, dismiss, role]);
+  // Focus opens on the current entry, which the TOC has just scrolled into view; the first entry
+  // (the focus manager's default) would scroll the panel back to the top.
+  const currentEntry = useRef<HTMLElement | null>(null);
 
   // Same TOC state, but a click also dismisses the dropdown
   const toc = useMemo(
@@ -99,7 +101,7 @@ export function MobileTOCDropdown({
       <AnimatePresence>
         {isOpen && (
           <FloatingPortal>
-            <FloatingFocusManager context={context} modal={false}>
+            <FloatingFocusManager context={context} modal={false} initialFocus={currentEntry}>
               <m.div
                 ref={refs.setFloating}
                 style={floatingStyles}
@@ -125,17 +127,19 @@ export function MobileTOCDropdown({
                     </span>
                   )}
                 </div>
-                <div className="overflow-y-auto overflow-x-hidden px-2 pb-2" data-toc-scroller>
+                <div className="toc-scroll-fade overflow-y-auto overflow-x-hidden px-2 pb-2" data-toc-scroller>
                   <nav
+                    ref={(nav) => {
+                      currentEntry.current = nav?.querySelector<HTMLElement>('[aria-current]') ?? null;
+                    }}
                     className={cn('toc-container toc-silk-container flex flex-col gap-1', {
                       'toc-no-numbering': !enableNumbering,
                     })}
-                    style={COMPACT_GAP}
                     aria-label={t('toc.title')}
                   >
                     <TocProvider value={toc}>
                       <TocGlide headings={headings} subscribeFrame={subscribeFrame} />
-                      <HeadingList headings={headings} />
+                      <HeadingList headings={headings} numbered={enableNumbering} />
                     </TocProvider>
                   </nav>
                 </div>

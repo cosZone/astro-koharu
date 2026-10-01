@@ -1,20 +1,26 @@
 import { useTranslation } from '@hooks/useTranslation';
-import { findHeadingById, type Heading } from '@lib/toc';
-import type { CSSProperties } from 'react';
-import { cn } from '@/lib/utils';
+import { findHeadingById, type Heading, stripRepeatedOrdinal, tocNumberLabel } from '@lib/toc';
+import type { CSSProperties, PointerEvent } from 'react';
 import { useTocContext } from './TocContext';
-
-const INDENT_BASE = 1.75;
-const INDENT_PER_LEVEL = 1;
 
 interface HeadingTreeItemProps {
   heading: Heading;
   depth?: number;
   numberPath: number[];
+  /** Whether entries are numbered; a heading's own repeated ordinal is then dropped */
+  numbered: boolean;
   children?: React.ReactNode;
 }
 
-export function HeadingTreeItem({ heading, depth = 0, numberPath, children }: HeadingTreeItemProps) {
+/** Offers the full title as a tooltip only while the row has to clamp it. */
+function titleIfClamped(event: PointerEvent<HTMLAnchorElement>, title: string) {
+  const link = event.currentTarget;
+  const text = link.querySelector<HTMLElement>('.heading-text');
+  if (text && text.scrollHeight > text.clientHeight + 1) link.title = title;
+  else link.removeAttribute('title');
+}
+
+export function HeadingTreeItem({ heading, depth = 0, numberPath, numbered, children }: HeadingTreeItemProps) {
   const { activeId, expandedIds, onHeadingClick } = useTocContext();
   const { t } = useTranslation();
   const isActive = activeId === heading.id;
@@ -22,9 +28,12 @@ export function HeadingTreeItem({ heading, depth = 0, numberPath, children }: He
   const isOpen = expandedIds.has(heading.id);
   const hasChildren = heading.children.length > 0;
   const isVisibleCurrent = isActive || (isAncestor && !isOpen);
+  const label = numbered ? tocNumberLabel(numberPath) : '';
+  const ordinal = numberPath.at(-1);
+  const text = label && ordinal !== undefined ? stripRepeatedOrdinal(heading.text, ordinal) : heading.text;
 
   return (
-    <div className="heading-tree-item relative" data-depth={depth} data-current-branch={isActive || isAncestor || undefined}>
+    <div className="heading-tree-item" data-depth={depth} style={{ '--toc-depth': depth } as CSSProperties}>
       <div className="toc-heading-row">
         <a
           href={`#${heading.id}`}
@@ -32,26 +41,21 @@ export function HeadingTreeItem({ heading, depth = 0, numberPath, children }: He
             event.preventDefault();
             onHeadingClick(heading.id);
           }}
-          className={cn('heading-link silk-heading-link group', isVisibleCurrent && 'text-primary')}
-          style={
-            {
-              paddingLeft: `${INDENT_BASE + depth * INDENT_PER_LEVEL}rem`,
-              paddingRight: isVisibleCurrent ? '2.75rem' : '0.5rem',
-              '--toc-thread-x': `${0.8125 + depth * INDENT_PER_LEVEL}rem`,
-            } as CSSProperties
-          }
-          data-number={numberPath.join('.')}
-          data-chapter-number={String(numberPath.at(-1) ?? '').padStart(2, '0')}
+          onPointerEnter={(event) => titleIfClamped(event, heading.text)}
+          className="silk-heading-link"
           data-level={heading.level}
-          data-depth={depth}
           data-toc-row={heading.id}
           data-ancestor={isAncestor || undefined}
           aria-label={heading.text}
           aria-current={isVisibleCurrent ? 'location' : undefined}
-          title={heading.text}
         >
           <span className="toc-node" aria-hidden="true" />
-          <span className="heading-text">{heading.text}</span>
+          {label && (
+            <span className="toc-number" aria-hidden="true">
+              {label}
+            </span>
+          )}
+          <span className="heading-text">{text}</span>
         </a>
         {isVisibleCurrent && (
           <span

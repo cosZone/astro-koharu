@@ -7,6 +7,7 @@
 
 import { useTocController } from '@hooks/useTocController';
 import { useTranslation } from '@hooks/useTranslation';
+import { cn } from '@lib/utils';
 import { HeadingList } from './HeadingList';
 import { TocProvider } from './TocContext';
 import { TocGlide } from './TocGlide';
@@ -42,13 +43,16 @@ export function TableOfContents({ defaultExpanded = false, enableNumbering = tru
 
   return (
     <nav
-      className={`toc-container toc-silk-container scroll-gutter-stable flex h-full flex-col gap-1 overflow-y-auto overflow-x-hidden pr-1 md:pb-3 md:pl-1 ${enableNumbering ? '' : 'toc-no-numbering'}`}
+      className={cn(
+        'toc-container toc-silk-container toc-scroll-fade scrollbar-hidden flex h-full flex-col gap-1 overflow-y-auto overflow-x-hidden md:pb-3 md:pl-1',
+        { 'toc-no-numbering': !enableNumbering },
+      )}
       aria-label={t('toc.title')}
       data-toc-scroller
     >
       <TocProvider value={toc}>
         <TocGlide headings={headings} subscribeFrame={subscribeFrame} />
-        <HeadingList headings={headings} />
+        <HeadingList headings={headings} numbered={enableNumbering} />
       </TocProvider>
     </nav>
   );

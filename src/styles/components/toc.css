@@ -1,23 +1,122 @@
+/*
+  Silk-ribbon table of contents. Each level steps the ribbon, its knot and the text one lane to the
+  right; the ribbon folds in the gap between two rows (src/lib/toc-ribbon.ts), so a row's own
+  stretch of ribbon lies inside the row, where the wash and the petal stay while it is read.
+  Numbers hang right-aligned against the text on its first line, and the right gutter keeps room for
+  the section readout on every row, so a row never rewraps when it becomes current.
+*/
 .toc-silk-container {
-  --toc-thread-x: 0.8125rem;
-  --toc-gap: 0.5rem;
+  --toc-axis: 0.625rem;
+  --toc-lane: 1rem;
+  --toc-gutter: 1.75rem;
   position: relative;
 }
 
-.silk-heading-link:focus-visible {
-  outline-offset: -2px;
+/*
+  --toc-indent runs from the ribbon to the text. Deeper numbers grow a segment per level ("6.1",
+  "6.1.2"), so the indent grows with them and they never reach the knot or the petal.
+*/
+.heading-tree-item {
+  --toc-x: calc(var(--toc-axis) + var(--toc-depth, 0) * var(--toc-lane));
+  --toc-indent: calc(1.5rem + var(--toc-depth, 0) * 0.5rem);
+  --toc-pad: 0.375rem;
+  --toc-line: 1.25rem;
+  --toc-knot: 4px;
+  --toc-ink: hsl(var(--foreground) / 0.68);
+  --toc-size: 0.8125rem;
+  --toc-weight: 400;
+  position: relative;
+}
+
+.heading-tree-item[data-depth="0"] {
+  --toc-indent: 1.75rem;
+  --toc-pad: 0.5rem;
+  --toc-line: 1.375rem;
+  --toc-knot: 5px;
+  --toc-ink: hsl(var(--foreground) / 0.88);
+  --toc-size: 0.875rem;
+  --toc-weight: 500;
+}
+
+/* Without numbers the text moves up to the ribbon. */
+.toc-no-numbering .heading-tree-item {
+  --toc-indent: 1.125rem;
+}
+
+@media (pointer: coarse) {
+  .heading-tree-item {
+    --toc-pad: 0.5rem;
+  }
+
+  .heading-tree-item[data-depth="0"] {
+    --toc-pad: 0.625rem;
+  }
+}
+
+.toc-heading-row {
+  position: relative;
+  z-index: 2;
+}
+
+.silk-heading-link {
+  position: relative;
+  display: block;
+  padding: var(--toc-pad) var(--toc-gutter) var(--toc-pad) calc(var(--toc-x) + var(--toc-indent));
+  border-radius: 0.625rem;
+  color: var(--toc-ink);
+  font-size: var(--toc-size);
+  font-weight: var(--toc-weight);
+  line-height: var(--toc-line);
+  transition: color 160ms;
+}
+
+/* Hover shares the wash's shape: it starts just left of the ribbon. */
+.silk-heading-link::after {
+  content: "";
+  position: absolute;
+  inset: 0 0 0 calc(var(--toc-x) - 0.4375rem);
+  z-index: -1;
+  border-radius: inherit;
+  background: hsl(var(--primary) / 0.06);
+  opacity: 0;
+  transition: opacity 160ms;
+  pointer-events: none;
+}
+
+.silk-heading-link:hover:not([aria-current])::after {
+  opacity: 1;
+}
+
+.silk-heading-link .heading-text {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  text-wrap: pretty;
+}
+
+.toc-number {
+  position: absolute;
+  top: var(--toc-pad);
+  right: calc(100% - var(--toc-x) - var(--toc-indent) + 0.3125rem);
+  color: hsl(var(--muted-foreground) / 0.8);
+  font-size: 0.65625rem;
+  line-height: var(--toc-line);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  transition: color 160ms;
 }
 
 .toc-node {
   position: absolute;
-  top: 50%;
-  left: var(--toc-thread-x);
-  width: 5px;
-  height: 5px;
+  top: calc(var(--toc-pad) + var(--toc-line) / 2);
+  left: var(--toc-x);
+  width: var(--toc-knot);
+  height: var(--toc-knot);
+  margin: calc(var(--toc-knot) / -2) 0 0 calc(var(--toc-knot) / -2);
   border-radius: 9999px;
-  translate: -50% -50%;
   background: hsl(var(--background));
-  box-shadow: inset 0 0 0 1px hsl(var(--foreground) / 0.32);
+  box-shadow: inset 0 0 0 1px hsl(var(--foreground) / 0.3);
   transition:
     background-color 240ms,
     box-shadow 240ms,
@@ -26,16 +125,12 @@
   pointer-events: none;
 }
 
-.silk-heading-link:not([data-level="1"], [data-level="2"]) .toc-node {
-  width: 3px;
-  height: 3px;
-}
-
 .silk-heading-link[data-passed] .toc-node {
   background-color: hsl(var(--primary) / 0.85);
   box-shadow: none;
 }
 
+/* The petal stands in for the current row's knot. */
 .silk-heading-link[aria-current] .toc-node {
   opacity: 0;
   scale: 0.4;
@@ -45,14 +140,96 @@
   scale: 1.6;
 }
 
-.silk-heading-link .heading-text {
-  transition: translate 220ms var(--ease-out-quart);
+.silk-heading-link:is([aria-current], [data-ancestor]),
+.silk-heading-link:is([aria-current], [data-ancestor]) .toc-number {
+  color: hsl(var(--primary));
 }
 
-.silk-heading-link:hover:not([aria-current]) .heading-text {
-  translate: 2px 0;
+.silk-heading-link[aria-current] {
+  font-weight: 500;
 }
 
+.silk-heading-link:hover:not([aria-current], [data-ancestor]) {
+  color: hsl(var(--foreground));
+}
+
+.silk-heading-link:focus-visible {
+  outline: 2px solid hsl(var(--primary) / 0.65);
+  outline-offset: -2px;
+}
+
+.toc-section-progress {
+  position: absolute;
+  top: var(--toc-pad);
+  right: 0.375rem;
+  color: hsl(var(--primary) / 0.8);
+  font-size: 0.625rem;
+  line-height: var(--toc-line);
+  font-variant-numeric: tabular-nums;
+  pointer-events: none;
+}
+
+.silk-heading-children {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 240ms var(--ease-in-quart);
+}
+
+.silk-heading-children[data-open] {
+  grid-template-rows: 1fr;
+  transition-duration: 420ms;
+  transition-timing-function: var(--ease-out-expo);
+}
+
+.silk-heading-children-inner {
+  min-height: 0;
+  overflow: hidden;
+  opacity: 0;
+  transition: opacity 160ms;
+}
+
+.silk-heading-children[data-open] > .silk-heading-children-inner {
+  padding-block: 0.25rem;
+  opacity: 1;
+  transition-duration: 320ms;
+  transition-delay: 80ms;
+}
+
+.toc-ribbon {
+  position: absolute;
+  z-index: 1;
+  inset: 0 auto auto 0;
+  overflow: visible;
+  pointer-events: none;
+}
+
+/* The read stretch is the same thread dyed, so both strokes share one width. */
+.toc-ribbon-thread,
+.toc-ribbon-tail {
+  fill: none;
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.toc-ribbon-thread {
+  stroke: hsl(var(--primary) / 0.2);
+}
+
+.toc-ribbon-tail {
+  opacity: 0;
+  transition: opacity 220ms;
+}
+
+.toc-ribbon-start {
+  stop-color: var(--gradient-shoka-button-start);
+}
+
+.toc-ribbon-end {
+  stop-color: var(--gradient-shoka-button-end);
+}
+
+/* src/hooks/useTocGlide.ts springs the wash's position and size and the petal's place on the ribbon. */
 .toc-wash,
 .toc-petal {
   position: absolute;
@@ -67,15 +244,9 @@
 }
 
 .toc-wash {
-  left: calc(var(--toc-thread-x) - 0.4375rem);
   right: 0;
-  border-radius: 0.75rem;
-  background: linear-gradient(90deg, hsl(var(--primary) / 0.16), hsl(var(--primary) / 0.06) 55%, transparent);
-  transition:
-    opacity 220ms,
-    translate 220ms var(--ease-out-quart),
-    left 220ms var(--ease-out-quart),
-    height 220ms var(--ease-out-quart);
+  border-radius: 0.625rem;
+  background: linear-gradient(90deg, hsl(var(--primary) / 0.15), hsl(var(--primary) / 0.07) 60%, hsl(var(--primary) / 0.03));
 }
 
 .toc-petal {
@@ -103,187 +274,71 @@
   background: linear-gradient(#ffe0e9, #f7879f);
 }
 
-.silk-heading-children {
-  display: grid;
-  grid-template-rows: 0fr;
-  transition: grid-template-rows 240ms var(--ease-in-quart);
+/*
+  Overflow shows as the list fading out at whichever edge has more to scroll. The fade lengths
+  follow the scroller's own scroll timeline; without scroll timelines, or with nothing to scroll,
+  they stay at 0 and the list is not masked.
+*/
+@property --toc-fade-top {
+  syntax: "<length>";
+  inherits: false;
+  initial-value: 0px;
 }
 
-.silk-heading-children[data-open] {
-  grid-template-rows: 1fr;
-  transition-duration: 420ms;
-  transition-timing-function: var(--ease-out-expo);
+@property --toc-fade-bottom {
+  syntax: "<length>";
+  inherits: false;
+  initial-value: 0px;
 }
 
-.silk-heading-children-inner {
-  min-height: 0;
-  overflow: hidden;
-  opacity: 0;
-  transition: opacity 160ms;
+.toc-scroll-fade {
+  mask-image: linear-gradient(
+    to bottom,
+    transparent,
+    #000 var(--toc-fade-top),
+    #000 calc(100% - var(--toc-fade-bottom)),
+    transparent
+  );
 }
 
-.silk-heading-children[data-open] > .silk-heading-children-inner {
-  opacity: 1;
-  transition-duration: 320ms;
-  transition-delay: 80ms;
-  padding-block: 0.25rem;
+@supports (animation-timeline: scroll()) {
+  .toc-scroll-fade {
+    animation:
+      toc-fade-top linear both,
+      toc-fade-bottom linear both;
+    animation-timeline: scroll(self), scroll(self);
+    animation-range:
+      0 1.5rem,
+      calc(100% - 1.5rem) 100%;
+  }
 }
 
-.toc-ribbon {
-  position: absolute;
-  z-index: 1;
-  inset: 0 auto auto 0;
-  overflow: visible;
-  pointer-events: none;
+@keyframes toc-fade-top {
+  from {
+    --toc-fade-top: 0px;
+  }
+
+  to {
+    --toc-fade-top: 1.5rem;
+  }
 }
 
-.toc-ribbon-thread,
-.toc-ribbon-tail {
-  fill: none;
-  stroke-linecap: round;
-  stroke-linejoin: round;
+@keyframes toc-fade-bottom {
+  from {
+    --toc-fade-bottom: 1.5rem;
+  }
+
+  to {
+    --toc-fade-bottom: 0px;
+  }
 }
 
-.toc-ribbon-thread {
-  stroke: hsl(var(--primary) / 0.22);
-  stroke-width: 1.5;
-}
-
-.toc-ribbon-tail {
-  stroke-width: 2.25;
-  opacity: 0;
-  transition: opacity 220ms;
-}
-
-.toc-ribbon-start {
-  stop-color: var(--gradient-shoka-button-start);
-}
-
-.toc-ribbon-end {
-  stop-color: var(--gradient-shoka-button-end);
-}
-
-.toc-heading-row {
-  position: relative;
-  z-index: 2;
-}
-
-.silk-heading-link {
-  position: relative;
-  display: flex;
-  align-items: center;
-  gap: 0.375rem;
-  min-height: 2.375rem;
-  padding-block: 0.5rem;
-  border-radius: 0.625rem;
-  color: hsl(var(--foreground) / 0.72);
-  font-size: 0.8125rem;
-  line-height: 1.55;
-  transition:
-    color 160ms,
-    background-color 160ms;
-}
-
-.silk-heading-link[data-depth="0"] {
-  min-height: 3rem;
-  color: hsl(var(--foreground) / 0.92);
-  font-size: 0.875rem;
-  font-weight: 500;
-}
-
-.silk-heading-link .heading-text {
-  display: -webkit-box;
-  flex: 1;
-  min-width: 0;
-  overflow: hidden;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 2;
-}
-
-.toc-silk-container .silk-heading-link::before {
-  content: attr(data-number);
-  flex: none;
-  margin: 0;
-  color: hsl(var(--muted-foreground) / 0.8);
-  font-size: 0.6875rem;
-}
-
-.toc-silk-container:not(.toc-no-numbering) .silk-heading-link[data-depth="0"][data-level="2"]::before {
-  content: attr(data-chapter-number);
-  display: grid;
-  place-items: center;
-  width: 1.25rem;
-  height: 1.25rem;
-  margin-right: 0.125rem;
-  border-radius: 0.3125rem;
-  background: hsl(var(--foreground) / 0.035);
-  font-size: 0.625rem;
-  font-weight: 500;
-}
-
-.silk-heading-link[data-ancestor],
-.silk-heading-link[aria-current] {
-  color: hsl(var(--primary));
-}
-
-.silk-heading-link[data-ancestor]::before,
-.silk-heading-link[aria-current]::before {
-  color: hsl(var(--primary));
-}
-
-.silk-heading-link[data-depth="0"][data-ancestor]::before,
-.silk-heading-link[data-depth="0"][aria-current]::before {
-  background: hsl(var(--primary) / 0.1);
-}
-
-.silk-heading-link[aria-current] {
-  font-weight: 500;
-}
-
-.silk-heading-link:hover {
-  background: hsl(var(--primary) / 0.04);
-  color: hsl(var(--foreground));
-}
-
-.silk-heading-link[aria-current]:hover {
-  color: hsl(var(--primary));
-}
-
-.silk-heading-link:focus-visible {
-  outline: 2px solid hsl(var(--primary) / 0.65);
-  outline-offset: -2px;
-}
-
-.heading-tree-item[data-depth="0"][data-current-branch] > .silk-heading-children > .silk-heading-children-inner {
-  border-radius: 0.875rem;
-  background: linear-gradient(90deg, hsl(var(--primary) / 0.04), transparent 90%);
-}
-
-.toc-section-progress {
-  position: absolute;
-  top: 50%;
-  right: 0.5rem;
-  width: 2rem;
-  color: hsl(var(--primary) / 0.78);
-  font-size: 0.625rem;
-  line-height: 1;
-  text-align: right;
-  font-variant-numeric: tabular-nums;
-  translate: 0 -50%;
-  pointer-events: none;
-}
-
-.toc-silk-container.toc-no-numbering .silk-heading-link::before {
-  display: none;
-}
-
-html.motion-off
-  :is(.silk-heading-children, .silk-heading-children-inner, .toc-node, .heading-text, .toc-wash, .toc-ribbon-tail, .toc-petal) {
+html.motion-off :is(.silk-heading-children, .silk-heading-children-inner, .toc-node, .toc-wash, .toc-ribbon-tail, .toc-petal) {
   transition: none;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  :is(.silk-heading-children, .silk-heading-children-inner, .toc-node, .heading-text, .toc-wash, .toc-ribbon-tail, .toc-petal) {
+  :is(.silk-heading-children, .silk-heading-children-inner, .toc-node, .toc-wash, .toc-ribbon-tail, .toc-petal) {
     transition: none;
   }
 }
