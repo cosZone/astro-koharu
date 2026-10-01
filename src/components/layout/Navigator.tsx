@@ -27,7 +27,8 @@ interface NavigatorProps {
 // Pre-filter navigation items at module load (config is static)
 const filteredRouters = filterNavItems(routers, configuredSeriesSlugs, enabledSeriesSlugs, RESERVED_ROUTES);
 
-const navKey = (item: (typeof filteredRouters)[number]) => item.name ?? item.path ?? item.nameKey ?? '';
+const navKey = (item: (typeof filteredRouters)[number]) => `nav:${item.name ?? item.path ?? item.nameKey ?? ''}`;
+const languageMenuKey = 'language';
 
 // Icon component for navigation items - uses @iconify/react for dynamic icons.
 // Icon data loads asynchronously (Iconify API); the fixed-size wrapper reserves
@@ -80,7 +81,7 @@ const Navigator = memo(function Navigator({ currentPath, locale = defaultLocale 
 
   const firstScrollRef = useRef(true);
   const [intent, setIntent] = useState<string | null>(null);
-  // An open dropdown holds the pill on its trigger while the pointer is inside the menu.
+  // Share one open menu across pointer and keyboard sessions. A nav dropdown also holds the pill on its trigger.
   const [openKey, setOpenKey] = useState<string | null>(null);
   const activeItem = filteredRouters.find((item) =>
     item.children?.length
@@ -90,7 +91,7 @@ const Navigator = memo(function Navigator({ currentPath, locale = defaultLocale 
   const activeKey = activeItem ? navKey(activeItem) : null;
   const navRef = useRef<HTMLElement>(null);
   const indicatorRef = useRef<HTMLSpanElement>(null);
-  useGlideIndicator(navRef, indicatorRef, intent ?? openKey ?? activeKey);
+  useGlideIndicator(navRef, indicatorRef, intent ?? (openKey === languageMenuKey ? null : openKey) ?? activeKey);
 
   // Apply with-background class based on scroll position
   useEffect(() => {
@@ -150,6 +151,7 @@ const Navigator = memo(function Navigator({ currentPath, locale = defaultLocale 
                 locale={locale}
                 glideKey={key}
                 onIntent={() => setIntent(key)}
+                open={openKey === key}
                 onOpenChange={(open) => setOpenKey((current) => (open ? key : current === key ? null : current))}
               />
             );
@@ -175,7 +177,13 @@ const Navigator = memo(function Navigator({ currentPath, locale = defaultLocale 
       <div className="ml-auto flex items-center gap-2">
         <SearchTrigger />
         <div className="tablet:hidden flex-center">
-          <LanguageSwitcher locale={locale} />
+          <LanguageSwitcher
+            locale={locale}
+            open={openKey === languageMenuKey}
+            onOpenChange={(open) =>
+              setOpenKey((current) => (open ? languageMenuKey : current === languageMenuKey ? null : current))
+            }
+          />
         </div>
         <ThemeToggle locale={locale} />
       </div>

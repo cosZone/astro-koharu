@@ -2,7 +2,7 @@ import Popover from '@components/ui/popover';
 import type { Router } from '@constants/router';
 import { Icon } from '@iconify/react';
 import { cn } from '@lib/utils';
-import { memo, useCallback, useMemo, useState } from 'react';
+import { memo, useCallback, useMemo } from 'react';
 import { defaultLocale, localizedPath, resolveNavName, stripLocaleFromPath, t } from '@/i18n';
 import { NavMenu, type NavMenuItem } from './NavMenu';
 
@@ -14,7 +14,8 @@ interface DropdownNavProps {
   /** `data-glide-key` the header's sliding pill targets. */
   glideKey?: string;
   onIntent?: () => void;
-  onOpenChange?: (open: boolean) => void;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
 }
 
 const DropdownNavComponent = ({
@@ -24,13 +25,9 @@ const DropdownNavComponent = ({
   locale = defaultLocale,
   glideKey,
   onIntent,
+  open,
   onOpenChange,
 }: DropdownNavProps) => {
-  const [isOpen, setIsOpen] = useState(false);
-  const handleOpenChange = (open: boolean) => {
-    setIsOpen(open);
-    onOpenChange?.(open);
-  };
   const { icon, children } = item;
   const name = resolveNavName(item.nameKey, item.name, locale);
 
@@ -63,8 +60,8 @@ const DropdownNavComponent = ({
 
   return (
     <Popover
-      open={isOpen}
-      onOpenChange={handleOpenChange}
+      open={open}
+      onOpenChange={onOpenChange}
       placement="bottom-start"
       trigger="hover"
       render={renderDropdownContent}
@@ -73,7 +70,7 @@ const DropdownNavComponent = ({
       <button
         type="button"
         className={cn('relative inline-flex h-10 items-center py-2 pr-5 pl-3 text-base tracking-wider outline-none', className)}
-        aria-expanded={isOpen}
+        aria-expanded={open}
         aria-haspopup="true"
         aria-label={t(locale, 'common.menuLabel', { name })}
         data-glide-key={glideKey}
@@ -89,7 +86,7 @@ const DropdownNavComponent = ({
         <Icon
           icon="ri:arrow-drop-down-fill"
           className={cn('absolute right-0 size-6 transition-transform duration-300 ease-out-expo', {
-            'rotate-180': isOpen,
+            'rotate-180': open,
           })}
         />
       </button>

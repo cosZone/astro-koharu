@@ -34,9 +34,11 @@ interface LanguageSwitcherProps {
   /** Initial locale code from SSR (e.g., 'zh', 'en') */
   locale: string;
   className?: string;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
 }
 
-const LanguageSwitcherComponent = ({ locale: _ssrLocale, className }: LanguageSwitcherProps) => {
+const LanguageSwitcherComponent = ({ locale: _ssrLocale, className, open, onOpenChange }: LanguageSwitcherProps) => {
   const currentPath = useSyncExternalStore(subscribePathname, getPathname, getServerPathname);
 
   // Derive locale from live URL so it stays in sync after View Transition navigations
@@ -66,7 +68,14 @@ const LanguageSwitcherComponent = ({ locale: _ssrLocale, className }: LanguageSw
   }
 
   return (
-    <Popover placement="bottom-end" trigger="hover" render={renderDropdownContent} className="nav-popover">
+    <Popover
+      open={open}
+      onOpenChange={onOpenChange}
+      placement="bottom-end"
+      trigger="hover"
+      render={renderDropdownContent}
+      className="nav-popover"
+    >
       <button
         type="button"
         className={cn(
@@ -75,6 +84,7 @@ const LanguageSwitcherComponent = ({ locale: _ssrLocale, className }: LanguageSw
         )}
         aria-label={`Language: ${currentLabel}`}
         aria-haspopup="true"
+        aria-expanded={open}
       >
         {/* 图标数据异步加载，固定尺寸容器保证 SSR/加载前后几何不变，避免 popover 重定位 */}
         <span className="inline-flex size-7 items-center justify-center">
