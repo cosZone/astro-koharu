@@ -37,13 +37,14 @@ export default function DiagramFullscreen() {
       <div
         ref={containerRef}
         className={cn(
-          'flex flex-1 cursor-grab items-center justify-center overflow-hidden active:cursor-grabbing',
+          'flex min-h-0 flex-1 cursor-grab touch-none select-none items-center justify-center overflow-hidden active:cursor-grabbing',
           data.diagramType === 'infographic' && 'infographic-container',
         )}
+        style={{ minHeight: 0, overflow: 'hidden' }}
       >
         <div
           className={cn(
-            'flex origin-center items-center justify-center transition-transform duration-100',
+            'flex origin-center items-center justify-center',
             data.diagramType === 'mermaid' ? 'mermaid-svg-container' : 'infographic-svg-container',
           )}
           style={{
@@ -62,17 +63,18 @@ export default function DiagramFullscreen() {
 function DiagramToolbar({ data, zoomLevel, onReset }: { data: DiagramFullscreenData; zoomLevel: string; onReset: () => void }) {
   const { t } = useTranslation();
   return (
-    <MacToolbar language={data.diagramType} className="tablet:items-stretch tablet:px-2" onClose={closeModal}>
+    <MacToolbar language={data.diagramType} onClose={closeModal}>
       <div className="flex items-center gap-1">
-        <span className="mr-2 tablet:ml-auto text-muted-foreground text-sm">{zoomLevel}</span>
+        <span className="mr-2 text-muted-foreground text-sm tabular-nums">{zoomLevel}</span>
         <button
           type="button"
           onClick={onReset}
-          className="flex items-center gap-2 rounded-md px-3 py-1.5 text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
+          className="flex min-h-11 min-w-11 shrink-0 items-center justify-center gap-2 rounded-md px-3 tablet:px-0 py-1.5 text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
+          aria-label={t('diagram.resetZoom')}
           title={t('diagram.resetZoom')}
         >
           <Icon icon="ri:refresh-line" className="size-4" />
-          <span className="text-sm">{t('diagram.resetZoom')}</span>
+          <span className="tablet:hidden text-sm">{t('diagram.resetZoom')}</span>
         </button>
         <CopyButton text={data.source} showLabel />
       </div>

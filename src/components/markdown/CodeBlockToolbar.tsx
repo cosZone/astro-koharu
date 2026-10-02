@@ -77,7 +77,7 @@ export function CodeBlockToolbar({ preElement, enableCopy = true, enableFullscre
           <button
             type="button"
             onClick={() => setCollapsed((prev) => !prev)}
-            className="flex h-8 w-8 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground active:scale-95"
+            className="flex size-11 shrink-0 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground active:scale-95"
             aria-label={collapsed ? t('code.expand') : t('code.collapse')}
             aria-expanded={!collapsed}
             title={collapsed ? t('code.expand') : t('code.collapse')}
@@ -91,8 +91,12 @@ export function CodeBlockToolbar({ preElement, enableCopy = true, enableFullscre
         {enableFullscreen && (
           <button
             type="button"
-            onClick={handleFullscreen}
-            className="flex h-8 w-8 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground active:scale-95"
+            onClick={(event) => {
+              // Safari does not focus buttons on tap; record the return target before opening the dialog.
+              event.currentTarget.focus({ preventScroll: true });
+              handleFullscreen();
+            }}
+            className="flex size-11 shrink-0 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground active:scale-95"
             aria-label={t('code.fullscreen')}
             title={t('code.fullscreen')}
           >

@@ -431,7 +431,7 @@
 
   /* Reserve the toolbar row before the idle-hydrated controls mount. */
   .code-block-wrapper.code-collapsed > .code-block-wrapper-toolbar-mount {
-    min-height: 2.625rem;
+    min-height: 3.3125rem;
   }
 
   /* Toolbar-shaped skeleton until hydration fills the mount (mirrors MacToolbar chrome). */
@@ -693,7 +693,7 @@
 /* ========== 深色模式样式 ========== */
 
 /* Night-sakura code surface instead of github-dark's cool grey (beats Shiki's inline variable). */
-html.dark .prose .astro-code {
+html.dark :is(.prose .astro-code, .code-fullscreen-content) {
   /* biome-ignore lint/complexity/noImportantStyles: overrides the inline --shiki-dark-bg Shiki writes on each <pre>. */
   --shiki-dark-bg: hsl(256 24% 10%) !important;
 }
@@ -865,21 +865,48 @@ html.dark .prose .astro-code {
 }
 
 /* Line highlighting (mark) */
-.prose pre code .line-highlight {
+:is(.prose pre, .code-fullscreen-content) code .line-highlight {
   background: hsl(var(--shoka-warning) / 0.12);
-  margin: 0 -1.5rem;
-  padding: 0 1.5rem;
+  margin: 0 calc(-1 * var(--code-gutter, 1.5rem));
+  padding: 0 var(--code-gutter, 1.5rem);
   display: inline-block;
-  width: calc(100% + 3rem);
+  width: calc(100% + 2 * var(--code-gutter, 1.5rem));
   border-left: 3px solid hsl(var(--shoka-warning));
-  padding-left: calc(1.5rem - 3px);
+  padding-left: calc(var(--code-gutter, 1.5rem) - 3px);
 }
 
 /* Command prompt */
-.prose pre code .has-prompt::before {
+:is(.prose pre, .code-fullscreen-content) code .has-prompt::before {
   content: attr(data-prompt) " ";
   color: hsl(var(--muted-foreground));
   user-select: none;
+}
+
+/* The portal lives outside .prose. Keep one scroll surface for both code axes. */
+.code-fullscreen-content {
+  --code-gutter: 1.25rem;
+  flex: 1;
+  min-height: 0;
+  min-width: 0;
+  margin: 0;
+  padding: 1rem var(--code-gutter);
+  overflow: auto;
+  overscroll-behavior: contain;
+  font-size: 0.875rem;
+  line-height: 1.7;
+}
+
+.code-fullscreen-content > code {
+  display: block;
+  width: max-content;
+  min-width: 100%;
+  font: inherit;
+}
+
+.code-fullscreen-content[data-wrap] > code {
+  width: 100%;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
 }
 
 /* Reader font presets */

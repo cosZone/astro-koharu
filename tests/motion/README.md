@@ -23,3 +23,8 @@ The separate snowfall fixture mounts the real canvas component even when Christm
 The Playwright global setup preloads these fixtures in an isolated page before assertions run. It retries Vite
 optimization reloads at most twice; source failures still fail the run. No manual warmup is required.
 No formal acceptance runner or report workflow is involved.
+
+`mobile-viewers.spec.ts` also exercises 320px/390px portrait and 844px landscape code readers, viewport rotation,
+44px touch targets, wrapping, native two-axis touch scrolling, Shiki dark colors and line markers, and page position.
+Its diagram gesture contract uses synthetic touch events to verify pinch-to-pan continuity and cancellation;
+physical device behavior needs separate checks. `fullscreen.spec.ts` retains the opening/closing opacity regression checks.

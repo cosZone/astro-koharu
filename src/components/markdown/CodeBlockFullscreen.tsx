@@ -9,9 +9,12 @@ import { CopyButton } from '@components/markdown/shared/CopyButton';
 import { MacToolbar } from '@components/markdown/shared/MacToolbar';
 import { ModalLayer } from '@components/ui/ModalLayer';
 import { useRetainedValue } from '@hooks/useRetainedValue';
+import { useTranslation } from '@hooks/useTranslation';
+import { Icon } from '@iconify/react';
 import { cn } from '@lib/utils';
 import { useStore } from '@nanostores/react';
 import { $codeFullscreenData, closeModal } from '@store/modal';
+import { useEffect, useRef, useState } from 'react';
 
 /**
  * Parse inline style string to React CSSProperties
@@ -30,7 +33,9 @@ function parseInlineStyles(styleString: string): React.CSSProperties {
     const value = declaration.slice(colonIndex + 1).trim();
     if (!property || !value) continue;
 
-    const camelProperty = property.replace(/-([a-z])/g, (_, letter) => letter.toUpperCase());
+    const camelProperty = property.startsWith('--')
+      ? property
+      : property.replace(/-([a-z])/g, (_, letter) => letter.toUpperCase());
     styles[camelProperty] = value;
   }
 
@@ -40,22 +45,47 @@ function parseInlineStyles(styleString: string): React.CSSProperties {
 export default function CodeBlockFullscreen() {
   const liveData = useStore($codeFullscreenData);
   const data = useRetainedValue(liveData);
+  const { t } = useTranslation();
+  const [wrapLines, setWrapLines] = useState(false);
+  const preRef = useRef<HTMLPreElement>(null);
+
+  useEffect(() => {
+    if (liveData) preRef.current?.scrollTo(0, 0);
+  }, [liveData]);
 
   if (!data) return null;
 
   const preStyles = parseInlineStyles(data.preStyle);
 
   return (
-    <ModalLayer open={liveData !== null} onClose={closeModal}>
+    <ModalLayer open={liveData !== null} onClose={closeModal} ariaLabel={t('code.fullscreen')}>
       <MacToolbar language={data.language} onClose={closeModal}>
+        <button
+          type="button"
+          className="flex size-11 shrink-0 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground aria-pressed:bg-accent aria-pressed:text-accent-foreground"
+          aria-label={t('code.wrapLines')}
+          title={t('code.wrapLines')}
+          aria-pressed={wrapLines}
+          onClick={() => {
+            setWrapLines((value) => !value);
+            if (preRef.current) preRef.current.scrollLeft = 0;
+          }}
+        >
+          <Icon icon="ri:text-wrap" className="size-5" />
+        </button>
         <CopyButton text={data.code} showLabel />
       </MacToolbar>
-      <div className="scroll-feather-mask flex-1 overflow-auto">
-        <pre className={cn(data.preClassName, 'p-4')} style={preStyles}>
-          {/* biome-ignore lint/security/noDangerouslySetInnerHtml: Safe - codeHTML comes from Shiki syntax highlighter output only */}
-          <code className={data.codeClassName} dangerouslySetInnerHTML={{ __html: data.codeHTML }} />
-        </pre>
-      </div>
+      <pre
+        ref={preRef}
+        className={cn(data.preClassName, 'code-fullscreen-content')}
+        data-wrap={wrapLines || undefined}
+        style={preStyles}
+        // biome-ignore lint/a11y/noNoninteractiveTabindex: Keyboard users need to focus and scroll the code surface.
+        tabIndex={0}
+      >
+        {/* biome-ignore lint/security/noDangerouslySetInnerHtml: Safe - codeHTML comes from Shiki syntax highlighter output only */}
+        <code className={data.codeClassName} dangerouslySetInnerHTML={{ __html: data.codeHTML }} />
+      </pre>
     </ModalLayer>
   );
 }
