@@ -14,9 +14,9 @@ import { animation } from '@constants/design-tokens';
 import { FloatingFocusManager, FloatingPortal, useDismiss, useFloating, useInteractions, useRole } from '@floating-ui/react';
 import { useMotionLevel } from '@hooks/useMotionLevel';
 import { cn } from '@lib/utils';
-import { AnimatePresence, m } from 'motion/react';
+import { AnimatePresence, m, type Transition } from 'motion/react';
 import type { ReactNode } from 'react';
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 
 const PANEL_CLASS =
   'relative flex h-[80vh] w-[90vw] max-w-6xl flex-col overflow-hidden overscroll-none rounded-xl bg-background shadow-2xl md:max-w-[90vw]';
@@ -44,6 +44,7 @@ export function ModalLayer({
   children,
 }: ModalLayerProps) {
   const shouldReduceMotion = useMotionLevel() === 'reduced';
+  const backdropRef = useRef<HTMLDivElement>(null);
   const { refs, context } = useFloating({
     open,
     onOpenChange: (next) => {
@@ -62,6 +63,34 @@ export function ModalLayer({
 
   const isPanel = variant === 'panel';
 
+  // Motion 11 cancels native animations before final styles render on the next frame.
+  // Commit opacity per property so the backdrop and panel never reveal the initial style.
+  const backdropTransition = (visible: boolean): Transition => ({
+    opacity: {
+      ...(shouldReduceMotion
+        ? { duration: 0 }
+        : visible
+          ? { duration: 0.3, ease: animation.bezier.outQuart }
+          : { duration: 0.22, ease: animation.bezier.inQuart }),
+      onComplete: () => backdropRef.current?.style.setProperty('opacity', visible ? '1' : '0'),
+    },
+  });
+
+  const panelTransition = (visible: boolean): Transition => {
+    const transition: Transition = shouldReduceMotion
+      ? { duration: 0 }
+      : visible
+        ? animation.spring.popover
+        : { duration: 0.16, ease: animation.bezier.inQuart };
+    return {
+      ...transition,
+      opacity: {
+        ...transition,
+        onComplete: () => refs.floating.current?.style.setProperty('opacity', visible ? '1' : '0'),
+      },
+    };
+  };
+
   return (
     <LazyMotionProvider>
       <FloatingPortal>
@@ -70,14 +99,15 @@ export function ModalLayer({
             <m.div className={cn('fixed inset-0', isPanel ? 'z-40' : 'z-50')}>
               {/* Only the backdrop fades as a whole; the content owns its own entrance and exit. */}
               <m.div
+                ref={backdropRef}
                 className={cn('fixed inset-0 backdrop-blur-sm', backdropClassName ?? 'bg-[rgb(18_10_26/0.72)]')}
                 initial={shouldReduceMotion ? false : { opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{
                   opacity: 0,
-                  transition: shouldReduceMotion ? { duration: 0 } : { duration: 0.22, ease: animation.bezier.inQuart },
+                  transition: backdropTransition(false),
                 }}
-                transition={shouldReduceMotion ? { duration: 0 } : { duration: 0.3, ease: animation.bezier.outQuart }}
+                transition={backdropTransition(true)}
               />
               <FloatingFocusManager context={context}>
                 {isPanel ? (
@@ -89,10 +119,10 @@ export function ModalLayer({
                       animate={{ opacity: 1, scale: 1, y: 0 }}
                       exit={
                         shouldReduceMotion
-                          ? { opacity: 0, transition: { duration: 0 } }
-                          : { opacity: 0, scale: 0.97, y: 6, transition: { duration: 0.16, ease: animation.bezier.inQuart } }
+                          ? { opacity: 0, transition: panelTransition(false) }
+                          : { opacity: 0, scale: 0.97, y: 6, transition: panelTransition(false) }
                       }
-                      transition={shouldReduceMotion ? { duration: 0 } : animation.spring.popover}
+                      transition={panelTransition(true)}
                       {...getFloatingProps()}
                     >
                       {children}
