@@ -67,7 +67,7 @@ export function normalizeRemoteUrl(url: string): string {
   }
   const scpMatch = trimmed.match(/^[^@]+@([^:]+):(.+)$/);
   if (scpMatch) {
-    return `${scpMatch[1]}${scpMatch[2].replace(/\.git$/, '')}`;
+    return `${scpMatch[1]}/${scpMatch[2].replace(/\.git$/, '')}`;
   }
   return trimmed.replace(/\.git$/, '');
 }
