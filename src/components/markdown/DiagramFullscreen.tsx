@@ -37,7 +37,7 @@ export default function DiagramFullscreen() {
       <div
         ref={containerRef}
         className={cn(
-          'flex min-h-0 flex-1 cursor-grab touch-none select-none items-center justify-center overflow-hidden active:cursor-grabbing',
+          'flex flex-1 cursor-grab touch-none select-none items-center justify-center active:cursor-grabbing',
           data.diagramType === 'infographic' && 'infographic-container',
         )}
         style={{ minHeight: 0, overflow: 'hidden' }}

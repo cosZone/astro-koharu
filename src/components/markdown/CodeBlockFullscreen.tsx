@@ -1,10 +1,3 @@
-/**
- * CodeBlockFullscreen Component
- *
- * A fullscreen code viewer dialog with syntax highlighting and copy functionality.
- * Uses the unified modal store for state management.
- */
-
 import { CopyButton } from '@components/markdown/shared/CopyButton';
 import { MacToolbar } from '@components/markdown/shared/MacToolbar';
 import { ModalLayer } from '@components/ui/ModalLayer';
@@ -17,16 +10,11 @@ import { useStore } from '@nanostores/react';
 import { $codeFullscreenData, closeModal } from '@store/modal';
 import { useEffect, useRef, useState } from 'react';
 
-/**
- * Parse inline style string to React CSSProperties
- */
 function parseInlineStyles(styleString: string): React.CSSProperties {
   if (!styleString) return {};
 
   const styles: Record<string, string> = {};
-  const declarations = styleString.split(';').filter((s) => s.trim());
-
-  for (const declaration of declarations) {
+  for (const declaration of styleString.split(';')) {
     const colonIndex = declaration.indexOf(':');
     if (colonIndex === -1) continue;
 
@@ -57,8 +45,6 @@ export default function CodeBlockFullscreen() {
 
   if (!data) return null;
 
-  const preStyles = parseInlineStyles(data.preStyle);
-
   return (
     <ModalLayer open={liveData !== null} onClose={closeModal} variant="sheet" ariaLabel={t('code.fullscreen')}>
       <MacToolbar language={data.language} onClose={isTablet ? undefined : closeModal} className="tablet:rounded-none">
@@ -81,7 +67,7 @@ export default function CodeBlockFullscreen() {
         ref={preRef}
         className={cn(data.preClassName, 'code-fullscreen-content')}
         data-wrap={wrapLines || undefined}
-        style={preStyles}
+        style={parseInlineStyles(data.preStyle)}
         // biome-ignore lint/a11y/noNoninteractiveTabindex: Keyboard users need to focus and scroll the code surface.
         tabIndex={0}
       >
