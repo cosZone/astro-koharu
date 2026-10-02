@@ -33,6 +33,8 @@ export interface ModalLayerProps {
   className?: string;
   backdropClassName?: string;
   ariaLabel?: string;
+  /** Stack the entire viewer above page controls, including its backdrop. */
+  layerClassName?: string;
   /** Forwarded to Floating UI's `useDismiss`; return `false` to keep the modal open for that press. */
   outsidePress?: (event: MouseEvent) => boolean;
   children: ReactNode;
@@ -45,6 +47,7 @@ export function ModalLayer({
   className,
   backdropClassName,
   ariaLabel,
+  layerClassName,
   outsidePress,
   children,
 }: ModalLayerProps) {
@@ -103,7 +106,7 @@ export function ModalLayer({
       <FloatingPortal>
         <AnimatePresence>
           {open && (
-            <m.div className="fixed inset-0 z-60">
+            <m.div className={cn('fixed inset-0 z-60', layerClassName)}>
               {/* Only the backdrop fades as a whole; the content owns its own entrance and exit. */}
               <m.div
                 ref={backdropRef}

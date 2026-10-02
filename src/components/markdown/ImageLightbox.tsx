@@ -1,24 +1,17 @@
-/**
- * React image lightbox with zoom/pan support.
- * Replaces the vanilla DOM lightbox in image-enhancer.ts (~400 lines).
- *
- * Uses shared useZoomPan hook, the ModalLayer shell for portal/dismiss behavior, and Motion animations.
- * Listens for 'open-image-lightbox' custom events dispatched by image-enhancer.ts.
- */
-
 import { ModalLayer } from '@components/ui/ModalLayer';
 import { animation } from '@constants/design-tokens';
+import { useImageLightboxGestures } from '@hooks/useImageLightboxGestures';
 import { useKeyboardShortcut } from '@hooks/useKeyboardShortcut';
+import { useMediaQuery } from '@hooks/useMediaQuery';
 import { useMotionLevel } from '@hooks/useMotionLevel';
 import { useRetainedValue } from '@hooks/useRetainedValue';
 import { useTranslation } from '@hooks/useTranslation';
-import { useZoomPan } from '@hooks/useZoomPan';
 import { Icon } from '@iconify/react';
 import { flipFromOrigin, intersectsViewport } from '@lib/lightbox-flip';
 import { useStore } from '@nanostores/react';
 import { $imageLightboxData, closeModal, type ImageLightboxData, navigateImage, openModal } from '@store/modal';
 import { m } from 'motion/react';
-import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useState } from 'react';
 
 export default function ImageLightbox() {
   const { t } = useTranslation();
@@ -26,232 +19,294 @@ export default function ImageLightbox() {
   const data = useRetainedValue(liveData);
   const isOpen = liveData !== null;
   const motionDisabled = useMotionLevel() === 'reduced';
-  const [imageLoaded, setImageLoaded] = useState(false);
   const [rotation, setRotation] = useState(0);
-
-  const { containerRef, state, reset, zoomTo, zoomLevel } = useZoomPan(isOpen);
-
-  // Use a ref so the outsidePress callback always reads the latest scale
-  const scaleRef = useRef(state.scale);
-
-  useLayoutEffect(() => {
-    scaleRef.current = state.scale;
-  }, [state.scale]);
-
-  const handleResetAll = useCallback(() => {
-    reset();
-    setRotation(0);
-  }, [reset]);
-
-  // Undo zoom and rotation first so the image flies back to the page in its original framing.
+  const [image, setImage] = useState({ src: '', width: 0, height: 0, failed: false });
+  const [retry, setRetry] = useState(0);
+  const [fitArea, setFitArea] = useState<HTMLDivElement | null>(null);
+  const [fitSize, setFitSize] = useState({ width: 0, height: 0 });
   const close = useCallback(() => {
-    reset();
-    setRotation(0);
-    closeModal();
-  }, [reset]);
+    // A closing viewer must never dismiss another modal opened during its exit.
+    if ($imageLightboxData.get()) closeModal();
+  }, []);
+  const navigateTo = useCallback((direction: 1 | -1) => {
+    const moved = navigateImage(direction);
+    if (moved) setRotation(0);
+    return moved;
+  }, []);
+  const { containerRef, imageRef, state, reset, zoomBy, zoomLevel, isInteracting } = useImageLightboxGestures({
+    enabled: isOpen,
+    onClose: close,
+    onNavigate: navigateTo,
+    rotation,
+    fitSize,
+  });
 
-  const handleZoomIn = useCallback(() => zoomTo(scaleRef.current * 1.5), [zoomTo]);
-  const handleZoomOut = useCallback(() => zoomTo(scaleRef.current / 1.5), [zoomTo]);
-  const handleRotate = useCallback(() => setRotation((r) => (r + 90) % 360), []);
-
-  const navigateTo = useCallback(
-    (dir: 1 | -1) => {
-      if (!navigateImage(dir)) return;
-      reset();
-      setRotation(0);
-      setImageLoaded(false);
+  const inspectImage = useCallback((element: HTMLImageElement) => {
+    if (!element.complete) return;
+    setImage({
+      src: element.getAttribute('src') ?? '',
+      width: element.naturalWidth,
+      height: element.naturalHeight,
+      failed: element.naturalWidth === 0,
+    });
+  }, []);
+  const setImageRef = useCallback(
+    (element: HTMLImageElement | null) => {
+      imageRef(element);
+      if (element) inspectImage(element);
     },
-    [reset],
+    [imageRef, inspectImage],
   );
 
-  // Keyboard shortcuts for navigation
-  useKeyboardShortcut({
-    key: 'ArrowLeft',
-    handler: () => navigateTo(-1),
-    enabled: isOpen,
-    ignoreInputs: false,
-    preventDefault: false,
-  });
-
-  useKeyboardShortcut({
-    key: 'ArrowRight',
-    handler: () => navigateTo(1),
-    enabled: isOpen,
-    ignoreInputs: false,
-    preventDefault: false,
-  });
-
-  // Keyboard shortcuts for zoom/rotate
-  useKeyboardShortcut({ key: '=', handler: handleZoomIn, enabled: isOpen, ignoreInputs: false, preventDefault: false });
-  useKeyboardShortcut({ key: '+', handler: handleZoomIn, enabled: isOpen, ignoreInputs: false, preventDefault: false });
-  useKeyboardShortcut({ key: '-', handler: handleZoomOut, enabled: isOpen, ignoreInputs: false, preventDefault: false });
-  useKeyboardShortcut({ key: 'r', handler: handleRotate, enabled: isOpen, ignoreInputs: false, preventDefault: false });
-  useKeyboardShortcut({ key: '0', handler: handleResetAll, enabled: isOpen, ignoreInputs: false, preventDefault: false });
-
-  const outsidePress = useCallback((event: MouseEvent) => {
-    // Don't close when zoomed in (user might be panning)
-    if (scaleRef.current > 1.05) return false;
-    // Don't close when clicking interactive elements or the image itself
-    const target = event.target as HTMLElement;
-    if (target.closest('button, img, [role="img"]')) return false;
-    return true;
+  const measureFitArea = useCallback((node: HTMLDivElement | null) => {
+    setFitArea(node);
+    setFitSize({ width: node?.clientWidth ?? 0, height: node?.clientHeight ?? 0 });
   }, []);
 
-  // Listen for custom events from image-enhancer
-  useEffect(() => {
-    const handleOpen = (e: CustomEvent<ImageLightboxData>) => {
-      openModal('imageLightbox', e.detail);
-    };
+  useLayoutEffect(() => {
+    if (!fitArea) return;
+    const measure = () => setFitSize({ width: fitArea.clientWidth, height: fitArea.clientHeight });
+    measure();
+    const observer = new ResizeObserver(measure);
+    observer.observe(fitArea);
+    return () => observer.disconnect();
+  }, [fitArea]);
 
+  useEffect(() => {
+    const handleOpen = (event: CustomEvent<ImageLightboxData>) => openModal('imageLightbox', event.detail);
     window.addEventListener('open-image-lightbox', handleOpen as EventListener);
     return () => window.removeEventListener('open-image-lightbox', handleOpen as EventListener);
   }, []);
 
-  // Reset zoom and rotation when opening. The first image is already loaded in the article,
-  // so it shows at once and can zoom straight out of the page; navigation resets it to unloaded.
-  useEffect(() => {
-    if (isOpen) {
-      reset();
-      setRotation(0);
-      setImageLoaded(true);
-    }
-  }, [isOpen, reset]);
+  // Reset before paint on open and navigation, but preserve the last pose throughout exit.
+  useLayoutEffect(() => {
+    if (!liveData) return;
+    reset();
+    setRotation(0);
+  }, [liveData, reset]);
 
-  // useZoomPan only intercepts wheel on the zoom viewport; this also covers the overlaid
-  // toolbar/nav so a wheel (or ctrl+wheel zoom) there can't move the page behind the lightbox.
   useEffect(() => {
     if (!isOpen) return;
-    const prevent = (e: WheelEvent) => e.preventDefault();
+    const prevent = (event: WheelEvent) => event.preventDefault();
     document.addEventListener('wheel', prevent, { passive: false });
     return () => document.removeEventListener('wheel', prevent);
   }, [isOpen]);
 
-  const handleDoubleClick = (e: React.MouseEvent) => {
-    e.preventDefault();
-    if (state.scale > 1.05) {
-      reset();
-      setRotation(0);
-    } else {
-      zoomTo(2, e.clientX, e.clientY);
-    }
+  const handleReset = () => {
+    reset();
+    setRotation(0);
   };
+  const handleZoomIn = () => zoomBy(1.5);
+  const handleZoomOut = () => zoomBy(1 / 1.5);
+  const handleRotate = () => {
+    reset();
+    // Keep increasing so the fourth quarter-turn never spins backwards through 270 degrees.
+    setRotation((value) => value + 90);
+  };
+  useKeyboardShortcut({ key: 'ArrowLeft', handler: () => navigateTo(-1), enabled: isOpen });
+  useKeyboardShortcut({ key: 'ArrowRight', handler: () => navigateTo(1), enabled: isOpen });
+  useKeyboardShortcut({ key: '=', handler: handleZoomIn, enabled: isOpen });
+  useKeyboardShortcut({ key: '+', handler: handleZoomIn, enabled: isOpen });
+  useKeyboardShortcut({ key: '+', modifiers: ['shift'], handler: handleZoomIn, enabled: isOpen });
+  useKeyboardShortcut({ key: '-', handler: handleZoomOut, enabled: isOpen });
+  useKeyboardShortcut({ key: 'r', handler: handleRotate, enabled: isOpen });
+  useKeyboardShortcut({ key: '0', handler: handleReset, enabled: isOpen });
 
   if (!data) return null;
 
   const origin = data.images[data.currentIndex]?.origin;
+  const loaded = image.src === data.src && image.width > 0;
+  const failed = image.src === data.src && image.failed;
+  const naturalWidth = loaded ? image.width : (origin?.naturalWidth ?? 0);
+  const naturalHeight = loaded ? image.height : (origin?.naturalHeight ?? 0);
+  const quarterTurn = rotation % 180 !== 0;
+  const fit =
+    naturalWidth && naturalHeight && fitSize.width && fitSize.height
+      ? Math.min(
+          1,
+          fitSize.width / (quarterTurn ? naturalHeight : naturalWidth),
+          fitSize.height / (quarterTurn ? naturalWidth : naturalHeight),
+        )
+      : 0;
   const flip =
-    !motionDisabled && origin && intersectsViewport(origin.box, window.innerWidth, window.innerHeight)
+    !motionDisabled && origin && fitSize.width && intersectsViewport(origin.box, window.innerWidth, window.innerHeight)
       ? flipFromOrigin(origin.box, origin.naturalWidth, origin.naturalHeight, {
           centerX: document.documentElement.clientWidth / 2,
           centerY: document.documentElement.clientHeight / 2,
-          maxWidth: window.innerWidth * 0.9,
-          maxHeight: window.innerHeight * 0.8,
+          maxWidth: fitSize.width,
+          maxHeight: fitSize.height,
         })
       : null;
+  const returnToOrigin = flip && state.scale === 1 && rotation % 360 === 0 && state.translateX === 0 && state.translateY === 0;
+
+  const chromeExit = { opacity: 0, transition: { duration: motionDisabled ? 0 : 0.12 } };
 
   return (
     <ModalLayer
       open={isOpen}
       onClose={close}
       variant="fill"
+      ariaLabel={t('image.preview')}
+      layerClassName="z-[60]"
+      className="touch-none overflow-hidden overscroll-none"
       backdropClassName="bg-[rgb(12_6_18/0.92)]"
-      outsidePress={outsidePress}
     >
-      {/* Toolbar: vertical right on desktop, horizontal top on tablet */}
       <m.div
-        className="absolute tablet:top-4 top-1/2 right-4 tablet:right-auto tablet:left-1/2 z-10 flex tablet:-translate-x-1/2 -translate-y-1/2 tablet:translate-y-0 tablet:flex-row flex-col items-center gap-1 rounded-2xl bg-black/50 p-1.5 backdrop-blur-sm"
-        initial={motionDisabled ? false : { opacity: 0 }}
+        data-no-petals=""
+        className="absolute inset-0"
+        initial={false}
         animate={{ opacity: 1 }}
-        exit={{ opacity: 0, transition: { duration: motionDisabled ? 0 : 0.12 } }}
-        transition={motionDisabled ? { duration: 0 } : { duration: 0.2, delay: 0.1 }}
+        exit={{ opacity: returnToOrigin ? 1 : 0, transition: { duration: motionDisabled ? 0 : 0.16 } }}
       >
-        <ToolbarButton icon="ri:zoom-in-line" label={t('image.zoomIn')} onClick={handleZoomIn} disabled={state.scale >= 4.9} />
-        <m.button
-          type="button"
-          onClick={handleResetAll}
-          className="flex size-10 items-center justify-center rounded-full text-white/60 text-xs tabular-nums transition-colors hover:bg-white/15 hover:text-white/80"
-          whileTap={motionDisabled ? undefined : { scale: 0.85 }}
-          aria-label={t('image.resetZoomRotate')}
-        >
-          {zoomLevel}
-        </m.button>
-        <ToolbarButton
-          icon="ri:zoom-out-line"
-          label={t('image.zoomOut')}
-          onClick={handleZoomOut}
-          disabled={state.scale <= 0.55}
+        <div
+          ref={measureFitArea}
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-x-4 inset-y-[calc(96px+max(env(safe-area-inset-top),env(safe-area-inset-bottom)))] mx-auto max-w-[90vw] [@media(max-height:520px)]:inset-y-[calc(72px+max(env(safe-area-inset-top),env(safe-area-inset-bottom)))]"
         />
-        <div className="h-px tablet:h-5 tablet:w-px w-5 bg-white/20" />
-        <ToolbarButton icon="ri:clockwise-line" label={t('image.rotate')} onClick={handleRotate} />
-        <div className="h-px tablet:h-5 tablet:w-px w-5 bg-white/20" />
-        <ToolbarButton icon="ri:close-line" label={t('image.close')} onClick={close} />
-      </m.div>
-
-      {/* Image viewport with zoom/pan */}
-      <div
-        ref={containerRef}
-        role="img"
-        className="flex h-full w-full touch-none select-none items-center justify-center p-4"
-        onDoubleClick={handleDoubleClick}
-      >
-        {/* Zooms out of the on-page image and back into it on close (FLIP), else a soft scale-fade. */}
-        <m.div
-          className="flex items-center justify-center"
-          initial={motionDisabled ? false : flip ? { x: flip.x, y: flip.y, scale: flip.scale } : { opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, x: 0, y: 0, scale: 1 }}
-          exit={
-            motionDisabled
-              ? { opacity: 0, transition: { duration: 0 } }
-              : flip
-                ? { x: flip.x, y: flip.y, scale: flip.scale }
-                : { opacity: 0, scale: 0.95, transition: { duration: 0.16 } }
-          }
-          transition={motionDisabled ? { duration: 0 } : animation.spring.lightbox}
+        <div
+          ref={containerRef}
+          data-lightbox-viewport=""
+          className="absolute inset-0 flex touch-none select-none items-center justify-center"
         >
-          <m.img
-            src={data.src}
-            alt={data.alt}
-            className="max-h-[80vh] max-w-[90vw] origin-center rounded-lg object-contain shadow-2xl will-change-transform"
-            animate={{ scale: state.scale, rotate: rotation, opacity: imageLoaded ? 1 : 0 }}
-            transition={
-              motionDisabled
-                ? { duration: 0 }
-                : {
-                    scale: { type: 'tween', duration: 0.15, ease: 'easeOut' },
-                    rotate: { type: 'spring', stiffness: 300, damping: 25 },
-                    opacity: { duration: 0.2 },
-                  }
-            }
-            style={{
-              x: state.translateX,
-              y: state.translateY,
-              cursor: state.scale > 1.05 ? 'grab' : 'zoom-in',
-            }}
-            onLoad={() => setImageLoaded(true)}
-            draggable={false}
+          {fitSize.width > 0 && (
+            <m.div
+              className="flex items-center justify-center"
+              initial={
+                motionDisabled ? false : flip ? { x: flip.x, y: flip.y, scale: flip.scale } : { opacity: 0, scale: 0.98 }
+              }
+              animate={{ opacity: 1, x: 0, y: 0, scale: 1 }}
+              exit={
+                motionDisabled
+                  ? { opacity: 0, transition: { duration: 0 } }
+                  : returnToOrigin
+                    ? { x: flip.x, y: flip.y, scale: flip.scale }
+                    : { opacity: 0, transition: { duration: 0.16, ease: 'easeOut' } }
+              }
+              transition={motionDisabled ? { duration: 0 } : animation.spring.lightbox}
+            >
+              <m.img
+                key={`${data.currentIndex}:${data.src}:${retry}`}
+                ref={setImageRef}
+                data-lightbox-image=""
+                src={data.src}
+                alt={data.alt}
+                draggable={false}
+                className="max-w-none origin-center rounded-lg object-contain shadow-2xl outline outline-1 outline-white/10"
+                initial={false}
+                animate={{
+                  x: state.translateX,
+                  y: state.translateY,
+                  scale: state.scale,
+                  rotate: rotation,
+                }}
+                transition={{
+                  default: { duration: motionDisabled || isInteracting ? 0 : 0.18, ease: 'easeOut' },
+                  rotate: { duration: motionDisabled ? 0 : 0.22, ease: 'easeOut' },
+                }}
+                style={{
+                  width: fit ? naturalWidth * fit : undefined,
+                  height: fit ? naturalHeight * fit : undefined,
+                  maxWidth: fit ? undefined : '90vw',
+                  maxHeight: fit ? undefined : '60dvh',
+                  // CSS keeps the final fade value when Motion 11 cancels its native animation.
+                  opacity: loaded ? 1 : 0,
+                  transition: motionDisabled ? 'none' : 'opacity 150ms ease-out',
+                  pointerEvents: loaded ? 'auto' : 'none',
+                  cursor: isInteracting ? 'grabbing' : state.scale > 1 ? 'grab' : 'zoom-in',
+                }}
+                onLoad={(event) => inspectImage(event.currentTarget)}
+                onError={(event) => inspectImage(event.currentTarget)}
+              />
+            </m.div>
+          )}
+          {!loaded && (
+            <div
+              className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center gap-3 px-6 text-center text-sm text-white/80"
+              aria-live="polite"
+            >
+              <Icon icon={failed ? 'ri:image-line' : 'ri:image-2-line'} className="size-7 text-white/50" aria-hidden="true" />
+              <p>{failed ? t('image.loadError') : t('common.loading')}</p>
+              {failed && (
+                <button
+                  type="button"
+                  data-lightbox-controls=""
+                  className="pointer-events-auto min-h-11 rounded-full bg-white/10 px-5 text-white hover:bg-white/20 focus-visible:outline-2 focus-visible:outline-white focus-visible:outline-offset-2"
+                  onClick={() => {
+                    setImage({ src: '', width: 0, height: 0, failed: false });
+                    setRetry((value) => value + 1);
+                  }}
+                >
+                  {t('image.retry')}
+                </button>
+              )}
+            </div>
+          )}
+        </div>
+
+        <m.div
+          exit={chromeExit}
+          data-lightbox-controls=""
+          className="absolute top-[calc(12px+env(safe-area-inset-top))] right-[calc(12px+env(safe-area-inset-right))] z-10 rounded-full bg-black/40 p-1 backdrop-blur-sm"
+        >
+          <ToolbarButton icon="ri:close-line" label={t('image.close')} onClick={close} />
+        </m.div>
+
+        {data.images.length > 1 && (
+          <m.div
+            exit={chromeExit}
+            data-lightbox-controls=""
+            className="absolute top-[calc(12px+env(safe-area-inset-top))] left-1/2 z-10 flex -translate-x-1/2 items-center gap-1 rounded-full bg-black/40 p-1 backdrop-blur-sm"
+          >
+            <ToolbarButton
+              icon="ri:arrow-left-s-line"
+              label={t('image.prev')}
+              disabled={data.currentIndex === 0}
+              onClick={() => navigateTo(-1)}
+            />
+            <span className="min-w-14 text-center text-sm text-white/80 tabular-nums" aria-live="polite" aria-atomic="true">
+              {t('image.counter', { current: data.currentIndex + 1, total: data.images.length })}
+            </span>
+            <ToolbarButton
+              icon="ri:arrow-right-s-line"
+              label={t('image.next')}
+              disabled={data.currentIndex === data.images.length - 1}
+              onClick={() => navigateTo(1)}
+            />
+          </m.div>
+        )}
+
+        <m.div
+          exit={chromeExit}
+          data-lightbox-controls=""
+          className="absolute bottom-[calc(12px+env(safe-area-inset-bottom))] left-1/2 z-10 flex -translate-x-1/2 items-center gap-1 rounded-full bg-black/50 p-1.5 shadow-lg backdrop-blur-sm"
+        >
+          <ToolbarButton
+            icon="ri:zoom-out-line"
+            label={t('image.zoomOut')}
+            onClick={handleZoomOut}
+            disabled={!loaded || state.scale <= 1}
           />
+          <m.button
+            type="button"
+            onClick={handleReset}
+            className="flex h-11 min-w-16 items-center justify-center rounded-full px-2 text-sm text-white/80 tabular-nums transition-colors hover:bg-white/15 focus-visible:outline-2 focus-visible:outline-white focus-visible:outline-offset-2"
+            whileTap={motionDisabled ? undefined : { scale: 0.96 }}
+            aria-label={t('image.resetZoomRotate')}
+            title={t('image.resetZoomRotate')}
+          >
+            {zoomLevel}
+          </m.button>
+          <ToolbarButton
+            icon="ri:zoom-in-line"
+            label={t('image.zoomIn')}
+            onClick={handleZoomIn}
+            disabled={!loaded || state.scale >= 5}
+          />
+          <div className="mx-1 h-5 w-px bg-white/20" aria-hidden="true" />
+          <ToolbarButton icon="ri:clockwise-line" label={t('image.rotate')} onClick={handleRotate} disabled={!loaded} />
         </m.div>
-      </div>
-
-      {/* Navigation bar */}
-      {data.images.length > 1 && (
-        <m.div
-          className="absolute bottom-12 left-1/2 flex -translate-x-1/2 items-center gap-0.5 rounded-full bg-black/50 p-1 backdrop-blur-sm"
-          initial={motionDisabled ? false : { opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0, transition: { duration: motionDisabled ? 0 : 0.12 } }}
-          transition={motionDisabled ? { duration: 0 } : { duration: 0.2, delay: 0.1 }}
-        >
-          <NavButton direction={-1} disabled={data.currentIndex === 0} onClick={() => navigateTo(-1)} />
-          <span className="min-w-14 px-1 text-center font-mono text-sm text-white/80 tabular-nums">
-            {data.currentIndex + 1} / {data.images.length}
-          </span>
-          <NavButton direction={1} disabled={data.currentIndex === data.images.length - 1} onClick={() => navigateTo(1)} />
-        </m.div>
-      )}
-
-      {/* Zoom hint */}
-      <ZoomHint />
+        <ZoomHint key={isOpen ? 'open' : 'closed'} multiple={data.images.length > 1} />
+      </m.div>
     </ModalLayer>
   );
 }
@@ -273,63 +328,34 @@ function ToolbarButton({
       type="button"
       onClick={onClick}
       disabled={disabled}
-      className="flex size-10 items-center justify-center rounded-full text-white/80 transition-colors hover:bg-white/15 disabled:pointer-events-none disabled:opacity-30"
-      whileTap={motionDisabled ? undefined : { scale: 0.85 }}
+      className="flex size-11 shrink-0 items-center justify-center rounded-full text-white/85 transition-colors hover:bg-white/15 focus-visible:outline-2 focus-visible:outline-white focus-visible:outline-offset-2 disabled:cursor-default disabled:opacity-30"
+      whileTap={motionDisabled || disabled ? undefined : { scale: 0.96 }}
       aria-label={label}
+      title={label}
     >
-      <Icon icon={icon} className="size-5" />
+      <Icon icon={icon} className="size-5" aria-hidden="true" />
     </m.button>
   );
 }
 
-// Stable animation keyframes — avoids restarting the bounce on every parent re-render
-const BOUNCE_LEFT = { x: [0, -2.5, 0] };
-const BOUNCE_RIGHT = { x: [0, 2.5, 0] };
-const BOUNCE_NONE = { x: 0 };
-
-function NavButton({ direction, disabled, onClick }: { direction: 1 | -1; disabled: boolean; onClick: () => void }) {
+function ZoomHint({ multiple }: { multiple: boolean }) {
   const { t } = useTranslation();
-  const motionDisabled = useMotionLevel() === 'reduced';
-  const isLeft = direction === -1;
-  return (
-    <m.button
-      type="button"
-      onClick={onClick}
-      disabled={disabled}
-      className="flex size-8 items-center justify-center rounded-full text-white/80 transition-colors hover:bg-white/15 disabled:pointer-events-none disabled:opacity-30"
-      whileTap={motionDisabled ? undefined : { scale: 0.82 }}
-      aria-label={isLeft ? t('image.prev') : t('image.next')}
-    >
-      <m.span
-        animate={disabled || motionDisabled ? BOUNCE_NONE : isLeft ? BOUNCE_LEFT : BOUNCE_RIGHT}
-        transition={motionDisabled ? { duration: 0 } : { duration: 1.6, repeat: 3, ease: 'easeInOut' }}
-      >
-        <Icon icon={isLeft ? 'ri:arrow-left-s-line' : 'ri:arrow-right-s-line'} className="size-5" />
-      </m.span>
-    </m.button>
-  );
-}
-
-function ZoomHint() {
-  const { t } = useTranslation();
+  const touch = useMediaQuery('(pointer: coarse)');
   const motionDisabled = useMotionLevel() === 'reduced';
   const [visible, setVisible] = useState(true);
-
   useEffect(() => {
-    const timer = setTimeout(() => setVisible(false), 4000);
+    const timer = setTimeout(() => setVisible(false), 5500);
     return () => clearTimeout(timer);
   }, []);
-
   return (
-    <m.div
-      className="pointer-events-none absolute bottom-4 left-1/2 -translate-x-1/2 rounded-full bg-black/50 px-4 py-2 text-white/70 text-xs"
-      initial={motionDisabled ? false : { opacity: 0 }}
+    <m.p
+      className="pointer-events-none absolute right-4 bottom-[calc(80px+env(safe-area-inset-bottom))] left-4 text-center text-white/65 text-xs [@media(max-height:520px)]:hidden"
+      initial={false}
       animate={{ opacity: visible ? 1 : 0 }}
       exit={{ opacity: 0, transition: { duration: motionDisabled ? 0 : 0.12 } }}
-      transition={{ duration: motionDisabled ? 0 : 0.3 }}
+      transition={{ duration: motionDisabled ? 0 : 0.15 }}
     >
-      <span className="hidden touch-none sm:inline">{t('image.hintDesktop')}</span>
-      <span className="sm:hidden">{t('image.hintMobile')}</span>
-    </m.div>
+      {touch ? t(multiple ? 'image.hintMobileGallery' : 'image.hintMobile') : t('image.hintDesktop')}
+    </m.p>
   );
 }

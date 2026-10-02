@@ -94,6 +94,11 @@ function handleImageClick(e: Event): void {
   const images = allImages.map((i) => ({ src: i.src, alt: i.alt || '图片', origin: measureOrigin(i) }));
   const currentIndex = Math.max(0, allImages.indexOf(img));
 
+  // Give the focus manager a stable return target when the image itself was clicked.
+  img
+    .closest('.markdown-image-wrapper')
+    ?.querySelector<HTMLButtonElement>('.markdown-image-fullscreen')
+    ?.focus({ preventScroll: true });
   openImageLightbox(img.src, img.alt || '图片', images, currentIndex);
 }
 

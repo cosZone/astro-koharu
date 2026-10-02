@@ -1,7 +1,7 @@
 {
   "name": "astro-koharu",
   "type": "module",
-  "version": "7.0.3",
+  "version": "7.0.4",
   "packageManager": "pnpm@10.28.2",
   "engines": {
     "node": ">=22.20.0"
@@ -37,7 +37,7 @@
     "test:meting": "node --import tsx --test src/lib/meting.test.ts",
     "test:umami": "node --import tsx --test src/lib/umami-stats.test.ts",
     "test:toc": "tsx --test src/lib/toc.test.ts src/lib/toc-ribbon.test.ts",
-    "test:lightbox": "tsx --test src/lib/lightbox-flip.test.ts",
+    "test:lightbox": "tsx --test src/lib/lightbox-flip.test.ts src/lib/lightbox-gestures.test.ts",
     "test:motion": "node --import tsx --test src/lib/motion-level.test.ts src/lib/sakura/petal-burst.test.ts",
     "test:motion:browser": "playwright test -c tests/motion/playwright.config.ts",
     "test:settings-panel": "node tests/settings/panel-animation.mjs",

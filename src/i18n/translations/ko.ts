@@ -137,6 +137,10 @@ export const uiStrings = {
   'diagram.resizeHint': '드래그하여 크기 조절, 더블클릭하여 원래대로',
 
   // ── Image Lightbox ──────────────────────────────────────────
+  'image.preview': '이미지 미리보기',
+  'image.loadError': '이미지를 불러오지 못했습니다',
+  'image.retry': '다시 시도',
+  'image.hintMobileGallery': '좌우로 밀어 넘기기 · 두 손가락으로 확대 · 아래로 밀어 닫기',
   'image.zoomIn': '확대',
   'image.zoomOut': '축소',
   'image.resetZoom': '초기화',
@@ -146,8 +150,8 @@ export const uiStrings = {
   'image.prev': '이전 이미지',
   'image.next': '다음 이미지',
   'image.counter': '{current} / {total}',
-  'image.hintDesktop': '두 번 클릭하여 확대 · 휠/두 손가락으로 확대/축소',
-  'image.hintMobile': '두 번 탭하여 확대 · 두 손가락으로 확대/축소',
+  'image.hintDesktop': '두 번 클릭하여 확대 · 스크롤로 확대/축소 · 빈 곳을 클릭하여 닫기',
+  'image.hintMobile': '두 번 탭하거나 두 손가락으로 확대 · 아래로 밀거나 빈 곳을 탭하여 닫기',
 
   // ── Media Controls ──────────────────────────────────────────
   'media.play': '재생',
