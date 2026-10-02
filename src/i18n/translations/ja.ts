@@ -139,6 +139,10 @@ export const uiStrings: UIStrings = {
   'diagram.resizeHint': 'ドラッグでサイズ変更、ダブルクリックで元に戻す',
 
   // ── Lightboxでの画像表示 ──────────────────────────────────────────
+  'image.preview': '画像プレビュー',
+  'image.loadError': '画像を読み込めませんでした',
+  'image.retry': '再試行',
+  'image.hintMobileGallery': '左右にスワイプで切替 · ピンチで拡大 · 下にスワイプで閉じる',
   'image.zoomIn': '拡大',
   'image.zoomOut': '縮小',
   'image.resetZoom': 'リセット',
@@ -148,8 +152,8 @@ export const uiStrings: UIStrings = {
   'image.prev': '前へ',
   'image.next': '次へ',
   'image.counter': '{current} / {total}',
-  'image.hintDesktop': 'ダブルクリックで拡大、スクロール/ピンチで大きさを変更',
-  'image.hintMobile': 'ダブルタップで拡大、ピンチで大きさを変更',
+  'image.hintDesktop': 'ダブルクリックで拡大 · スクロールでズーム · 余白をクリックして閉じる',
+  'image.hintMobile': 'ダブルタップ・ピンチで拡大 · 下にスワイプ・余白をタップして閉じる',
 
   // ── メディアコントロール ──────────────────────────────────────────
   'media.play': '再生',
