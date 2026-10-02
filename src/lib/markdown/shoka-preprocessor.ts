@@ -24,6 +24,7 @@ import {
   renderFriendLinks,
   renderVideoMedia,
 } from './shoka-renderers';
+import { SHOKA_RUBY_PATTERN } from './shoka-ruby-pattern';
 
 interface ContainerOptions {
   enableContainers?: boolean;
@@ -312,23 +313,29 @@ function processEscapedDelimiters(text: string): string {
  * Must be done before GFM parsing to avoid ~text~ being treated as strikethrough.
  */
 function processInlineSuperSub(text: string): string {
-  return processOutsideProtectedRegions(text, (segment) => {
-    // Replace ~sub~ (single tilde, not ~~) with <sub> — escape content to prevent XSS
-    segment = segment.replace(/(?<![~\\])~([^~\s]+)~(?!~)/g, (_, content) => `<sub>${escapeHtml(content)}</sub>`);
-    // Replace ^sup^ with <sup> — escape content to prevent XSS
-    segment = segment.replace(/(?<![\\^])\^([^^\s]+)\^/g, (_, content) => `<sup>${escapeHtml(content)}</sup>`);
-    return segment;
-  });
+  return processOutsideProtectedRegions(
+    text,
+    (segment) => {
+      // Replace ~sub~ (single tilde, not ~~) with <sub> — escape content to prevent XSS
+      segment = segment.replace(/(?<![~\\])~([^~\s]+)~(?!~)/g, (_, content) => `<sub>${escapeHtml(content)}</sub>`);
+      // Replace ^sup^ with <sup> — escape content to prevent XSS
+      segment = segment.replace(/(?<![\\^])\^([^^\s]+)\^/g, (_, content) => `<sup>${escapeHtml(content)}</sup>`);
+      return segment;
+    },
+    { protectRuby: true },
+  );
 }
 
 /**
  * Split text into protected and unprotected segments, applying `fn` only to unprotected parts.
- * Protected regions: code fences (```/~~~), inline code (`...`), math ($$...$$, $...$).
+ * Protected regions: code fences (```/~~~), inline code (`...`), math ($$...$$, $...$), optionally Ruby.
  */
-function processOutsideProtectedRegions(text: string, fn: (segment: string) => string): string {
-  // Match (in priority order): code fences, inline code, block math, inline math
-  const protectedRegex =
-    /(^`{3,}.*\n[\s\S]*?^`{3,}\s*$|^~{3,}.*\n[\s\S]*?^~{3,}\s*$|`[^`\n]+`|\$\$[\s\S]*?\$\$|\$[^$\n]+?\$)/gm;
+function processOutsideProtectedRegions(text: string, fn: (segment: string) => string, { protectRuby = false } = {}): string {
+  // Ruby must reach remarkShokaRuby intact: its carets are not superscript delimiters.
+  const protectedRegex = new RegExp(
+    `${/(^`{3,}.*\n[\s\S]*?^`{3,}\s*$|^~{3,}.*\n[\s\S]*?^~{3,}\s*$|`[^`\n]+`|\$\$[\s\S]*?\$\$|\$[^$\n]+?\$)/.source}${protectRuby ? `|${SHOKA_RUBY_PATTERN.source}` : ''}`,
+    'gm',
+  );
   let lastIndex = 0;
   const parts: string[] = [];
 

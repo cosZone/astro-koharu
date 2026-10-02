@@ -8,9 +8,9 @@
 import type { PhrasingContent, Root } from 'mdast';
 import { visit } from 'unist-util-visit';
 import { escapeHtml } from './shoka-renderers';
+import { SHOKA_RUBY_PATTERN } from './shoka-ruby-pattern';
 
-// Match {text^annotation}, but NOT {.class} (which starts with .)
-const RUBY_REGEX = /\{([^{}^.][^{}^]*)\^([^{}]+)\}/g;
+const RUBY_REGEX = new RegExp(SHOKA_RUBY_PATTERN.source, 'g');
 
 export function remarkShokaRuby() {
   return (tree: Root) => {
