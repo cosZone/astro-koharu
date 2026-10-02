@@ -29,7 +29,7 @@ interface GestureSession {
   hadMultiple: boolean;
   startedOnImage: boolean;
   pointerType: string;
-  mode: 'pending' | 'pan' | 'horizontal' | 'dismiss' | 'pinch';
+  mode: 'pending' | 'pan' | 'horizontal' | 'dismiss';
   startedAt: number;
 }
 
@@ -142,7 +142,6 @@ export function useImageLightboxGestures(options: LightboxGestureOptions) {
     const beginPinch = () => {
       const session = sessionRef.current;
       const points = Array.from(session.pointers.values());
-      session.mode = 'pinch';
       session.hadMultiple = true;
       session.moved = true;
       session.transform = boundLightboxTransform(transformRef.current, geometry());

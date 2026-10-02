@@ -1,4 +1,3 @@
-/** Image viewer shared by article images and Moments galleries. */
 import { ModalLayer } from '@components/ui/ModalLayer';
 import { animation } from '@constants/design-tokens';
 import { useImageLightboxGestures } from '@hooks/useImageLightboxGestures';
