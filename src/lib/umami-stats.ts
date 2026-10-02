@@ -87,7 +87,7 @@ async function resolveShareData(baseUrl: string, shareSlug: string): Promise<Uma
 function getWebsiteId(configuredWebsiteId: string, shareData: UmamiShareData): string {
   if (!shareData.websiteId) return configuredWebsiteId;
 
-  if (shareData.websiteId !== configuredWebsiteId && import.meta.env.DEV) {
+  if (shareData.websiteId !== configuredWebsiteId && import.meta.env?.DEV) {
     console.warn(
       `[umami-stats] Configured website ID "${configuredWebsiteId}" differs from the website ID in the Umami share link "${shareData.websiteId}". Using the share-link website ID for stats requests.`,
     );
@@ -96,7 +96,7 @@ function getWebsiteId(configuredWebsiteId: string, shareData: UmamiShareData): s
   return shareData.websiteId;
 }
 
-async function getSessionStats(config: UmamiStatsConfig): Promise<UmamiSessionStats> {
+async function fetchPageviews(config: UmamiStatsConfig): Promise<number> {
   const { baseUrl, websiteId: configuredWebsiteId, shareToken: shareSlug, path } = config;
 
   const shareData = await resolveShareData(baseUrl, shareSlug);
@@ -114,15 +114,25 @@ async function getSessionStats(config: UmamiStatsConfig): Promise<UmamiSessionSt
   // Default to Unix epoch (all-time stats)
   params.append('startAt', config.startAt?.toString() || '0');
   params.append('endAt', config.endAt?.toString() || Date.now().toString());
-  if (path) params.append('path', path);
-  url.search = params.toString();
+  const normalizedPath = path ? normalizePath(path) : undefined;
+  // Static hosts may serve either spelling. Exact queries retain both histories without matching child routes.
+  const paths = normalizedPath && normalizedPath !== '/' ? [normalizedPath, `${normalizedPath}/`] : [normalizedPath];
+  const pageviews = await Promise.all(
+    paths.map(async (pagePath) => {
+      const requestUrl = new URL(url);
+      requestUrl.search = params.toString();
+      if (pagePath) requestUrl.searchParams.set('path', pagePath);
 
-  const response = await fetch(url.toString(), { method: 'GET', headers });
-  if (!response.ok) {
-    const text = await response.text().catch(() => response.statusText);
-    throw new Error(`Umami API error: ${text}`);
-  }
-  return await response.json();
+      const response = await fetch(requestUrl.toString(), { method: 'GET', headers });
+      if (!response.ok) {
+        const text = await response.text().catch(() => response.statusText);
+        throw new Error(`Umami API error: ${text}`);
+      }
+      const stats: UmamiSessionStats = await response.json();
+      return typeof stats.pageviews === 'number' ? stats.pageviews : stats.pageviews.value;
+    }),
+  );
+  return pageviews.reduce((total, count) => total + count, 0);
 }
 
 interface CacheEntry {
@@ -134,9 +144,14 @@ const cache = new Map<string, CacheEntry>();
 const inflightRequests = new Map<string, Promise<number | null>>();
 
 function getCacheKey(config: UmamiStatsConfig): string {
-  return [config.baseUrl, config.websiteId, config.shareToken, config.path ?? '', config.startAt ?? 0, config.endAt ?? ''].join(
-    ':',
-  );
+  return [
+    config.baseUrl,
+    config.websiteId,
+    config.shareToken,
+    config.path ? normalizePath(config.path) : '',
+    config.startAt ?? 0,
+    config.endAt ?? '',
+  ].join(':');
 }
 
 export function getPageviews(config: UmamiStatsConfig): Promise<number | null> {
@@ -148,15 +163,14 @@ export function getPageviews(config: UmamiStatsConfig): Promise<number | null> {
   const inflight = inflightRequests.get(key);
   if (inflight) return inflight;
 
-  const promise = getSessionStats(config)
-    .then((stats) => {
-      const pv = typeof stats.pageviews === 'number' ? stats.pageviews : stats.pageviews.value;
+  const promise = fetchPageviews(config)
+    .then((pv) => {
       cache.set(key, { value: pv, expiresAt: Date.now() + CACHE_TTL });
       return pv;
     })
     .catch((error) => {
       console.error('Failed to fetch Umami pageviews:', error);
-      if (import.meta.env.DEV) {
+      if (import.meta.env?.DEV) {
         console.warn(
           `[umami-stats] Fetch failed for key "${key}". Check that your Umami endpoint, website ID, and share token are correct in config/site.yaml.`,
         );
@@ -170,7 +184,7 @@ export function getPageviews(config: UmamiStatsConfig): Promise<number | null> {
   return promise;
 }
 
-/** Normalize path to strip trailing slash for consistent Umami matching */
+/** Use one cache key for both spellings; stats requests still query each exact path. */
 function normalizePath(path: string): string {
   return path.length > 1 && path.endsWith('/') ? path.slice(0, -1) : path;
 }
