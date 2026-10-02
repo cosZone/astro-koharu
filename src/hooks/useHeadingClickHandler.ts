@@ -10,6 +10,7 @@
  */
 
 import { lockHeadingTo } from '@lib/heading-scroll-lock';
+import { getScrollBehavior } from '@lib/motion-level';
 import { useCallback } from 'react';
 
 export interface UseHeadingClickHandlerOptions {
@@ -25,7 +26,7 @@ export function useHeadingClickHandler({ revealTo }: UseHeadingClickHandlerOptio
 
       // Pin the active heading until the smooth scroll settles
       lockHeadingTo(id);
-      element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      element.scrollIntoView({ behavior: getScrollBehavior(), block: 'start' });
       revealTo(id);
     },
     [revealTo],

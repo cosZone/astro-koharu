@@ -25,7 +25,7 @@ export default function ImageLightbox() {
   const liveData = useStore($imageLightboxData);
   const data = useRetainedValue(liveData);
   const isOpen = liveData !== null;
-  const reduced = useMotionLevel() === 'reduced';
+  const motionDisabled = useMotionLevel() === 'reduced';
   const [imageLoaded, setImageLoaded] = useState(false);
   const [rotation, setRotation] = useState(0);
 
@@ -140,7 +140,7 @@ export default function ImageLightbox() {
 
   const origin = data.images[data.currentIndex]?.origin;
   const flip =
-    !reduced && origin && intersectsViewport(origin.box, window.innerWidth, window.innerHeight)
+    !motionDisabled && origin && intersectsViewport(origin.box, window.innerWidth, window.innerHeight)
       ? flipFromOrigin(origin.box, origin.naturalWidth, origin.naturalHeight, {
           centerX: document.documentElement.clientWidth / 2,
           centerY: document.documentElement.clientHeight / 2,
@@ -160,17 +160,17 @@ export default function ImageLightbox() {
       {/* Toolbar: vertical right on desktop, horizontal top on tablet */}
       <m.div
         className="absolute tablet:top-4 top-1/2 right-4 tablet:right-auto tablet:left-1/2 z-10 flex tablet:-translate-x-1/2 -translate-y-1/2 tablet:translate-y-0 tablet:flex-row flex-col items-center gap-1 rounded-2xl bg-black/50 p-1.5 backdrop-blur-sm"
-        initial={{ opacity: 0 }}
+        initial={motionDisabled ? false : { opacity: 0 }}
         animate={{ opacity: 1 }}
-        exit={{ opacity: 0, transition: { duration: 0.12 } }}
-        transition={{ duration: 0.2, delay: 0.1 }}
+        exit={{ opacity: 0, transition: { duration: motionDisabled ? 0 : 0.12 } }}
+        transition={motionDisabled ? { duration: 0 } : { duration: 0.2, delay: 0.1 }}
       >
         <ToolbarButton icon="ri:zoom-in-line" label={t('image.zoomIn')} onClick={handleZoomIn} disabled={state.scale >= 4.9} />
         <m.button
           type="button"
           onClick={handleResetAll}
           className="flex size-10 items-center justify-center rounded-full text-white/60 text-xs tabular-nums transition-colors hover:bg-white/15 hover:text-white/80"
-          whileTap={{ scale: 0.85 }}
+          whileTap={motionDisabled ? undefined : { scale: 0.85 }}
           aria-label={t('image.resetZoomRotate')}
         >
           {zoomLevel}
@@ -197,23 +197,31 @@ export default function ImageLightbox() {
         {/* Zooms out of the on-page image and back into it on close (FLIP), else a soft scale-fade. */}
         <m.div
           className="flex items-center justify-center"
-          initial={flip ? { x: flip.x, y: flip.y, scale: flip.scale } : { opacity: 0, scale: 0.95 }}
+          initial={motionDisabled ? false : flip ? { x: flip.x, y: flip.y, scale: flip.scale } : { opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, x: 0, y: 0, scale: 1 }}
           exit={
-            flip ? { x: flip.x, y: flip.y, scale: flip.scale } : { opacity: 0, scale: 0.95, transition: { duration: 0.16 } }
+            motionDisabled
+              ? { opacity: 0, transition: { duration: 0 } }
+              : flip
+                ? { x: flip.x, y: flip.y, scale: flip.scale }
+                : { opacity: 0, scale: 0.95, transition: { duration: 0.16 } }
           }
-          transition={animation.spring.lightbox}
+          transition={motionDisabled ? { duration: 0 } : animation.spring.lightbox}
         >
           <m.img
             src={data.src}
             alt={data.alt}
             className="max-h-[80vh] max-w-[90vw] origin-center rounded-lg object-contain shadow-2xl will-change-transform"
             animate={{ scale: state.scale, rotate: rotation, opacity: imageLoaded ? 1 : 0 }}
-            transition={{
-              scale: { type: 'tween', duration: 0.15, ease: 'easeOut' },
-              rotate: { type: 'spring', stiffness: 300, damping: 25 },
-              opacity: { duration: 0.2 },
-            }}
+            transition={
+              motionDisabled
+                ? { duration: 0 }
+                : {
+                    scale: { type: 'tween', duration: 0.15, ease: 'easeOut' },
+                    rotate: { type: 'spring', stiffness: 300, damping: 25 },
+                    opacity: { duration: 0.2 },
+                  }
+            }
             style={{
               x: state.translateX,
               y: state.translateY,
@@ -229,10 +237,10 @@ export default function ImageLightbox() {
       {data.images.length > 1 && (
         <m.div
           className="absolute bottom-12 left-1/2 flex -translate-x-1/2 items-center gap-0.5 rounded-full bg-black/50 p-1 backdrop-blur-sm"
-          initial={{ opacity: 0 }}
+          initial={motionDisabled ? false : { opacity: 0 }}
           animate={{ opacity: 1 }}
-          exit={{ opacity: 0, transition: { duration: 0.12 } }}
-          transition={{ duration: 0.2, delay: 0.1 }}
+          exit={{ opacity: 0, transition: { duration: motionDisabled ? 0 : 0.12 } }}
+          transition={motionDisabled ? { duration: 0 } : { duration: 0.2, delay: 0.1 }}
         >
           <NavButton direction={-1} disabled={data.currentIndex === 0} onClick={() => navigateTo(-1)} />
           <span className="min-w-14 px-1 text-center font-mono text-sm text-white/80 tabular-nums">
@@ -259,13 +267,14 @@ function ToolbarButton({
   onClick: () => void;
   disabled?: boolean;
 }) {
+  const motionDisabled = useMotionLevel() === 'reduced';
   return (
     <m.button
       type="button"
       onClick={onClick}
       disabled={disabled}
       className="flex size-10 items-center justify-center rounded-full text-white/80 transition-colors hover:bg-white/15 disabled:pointer-events-none disabled:opacity-30"
-      whileTap={{ scale: 0.85 }}
+      whileTap={motionDisabled ? undefined : { scale: 0.85 }}
       aria-label={label}
     >
       <Icon icon={icon} className="size-5" />
@@ -280,6 +289,7 @@ const BOUNCE_NONE = { x: 0 };
 
 function NavButton({ direction, disabled, onClick }: { direction: 1 | -1; disabled: boolean; onClick: () => void }) {
   const { t } = useTranslation();
+  const motionDisabled = useMotionLevel() === 'reduced';
   const isLeft = direction === -1;
   return (
     <m.button
@@ -287,12 +297,12 @@ function NavButton({ direction, disabled, onClick }: { direction: 1 | -1; disabl
       onClick={onClick}
       disabled={disabled}
       className="flex size-8 items-center justify-center rounded-full text-white/80 transition-colors hover:bg-white/15 disabled:pointer-events-none disabled:opacity-30"
-      whileTap={{ scale: 0.82 }}
+      whileTap={motionDisabled ? undefined : { scale: 0.82 }}
       aria-label={isLeft ? t('image.prev') : t('image.next')}
     >
       <m.span
-        animate={disabled ? BOUNCE_NONE : isLeft ? BOUNCE_LEFT : BOUNCE_RIGHT}
-        transition={{ duration: 1.6, repeat: 3, ease: 'easeInOut' }}
+        animate={disabled || motionDisabled ? BOUNCE_NONE : isLeft ? BOUNCE_LEFT : BOUNCE_RIGHT}
+        transition={motionDisabled ? { duration: 0 } : { duration: 1.6, repeat: 3, ease: 'easeInOut' }}
       >
         <Icon icon={isLeft ? 'ri:arrow-left-s-line' : 'ri:arrow-right-s-line'} className="size-5" />
       </m.span>
@@ -302,6 +312,7 @@ function NavButton({ direction, disabled, onClick }: { direction: 1 | -1; disabl
 
 function ZoomHint() {
   const { t } = useTranslation();
+  const motionDisabled = useMotionLevel() === 'reduced';
   const [visible, setVisible] = useState(true);
 
   useEffect(() => {
@@ -312,10 +323,10 @@ function ZoomHint() {
   return (
     <m.div
       className="pointer-events-none absolute bottom-4 left-1/2 -translate-x-1/2 rounded-full bg-black/50 px-4 py-2 text-white/70 text-xs"
-      initial={{ opacity: 0 }}
+      initial={motionDisabled ? false : { opacity: 0 }}
       animate={{ opacity: visible ? 1 : 0 }}
-      exit={{ opacity: 0, transition: { duration: 0.12 } }}
-      transition={{ duration: 0.3 }}
+      exit={{ opacity: 0, transition: { duration: motionDisabled ? 0 : 0.12 } }}
+      transition={{ duration: motionDisabled ? 0 : 0.3 }}
     >
       <span className="hidden touch-none sm:inline">{t('image.hintDesktop')}</span>
       <span className="sm:hidden">{t('image.hintMobile')}</span>

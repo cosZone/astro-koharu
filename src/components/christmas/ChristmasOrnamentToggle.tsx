@@ -1,10 +1,11 @@
 import { LazyMotionProvider } from '@components/common/LazyMotionProvider';
 import { useIsMounted } from '@hooks/useIsMounted';
+import { useMotionLevel } from '@hooks/useMotionLevel';
 import { cn } from '@lib/utils';
 import { useStore } from '@nanostores/react';
 import { christmasEnabled, disableChristmas, ornamentHidden, toggleChristmas } from '@store/christmas';
-import { AnimatePresence, m, useMotionValue, useReducedMotion, useTransform } from 'motion/react';
-import { type KeyboardEvent, useState } from 'react';
+import { AnimatePresence, m, useMotionValue, useTransform } from 'motion/react';
+import { type KeyboardEvent, useEffect, useState } from 'react';
 
 /** Minimum drag distance to trigger toggle action */
 const TOGGLE_TRIGGER_DISTANCE = 40;
@@ -173,7 +174,7 @@ function getInitialState() {
 export function ChristmasOrnamentToggle() {
   const storeValue = useStore(christmasEnabled);
   const isOrnamentHidden = useStore(ornamentHidden);
-  const shouldReduceMotion = useReducedMotion();
+  const shouldReduceMotion = useMotionLevel() === 'reduced';
   const [isPulling, setIsPulling] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
   const hasMounted = useIsMounted();
@@ -186,6 +187,12 @@ export function ChristmasOrnamentToggle() {
 
   const y = useMotionValue(0);
   const stringHeight = useTransform(y, (v) => STRING_HEIGHT + Math.max(0, v));
+
+  useEffect(() => {
+    if (!shouldReduceMotion) return;
+    y.jump(0);
+    setIsPulling(false);
+  }, [shouldReduceMotion, y]);
 
   const handleDragEnd = () => {
     setIsPulling(false);
@@ -205,14 +212,14 @@ export function ChristmasOrnamentToggle() {
         {shouldShowOrnament && (
           <m.div
             className="fixed top-0 right-0 tablet:right-12 z-90 flex w-[100px] justify-center lg:right-40"
-            initial={{ opacity: 0, y: -50 }}
+            initial={shouldReduceMotion ? false : { opacity: 0, y: -50 }}
             animate={{
               opacity: isEnabled ? 1 : 0.5,
               y: 0,
             }}
             whileHover={{ opacity: 1 }}
-            exit={{ opacity: 0, y: -50 }}
-            transition={{ duration: 0.3, ease: 'easeOut' }}
+            exit={{ opacity: 0, y: shouldReduceMotion ? 0 : -50 }}
+            transition={{ duration: shouldReduceMotion ? 0 : 0.3, ease: 'easeOut' }}
           >
             <TopDecoration />
 
@@ -244,8 +251,9 @@ export function ChristmasOrnamentToggle() {
               onHoverEnd={() => setIsHovered(false)}
               onClick={handleClick}
               onKeyDown={handleKeyDown}
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
+              whileHover={shouldReduceMotion ? undefined : { scale: 1.05 }}
+              whileTap={shouldReduceMotion ? undefined : { scale: 0.95 }}
+              transition={shouldReduceMotion ? { duration: 0 } : undefined}
               aria-label={isEnabled ? '关闭圣诞模式' : '开启圣诞模式'}
               aria-pressed={isEnabled}
               type="button"
@@ -258,13 +266,14 @@ export function ChristmasOrnamentToggle() {
               <AnimatePresence>
                 {(isPulling || isHovered) && (
                   <m.div
-                    initial={{ opacity: 0, y: 10 }}
+                    initial={shouldReduceMotion ? false : { opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 30 }}
                     exit={{ opacity: 0 }}
+                    transition={shouldReduceMotion ? { duration: 0 } : undefined}
                     className="pointer-events-none absolute top-1/2 left-1/2 -translate-x-1/2"
                   >
                     <div className="whitespace-nowrap rounded-full border border-white/10 bg-red-950/90 px-3 py-1 font-medium text-[10px] text-white shadow-md">
-                      {isEnabled ? '下拉关闭' : '下拉开启'}
+                      {shouldReduceMotion ? (isEnabled ? '点击关闭' : '点击开启') : isEnabled ? '下拉关闭' : '下拉开启'}
                     </div>
                   </m.div>
                 )}

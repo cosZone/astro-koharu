@@ -53,7 +53,7 @@ function Popover({
   motionProps,
   trigger = 'click',
 }: React.PropsWithChildren<PopoverProps>) {
-  const fadeOnly = useMotionLevel() === 'reduced';
+  const motionDisabled = useMotionLevel() === 'reduced';
   // Use useControlledState for open/close state management
   const [isOpen, setIsOpen] = useControlledState({
     value: passedOpen,
@@ -119,16 +119,26 @@ function Popover({
                   'z-30 overflow-hidden rounded-ss-2xl rounded-ee-2xl bg-popover/85 text-popover-foreground shadow-lg ring-1 ring-primary/15 backdrop-blur-xl',
                   className,
                 )}
-                initial={fadeOnly ? { opacity: 0 } : { opacity: 0, transform: RAISED }}
-                animate={fadeOnly ? { opacity: 1 } : { opacity: 1, transform: SETTLED }}
-                exit={
-                  fadeOnly
-                    ? { opacity: 0, transition: { duration: 0.12 } }
-                    : { opacity: 0, transform: LEAVING, transition: { duration: 0.14, ease: animation.bezier.inQuart } }
-                }
-                transition={fadeOnly ? { duration: 0.15 } : animation.spring.popover}
-                style={{ ...floatingStyles, transformOrigin }}
                 {...motionProps}
+                initial={motionDisabled ? false : (motionProps?.initial ?? { opacity: 0, transform: RAISED })}
+                animate={
+                  motionDisabled
+                    ? { opacity: 1, transform: SETTLED }
+                    : (motionProps?.animate ?? { opacity: 1, transform: SETTLED })
+                }
+                exit={
+                  motionDisabled
+                    ? { opacity: 0, transition: { duration: 0 } }
+                    : (motionProps?.exit ?? {
+                        opacity: 0,
+                        transform: LEAVING,
+                        transition: { duration: 0.14, ease: animation.bezier.inQuart },
+                      })
+                }
+                transition={motionDisabled ? { duration: 0 } : (motionProps?.transition ?? animation.spring.popover)}
+                style={{ ...floatingStyles, transformOrigin, ...motionProps?.style }}
+                whileHover={motionDisabled ? undefined : motionProps?.whileHover}
+                whileTap={motionDisabled ? undefined : motionProps?.whileTap}
                 {...getFloatingProps({
                   ref: refs.setFloating,
                   onFocus: (event) => {

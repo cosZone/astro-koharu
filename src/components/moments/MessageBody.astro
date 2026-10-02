@@ -147,6 +147,14 @@ const { html, contentId, collapsible = true, emptyLabel, expandLabel, collapseLa
         });
       };
 
+      // Restore collapsed tabindex values before spoiler replacement copies attributes.
+      this.addEventListener('koharu:before-spoiler-replace', () => this.restoreCollapsedInteractions(), {
+        signal: this.lifecycleController.signal,
+      });
+      this.addEventListener('koharu:spoiler-replaced', scheduleUpdate, {
+        signal: this.lifecycleController.signal,
+      });
+
       scheduleUpdate();
       document.fonts?.ready.then(scheduleUpdate).catch(() => undefined);
       window.addEventListener('resize', scheduleUpdate, {

@@ -82,6 +82,7 @@ import {
   // Apply settings immediately to prevent a flash of default reader styles.
   // Defaults and keys are injected from src/store/settings-constants.ts (single source of truth).
   (function () {
+    var reducedMotionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
     function readPositiveNumber(key, fallback) {
       var stored = parseFloat(localStorage.getItem(key));
       return isFinite(stored) && stored > 0 ? stored : fallback;
@@ -144,7 +145,7 @@ import {
       root.classList.toggle('reader-justify', readBoolean(STORAGE_KEYS.justify, READER_DEFAULTS.justify));
       var motionLevel = readMotionLevel();
       root.dataset.motion = motionLevel;
-      root.classList.toggle('motion-off', motionLevel === 'reduced');
+      root.classList.toggle('motion-off', motionLevel === 'reduced' || reducedMotionQuery.matches);
       root.classList.toggle('wave-off', !readBoolean(STORAGE_KEYS.wave, GENERAL_DEFAULTS.wave));
       // Load WenKai only when the matching preset is selected.
       if (preset === 'wenkai' && !fontFamily && !document.getElementById(WENKAI_STYLESHEET_ID)) {
@@ -158,6 +159,9 @@ import {
 
     // Apply before the first frame.
     applySettings();
+    reducedMotionQuery.addEventListener('change', function () {
+      applySettings();
+    });
 
     // Write into the incoming <html> as well: the swap clears the root's attributes, and a style pass
     // during it (e.g. re-focusing a persisted element) must not see the defaults.

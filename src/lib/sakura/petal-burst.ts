@@ -11,7 +11,7 @@
  * resume exactly where they stopped.
  */
 
-import { readMotionLevel } from '@lib/motion-level';
+import { readMotionLevel, subscribeMotionLevel } from '@lib/motion-level';
 import { PETAL_COLORS, PETAL_MASK } from './petal';
 
 const INTERACTIVE = 'a[href], button, [role="button"], summary, label[for]';
@@ -121,13 +121,22 @@ export function holdPetalBurst(transition: ViewTransition): void {
 }
 
 export function setupPetalBurst(): void {
+  const stopWhenDisabled = () => {
+    if (!document.hidden && readMotionLevel() === 'lively') return;
+    for (const flight of flights) flight.cancel();
+    flights.clear();
+    layer?.replaceChildren();
+    layer?.style.removeProperty('view-transition-name');
+  };
+  subscribeMotionLevel(stopWhenDisabled);
+  document.addEventListener('visibilitychange', stopWhenDisabled);
   document.addEventListener(
     'pointerdown',
     (event) => {
       if (event.button !== 0 || !event.isPrimary) return;
       const target = event.target;
       if (!(target instanceof Element) || !target.closest(INTERACTIVE) || target.closest(EXCLUDED)) return;
-      if (readMotionLevel() !== 'lively') return;
+      if (document.hidden || readMotionLevel() !== 'lively') return;
       burstAt(event.clientX, event.clientY);
     },
     { passive: true },

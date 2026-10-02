@@ -700,3 +700,14 @@ body {
     font-size: 0.75rem;
   }
 }
+
+/* The RSS stylesheet is independent of the blog's application shell. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
+  }
+}

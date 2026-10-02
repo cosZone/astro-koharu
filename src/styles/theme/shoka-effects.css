@@ -66,7 +66,8 @@ mark {
 }
 
 /* --- Spoiler: hide content until spoilerjs web component registers --- */
-spoiler-span:not(:defined) {
+spoiler-span:not(:defined),
+[data-static-spoiler] {
   background-color: hsl(0 0% 10%);
   color: transparent;
   border-radius: 3px;
@@ -74,15 +75,25 @@ spoiler-span:not(:defined) {
   user-select: none;
 }
 
-.dark spoiler-span:not(:defined) {
+.dark spoiler-span:not(:defined),
+.dark [data-static-spoiler] {
   background-color: hsl(0 0% 80%);
 }
 
-spoiler-span:not(:defined)[data-fallback-ready="true"] {
+/* Nested links and code can set their own colors, backgrounds or text shadows. */
+spoiler-span:not(:defined):not([data-fallback-revealed="true"]) *,
+[data-static-spoiler]:not([data-fallback-revealed="true"]) * {
+  /* biome-ignore lint/complexity/noImportantStyles: Descendant inline visibility must not expose unrevealed content. */
+  visibility: hidden !important;
+}
+
+spoiler-span:not(:defined)[data-fallback-ready="true"],
+[data-static-spoiler][data-fallback-ready="true"] {
   cursor: pointer;
 }
 
-spoiler-span:not(:defined)[data-fallback-revealed="true"] {
+spoiler-span:not(:defined)[data-fallback-revealed="true"],
+[data-static-spoiler][data-fallback-revealed="true"] {
   background-color: transparent;
   color: inherit;
   cursor: default;

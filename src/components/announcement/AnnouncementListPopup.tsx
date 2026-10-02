@@ -7,6 +7,7 @@
 
 import { LazyMotionProvider } from '@components/common/LazyMotionProvider';
 import { animation, zIndex } from '@constants/design-tokens';
+import { useMotionLevel } from '@hooks/useMotionLevel';
 import { useTranslation } from '@hooks/useTranslation';
 import { Icon } from '@iconify/react';
 import { displayDate } from '@lib/date';
@@ -137,6 +138,7 @@ function TimelineItem({
 }
 
 export default function AnnouncementListPopup() {
+  const shouldReduceMotion = useMotionLevel() === 'reduced';
   const { t } = useTranslation();
   const isOpen = useStore(announcementListOpen);
   const announcements = useStore(activeAnnouncements);
@@ -154,9 +156,10 @@ export default function AnnouncementListPopup() {
             <m.div
               className="fixed inset-0 bg-black/50 backdrop-blur-sm"
               style={{ zIndex: zIndex.modalBackdrop }}
-              initial={{ opacity: 0 }}
+              initial={shouldReduceMotion ? false : { opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
+              transition={shouldReduceMotion ? { duration: 0 } : undefined}
               onClick={closeAnnouncementList}
             />
 
@@ -164,10 +167,10 @@ export default function AnnouncementListPopup() {
             <m.div
               className="fixed inset-x-3 top-1/2 mx-auto max-w-lg overflow-hidden rounded-xl bg-card shadow-2xl md:inset-x-4 md:rounded-2xl"
               style={{ zIndex: zIndex.modal }}
-              initial={{ opacity: 0, y: '-45%', scale: 0.95 }}
+              initial={shouldReduceMotion ? false : { opacity: 0, y: '-45%', scale: 0.95 }}
               animate={{ opacity: 1, y: '-50%', scale: 1 }}
               exit={{ opacity: 0, y: '-45%', scale: 0.95 }}
-              transition={animation.spring.default}
+              transition={shouldReduceMotion ? { duration: 0 } : animation.spring.default}
             >
               {/* Header */}
               <div className="flex items-center justify-between border-border border-b bg-linear-to-r from-primary/5 to-transparent p-3 md:p-4">

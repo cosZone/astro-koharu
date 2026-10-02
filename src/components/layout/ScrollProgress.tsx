@@ -2,37 +2,39 @@ import { LazyMotionProvider } from '@components/common/LazyMotionProvider';
 import { useMotionLevel } from '@hooks/useMotionLevel';
 import { useStore } from '@nanostores/react';
 import { scrollProgressEnabled } from '@store/settings';
-import { m, useScroll, useSpring } from 'motion/react';
+import { type MotionValue, m, useScroll, useSpring } from 'motion/react';
 
 interface ScrollProgressProps {
   className?: string;
 }
 
-export function ScrollProgress({ className }: ScrollProgressProps) {
-  // Keep the progress indicator static when either reduced-motion preference is active.
-  const enabled = useStore(scrollProgressEnabled);
-  const isReduced = useMotionLevel() === 'reduced';
+function ProgressBar({ progress }: { progress: MotionValue<number> }) {
+  return <m.div className="h-1 origin-left rounded-full bg-primary" style={{ scaleX: progress }} />;
+}
 
-  // 监听页面滚动进度
-  const { scrollYProgress } = useScroll();
-
-  // 使用 spring 动画使滚动更平滑，提升性能
-  const springProgress = useSpring(scrollYProgress, {
+function SmoothProgressBar({ progress }: { progress: MotionValue<number> }) {
+  const springProgress = useSpring(progress, {
     stiffness: 100,
     damping: 30,
     restDelta: 0.001,
   });
+  return <ProgressBar progress={springProgress} />;
+}
 
-  // 如果用户偏好减少动画，则直接使用滚动进度值，不使用 spring
-  const scaleX = isReduced ? scrollYProgress : springProgress;
-
-  if (!enabled) return null;
+function ScrollProgressIndicator({ className }: ScrollProgressProps) {
+  const motionDisabled = useMotionLevel() === 'reduced';
+  const { scrollYProgress } = useScroll();
 
   return (
     <LazyMotionProvider>
       <div className={className}>
-        <m.div className="h-1 origin-left rounded-full bg-primary" style={{ scaleX }} />
+        {motionDisabled ? <ProgressBar progress={scrollYProgress} /> : <SmoothProgressBar progress={scrollYProgress} />}
       </div>
     </LazyMotionProvider>
   );
+}
+
+export function ScrollProgress({ className }: ScrollProgressProps) {
+  const enabled = useStore(scrollProgressEnabled);
+  return enabled ? <ScrollProgressIndicator className={className} /> : null;
 }

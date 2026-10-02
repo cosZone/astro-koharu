@@ -5,8 +5,9 @@
  * follows the SVG's viewBox.
  */
 
+import { useMotionLevel } from '@hooks/useMotionLevel';
 import { clampScale, type DiagramSize, getScaleRange, type ScaleRange } from '@lib/diagram-sizing';
-import { readMotionLevel } from '@lib/motion-level';
+import { isMotionDisabled } from '@lib/motion-level';
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { flushSync } from 'react-dom';
 
@@ -34,10 +35,17 @@ function readFrame(container: HTMLElement): Frame {
 const toKeyframe = ({ width, height }: DiagramSize) => ({ width: `${width}px`, height: `${height}px` });
 
 export function useDiagramScale(container: HTMLElement | null) {
+  const shouldReduceMotion = useMotionLevel() === 'reduced';
   const [natural, setNatural] = useState<DiagramSize | null>(null);
   const [frame, setFrame] = useState<Frame | null>(null);
   const [userScale, setUserScale] = useState<number | null>(null);
   const appliedRef = useRef<DiagramSize | null>(null);
+  const resetAnimation = useRef<Animation | null>(null);
+
+  useEffect(() => {
+    if (shouldReduceMotion) resetAnimation.current?.cancel();
+    return () => resetAnimation.current?.cancel();
+  }, [shouldReduceMotion]);
 
   useEffect(() => {
     if (!container) return;
@@ -81,13 +89,14 @@ export function useDiagramScale(container: HTMLElement | null) {
   );
 
   const reset = useCallback(() => {
+    resetAnimation.current?.cancel();
     const from = appliedRef.current;
     flushSync(() => setUserScale(null));
     const to = appliedRef.current;
     const svg = container?.querySelector('svg');
-    if (!svg || !from || !to || readMotionLevel() === 'reduced') return;
+    if (!svg || !from || !to || isMotionDisabled()) return;
     if (from.width === to.width && from.height === to.height) return;
-    svg.animate([toKeyframe(from), toKeyframe(to)], RESET_TIMING);
+    resetAnimation.current = svg.animate([toKeyframe(from), toKeyframe(to)], RESET_TIMING);
   }, [container]);
 
   const zoom: DiagramZoom | null = natural && range && scale !== null ? { scale, range, naturalHeight: natural.height } : null;

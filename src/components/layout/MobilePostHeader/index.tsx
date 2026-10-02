@@ -9,10 +9,11 @@ import { LazyMotionProvider } from '@components/common/LazyMotionProvider';
 import { TocProvider } from '@components/layout/TableOfContents/TocContext';
 import { animation } from '@constants/design-tokens';
 import { useMediaQuery } from '@hooks/index';
+import { useMotionLevel } from '@hooks/useMotionLevel';
 import { useTocController } from '@hooks/useTocController';
 import { useTranslation } from '@hooks/useTranslation';
 import { chapterIndexOf, findHeadingById, flattenHeadings } from '@lib/toc';
-import { AnimatePresence, m, useReducedMotion } from 'motion/react';
+import { AnimatePresence, m } from 'motion/react';
 import { useMemo, useState } from 'react';
 import { siteConfig } from '@/constants/site-config';
 import { HeadingTitle } from './HeadingTitle';
@@ -55,7 +56,7 @@ export function MobilePostHeader({
   enableNumbering = true,
 }: MobilePostHeaderProps) {
   const { t } = useTranslation();
-  const shouldReduceMotion = useReducedMotion();
+  const shouldReduceMotion = useMotionLevel() === 'reduced';
 
   // Check if we're on mobile (tablet breakpoint: max-width 992px)
   const isMobile = useMediaQuery('(max-width: 992px)');
@@ -97,7 +98,7 @@ export function MobilePostHeader({
             <m.div
               key="heading-mode"
               className="flex items-center"
-              initial={{ opacity: 0 }}
+              initial={shouldReduceMotion ? false : { opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={shouldReduceMotion ? { duration: 0 } : animation.spring.gentle}
@@ -136,7 +137,7 @@ export function MobilePostHeader({
           ) : (
             <m.div
               key="logo-mode"
-              initial={{ opacity: 0 }}
+              initial={shouldReduceMotion ? false : { opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={shouldReduceMotion ? { duration: 0 } : animation.spring.gentle}

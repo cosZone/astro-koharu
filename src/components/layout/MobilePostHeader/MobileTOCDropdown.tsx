@@ -58,7 +58,7 @@ export function MobileTOCDropdown({
 }: MobileTOCDropdownProps) {
   const { t } = useTranslation();
   const outerToc = useTocContext();
-  const fadeOnly = useMotionLevel() === 'reduced';
+  const motionDisabled = useMotionLevel() === 'reduced';
   const chapter = chapterIndexOf(headings, outerToc.activeId);
   const [isOpen, setIsOpen] = useControlledState({
     value: passedOpen,
@@ -106,15 +106,15 @@ export function MobileTOCDropdown({
                 ref={refs.setFloating}
                 style={floatingStyles}
                 className="z-50 flex max-h-[min(70vh,34rem)] w-[min(20rem,calc(100vw-1.5rem))] flex-col overflow-hidden rounded-2xl border border-primary/15 bg-background/85 shadow-xl backdrop-blur-md"
-                initial={fadeOnly ? { opacity: 0 } : { opacity: 0, clipPath: PANEL_CLOSED }}
+                initial={motionDisabled ? false : { opacity: 0, clipPath: PANEL_CLOSED }}
                 animate={
-                  fadeOnly
-                    ? { opacity: 1, transition: { duration: 0.15 } }
+                  motionDisabled
+                    ? { opacity: 1, clipPath: PANEL_OPEN, transition: { duration: 0 } }
                     : { opacity: 1, clipPath: PANEL_OPEN, transition: PANEL_ENTER }
                 }
                 exit={
-                  fadeOnly
-                    ? { opacity: 0, transition: { duration: 0.12 } }
+                  motionDisabled
+                    ? { opacity: 0, transition: { duration: 0 } }
                     : { opacity: 0, clipPath: PANEL_CLOSED, transition: PANEL_EXIT }
                 }
                 {...getFloatingProps()}

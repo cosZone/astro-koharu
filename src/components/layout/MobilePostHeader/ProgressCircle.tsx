@@ -1,15 +1,7 @@
-/**
- * ProgressCircle Component
- *
- * Overall article scroll progress as the silk thread coiled into a ring: the theme gradient winds
- * clockwise from the top with a bead riding its tip. Uses Motion's useScroll for tracking and
- * useSpring for smooth animation.
- */
-
 import { useMotionLevel } from '@hooks/useMotionLevel';
 import { useStore } from '@nanostores/react';
 import { scrollProgressEnabled } from '@store/settings';
-import { m, useScroll, useSpring, useTransform } from 'motion/react';
+import { type MotionValue, m, useScroll, useSpring, useTransform } from 'motion/react';
 import { useId } from 'react';
 
 interface ProgressCircleProps {
@@ -21,26 +13,17 @@ interface ProgressCircleProps {
   className?: string;
 }
 
-export function ProgressCircle({ size = 28, strokeWidth = 2, className }: ProgressCircleProps) {
-  const enabled = useStore(scrollProgressEnabled);
-  const isReduced = useMotionLevel() === 'reduced';
+interface CircleDrawingProps extends ProgressCircleProps {
+  progress: MotionValue<number>;
+}
+
+function ProgressCircleDrawing({ size = 28, strokeWidth = 2, className, progress }: CircleDrawingProps) {
   const gradientId = `progress-thread-${useId().replace(/[^\w-]/g, '')}`;
-  const { scrollYProgress } = useScroll();
-
-  const springProgress = useSpring(scrollYProgress, {
-    stiffness: 100,
-    damping: 30,
-    restDelta: 0.001,
-  });
-
-  const progress = isReduced ? scrollYProgress : springProgress;
   const radius = (size - strokeWidth) / 2;
   const center = size / 2;
   const beadX = useTransform(progress, (value) => center + radius * Math.cos(value * 2 * Math.PI));
   const beadY = useTransform(progress, (value) => center + radius * Math.sin(value * 2 * Math.PI));
   const beadOpacity = useTransform(progress, (value) => (value > 0.005 ? 1 : 0));
-
-  if (!enabled) return null;
 
   return (
     <svg
@@ -57,7 +40,6 @@ export function ProgressCircle({ size = 28, strokeWidth = 2, className }: Progre
           <stop offset="1" style={{ stopColor: 'var(--gradient-shoka-button-end)' }} />
         </linearGradient>
       </defs>
-      {/* Background circle (track) */}
       <circle
         cx={center}
         cy={center}
@@ -67,7 +49,6 @@ export function ProgressCircle({ size = 28, strokeWidth = 2, className }: Progre
         strokeWidth={strokeWidth}
         className="opacity-15"
       />
-      {/* Progress circle */}
       <m.circle
         cx={center}
         cy={center}
@@ -80,7 +61,6 @@ export function ProgressCircle({ size = 28, strokeWidth = 2, className }: Progre
           pathLength: progress,
         }}
       />
-      {/* Bead at the tip of the thread */}
       <m.circle
         cx={beadX}
         cy={beadY}
@@ -89,4 +69,28 @@ export function ProgressCircle({ size = 28, strokeWidth = 2, className }: Progre
       />
     </svg>
   );
+}
+
+function SmoothProgressCircle({ progress, ...props }: CircleDrawingProps) {
+  const springProgress = useSpring(progress, {
+    stiffness: 100,
+    damping: 30,
+    restDelta: 0.001,
+  });
+  return <ProgressCircleDrawing {...props} progress={springProgress} />;
+}
+
+function ScrollProgressCircle(props: ProgressCircleProps) {
+  const shouldReduceMotion = useMotionLevel() === 'reduced';
+  const { scrollYProgress } = useScroll();
+  return shouldReduceMotion ? (
+    <ProgressCircleDrawing {...props} progress={scrollYProgress} />
+  ) : (
+    <SmoothProgressCircle {...props} progress={scrollYProgress} />
+  );
+}
+
+export function ProgressCircle(props: ProgressCircleProps) {
+  const enabled = useStore(scrollProgressEnabled);
+  return enabled ? <ScrollProgressCircle {...props} /> : null;
 }

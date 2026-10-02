@@ -1,4 +1,5 @@
 import { Icon } from '@iconify/react';
+import { getScrollBehavior } from '@lib/motion-level';
 import { cn } from '@lib/utils';
 import { type ReactNode, useCallback, useEffect, useRef, useState } from 'react';
 
@@ -44,7 +45,7 @@ export function ScrollableRow({ children, className, innerClassName, fadeWidth =
     const el = scrollRef.current;
     if (!el) return;
     const target = direction === 'left' ? 0 : el.scrollWidth;
-    el.scrollTo({ left: target, behavior: 'smooth' });
+    el.scrollTo({ left: target, behavior: getScrollBehavior() });
   };
 
   const maskImage =

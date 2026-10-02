@@ -24,12 +24,6 @@ const rolling: Variants = {
   leave: (direction: 1 | -1) => ({ opacity: 0, transform: `translateY(${-12 * direction}px)`, filter: 'blur(4px)' }),
 };
 
-const fading: Variants = {
-  enter: { opacity: 0 },
-  shown: { opacity: 1 },
-  leave: { opacity: 0 },
-};
-
 export function HeadingTitle({ heading, direction = 1, className }: HeadingTitleProps) {
   const shouldReduceMotion = useMotionLevel() === 'reduced';
 
@@ -40,15 +34,19 @@ export function HeadingTitle({ heading, direction = 1, className }: HeadingTitle
           key={heading.id}
           className={`block truncate font-medium text-sm ${className || ''}`}
           custom={direction}
-          variants={shouldReduceMotion ? fading : rolling}
-          initial="enter"
+          variants={rolling}
+          initial={shouldReduceMotion ? false : 'enter'}
           animate="shown"
-          exit="leave"
-          transition={{
-            default: { type: 'spring', stiffness: 400, damping: 30 },
-            filter: { type: 'tween', duration: 0.2, ease: 'easeOut' },
-            opacity: { type: 'tween', duration: 0.18, ease: 'easeOut' },
-          }}
+          exit={shouldReduceMotion ? { opacity: 0 } : 'leave'}
+          transition={
+            shouldReduceMotion
+              ? { duration: 0 }
+              : {
+                  default: { type: 'spring', stiffness: 400, damping: 30 },
+                  filter: { type: 'tween', duration: 0.2, ease: 'easeOut' },
+                  opacity: { type: 'tween', duration: 0.18, ease: 'easeOut' },
+                }
+          }
         >
           {heading.text}
         </m.span>

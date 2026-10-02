@@ -23,6 +23,7 @@
 
 import { LazyMotionProvider } from '@components/common/LazyMotionProvider';
 import { animation } from '@constants/design-tokens';
+import { useMotionLevel } from '@hooks/useMotionLevel';
 import { cn } from '@lib/utils';
 import * as DialogPrimitive from '@radix-ui/react-dialog';
 import { AnimatePresence, m, type Transition } from 'motion/react';
@@ -96,6 +97,7 @@ interface DialogContentProps extends React.ComponentPropsWithoutRef<typeof Dialo
 
 const DialogContent = forwardRef<React.ComponentRef<typeof DialogPrimitive.Content>, DialogContentProps>(
   ({ className, children, showClose = true, overlayClassName, closeLabel = 'Close', contentTransition, ...props }, ref) => {
+    const shouldReduceMotion = useMotionLevel() === 'reduced';
     const context = useContext(DialogContext);
     const isOpen = context?.isOpen ?? false;
 
@@ -105,10 +107,10 @@ const DialogContent = forwardRef<React.ComponentRef<typeof DialogPrimitive.Conte
           {isOpen && (
             <m.div
               key="dialog-overlay"
-              initial={{ opacity: 0 }}
+              initial={shouldReduceMotion ? false : { opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              transition={{ duration: animation.duration.fast / 1000 }}
+              transition={shouldReduceMotion ? { duration: 0 } : { duration: animation.duration.fast / 1000 }}
               onAnimationStart={() => context?.setIsAnimating(true)}
               onAnimationComplete={() => context?.setIsAnimating(false)}
             >
@@ -128,10 +130,10 @@ const DialogContent = forwardRef<React.ComponentRef<typeof DialogPrimitive.Conte
                   'duration-200',
                   className,
                 )}
-                initial={{ opacity: 0, scale: 0.95, x: '-50%', y: '-48%' }}
+                initial={shouldReduceMotion ? false : { opacity: 0, scale: 0.95, x: '-50%', y: '-48%' }}
                 animate={{ opacity: 1, scale: 1, x: '-50%', y: '-50%' }}
                 exit={{ opacity: 0, scale: 0.95, x: '-50%', y: '-48%' }}
-                transition={contentTransition ?? animation.spring.default}
+                transition={shouldReduceMotion ? { duration: 0 } : (contentTransition ?? animation.spring.default)}
               >
                 {children}
                 {showClose && (

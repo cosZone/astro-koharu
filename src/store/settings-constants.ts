@@ -29,6 +29,8 @@ export const GENERAL_DEFAULTS = {
   wave: true,
 };
 
+export const REDUCED_MOTION_QUERY = '(prefers-reduced-motion: reduce)';
+
 export const STORAGE_KEYS = {
   fontPreset: 'reader-font-preset',
   fontFamily: 'reader-font-family',

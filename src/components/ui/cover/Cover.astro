@@ -159,7 +159,7 @@ const copyFailedLabel = t(locale, 'common.copyFailed');
 </div>
 
 <script>
-  import { readMotionLevel } from '@lib/motion-level';
+  import { readMotionLevel, subscribeMotionLevel } from '@lib/motion-level';
 
   /**
    * First visit only: the banner fades up from its LQIP and settles from a slight zoom.
@@ -171,9 +171,16 @@ const copyFailedLabel = t(locale, 'common.copyFailed');
     image.addEventListener(
       'load',
       () => {
+        if (readMotionLevel() === 'reduced') return;
         const easing = 'cubic-bezier(0.25, 1, 0.5, 1)';
-        image.animate({ opacity: [0, 1] }, { duration: 700, easing });
-        image.animate({ scale: [1.08, 1] }, { duration: 1800, easing });
+        const animations = [
+          image.animate({ opacity: [0, 1] }, { duration: 700, easing }),
+          image.animate({ scale: [1.08, 1] }, { duration: 1800, easing }),
+        ];
+        const unsubscribe = subscribeMotionLevel(() => {
+          if (readMotionLevel() === 'reduced') animations.forEach((animation) => animation.cancel());
+        });
+        void Promise.allSettled(animations.map((animation) => animation.finished)).then(unsubscribe);
       },
       { once: true },
     );

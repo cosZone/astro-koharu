@@ -7,6 +7,7 @@
 
 import { LazyMotionProvider } from '@components/common/LazyMotionProvider';
 import { useIsMounted } from '@hooks/useIsMounted';
+import { useMotionLevel } from '@hooks/useMotionLevel';
 import { Icon } from '@iconify/react';
 import { cn } from '@lib/utils';
 import { useStore } from '@nanostores/react';
@@ -14,6 +15,7 @@ import { activeAnnouncements, openAnnouncementList, unreadCount } from '@store/a
 import { AnimatePresence, m } from 'motion/react';
 
 export default function FooterAnnouncementEntry() {
+  const shouldReduceMotion = useMotionLevel() === 'reduced';
   const isMounted = useIsMounted();
   const count = useStore(unreadCount);
   const announcements = useStore(activeAnnouncements);
@@ -43,9 +45,10 @@ export default function FooterAnnouncementEntry() {
         <AnimatePresence>
           {isMounted && count > 0 && (
             <m.span
-              initial={{ scale: 0.95, opacity: 0 }}
+              initial={shouldReduceMotion ? false : { scale: 0.95, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.95, opacity: 0 }}
+              transition={shouldReduceMotion ? { duration: 0 } : undefined}
               className={cn(
                 'absolute -top-1 -right-2',
                 'flex items-center justify-center',

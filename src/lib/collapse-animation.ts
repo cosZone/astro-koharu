@@ -2,6 +2,8 @@
  * Smooth expand/collapse animation for <details class="collapse-block"> elements.
  * Uses the Web Animations API. Respects prefers-reduced-motion.
  */
+import { isMotionDisabled, subscribeMotionLevel } from '@lib/motion-level';
+
 export function setupCollapseAnimations(container: Element): void {
   const blocks = container.querySelectorAll<HTMLDetailsElement>('details.collapse-block');
 
@@ -14,24 +16,27 @@ export function setupCollapseAnimations(container: Element): void {
     if (!summary || !content) continue;
 
     let anim: Animation | null = null;
+    let unsubscribeMotion: (() => void) | undefined;
+    let targetOpen = details.open;
+
+    const clearAnimation = () => {
+      anim?.cancel();
+      anim = null;
+      content.style.removeProperty('overflow');
+      unsubscribeMotion?.();
+      unsubscribeMotion = undefined;
+    };
 
     summary.addEventListener('click', (e) => {
       e.preventDefault();
 
-      // Respect reduced motion preference — toggle instantly
-      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-        details.open = !details.open;
+      const willOpen = !(anim ? targetOpen : details.open);
+      clearAnimation();
+      targetOpen = willOpen;
+      if (isMotionDisabled()) {
+        details.open = willOpen;
         return;
       }
-
-      // Cancel in-flight animation
-      if (anim) {
-        anim.cancel();
-        content.style.removeProperty('overflow');
-        anim = null;
-      }
-
-      const willOpen = !details.open;
       const cs = getComputedStyle(content);
 
       if (willOpen) {
@@ -49,10 +54,6 @@ export function setupCollapseAnimations(container: Element): void {
           ],
           { duration: 250, easing: 'ease' },
         );
-        anim.onfinish = () => {
-          content.style.removeProperty('overflow');
-          anim = null;
-        };
       } else {
         // Collapse: animate first, then remove open attribute
         const h = content.offsetHeight;
@@ -67,12 +68,16 @@ export function setupCollapseAnimations(container: Element): void {
           ],
           { duration: 250, easing: 'ease' },
         );
-        anim.onfinish = () => {
-          details.open = false;
-          content.style.removeProperty('overflow');
-          anim = null;
-        };
       }
+
+      const finish = () => {
+        details.open = willOpen;
+        clearAnimation();
+      };
+      anim.onfinish = finish;
+      unsubscribeMotion = subscribeMotionLevel(() => {
+        if (isMotionDisabled()) finish();
+      });
     });
   }
 }

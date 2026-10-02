@@ -1,6 +1,7 @@
 import { LazyMotionProvider } from '@components/common/LazyMotionProvider';
 import { microDampingPreset } from '@constants/anim/spring';
-import { AnimatePresence, m, useReducedMotion } from 'motion/react';
+import { useMotionLevel } from '@hooks/useMotionLevel';
+import { AnimatePresence, m } from 'motion/react';
 
 interface QuizExplanationProps {
   html: string | null;
@@ -13,7 +14,7 @@ function replaceEmoji(html: string): string {
 }
 
 export function QuizExplanation({ html, visible }: QuizExplanationProps) {
-  const shouldReduceMotion = useReducedMotion();
+  const shouldReduceMotion = useMotionLevel() === 'reduced';
 
   if (!html) return null;
 

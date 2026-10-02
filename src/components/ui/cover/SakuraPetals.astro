@@ -109,13 +109,13 @@
       const field = this.field;
       if (!field || !this.isConnected) return;
       const onScreen = this.visible && document.visibilityState === 'visible';
-      const allowed =
-        this.ready && readMotionLevel() === 'lively' && !document.documentElement.classList.contains('christmas');
+      const level = readMotionLevel();
+      const allowed = this.ready && level === 'lively' && !document.documentElement.classList.contains('christmas');
       this.classList.toggle('is-active', allowed);
       window.clearTimeout(this.stopTimer);
       if (allowed && onScreen) {
         field.start();
-      } else if (!onScreen) {
+      } else if (!onScreen || level === 'reduced') {
         field.stop();
       } else {
         // Keep drifting while the canvas fades out after a motion-level change.

@@ -1,9 +1,10 @@
 import { useIsMobile } from '@hooks/useMediaQuery';
+import { useMotionLevel } from '@hooks/useMotionLevel';
 import { useStore } from '@nanostores/react';
 import { Canvas } from '@react-three/fiber';
 import { christmasEnabled } from '@store/christmas';
 import { throttle } from 'es-toolkit';
-import { type MotionValue, useMotionValue, useMotionValueEvent, useReducedMotion, useSpring } from 'motion/react';
+import { type MotionValue, useMotionValue, useMotionValueEvent, useSpring } from 'motion/react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { SnowParticles } from './SnowParticles';
 
@@ -40,11 +41,10 @@ export function SnowfallCanvas({
   mobileMaxIterations = 3,
 }: SnowfallCanvasProps) {
   const isChristmasEnabled = useStore(christmasEnabled);
-  const shouldReduceMotion = useReducedMotion();
+  const shouldReduceMotion = useMotionLevel() === 'reduced';
   const isMobile = useIsMobile();
 
-  // Tab visibility detection - pause rendering when tab is not visible
-  const [isVisible, setIsVisible] = useState(true);
+  const [isVisible, setIsVisible] = useState(() => typeof document !== 'undefined' && !document.hidden);
   useEffect(() => {
     const handleVisibilityChange = () => {
       setIsVisible(document.visibilityState === 'visible');
@@ -61,7 +61,6 @@ export function SnowfallCanvas({
   const smoothMouseX = useSpring(mouseX, { stiffness: 50, damping: 20 });
   const smoothMouseY = useSpring(mouseY, { stiffness: 50, damping: 20 });
 
-  // Throttled mouse move handler (~30fps)
   const throttledMouseMove = useMemo(
     () =>
       throttle((e: MouseEvent) => {
@@ -75,8 +74,11 @@ export function SnowfallCanvas({
 
   // 鼠标追踪 - 仅在桌面端启用
   useEffect(() => {
-    // 移动端或减少动画时不需要鼠标视差
-    if (isMobile || shouldReduceMotion) return;
+    if (isMobile || shouldReduceMotion || !isChristmasEnabled || !isVisible) {
+      smoothMouseX.jump(0);
+      smoothMouseY.jump(0);
+      return;
+    }
 
     const handleMouseLeave = () => {
       // 鼠标离开窗口时缓慢回到中心
@@ -90,14 +92,18 @@ export function SnowfallCanvas({
     return () => {
       window.removeEventListener('mousemove', throttledMouseMove);
       document.removeEventListener('mouseleave', handleMouseLeave);
+      throttledMouseMove.cancel();
     };
-    // mouseX/mouseY are stable refs from useMotionValue, no need in deps
   }, [
     isMobile,
     shouldReduceMotion,
-    throttledMouseMove, // 鼠标离开窗口时缓慢回到中心
-    mouseX.set,
-    mouseY.set,
+    isChristmasEnabled,
+    isVisible,
+    smoothMouseX,
+    smoothMouseY,
+    throttledMouseMove,
+    mouseX,
+    mouseY,
   ]);
 
   const finalIntensity = isMobile ? mobileIntensity : intensity;
@@ -156,6 +162,7 @@ export function SnowfallCanvas({
           layerRange={layerRange}
           maxLayers={maxLayers}
           maxIterations={maxIterations}
+          maxDpr={isMobile ? 1 : 0.7}
         />
       </Canvas>
     </div>
@@ -172,6 +179,7 @@ function SnowParticlesWithParallax({
   layerRange,
   maxLayers,
   maxIterations,
+  maxDpr,
 }: {
   speed: number;
   intensity: number;
@@ -181,6 +189,7 @@ function SnowParticlesWithParallax({
   layerRange: [number, number];
   maxLayers: number;
   maxIterations: number;
+  maxDpr: number;
 }) {
   const parallaxRef = useRef({ x: 0, y: 0 });
 
@@ -199,6 +208,7 @@ function SnowParticlesWithParallax({
       layerRange={layerRange}
       maxLayers={maxLayers}
       maxIterations={maxIterations}
+      maxDpr={maxDpr}
     />
   );
 }

@@ -10,6 +10,7 @@ import { Dialog, DialogPortal } from '@components/ui/dialog';
 import { animation } from '@constants/design-tokens';
 import { useIsMounted } from '@hooks/useIsMounted';
 import { useEscapeKey, useKeyboardShortcut } from '@hooks/useKeyboardShortcut';
+import { useMotionLevel } from '@hooks/useMotionLevel';
 import { useTranslation } from '@hooks/useTranslation';
 import { cn } from '@lib/utils';
 import { useStore } from '@nanostores/react';
@@ -28,6 +29,7 @@ function SearchIcon({ className }: { className?: string }) {
 }
 
 export default function SearchDialog() {
+  const shouldReduceMotion = useMotionLevel() === 'reduced';
   const { t } = useTranslation();
   const isOpen = useStore($isSearchOpen);
 
@@ -47,17 +49,22 @@ export default function SearchDialog() {
   useEffect(() => {
     if (isOpen) {
       window.dispatchEvent(new CustomEvent('search-dialog-open'));
-      // Focus search input after animation
-      const focusTimer = setTimeout(() => {
+      const focusSearch = () => {
         const searchInput = document.querySelector('.pf-searchbox-input') as HTMLInputElement;
         searchInput?.focus();
-      }, 150);
+      };
+      // SearchPortal moves the input on the next frame before it can receive focus.
+      const focusFrame = shouldReduceMotion ? requestAnimationFrame(focusSearch) : 0;
+      const focusTimer = shouldReduceMotion ? undefined : setTimeout(focusSearch, 150);
 
-      return () => clearTimeout(focusTimer);
+      return () => {
+        clearTimeout(focusTimer);
+        cancelAnimationFrame(focusFrame);
+      };
     } else {
       window.dispatchEvent(new CustomEvent('search-dialog-close'));
     }
-  }, [isOpen]);
+  }, [isOpen, shouldReduceMotion]);
 
   // Close before page navigation
   useEffect(() => {
@@ -85,30 +92,37 @@ export default function SearchDialog() {
                 {/* Overlay */}
                 <m.div
                   className="fixed inset-0 z-54 bg-[rgb(18_10_26/0.5)] backdrop-blur-[3px]"
-                  initial={{ opacity: 0 }}
+                  initial={shouldReduceMotion ? false : { opacity: 0 }}
                   animate={{ opacity: 1 }}
-                  exit={{ opacity: 0, transition: { duration: 0.2, ease: animation.bezier.inQuart } }}
-                  transition={{ duration: 0.3, ease: animation.bezier.outQuart }}
+                  exit={{
+                    opacity: 0,
+                    transition: shouldReduceMotion ? { duration: 0 } : { duration: 0.2, ease: animation.bezier.inQuart },
+                  }}
+                  transition={shouldReduceMotion ? { duration: 0 } : { duration: 0.3, ease: animation.bezier.outQuart }}
                 />
 
                 {/* Dialog: anchored near the top so it grows downward as results arrive; above the mobile menu button. */}
                 <m.div
                   className="fixed inset-0 z-55 flex items-start justify-center px-4 pt-[12dvh] md:px-3 md:pt-3"
                   onClick={handleBackgroundClick}
-                  initial={{ opacity: 0 }}
+                  initial={shouldReduceMotion ? false : { opacity: 0 }}
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
-                  transition={{ duration: 0.2 }}
+                  transition={shouldReduceMotion ? { duration: 0 } : { duration: 0.2 }}
                 >
                   <m.div
                     role="dialog"
                     aria-modal="true"
                     aria-label={t('search.dialogTitle')}
                     className="search-dialog relative w-full max-w-2xl overflow-hidden rounded-2xl bg-gradient-start text-foreground shadow-[0_2rem_4rem_-1.5rem_rgb(233_84_107/0.35),0_0.75rem_1.5rem_-0.75rem_rgb(20_10_28/0.3)] ring-1 ring-primary/15"
-                    initial={{ opacity: 0, scale: 0.98, y: -12 }}
+                    initial={shouldReduceMotion ? false : { opacity: 0, scale: 0.98, y: -12 }}
                     animate={{ opacity: 1, scale: 1, y: 0 }}
-                    exit={{ opacity: 0, scale: 0.98, y: -8, transition: { duration: 0.15, ease: animation.bezier.inQuart } }}
-                    transition={animation.spring.popover}
+                    exit={
+                      shouldReduceMotion
+                        ? { opacity: 0, transition: { duration: 0 } }
+                        : { opacity: 0, scale: 0.98, y: -8, transition: { duration: 0.15, ease: animation.bezier.inQuart } }
+                    }
+                    transition={shouldReduceMotion ? { duration: 0 } : animation.spring.popover}
                   >
                     {/* The Pagefind searchbox is moved in here: its input is the header row, results flow below. */}
                     <div id="search-dialog-container" />

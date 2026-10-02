@@ -8,6 +8,8 @@
  * The incoming end skips its load-time `motion-rise` so the morph is its only motion.
  */
 
+import { isMotionDisabled, subscribeMotionLevel } from '@lib/motion-level';
+
 const MORPH_SELECTOR = '[data-morph]';
 
 export function postTitleMorphName(slug: string): string {
@@ -78,7 +80,18 @@ export function setupMorphTransitions(): void {
   });
 
   document.addEventListener('astro:before-swap', (event) => {
-    event.viewTransition.ready.then(compositeGroupMorphs).catch(() => {});
+    const transition = event.viewTransition;
+    const stopReducedTransition = () => {
+      if (isMotionDisabled()) transition.skipTransition();
+    };
+    const unsubscribe = subscribeMotionLevel(stopReducedTransition);
+    stopReducedTransition();
+    void transition.finished.then(unsubscribe, unsubscribe);
+    transition.ready
+      .then(() => {
+        if (!isMotionDisabled()) compositeGroupMorphs();
+      })
+      .catch(() => {});
     for (const element of morphElements(event.newDocument)) {
       if (pairs.has(element.dataset.morph ?? '')) element.classList.remove('motion-rise');
       else unname(element);

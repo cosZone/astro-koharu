@@ -8,7 +8,7 @@ import {
   type Span,
   stepGlide,
 } from '@lib/glide';
-import { readMotionLevel } from '@lib/motion-level';
+import { readMotionLevel, subscribeMotionLevel } from '@lib/motion-level';
 import { type RefObject, useLayoutEffect, useRef } from 'react';
 
 /** Hidden for less than this (the CSS fade-out), the indicator is still on screen and glides on. */
@@ -98,6 +98,19 @@ function createGlide(container: HTMLElement, indicator: HTMLElement, axis: Glide
   observer.observe(container);
   for (const element of container.querySelectorAll('[data-glide-key]')) observer.observe(element);
 
+  const unsubscribeMotion = subscribeMotionLevel(() => {
+    feel = feelForMotionLevel();
+    if (!feel) {
+      stop();
+      snap();
+    }
+  });
+  const onVisibility = () => {
+    stop();
+    if (!document.hidden) snap();
+  };
+  document.addEventListener('visibilitychange', onVisibility);
+
   return {
     moveTo(key) {
       const now = performance.now();
@@ -110,7 +123,7 @@ function createGlide(container: HTMLElement, indicator: HTMLElement, axis: Glide
       }
       item = container.querySelector<HTMLElement>(`[data-glide-key="${CSS.escape(key)}"]`);
       feel = feelForMotionLevel();
-      if (!onScreen || !feel || !state) {
+      if (!onScreen || !feel || !state || document.hidden) {
         stop();
         snap();
         return;
@@ -123,6 +136,8 @@ function createGlide(container: HTMLElement, indicator: HTMLElement, axis: Glide
     destroy() {
       stop();
       observer.disconnect();
+      unsubscribeMotion();
+      document.removeEventListener('visibilitychange', onVisibility);
     },
   };
 }

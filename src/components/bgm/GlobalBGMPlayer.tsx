@@ -38,7 +38,7 @@ export default function GlobalBGMPlayer({ audioGroups, metingApi }: GlobalBGMPla
   const isDrawerOpen = useStore($isDrawerOpen);
   const isAnyModalOpen = useStore($isAnyModalOpen);
   const isMobilePlayer = useMediaQuery('(max-width: 600px)');
-  const fadeOnly = useMotionLevel() === 'reduced';
+  const motionDisabled = useMotionLevel() === 'reduced';
   // Keep the fade in the same render loop as positioning to avoid Motion 11's native opacity handoff.
   const panelOpacity = useMotionValue(0);
 
@@ -232,10 +232,10 @@ export default function GlobalBGMPlayer({ audioGroups, metingApi }: GlobalBGMPla
               {...getFloatingProps()}
               className="fixed right-16 bottom-20 z-40 w-[460px] max-w-[calc(100vw-5rem)]"
               style={{ opacity: panelOpacity }}
-              initial={fadeOnly ? { opacity: 0 } : { opacity: 0, y: 12, scale: 0.98 }}
-              animate={fadeOnly ? { opacity: 1 } : { opacity: 1, y: 0, scale: 1 }}
-              exit={fadeOnly ? { opacity: 0 } : { opacity: 0, y: 8, scale: 0.98 }}
-              transition={{ duration: 0.18, ease: 'easeOut' }}
+              initial={motionDisabled ? false : { opacity: 0, y: 12, scale: 0.98 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={motionDisabled ? { opacity: 0 } : { opacity: 0, y: 8, scale: 0.98 }}
+              transition={motionDisabled ? { duration: 0 } : { duration: 0.18, ease: 'easeOut' }}
             >
               <div className="bgm-panel rounded-2xl shadow-xl" aria-busy={loading}>
                 {/* Close button */}

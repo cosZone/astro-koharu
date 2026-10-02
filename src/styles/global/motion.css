@@ -1,3 +1,5 @@
+/* biome-ignore-all lint/complexity/noImportantStyles: Reader and system motion preferences must override component, utility and inline animation styles. */
+
 /*
   Motion system.
 
@@ -7,7 +9,7 @@
   <html data-motion> is written before first paint by BootScripts:
   - lively  — entrance choreography, scroll reveals (prose included), sakura effects
   - subtle  — entrances and reveals with half the travel; no prose reveals, no petals
-  - reduced — no decorative motion; html.motion-off is toggled alongside
+  - reduced — no decorative motion; html.motion-off also reflects the OS preference
   prefers-reduced-motion: reduce always behaves like `reduced`, and a page without the
   attribute (scripts disabled) renders every element static and fully visible.
 */
@@ -88,47 +90,89 @@ html[data-motion="subtle"] {
   transform-origin: 0 0;
 }
 
-html[data-motion="reduced"]::view-transition-group(*),
-html[data-motion="reduced"]::view-transition-old(*),
-html[data-motion="reduced"]::view-transition-new(*) {
-  animation-duration: 0s;
+/* Keep completion events (e.g. tooltip unmount) while making transitions imperceptible. */
+html.motion-off,
+html.motion-off *,
+html.motion-off *::before,
+html.motion-off *::after {
+  animation-duration: 0.01ms !important;
+  animation-delay: 0s !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+  transition-delay: 0s !important;
+  scroll-behavior: auto !important;
+  will-change: auto !important;
 }
 
-@media (prefers-reduced-motion: reduce) {
-  ::view-transition-group(*),
-  ::view-transition-old(*),
-  ::view-transition-new(*) {
-    /* biome-ignore lint/complexity/noImportantStyles: Astro injects per-page animation rules after this sheet. */
-    animation-duration: 0s !important;
-  }
-}
-
-/*
-  The reduced level keeps interaction feedback and loading indicators but stops
-  continuous decorative motion.
-*/
-html.motion-off footer .animate-spin,
-html.motion-off .animate-spin.duration-10000,
-html.motion-off .hover\:animate-shake,
-html.motion-off .rainbow,
-html.motion-off .typewriter-cursor,
-html.motion-off .audio-player-disc,
-html.motion-off .lightrope li,
-html.motion-off .animate-ping {
-  /* html.motion-off … outranks the single-class animation definitions, so no !important needed. */
-  animation: none;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  footer .animate-spin,
-  .animate-spin.duration-10000,
+/* Continuous decoration stays in its authored static state, without a final animation frame. */
+html.motion-off
+:is(
+  .animate-spin,
   .hover\:animate-shake,
   .rainbow,
   .typewriter-cursor,
   .audio-player-disc,
   .lightrope li,
-  .animate-ping {
-    /* biome-ignore lint/complexity/noImportantStyles: same specificity as the source animations, which are imported after this file, so !important is required to win. */
+  .animate-ping,
+  .sider-slot.entering,
+  .cat-404 *
+) {
+  animation: none !important;
+}
+
+html.motion-off .cat-404 :is(.face-features, .digit-0-bg) {
+  opacity: 0;
+}
+
+html.motion-off [data-moments-entering] {
+  opacity: 1;
+  transform: none;
+}
+
+html.motion-off::view-transition-group(*),
+html.motion-off::view-transition-old(*),
+html.motion-off::view-transition-new(*),
+html.motion-off [data-astro-transition-scope] {
+  animation: none !important;
+}
+
+/* CSS also honors the OS before JS loads, and if scripts are unavailable. */
+@media (prefers-reduced-motion: reduce) {
+  html,
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-delay: 0s !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    transition-delay: 0s !important;
+    scroll-behavior: auto !important;
+    will-change: auto !important;
+  }
+
+  :is(
+      .animate-spin,
+      .hover\:animate-shake,
+      .rainbow,
+      .typewriter-cursor,
+      .audio-player-disc,
+      .lightrope li,
+      .animate-ping,
+      .sider-slot.entering,
+      .cat-404 *
+    ) {
+    animation: none !important;
+  }
+
+  .cat-404 :is(.face-features, .digit-0-bg) {
+    opacity: 0;
+  }
+
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*),
+  [data-astro-transition-scope] {
     animation: none !important;
   }
 }

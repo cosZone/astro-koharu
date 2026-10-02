@@ -1,5 +1,5 @@
 import { useFrame, useThree } from '@react-three/fiber';
-import { type RefObject, useMemo, useRef } from 'react';
+import { type RefObject, useEffect, useMemo, useRef } from 'react';
 import * as THREE from 'three';
 
 /**
@@ -61,7 +61,7 @@ const SnowShaderMaterial = {
             // X 方向：关闭横向漂移，只保留纯垂直下落
             0.0,
             // Y 方向下落
-            downSpeed * (time + float(k * 1352)) * (1.0 / float(i))
+            downSpeed * (time + float(k * 1352)) / float(i + 1)
           );
 
           vec2 uvStep = (ceil((uv) * cellSize - vec2(0.5, 0.5)) / cellSize);
@@ -102,6 +102,7 @@ interface SnowParticlesProps {
   maxLayers?: number;
   /** 每层最大迭代次数，用于性能优化 (桌面: 4, 移动: 3) */
   maxIterations?: number;
+  maxDpr?: number;
 }
 
 export function SnowParticles({
@@ -111,10 +112,17 @@ export function SnowParticles({
   layerRange = [0, 5],
   maxLayers = 3,
   maxIterations = 4,
+  maxDpr = 0.7,
 }: SnowParticlesProps) {
   const shaderMaterial = useRef<THREE.ShaderMaterial>(null);
   const prevSize = useRef({ width: 0, height: 0 });
-  const { size } = useThree();
+  const lastFrameTime = useRef(0);
+  const { size, setDpr } = useThree();
+
+  // Limit the actual drawing buffer, rather than just the shader's coordinates.
+  useEffect(() => {
+    setDpr(Math.min(maxDpr, MAX_RESOLUTION_WIDTH / size.width, MAX_RESOLUTION_HEIGHT / size.height));
+  }, [maxDpr, size.width, size.height, setDpr]);
 
   const [layerStart, layerEnd] = layerRange;
 
@@ -137,19 +145,21 @@ export function SnowParticles({
 
   // 更新时间、分辨率、三角函数和鼠标视差
   useFrame((state) => {
+    const time = state.clock.elapsedTime;
+    const elapsed = time - lastFrameTime.current;
+    if (elapsed < 1 / 30) return;
+    lastFrameTime.current = time - (elapsed % (1 / 30));
+
     if (shaderMaterial.current) {
-      const time = state.clock.getElapsedTime();
       shaderMaterial.current.uniforms.uTime.value = time;
 
       // 预计算三角函数值，减少 GPU 端每像素的计算
       shaderMaterial.current.uniforms.uSinTime.value = Math.sin(time * 2.5);
       shaderMaterial.current.uniforms.uCosTime.value = Math.cos(time * 2.5);
 
-      // 仅在尺寸变化时更新分辨率，并应用分辨率上限
+      // Use the viewport aspect ratio; drawing-buffer limits are applied via DPR.
       if (prevSize.current.width !== size.width || prevSize.current.height !== size.height) {
-        const cappedWidth = Math.min(size.width, MAX_RESOLUTION_WIDTH);
-        const cappedHeight = Math.min(size.height, MAX_RESOLUTION_HEIGHT);
-        shaderMaterial.current.uniforms.uResolution.value.set(cappedWidth, cappedHeight);
+        shaderMaterial.current.uniforms.uResolution.value.set(size.width, size.height);
         prevSize.current = { width: size.width, height: size.height };
       }
 
@@ -158,7 +168,9 @@ export function SnowParticles({
         shaderMaterial.current.uniforms.uMouse.value.set(parallaxRef.current.x, parallaxRef.current.y);
       }
     }
-  });
+    // Own rendering so high-refresh-rate screens do not redraw the shader every frame.
+    state.gl.render(state.scene, state.camera);
+  }, 1);
 
   return (
     <mesh>

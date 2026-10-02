@@ -97,7 +97,7 @@ const nextPost = adjacentPosts.nextPost ? toPostRef(adjacentPosts.nextPost) : nu
 
 <script>
   import { HomeSiderSegmentType, HomeSiderType } from '@constants/enum';
-  import { readMotionLevel } from '@lib/motion-level';
+  import { readMotionLevel, subscribeMotionLevel } from '@lib/motion-level';
   import { homeSiderSegmentType } from '@store/app';
 
   const PANEL_ORDER = [HomeSiderSegmentType.INFO, HomeSiderSegmentType.DIRECTORY, HomeSiderSegmentType.SERIES];
@@ -125,7 +125,9 @@ const nextPost = adjacentPosts.nextPost ? toPostRef(adjacentPosts.nextPost) : nu
     private panels = new Map<HomeSiderSegmentType, HTMLElement>();
     private currentType: HomeSiderSegmentType | null = null;
     private animations: Animation[] = [];
+    private rowAnimations = new Set<Animation>();
     private unsubscribe: (() => void) | null = null;
+    private unsubscribeMotion: (() => void) | null = null;
 
     connectedCallback() {
       for (const type of PANEL_ORDER) {
@@ -141,12 +143,21 @@ const nextPost = adjacentPosts.nextPost ? toPostRef(adjacentPosts.nextPost) : nu
       this.show(initialType, false);
       this.unsubscribe?.();
       this.unsubscribe = homeSiderSegmentType.listen((value) => this.show(value, true));
+      this.unsubscribeMotion?.();
+      this.unsubscribeMotion = subscribeMotionLevel(() => {
+        if (readMotionLevel() !== 'reduced') return;
+        this.settle();
+        this.stopCascade();
+      });
     }
 
     disconnectedCallback() {
       this.unsubscribe?.();
       this.unsubscribe = null;
+      this.unsubscribeMotion?.();
+      this.unsubscribeMotion = null;
       this.settle();
+      this.stopCascade();
     }
 
     private show(type: HomeSiderSegmentType, animate: boolean) {
@@ -214,13 +225,20 @@ const nextPost = adjacentPosts.nextPost ? toPostRef(adjacentPosts.nextPost) : nu
       // A lone start keyframe animates toward each row's own resting style (some nav rows rest dimmed).
       // Rows are left to finish on their own, so a quick second switch fades them out mid-glide.
       rows.forEach((row, index) => {
-        row.animate([{ opacity: '0', translate: `${travel}px 0`, offset: 0 }], {
+        const animation = row.animate([{ opacity: '0', translate: `${travel}px 0`, offset: 0 }], {
           duration: 520,
           delay: delay + 40 + index * step,
           easing: EASE_OUT_EXPO,
           fill: 'backwards',
         });
+        this.rowAnimations.add(animation);
+        animation.onfinish = () => this.rowAnimations.delete(animation);
       });
+    }
+
+    private stopCascade() {
+      for (const animation of this.rowAnimations) animation.cancel();
+      this.rowAnimations.clear();
     }
 
     private settle() {

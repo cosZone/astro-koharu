@@ -9,6 +9,7 @@
 
 import { useIsMounted } from '@hooks/useIsMounted';
 import { useTranslation } from '@hooks/useTranslation';
+import { isMotionDisabled } from '@lib/motion-level';
 import { holdPetalBurst } from '@lib/sakura/petal-burst';
 import { cn } from '@lib/utils';
 import { useCallback, useEffect, useState } from 'react';
@@ -56,7 +57,7 @@ function useTheme() {
       const newIsDark = !isDark;
       const rootElement = document.documentElement;
 
-      if (!document.startViewTransition) {
+      if (isMotionDisabled() || !document.startViewTransition) {
         applyTheme(newIsDark);
         setIsDark(newIsDark);
         return;

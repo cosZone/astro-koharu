@@ -11,6 +11,8 @@ import { Switch } from '@components/ui/switch';
 import { microReboundPreset } from '@constants/anim/spring';
 import { animation } from '@constants/design-tokens';
 import { FloatingFocusManager, useDismiss, useFloating, useInteractions, useRole } from '@floating-ui/react';
+import { usePrefersReducedMotion } from '@hooks/useMediaQuery';
+import { useMotionLevel } from '@hooks/useMotionLevel';
 import { useTranslation } from '@hooks/useTranslation';
 import { Icon } from '@iconify/react';
 import type { MotionLevel } from '@lib/config/types';
@@ -43,7 +45,7 @@ import {
   waveEnabled,
 } from '@store/settings';
 import { READER_CUSTOM_MEASURE } from '@store/settings-constants';
-import { AnimatePresence, m, type Transition, useReducedMotion } from 'motion/react';
+import { AnimatePresence, m, type Transition } from 'motion/react';
 import { lazy, type MouseEvent, Suspense, useEffect, useRef, useState } from 'react';
 import type { TranslationKey } from '@/i18n/types';
 import { NumberField } from './NumberField';
@@ -72,7 +74,8 @@ const LocalFontPicker = lazy(loadLocalFontPicker);
 export default function SettingsPanelContent() {
   const { t } = useTranslation();
   const open = useStore($isSettingsOpen);
-  const shouldReduceMotion = useReducedMotion();
+  const shouldReduceMotion = useMotionLevel() === 'reduced';
+  const systemReducedMotion = usePrefersReducedMotion();
 
   // Store bindings
   const fontPreset = useStore(readerFontPreset);
@@ -84,8 +87,6 @@ export default function SettingsPanelContent() {
   const scrollProgress = useStore(scrollProgressEnabled);
   const bgmWidget = useStore(bgmWidgetEnabled);
   const level = useStore(motionLevel);
-  const reducedLevel = level === 'reduced';
-  const fadeOnly = shouldReduceMotion || reducedLevel;
   const wave = useStore(waveEnabled);
   const isChristmasEnabled = useStore(christmasEnabled);
   const [fontPickerLoaded, setFontPickerLoaded] = useState(false);
@@ -164,27 +165,23 @@ export default function SettingsPanelContent() {
   const { getFloatingProps } = useInteractions([dismiss, role]);
 
   const panelTransition = (visible: boolean): Transition => {
-    const fade = fadeOnly
-      ? { duration: visible ? 0.15 : 0.12 }
-      : visible
-        ? { duration: 0.16, ease: animation.bezier.outQuart }
-        : PANEL_EXIT;
+    const fade = visible ? { duration: 0.16, ease: animation.bezier.outQuart } : PANEL_EXIT;
     // Motion 11 cancels each native animation before its final styles render on the next frame.
     // Commit each property synchronously so neither the fade nor spring reveals the initial style.
     return {
       opacity: {
-        ...fade,
+        ...(shouldReduceMotion ? { duration: 0 } : fade),
         onComplete: () => refs.floating.current?.style.setProperty('opacity', visible ? '1' : '0'),
       },
       transform: {
-        ...(visible ? animation.spring.popover : PANEL_EXIT),
+        ...(shouldReduceMotion ? { duration: 0 } : visible ? animation.spring.popover : PANEL_EXIT),
         onComplete: () => refs.floating.current?.style.setProperty('transform', visible ? PANEL_SHOWN : PANEL_HIDDEN),
       },
     };
   };
 
   const renderControl = (item: SettingItem) => {
-    const disabled = Boolean(item.disabledByReducedMotion && reducedLevel);
+    const disabled = Boolean(item.disabledByReducedMotion && shouldReduceMotion);
 
     switch (item.type) {
       case 'segmented': {
@@ -212,7 +209,7 @@ export default function SettingsPanelContent() {
                   <AnimatePresence initial={false}>
                     {active && (
                       <m.span
-                        layoutId={`settings-${item.key}-pill`}
+                        layoutId={shouldReduceMotion ? undefined : `settings-${item.key}-pill`}
                         className="absolute inset-0 rounded-md bg-primary"
                         transition={shouldReduceMotion ? { duration: 0 } : microReboundPreset}
                       />
@@ -265,17 +262,13 @@ export default function SettingsPanelContent() {
               ref={refs.setFloating}
               {...getFloatingProps()}
               className="fixed right-16 bottom-20 z-40 w-[320px] max-w-[calc(100vw-5rem)] origin-bottom-right"
-              initial={fadeOnly ? { opacity: 0 } : { opacity: 0, transform: PANEL_HIDDEN }}
-              animate={
-                fadeOnly
-                  ? { opacity: 1, transition: panelTransition(true) }
-                  : { opacity: 1, transform: PANEL_SHOWN, transition: panelTransition(true) }
-              }
-              exit={
-                fadeOnly
-                  ? { opacity: 0, transition: panelTransition(false) }
-                  : { opacity: 0, transform: PANEL_HIDDEN, transition: panelTransition(false) }
-              }
+              initial={shouldReduceMotion ? false : { opacity: 0, transform: PANEL_HIDDEN }}
+              animate={{ opacity: 1, transform: PANEL_SHOWN, transition: panelTransition(true) }}
+              exit={{
+                opacity: 0,
+                transform: shouldReduceMotion ? PANEL_SHOWN : PANEL_HIDDEN,
+                transition: panelTransition(false),
+              }}
             >
               <div className="flex h-[calc(100dvh-6rem)] max-h-96 flex-col overflow-hidden rounded-2xl border border-border bg-popover p-4 text-popover-foreground shadow-xl">
                 {/* Header */}
@@ -309,7 +302,7 @@ export default function SettingsPanelContent() {
                         <AnimatePresence initial={false}>
                           {active && (
                             <m.span
-                              layoutId="settings-section-pill"
+                              layoutId={shouldReduceMotion ? undefined : 'settings-section-pill'}
                               className="absolute inset-0 rounded-md bg-background shadow-sm"
                               transition={shouldReduceMotion ? { duration: 0 } : microReboundPreset}
                             />
@@ -334,7 +327,7 @@ export default function SettingsPanelContent() {
                     >
                       <div className="flex flex-col divide-y divide-border">
                         {items.map((item) => {
-                          const disabled = Boolean(item.disabledByReducedMotion && reducedLevel);
+                          const disabled = Boolean(item.disabledByReducedMotion && shouldReduceMotion);
                           return (
                             <div key={item.key} className="py-2.5 first:pt-1 last:pb-1">
                               <div className="flex items-center justify-between gap-3">
@@ -359,7 +352,7 @@ export default function SettingsPanelContent() {
                               )}
                               {item.key === 'motionLevel' && (
                                 <p className="mt-1.5 text-muted-foreground text-xs">
-                                  {t(shouldReduceMotion ? 'settings.motionLevel.systemReduced' : MOTION_HINT_KEYS[level])}
+                                  {t(systemReducedMotion ? 'settings.motionLevel.systemReduced' : MOTION_HINT_KEYS[level])}
                                 </p>
                               )}
                               {disabled && (

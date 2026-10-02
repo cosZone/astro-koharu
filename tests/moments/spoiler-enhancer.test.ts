@@ -38,6 +38,9 @@ class FakeElement extends EventTarget {
     if (this.tagName === 'SPOILER-SPAN' && selector.split(',').some((part) => part.trim() === 'spoiler-span')) {
       return this as unknown as T;
     }
+    if (this.hasAttribute('data-static-spoiler') && selector.includes('[data-static-spoiler]')) {
+      return this as unknown as T;
+    }
     return null;
   }
 
@@ -51,7 +54,7 @@ class FakeRoot {
   constructor(readonly spoilers: FakeElement[]) {}
 
   querySelectorAll<T extends Element = Element>(selector: string): NodeListOf<T> {
-    assert.equal(selector, 'spoiler-span');
+    assert.equal(selector, 'spoiler-span, [data-static-spoiler]');
     return this.spoilers as unknown as NodeListOf<T>;
   }
 }
@@ -129,6 +132,30 @@ test('fallback spoilers reveal with Enter and Space while the component is unava
   }
 });
 
+test('static spoilers keep keyboard reveal without loading or using the animated component', () => {
+  for (const componentDefined of [false, true]) {
+    const spoiler = new FakeElement('span');
+    spoiler.setAttribute('data-static-spoiler', '');
+    const enhance = __createSpoilerEnhancer({
+      componentIsDefined: () => componentDefined,
+      loadComponent: () => assert.fail('static spoilers must not load spoilerjs'),
+      queryDocumentSpoilers: () => [],
+      requestFrame: () => assert.fail('static spoilers must not schedule animation frames'),
+      reportLoadError: (error) => assert.fail(String(error)),
+    });
+    const root = asParentNode(new FakeRoot([spoiler]));
+
+    enhance(root);
+    assert.equal(spoiler.getAttribute('role'), 'button');
+    spoiler.dispatchEvent(keyboardEvent('Enter'));
+    assert.equal(spoiler.dataset.fallbackRevealed, 'true');
+
+    enhance(root);
+    assert.equal(spoiler.getAttribute('role'), null);
+    assert.equal(spoiler.dataset.fallbackRevealed, 'true');
+  }
+});
+
 test('upgrades revealed fallback state, localizes the shadow control, and enhances appended spoilers', async () => {
   const frames = frameQueue();
   const first = new FakeElement('spoiler-span');
@@ -178,8 +205,13 @@ test('the real card interaction selector treats a spoiler as interactive instead
   assert.ok(selector, 'MessageCard must expose its interactive selector');
 
   const spoiler = new FakeElement('spoiler-span');
+  const staticSpoiler = new FakeElement('span');
+  staticSpoiler.setAttribute('data-static-spoiler', '');
+  staticSpoiler.dataset.fallbackRevealed = 'true';
   let navigationCount = 0;
-  if (!spoiler.closest(selector)) navigationCount += 1;
+  for (const target of [spoiler, staticSpoiler]) {
+    if (!target.closest(selector)) navigationCount += 1;
+  }
 
   assert.equal(navigationCount, 0);
 });

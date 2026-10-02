@@ -1,9 +1,9 @@
 import { animation } from '@constants/design-tokens';
 import { useControlledState } from '@hooks/useControlledState';
 import { useGlideIndicator } from '@hooks/useGlideIndicator';
-import { readMotionLevel } from '@lib/motion-level';
+import { readMotionLevel, subscribeMotionLevel } from '@lib/motion-level';
 import { cn } from '@lib/utils';
-import React, { useRef } from 'react';
+import React, { useEffect, useRef } from 'react';
 
 export type OptionType<T extends string | number = string | number> = {
   label?: string;
@@ -48,6 +48,14 @@ export const Segmented = <T extends string | number = string | number>({
   });
   const trackRef = useRef<HTMLDivElement>(null);
   const thumbRef = useRef<HTMLSpanElement>(null);
+  useEffect(() => {
+    return subscribeMotionLevel(() => {
+      if (readMotionLevel() === 'lively') return;
+      for (const icon of trackRef.current?.querySelectorAll('.segmented-icon') ?? []) {
+        for (const flight of icon.getAnimations()) flight.cancel();
+      }
+    });
+  }, []);
   useGlideIndicator(trackRef, thumbRef, selectedValue === undefined ? null : String(selectedValue));
 
   return (

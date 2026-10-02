@@ -17,6 +17,7 @@ import {
   GENERAL_DEFAULTS,
   READER_DEFAULTS,
   READER_FONT_FAMILY_MAX_LENGTH,
+  REDUCED_MOTION_QUERY,
   STORAGE_KEYS,
   WENKAI_STYLESHEET_HREF,
   WENKAI_STYLESHEET_ID,
@@ -88,7 +89,7 @@ function applyGeneralPreferences(): void {
   const root = document.documentElement;
   const level = motionLevel.get();
   root.dataset.motion = level;
-  root.classList.toggle('motion-off', level === 'reduced');
+  root.classList.toggle('motion-off', level === 'reduced' || window.matchMedia(REDUCED_MOTION_QUERY).matches);
   root.classList.toggle('wave-off', !waveEnabled.get());
 }
 

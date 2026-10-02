@@ -1,4 +1,5 @@
 import { LazyMotionProvider } from '@components/common/LazyMotionProvider';
+import { useMotionLevel } from '@hooks/useMotionLevel';
 import { useTranslation } from '@hooks/useTranslation';
 import { cn } from '@lib/utils';
 import { AnimatePresence, m } from 'motion/react';
@@ -11,6 +12,7 @@ interface QuizGapProps {
 }
 
 export function QuizGap({ answer, revealed, onClick, isMistake }: QuizGapProps) {
+  const shouldReduceMotion = useMotionLevel() === 'reduced';
   const { t } = useTranslation();
   return (
     <LazyMotionProvider>
@@ -18,8 +20,9 @@ export function QuizGap({ answer, revealed, onClick, isMistake }: QuizGapProps) 
         {revealed ? (
           <m.span
             key="answer"
-            initial={{ opacity: 0, scale: 0.8 }}
+            initial={shouldReduceMotion ? false : { opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
+            transition={shouldReduceMotion ? { duration: 0 } : undefined}
             className={cn(
               'inline-block rounded px-1.5 py-0.5 font-semibold',
               isMistake
@@ -34,6 +37,7 @@ export function QuizGap({ answer, revealed, onClick, isMistake }: QuizGapProps) 
             key="blank"
             type="button"
             exit={{ opacity: 0, scale: 0.8 }}
+            transition={shouldReduceMotion ? { duration: 0 } : undefined}
             onClick={onClick}
             className="inline-block cursor-pointer border-primary/50 border-b-2 border-dashed px-4 py-0.5 text-transparent transition-colors hover:border-primary hover:bg-primary/5"
             aria-label={t('quiz.clickToReveal')}

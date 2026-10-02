@@ -1,9 +1,10 @@
 import { LazyMotionProvider } from '@components/common/LazyMotionProvider';
 import { useBangumiData } from '@hooks/useBangumiData';
+import { useMotionLevel } from '@hooks/useMotionLevel';
 import { useTranslation } from '@hooks/useTranslation';
 import { Icon } from '@iconify/react';
 import { cn } from '@lib/utils';
-import { AnimatePresence, m, useReducedMotion } from 'motion/react';
+import { AnimatePresence, m } from 'motion/react';
 import { useMemo, useState } from 'react';
 import type { TranslationKey } from '@/i18n/types';
 import { ITEMS_PER_PAGE, SUBJECT_TYPE_KEYS, type SubjectTypeKey } from '@/lib/bangumi/constants';
@@ -48,7 +49,7 @@ export function BangumiCollection({ userId }: BangumiCollectionProps) {
   const [activeTab, setActiveTab] = useState<SubjectTypeKey>('anime');
   const [activeFilter, setActiveFilter] = useState<BangumiCollectionType | 'all'>('all');
   const [currentPage, setCurrentPage] = useState(1);
-  const shouldReduceMotion = useReducedMotion();
+  const shouldReduceMotion = useMotionLevel() === 'reduced';
 
   const springTransition = shouldReduceMotion ? { duration: 0 } : { type: 'spring' as const, stiffness: 400, damping: 30 };
 
@@ -166,7 +167,7 @@ export function BangumiCollection({ userId }: BangumiCollectionProps) {
               </span>
               {activeTab === tab.key && (
                 <m.span
-                  layoutId="bangumi-tab-indicator"
+                  layoutId={shouldReduceMotion ? undefined : 'bangumi-tab-indicator'}
                   className="absolute inset-x-0 -bottom-px h-0.5 rounded-full bg-primary"
                   transition={springTransition}
                 />
@@ -204,7 +205,7 @@ export function BangumiCollection({ userId }: BangumiCollectionProps) {
             initial={shouldReduceMotion ? false : { opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -8 }}
-            transition={{ duration: 0.2 }}
+            transition={{ duration: shouldReduceMotion ? 0 : 0.2 }}
           >
             {pageItems.map((item) => (
               <BangumiCard key={item.subject_id} item={item} />

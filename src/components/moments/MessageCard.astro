@@ -167,7 +167,7 @@ const railDate = publishedDate?.slice(0, 4) === currentYear ? publishedDate.slic
 
 <script>
   const cardInteractiveSelector =
-    'a, button, input, select, textarea, summary, video, audio, spoiler-span, [role="button"], [contenteditable="true"]';
+    'a, button, input, select, textarea, summary, video, audio, spoiler-span, [data-static-spoiler], [role="button"], [contenteditable="true"]';
 
   function installMomentCardLinks(root: ParentNode = document) {
     root.querySelectorAll<HTMLElement>('.moments-message-card[data-message-href]:not([data-card-link-ready])').forEach((card) => {

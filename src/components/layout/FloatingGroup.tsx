@@ -15,13 +15,14 @@ import { useIsMounted } from '@hooks/useIsMounted';
 import { useMotionLevel } from '@hooks/useMotionLevel';
 import { useTranslation } from '@hooks/useTranslation';
 import { Icon } from '@iconify/react';
+import { getScrollBehavior } from '@lib/motion-level';
 import { cn } from '@lib/utils';
 import { useStore } from '@nanostores/react';
 import { $bgmPanelOpen, toggleBgmPanel } from '@store/bgm';
 import { christmasEnabled, disableChristmasCompletely, enableChristmas, initChristmasState } from '@store/christmas';
 import { $isDrawerOpen, $isSettingsOpen, toggleSettings } from '@store/modal';
 import { bgmWidgetEnabled, initSettings, scrollProgressEnabled } from '@store/settings';
-import { AnimatePresence, m, useScroll, useSpring, type Variants } from 'motion/react';
+import { AnimatePresence, type MotionValue, m, useScroll, useSpring, type Variants } from 'motion/react';
 import { useEffect, useState } from 'react';
 
 interface FloatingButtonProps {
@@ -56,17 +57,17 @@ const itemVariants: Variants = {
   },
 };
 
-const fadeVariants: Variants = {
-  open: { opacity: 1, transition: { duration: 0.15 } },
-  closed: { opacity: 0, transition: { duration: 0.1 } },
+const staticVariants: Variants = {
+  open: { opacity: 1, transform: 'translate3d(0px, 0px, 0px) scale(1)', transition: { duration: 0 } },
+  closed: { opacity: 0, transition: { duration: 0 } },
 };
 
 function scrollToTop() {
-  window.scrollTo({ top: 0, behavior: 'smooth' });
+  window.scrollTo({ top: 0, behavior: getScrollBehavior() });
 }
 
 function scrollToBottom() {
-  window.scrollTo({ top: document.documentElement.scrollHeight, behavior: 'smooth' });
+  window.scrollTo({ top: document.documentElement.scrollHeight, behavior: getScrollBehavior() });
 }
 
 function toggleChristmas() {
@@ -106,6 +107,7 @@ function FloatingButton({
       aria-label={ariaLabel}
       aria-expanded={ariaExpanded}
       title={isMounted ? title : undefined}
+      data-tooltip-interactive="false"
       data-bgm-toggle={dataBgmToggle || undefined}
       data-settings-toggle={dataSettingsToggle || undefined}
     >
@@ -114,10 +116,7 @@ function FloatingButton({
   );
 }
 
-/** Reading progress drawn around the toggle; follows the scroll directly at the reduced level. */
-function ProgressRing({ springy }: { springy: boolean }) {
-  const { scrollYProgress } = useScroll();
-  const smooth = useSpring(scrollYProgress, { stiffness: 140, damping: 30, restDelta: 0.001 });
+function ProgressRingDrawing({ progress }: { progress: MotionValue<number> }) {
   return (
     <svg className="pointer-events-none absolute -inset-0.5 -rotate-90" viewBox="0 0 44 44" aria-hidden="true">
       <circle cx="22" cy="22" r="20.5" fill="none" stroke="currentColor" strokeWidth="1.5" className="opacity-15" />
@@ -129,10 +128,20 @@ function ProgressRing({ springy }: { springy: boolean }) {
         stroke="currentColor"
         strokeWidth="1.5"
         strokeLinecap="round"
-        style={{ pathLength: springy ? smooth : scrollYProgress }}
+        style={{ pathLength: progress }}
       />
     </svg>
   );
+}
+
+function SmoothProgressRing({ progress }: { progress: MotionValue<number> }) {
+  const smooth = useSpring(progress, { stiffness: 140, damping: 30, restDelta: 0.001 });
+  return <ProgressRingDrawing progress={smooth} />;
+}
+
+function ProgressRing({ springy }: { springy: boolean }) {
+  const { scrollYProgress } = useScroll();
+  return springy ? <SmoothProgressRing progress={scrollYProgress} /> : <ProgressRingDrawing progress={scrollYProgress} />;
 }
 
 export default function FloatingGroup() {
@@ -145,8 +154,7 @@ export default function FloatingGroup() {
   const isSettingsOpen = useStore($isSettingsOpen);
   const isBgmWidgetEnabled = useStore(bgmWidgetEnabled);
   const showProgress = useStore(scrollProgressEnabled);
-  const motionLevel = useMotionLevel();
-  const reduced = motionLevel === 'reduced';
+  const reduced = useMotionLevel() === 'reduced';
 
   // Initialize christmas & settings state on mount
   useEffect(() => {
@@ -168,26 +176,26 @@ export default function FloatingGroup() {
           opacity: isHidden ? 0 : 1,
           pointerEvents: isHidden ? 'none' : 'auto',
         }}
-        transition={{ duration: 0.35, ease: animation.bezier.outQuart }}
+        transition={reduced ? { duration: 0 } : { duration: 0.35, ease: animation.bezier.outQuart }}
       >
         <AnimatePresence initial={false}>
           {isExpanded && (
             <m.div
               className="flex flex-col items-center gap-2"
-              variants={listVariants}
-              initial="closed"
+              variants={reduced ? undefined : listVariants}
+              initial={reduced ? false : 'closed'}
               animate="open"
               exit="closed"
             >
               {christmasConfig.enabled && (
-                <m.div variants={reduced ? fadeVariants : itemVariants}>
+                <m.div variants={reduced ? staticVariants : itemVariants}>
                   <FloatingButton onClick={toggleChristmas} ariaLabel={t('floating.christmas')} title={t('floating.christmas')}>
                     <Icon icon={isChristmasEnabled ? 'ri:snowy-fill' : 'ri:snowy-line'} className="size-5" />
                   </FloatingButton>
                 </m.div>
               )}
               {bgmConfig.enabled && bgmConfig.audio.length > 0 && isBgmWidgetEnabled && (
-                <m.div variants={reduced ? fadeVariants : itemVariants}>
+                <m.div variants={reduced ? staticVariants : itemVariants}>
                   <FloatingButton
                     onClick={toggleBgmPanel}
                     ariaLabel={t('floating.bgm')}
@@ -198,7 +206,7 @@ export default function FloatingGroup() {
                   </FloatingButton>
                 </m.div>
               )}
-              <m.div variants={reduced ? fadeVariants : itemVariants}>
+              <m.div variants={reduced ? staticVariants : itemVariants}>
                 <FloatingButton
                   onClick={toggleSettings}
                   ariaLabel={t('floating.settings')}
@@ -212,12 +220,12 @@ export default function FloatingGroup() {
                   />
                 </FloatingButton>
               </m.div>
-              <m.div variants={reduced ? fadeVariants : itemVariants}>
+              <m.div variants={reduced ? staticVariants : itemVariants}>
                 <FloatingButton onClick={scrollToTop} ariaLabel={t('floating.backToTop')} title={t('floating.backToTop')}>
                   <Icon icon="ri:arrow-up-s-line" className="size-5" />
                 </FloatingButton>
               </m.div>
-              <m.div variants={reduced ? fadeVariants : itemVariants}>
+              <m.div variants={reduced ? staticVariants : itemVariants}>
                 <FloatingButton
                   onClick={scrollToBottom}
                   ariaLabel={t('floating.scrollToBottom')}
@@ -241,10 +249,10 @@ export default function FloatingGroup() {
             <m.span
               key={isExpanded ? 'close' : 'magic'}
               className="flex-center"
-              initial={reduced ? { opacity: 0 } : { opacity: 0, transform: 'rotate(-90deg) scale(0.5)' }}
-              animate={reduced ? { opacity: 1 } : { opacity: 1, transform: 'rotate(0deg) scale(1)' }}
+              initial={reduced ? false : { opacity: 0, transform: 'rotate(-90deg) scale(0.5)' }}
+              animate={{ opacity: 1, transform: 'rotate(0deg) scale(1)' }}
               exit={reduced ? { opacity: 0 } : { opacity: 0, transform: 'rotate(90deg) scale(0.5)' }}
-              transition={animation.spring.press}
+              transition={reduced ? { duration: 0 } : animation.spring.press}
             >
               <Icon icon={isExpanded ? 'ri:close-large-fill' : 'ri:magic-fill'} className="size-4" />
             </m.span>

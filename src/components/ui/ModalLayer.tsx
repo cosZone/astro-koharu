@@ -12,6 +12,7 @@
 import { LazyMotionProvider } from '@components/common/LazyMotionProvider';
 import { animation } from '@constants/design-tokens';
 import { FloatingFocusManager, FloatingPortal, useDismiss, useFloating, useInteractions, useRole } from '@floating-ui/react';
+import { useMotionLevel } from '@hooks/useMotionLevel';
 import { cn } from '@lib/utils';
 import { AnimatePresence, m } from 'motion/react';
 import type { ReactNode } from 'react';
@@ -42,6 +43,7 @@ export function ModalLayer({
   outsidePress,
   children,
 }: ModalLayerProps) {
+  const shouldReduceMotion = useMotionLevel() === 'reduced';
   const { refs, context } = useFloating({
     open,
     onOpenChange: (next) => {
@@ -69,10 +71,13 @@ export function ModalLayer({
               {/* Only the backdrop fades as a whole; the content owns its own entrance and exit. */}
               <m.div
                 className={cn('fixed inset-0 backdrop-blur-sm', backdropClassName ?? 'bg-[rgb(18_10_26/0.72)]')}
-                initial={{ opacity: 0 }}
+                initial={shouldReduceMotion ? false : { opacity: 0 }}
                 animate={{ opacity: 1 }}
-                exit={{ opacity: 0, transition: { duration: 0.22, ease: animation.bezier.inQuart } }}
-                transition={{ duration: 0.3, ease: animation.bezier.outQuart }}
+                exit={{
+                  opacity: 0,
+                  transition: shouldReduceMotion ? { duration: 0 } : { duration: 0.22, ease: animation.bezier.inQuart },
+                }}
+                transition={shouldReduceMotion ? { duration: 0 } : { duration: 0.3, ease: animation.bezier.outQuart }}
               />
               <FloatingFocusManager context={context}>
                 {isPanel ? (
@@ -80,10 +85,14 @@ export function ModalLayer({
                     <m.div
                       ref={refs.setFloating}
                       className={cn(PANEL_CLASS, className)}
-                      initial={{ opacity: 0, scale: 0.96, y: 10 }}
+                      initial={shouldReduceMotion ? false : { opacity: 0, scale: 0.96, y: 10 }}
                       animate={{ opacity: 1, scale: 1, y: 0 }}
-                      exit={{ opacity: 0, scale: 0.97, y: 6, transition: { duration: 0.16, ease: animation.bezier.inQuart } }}
-                      transition={animation.spring.popover}
+                      exit={
+                        shouldReduceMotion
+                          ? { opacity: 0, transition: { duration: 0 } }
+                          : { opacity: 0, scale: 0.97, y: 6, transition: { duration: 0.16, ease: animation.bezier.inQuart } }
+                      }
+                      transition={shouldReduceMotion ? { duration: 0 } : animation.spring.popover}
                       {...getFloatingProps()}
                     >
                       {children}

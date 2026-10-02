@@ -19,23 +19,37 @@ const lightCount = 50;
 </ul>
 
 <script>
+  let cleanupLights: (() => void) | undefined;
+
   function initLightsVisibility() {
-    // Tab 可见性检测 - 不可见时暂停动画以节省资源
+    cleanupLights?.();
+    const lightrope = document.querySelector<HTMLElement>('.lightrope');
+    if (!lightrope) return;
+    let isInView = false;
+
     const handleVisibility = () => {
-      document.documentElement.classList.toggle('lights-paused', document.hidden);
+      lightrope.classList.toggle('lights-paused', document.hidden || !isInView);
     };
 
-    // 初始化时检查状态
+    const observer = new IntersectionObserver(([entry]) => {
+      isInView = entry.isIntersecting;
+      handleVisibility();
+    });
+    observer.observe(lightrope);
     handleVisibility();
 
     document.addEventListener('visibilitychange', handleVisibility);
+    cleanupLights = () => {
+      observer.disconnect();
+      document.removeEventListener('visibilitychange', handleVisibility);
+    };
   }
 
-  // 初始化
   if (document.readyState !== 'loading') {
     initLightsVisibility();
   }
   document.addEventListener('astro:page-load', initLightsVisibility);
+  document.addEventListener('astro:before-swap', () => cleanupLights?.());
 </script>
 
 <style>
@@ -201,8 +215,7 @@ const lightCount = 50;
     }
   }
 
-  /* 暂停动画：Tab 不可见时 */
-  :global(html.lights-paused) .lightrope li {
+  .lightrope.lights-paused li {
     animation-play-state: paused;
   }
 
