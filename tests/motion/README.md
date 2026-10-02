@@ -25,6 +25,9 @@ optimization reloads at most twice; source failures still fail the run. No manua
 No formal acceptance runner or report workflow is involved.
 
 `mobile-viewers.spec.ts` also exercises 320px/390px portrait and 844px landscape code readers, viewport rotation,
-44px touch targets, wrapping, native two-axis touch scrolling, Shiki dark colors and line markers, and page position.
+content-sized bottom sheets, a full-width bottom close action, backdrop dismissal, 44px touch targets, wrapping,
+native two-axis touch scrolling, Shiki dark colors and line markers, and page position. Short code must fit its content;
+long code scrolls inside a sheet that leaves at least 48px of backdrop visible above it.
+The synthetic long-code case dispatches a late `astro:page-load` while the sheet is open to verify drawer initialization preserves its scroll lock.
 Its diagram gesture contract uses synthetic touch events to verify pinch-to-pan continuity and cancellation;
 physical device behavior needs separate checks. `fullscreen.spec.ts` retains the opening/closing opacity regression checks.

@@ -175,6 +175,7 @@ test('reduced motion search modal and mobile drawer stay visible and dismiss nor
     await page.waitForFunction(() => !document.querySelector('#mobile-menu-container astro-island')?.hasAttribute('ssr'));
     await menu.click();
     await expect(page.locator('#drawer-overlay')).toBeVisible();
+    await expect(page.locator('body')).toHaveCSS('overflow', 'hidden');
     await expect(page.locator('#mobile-drawer')).toBeInViewport();
     expect(
       Number.parseFloat(
@@ -184,6 +185,7 @@ test('reduced motion search modal and mobile drawer stay visible and dismiss nor
     await page.locator('#close-drawer').click();
     await expect(page.locator('#drawer-overlay')).toBeHidden();
     await menu.click();
+    await expect(page.locator('body')).toHaveCSS('overflow', 'hidden');
     await page.keyboard.press('Escape');
     await expect(page.locator('#drawer-overlay')).toBeHidden();
     expect(await page.evaluate(() => document.body.style.overflow)).not.toBe('hidden');

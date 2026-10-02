@@ -1,3 +1,4 @@
+import { writeFile } from 'node:fs/promises';
 import { expect, type Locator, type Page, test } from '@playwright/test';
 
 const codePanel = '[role="dialog"]:has(pre.astro-code)';
@@ -25,6 +26,45 @@ async function reachableTouchTarget(button: Locator) {
   expect(result.width).toBeGreaterThanOrEqual(44);
   expect(result.height).toBeGreaterThanOrEqual(44);
   expect(result.reachable).toBe(true);
+}
+
+async function settledSheet(panel: Locator, viewport: { width: number; height: number }) {
+  await expect(panel).toHaveCSS('opacity', '1');
+  await expect
+    .poll(() =>
+      panel.evaluate((element) => {
+        const matrix = new DOMMatrix(getComputedStyle(element).transform);
+        return Math.abs(matrix.e) + Math.abs(matrix.f) + Math.abs(matrix.a - 1) + Math.abs(matrix.d - 1);
+      }),
+    )
+    .toBeLessThan(0.1);
+  const rect = await panel.boundingBox();
+  if (!rect) throw new Error('Code sheet is not visible');
+  expect(rect.width).toBeGreaterThanOrEqual(viewport.width - 1);
+  expect(rect.y).toBeGreaterThanOrEqual(47);
+  expect(Math.abs(rect.y + rect.height - viewport.height)).toBeLessThanOrEqual(1);
+  expect(rect.height).toBeLessThanOrEqual(viewport.height - 47);
+  return rect;
+}
+
+async function bottomClose(panel: Locator, viewportHeight: number) {
+  const close = panel.getByRole('button', { name: '关闭', exact: true });
+  await expect(close).toHaveText('关闭');
+  await reachableTouchTarget(close);
+  const button = await close.boundingBox();
+  const sheet = await panel.boundingBox();
+  if (!button || !sheet) throw new Error('Missing code sheet close button');
+  expect(button.width).toBeGreaterThanOrEqual(sheet.width - 40);
+  expect(viewportHeight - (button.y + button.height / 2)).toBeLessThan(100);
+  expect(button.y + button.height).toBeLessThanOrEqual(viewportHeight + 1);
+  return close;
+}
+
+async function screenshotReady(page: Page) {
+  await expect(page.locator('.petal-burst-layer .petal-burst')).toHaveCount(0);
+  await page.evaluate(
+    () => new Promise<void>((resolve) => requestAnimationFrame(() => requestAnimationFrame(() => resolve()))),
+  );
 }
 
 async function swipe(page: Page, element: Locator, axis: 'x' | 'y') {
@@ -64,6 +104,7 @@ for (const viewport of [
     await noPageOverflow(page);
     const block = page.locator('.code-block-wrapper').first();
     const source = await block.locator('pre code').textContent();
+    expect(source?.split('\n')).toHaveLength(5);
     const opener = block.getByRole('button', { name: '全屏查看', exact: true }).last();
     await opener.scrollIntoViewIfNeeded();
     await reachableTouchTarget(opener);
@@ -73,34 +114,58 @@ for (const viewport of [
     const panel = page.locator(codePanel);
     await expect(panel).toBeVisible();
     expect(await page.evaluate(() => window.scrollY)).toBe(scrollBefore);
-    await expect.poll(async () => (await panel.boundingBox())?.width ?? 0).toBeGreaterThanOrEqual(viewport.width - 1);
-    await expect.poll(async () => (await panel.boundingBox())?.height ?? 0).toBeGreaterThanOrEqual(viewport.height - 1);
+    const sheet = await settledSheet(panel, viewport);
+    expect(sheet.height).toBeLessThan(350);
+    if (viewport.height >= 720) expect(sheet.height).toBeLessThan(viewport.height / 2);
+    const pre = panel.locator('pre');
+    const extraSpace = await pre.evaluate((element) => {
+      const code = element.querySelector('code');
+      if (!code) throw new Error('Missing code content');
+      const style = getComputedStyle(element);
+      return (
+        element.clientHeight -
+        code.getBoundingClientRect().height -
+        Number.parseFloat(style.paddingTop) -
+        Number.parseFloat(style.paddingBottom)
+      );
+    });
+    expect(Math.abs(extraSpace)).toBeLessThanOrEqual(2);
     expect(await panel.locator('code').textContent()).toBe(source);
     await expect(page.locator('body')).toHaveCSS('overflow', 'hidden');
     await noPageOverflow(page);
 
-    const close = panel.getByRole('button', { name: '关闭', exact: true });
+    const close = await bottomClose(panel, viewport.height);
+    await writeFile(
+      testInfo.outputPath('sheet-metrics.json'),
+      JSON.stringify({ viewport, sheet, codeExtraSpace: extraSpace, close: await close.boundingBox() }, null, 2),
+    );
     const wrap = panel.getByRole('button', { name: '自动换行', exact: true });
-    await reachableTouchTarget(close);
     await reachableTouchTarget(wrap);
     await reachableTouchTarget(panel.getByRole('button', { name: '复制', exact: true }));
     expect(
-      await panel.evaluate((element) => element.contains(document.elementFromPoint(24, 24))),
-      'The viewer must cover the mobile menu button',
+      await panel.evaluate((element) => {
+        const hit = document.elementFromPoint(24, 24);
+        return hit !== null && element.closest('.z-60')?.contains(hit) && !element.contains(hit);
+      }),
+      'The backdrop must cover the mobile menu button above the sheet',
     ).toBe(true);
     await wrap.tap();
     await expect(wrap).toHaveAttribute('aria-pressed', 'true');
     expect(await panel.locator('code').textContent()).toBe(source);
 
     expect(await page.evaluate(() => window.scrollY)).toBe(scrollBefore);
+    await expect(wrap.locator('svg')).toBeVisible();
+    await expect(panel.getByRole('button', { name: '复制', exact: true }).locator('svg')).toBeVisible();
+    await settledSheet(panel, viewport);
+    await screenshotReady(page);
     await page.screenshot({ path: testInfo.outputPath(`code-${viewport.width}.png`) });
 
     if (viewport.width === 390) {
       await page.setViewportSize({ width: 844, height: 390 });
-      await expect.poll(async () => (await panel.boundingBox())?.width ?? 0).toBeGreaterThanOrEqual(843);
-      await expect.poll(async () => (await panel.boundingBox())?.height ?? 0).toBeGreaterThanOrEqual(389);
+      await settledSheet(panel, { width: 844, height: 390 });
       await noPageOverflow(page);
-      await reachableTouchTarget(close);
+      await bottomClose(panel, 390);
+      await screenshotReady(page);
       await page.screenshot({ path: testInfo.outputPath('code-390-resized.png') });
     }
     const beforeClose = await page.evaluate(() => window.scrollY);
@@ -109,6 +174,23 @@ for (const viewport of [
     await expect(opener).toBeFocused();
     expect(await page.evaluate(() => window.scrollY)).toBe(beforeClose);
     await noPageOverflow(page);
+
+    await opener.tap();
+    await expect(panel).toBeVisible();
+    await settledSheet(panel, page.viewportSize() ?? viewport);
+    const beforeBackdrop = await page.evaluate(() => window.scrollY);
+    await page.touchscreen.tap(24, 24);
+    await expect(panel).toHaveCount(0);
+    await expect(opener).toBeFocused();
+    expect(await page.evaluate(() => window.scrollY)).toBe(beforeBackdrop);
+    expect(
+      await page.evaluate(async () => {
+        const modulePath = '/src/store/modal.ts';
+        const { $activeModal } = await import(/* @vite-ignore */ modulePath);
+        return $activeModal.get().type;
+      }),
+      'Tapping the backdrop over the menu must not open the drawer',
+    ).toBeNull();
   });
 }
 
@@ -143,6 +225,13 @@ test('long dark code keeps highlighting, scrolls both axes, and wraps without lo
   const panel = page.locator(codePanel);
   const pre = panel.locator('pre.code-fullscreen-content');
   await expect(pre).toBeVisible();
+  await settledSheet(panel, page.viewportSize() ?? { width: 390, height: 844 });
+  const close = await bottomClose(panel, page.viewportSize()?.height ?? 844);
+  await expect(page.locator('body')).toHaveCSS('overflow', 'hidden');
+  await page.evaluate(() => document.dispatchEvent(new Event('astro:page-load')));
+  await expect(page.locator('body')).toHaveCSS('overflow', 'hidden');
+  await expect(panel).toBeVisible();
+  const closeBeforeScroll = await close.boundingBox();
   expect(await pre.locator('code').textContent()).toBe(source);
   const styles = await pre.evaluate((element) => {
     const style = getComputedStyle(element);
@@ -177,6 +266,9 @@ test('long dark code keeps highlighting, scrolls both axes, and wraps without lo
   await expect.poll(() => pre.evaluate((element) => element.scrollLeft)).toBeGreaterThan(0);
   await swipe(page, pre, 'y');
   await expect.poll(() => pre.evaluate((element) => element.scrollTop)).toBeGreaterThan(0);
+  const closeAfterScroll = await close.boundingBox();
+  if (!closeBeforeScroll || !closeAfterScroll) throw new Error('Missing fixed close action');
+  expect(Math.abs(closeAfterScroll.y - closeBeforeScroll.y)).toBeLessThanOrEqual(1);
   expect(await page.evaluate(() => window.scrollY)).toBe(scrollBefore);
   const wrap = panel.getByRole('button', { name: '自动换行', exact: true });
   await wrap.tap();
@@ -187,8 +279,9 @@ test('long dark code keeps highlighting, scrolls both axes, and wraps without lo
   await expect(wrap).toHaveAttribute('aria-pressed', 'false');
   expect(await pre.locator('code').textContent()).toBe(source);
   await noPageOverflow(page);
-  await panel.getByRole('button', { name: '关闭', exact: true }).tap();
+  await close.tap();
   await expect(panel).toHaveCount(0);
+  expect(await page.evaluate(() => document.body.style.overflow)).not.toBe('hidden');
   expect(await page.evaluate(() => window.scrollY)).toBe(scrollBefore);
 });
 

@@ -135,6 +135,7 @@ const locale = getLocaleFromUrl(Astro.url.pathname);
      * Subscribe to Nanostores $isDrawerOpen state
      */
     private subscribeToStore(): void {
+      // The modal store owns scroll locking; an inactive drawer may coexist with another open modal.
       this.unsubscribe = $isDrawerOpen.subscribe((isOpen) => {
         if (isOpen) {
           this.open();
@@ -167,7 +168,6 @@ const locale = getLocaleFromUrl(Astro.url.pathname);
 
       drawer.classList.remove(DRAWER_CLASSES.translateX);
       overlay.classList.add(DRAWER_CLASSES.open);
-      document.body.style.overflow = 'hidden';
       closeBtn?.focus();
     }
 
@@ -178,7 +178,6 @@ const locale = getLocaleFromUrl(Astro.url.pathname);
       drawer.classList.add(DRAWER_CLASSES.translateX);
       overlay.classList.remove(DRAWER_CLASSES.open);
       drawer.querySelector('details.language-switcher')?.removeAttribute('open');
-      document.body.style.overflow = '';
     }
 
     public destroy(): void {

@@ -909,6 +909,12 @@ html.dark :is(.prose .astro-code, .code-fullscreen-content) {
   overflow-wrap: anywhere;
 }
 
+@media (max-width: 992px) {
+  .code-fullscreen-content {
+    flex: 0 1 auto;
+  }
+}
+
 /* Reader font presets */
 
 /* The default rounded preset inherits the existing Han Chan and Gen Jyuu rules. */

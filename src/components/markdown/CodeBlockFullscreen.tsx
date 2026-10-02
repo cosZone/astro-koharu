@@ -8,6 +8,7 @@
 import { CopyButton } from '@components/markdown/shared/CopyButton';
 import { MacToolbar } from '@components/markdown/shared/MacToolbar';
 import { ModalLayer } from '@components/ui/ModalLayer';
+import { useIsTablet } from '@hooks/useMediaQuery';
 import { useRetainedValue } from '@hooks/useRetainedValue';
 import { useTranslation } from '@hooks/useTranslation';
 import { Icon } from '@iconify/react';
@@ -46,6 +47,7 @@ export default function CodeBlockFullscreen() {
   const liveData = useStore($codeFullscreenData);
   const data = useRetainedValue(liveData);
   const { t } = useTranslation();
+  const isTablet = useIsTablet();
   const [wrapLines, setWrapLines] = useState(false);
   const preRef = useRef<HTMLPreElement>(null);
 
@@ -58,8 +60,8 @@ export default function CodeBlockFullscreen() {
   const preStyles = parseInlineStyles(data.preStyle);
 
   return (
-    <ModalLayer open={liveData !== null} onClose={closeModal} ariaLabel={t('code.fullscreen')}>
-      <MacToolbar language={data.language} onClose={closeModal}>
+    <ModalLayer open={liveData !== null} onClose={closeModal} variant="sheet" ariaLabel={t('code.fullscreen')}>
+      <MacToolbar language={data.language} onClose={isTablet ? undefined : closeModal} className="tablet:rounded-none">
         <button
           type="button"
           className="flex size-11 shrink-0 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground aria-pressed:bg-accent aria-pressed:text-accent-foreground"
@@ -86,6 +88,15 @@ export default function CodeBlockFullscreen() {
         {/* biome-ignore lint/security/noDangerouslySetInnerHtml: Safe - codeHTML comes from Shiki syntax highlighter output only */}
         <code className={data.codeClassName} dangerouslySetInnerHTML={{ __html: data.codeHTML }} />
       </pre>
+      <div className="tablet:block hidden shrink-0 border-border border-t p-3">
+        <button
+          type="button"
+          onClick={closeModal}
+          className="flex min-h-11 w-full items-center justify-center rounded-xl bg-primary/10 px-4 py-2 font-medium text-primary text-sm transition-colors hover:bg-primary/20 active:bg-primary/25"
+        >
+          {t('common.close')}
+        </button>
+      </div>
     </ModalLayer>
   );
 }
