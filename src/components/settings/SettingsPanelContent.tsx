@@ -166,17 +166,9 @@ export default function SettingsPanelContent() {
 
   const panelTransition = (visible: boolean): Transition => {
     const fade = visible ? { duration: 0.16, ease: animation.bezier.outQuart } : PANEL_EXIT;
-    // Motion 11 cancels each native animation before its final styles render on the next frame.
-    // Commit each property synchronously so neither the fade nor spring reveals the initial style.
     return {
-      opacity: {
-        ...(shouldReduceMotion ? { duration: 0 } : fade),
-        onComplete: () => refs.floating.current?.style.setProperty('opacity', visible ? '1' : '0'),
-      },
-      transform: {
-        ...(shouldReduceMotion ? { duration: 0 } : visible ? animation.spring.popover : PANEL_EXIT),
-        onComplete: () => refs.floating.current?.style.setProperty('transform', visible ? PANEL_SHOWN : PANEL_HIDDEN),
-      },
+      opacity: shouldReduceMotion ? { duration: 0 } : fade,
+      transform: shouldReduceMotion ? { duration: 0 } : visible ? animation.spring.popover : PANEL_EXIT,
     };
   };
 

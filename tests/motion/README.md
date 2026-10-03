@@ -14,6 +14,10 @@ These targeted Chromium checks cover desktop and a 390px mobile viewport: system
 runtime changes, actual settings controls and Astro navigation, CSS visibility, scroll buttons, modal/drawer dismissal,
 404 decoration, spoiler replacement and rich child focus guards, image lightbox controls, active collapse and segmented animations,
 delayed banner loading, and a simulated 4× CPU slowdown.
+`completion.spec.ts` checks every frame around native opacity, clip-path, filter and transform completion, including
+that native acceleration stays enabled. These cases reproduce the hidden initial styles briefly returning with Motion 11.
+`handoff.spec.ts` checks native animation completion in search, settings, language menus and the toolbar.
+`reduced-layout.spec.ts` checks immediate positioning without unintended CSS transitions while authored transitions still emit completion events.
 System preference changes use Chromium's native media emulation. The slow CPU case checks operability; it is not
 evidence from a physical low-end device.
 

@@ -1,12 +1,12 @@
-import type { Spring } from 'motion/react';
+import type { Transition } from 'motion/react';
 
-export const microDampingPreset: Spring = {
+export const microDampingPreset = {
   type: 'spring',
   damping: 24,
-};
+} satisfies Transition;
 
-export const microReboundPreset: Spring = {
+export const microReboundPreset = {
   type: 'spring',
   stiffness: 300,
   damping: 24,
-};
+} satisfies Transition;

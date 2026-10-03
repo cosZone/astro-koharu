@@ -208,7 +208,6 @@ export default function ImageLightbox() {
                   height: fit ? naturalHeight * fit : undefined,
                   maxWidth: fit ? undefined : '90vw',
                   maxHeight: fit ? undefined : '60dvh',
-                  // CSS keeps the final fade value when Motion 11 cancels its native animation.
                   opacity: loaded ? 1 : 0,
                   transition: motionDisabled ? 'none' : 'opacity 150ms ease-out',
                   pointerEvents: loaded ? 'auto' : 'none',

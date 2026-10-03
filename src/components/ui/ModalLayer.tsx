@@ -17,7 +17,7 @@ import { useMotionLevel } from '@hooks/useMotionLevel';
 import { cn } from '@lib/utils';
 import { AnimatePresence, m, type Transition } from 'motion/react';
 import type { ReactNode } from 'react';
-import { useEffect, useRef } from 'react';
+import { useEffect } from 'react';
 
 const PANEL_CLASS =
   'relative flex h-[80dvh] w-[90vw] max-w-6xl flex-col overflow-hidden overscroll-none rounded-xl bg-background shadow-2xl tablet:h-dvh tablet:w-screen tablet:max-w-none tablet:rounded-none tablet:pt-[env(safe-area-inset-top)] tablet:pr-[env(safe-area-inset-right)] tablet:pb-[env(safe-area-inset-bottom)] tablet:pl-[env(safe-area-inset-left)]';
@@ -53,7 +53,6 @@ export function ModalLayer({
 }: ModalLayerProps) {
   const shouldReduceMotion = useMotionLevel() === 'reduced';
   const isTablet = useIsTablet();
-  const backdropRef = useRef<HTMLDivElement>(null);
   const { refs, context } = useFloating({
     open,
     onOpenChange: (next) => {
@@ -73,33 +72,19 @@ export function ModalLayer({
   const isPanel = variant !== 'fill';
   const isSheet = variant === 'sheet';
 
-  // Motion 11 cancels native animations before final styles render on the next frame.
-  // Commit opacity per property so the backdrop and panel never reveal the initial style.
-  const backdropTransition = (visible: boolean): Transition => ({
-    opacity: {
-      ...(shouldReduceMotion
-        ? { duration: 0 }
-        : visible
-          ? { duration: 0.3, ease: animation.bezier.outQuart }
-          : { duration: 0.22, ease: animation.bezier.inQuart }),
-      onComplete: () => backdropRef.current?.style.setProperty('opacity', visible ? '1' : '0'),
-    },
-  });
+  const backdropTransition = (visible: boolean): Transition =>
+    shouldReduceMotion
+      ? { duration: 0 }
+      : visible
+        ? { duration: 0.3, ease: animation.bezier.outQuart }
+        : { duration: 0.22, ease: animation.bezier.inQuart };
 
-  const panelTransition = (visible: boolean): Transition => {
-    const transition: Transition = shouldReduceMotion
+  const panelTransition = (visible: boolean): Transition =>
+    shouldReduceMotion
       ? { duration: 0 }
       : visible
         ? animation.spring.popover
         : { duration: 0.16, ease: animation.bezier.inQuart };
-    return {
-      ...transition,
-      opacity: {
-        ...transition,
-        onComplete: () => refs.floating.current?.style.setProperty('opacity', visible ? '1' : '0'),
-      },
-    };
-  };
 
   return (
     <LazyMotionProvider>
@@ -109,7 +94,6 @@ export function ModalLayer({
             <m.div className={cn('fixed inset-0 z-60', layerClassName)}>
               {/* Only the backdrop fades as a whole; the content owns its own entrance and exit. */}
               <m.div
-                ref={backdropRef}
                 className={cn('fixed inset-0 backdrop-blur-sm', backdropClassName ?? 'bg-[rgb(18_10_26/0.72)]')}
                 initial={shouldReduceMotion ? false : { opacity: 0 }}
                 animate={{ opacity: 1 }}

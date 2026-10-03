@@ -90,6 +90,25 @@ html[data-motion="subtle"] {
   transform-origin: 0 0;
 }
 
+/* A nonzero global duration must not introduce transitions on positioning or other unanimated styles.
+   The lowest layer lets explicit component transitions keep their completion events. */
+@layer motion-defaults {
+  html.motion-off,
+  html.motion-off *,
+  html.motion-off *::before,
+  html.motion-off *::after {
+    transition-property: none;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      transition-property: none;
+    }
+  }
+}
+
 /* Keep completion events (e.g. tooltip unmount) while making transitions imperceptible. */
 html.motion-off,
 html.motion-off *,

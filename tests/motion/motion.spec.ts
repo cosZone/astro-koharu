@@ -315,7 +315,7 @@ test('reduced-motion lightbox navigation, zoom and rotation work without bouncin
   const image = dialog.locator('img');
   await expect(image).toHaveAttribute('alt', 'Motion image 1');
   await expect(image).toHaveCSS('opacity', '1');
-  const arrow = dialog.getByRole('button', { name: '下一张', exact: true }).locator('span').first();
+  const arrow = dialog.getByRole('button', { name: '下一张', exact: true }).locator('svg').first();
   expect(await arrow.evaluate((element) => element.getAnimations().length)).toBe(0);
   await page.waitForTimeout(200);
   expect(await arrow.evaluate((element) => getComputedStyle(element).transform)).toBe('none');
@@ -323,8 +323,10 @@ test('reduced-motion lightbox navigation, zoom and rotation work without bouncin
   await expect(image).toHaveAttribute('alt', 'Motion image 2');
   await dialog.getByRole('button', { name: '放大', exact: true }).click();
   await expect(dialog.getByRole('button', { name: '重置缩放和旋转', exact: true })).toHaveText('150%');
+  await expect(image).toHaveCSS('transform', 'matrix(1.5, 0, 0, 1.5, 0, 0)');
   await dialog.getByRole('button', { name: '旋转 90°', exact: true }).click();
-  await expect(image).toHaveCSS('transform', 'matrix(0, 1.5, -1.5, 0, 0, 0)');
+  await expect(dialog.getByRole('button', { name: '重置缩放和旋转', exact: true })).toHaveText('100%');
+  await expect(image).toHaveCSS('transform', 'matrix(0, 1, -1, 0, 0, 0)');
   await dialog.getByRole('button', { name: '重置缩放和旋转', exact: true }).click();
   await expect(image).toHaveCSS('transform', 'none');
   await page.keyboard.press('Escape');

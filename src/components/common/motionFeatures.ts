@@ -4,7 +4,7 @@ import { domMax, visualElementStore } from 'motion/react';
 if (typeof document !== 'undefined') {
   subscribeMotionLevel(() => {
     if (!isMotionDisabled()) return;
-    // Motion 11 ignores transition-only updates for unchanged targets. Complete its active
+    // Motion ignores transition-only updates for unchanged targets. Complete its active
     // value and layout animations as well, preserving completion callbacks and final styles.
     for (const element of document.querySelectorAll('*')) {
       const visual = visualElementStore.get(element);

@@ -7,7 +7,7 @@ const loadMotionFeatures = () => import('./motionFeatures').then(({ default: fea
 export function LazyMotionProvider({ children }: PropsWithChildren) {
   const motionDisabled = useMotionLevel() === 'reduced';
   return (
-    // Motion 11 snapshots its reducedMotion option at mount. Our reactive preference
+    // Motion snapshots its reducedMotion option at mount. Our reactive preference
     // controls transitions instead, so changing the system setting works without remounting UI.
     <MotionConfig reducedMotion="never" transition={motionDisabled ? { duration: 0 } : undefined}>
       <LazyMotion features={loadMotionFeatures} strict>

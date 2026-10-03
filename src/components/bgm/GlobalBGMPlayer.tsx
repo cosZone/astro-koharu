@@ -23,7 +23,7 @@ import type { MetingSong } from '@lib/meting';
 import { resolvePlaylist } from '@lib/meting';
 import { useStore } from '@nanostores/react';
 import { $isAnyModalOpen, $isDrawerOpen } from '@store/modal';
-import { AnimatePresence, m, useMotionValue } from 'motion/react';
+import { AnimatePresence, m } from 'motion/react';
 import { useEffect, useState } from 'react';
 import { $bgmPanelOpen, closeBgmPanel } from '@/store/bgm';
 
@@ -39,8 +39,6 @@ export default function GlobalBGMPlayer({ audioGroups, metingApi }: GlobalBGMPla
   const isAnyModalOpen = useStore($isAnyModalOpen);
   const isMobilePlayer = useMediaQuery('(max-width: 600px)');
   const motionDisabled = useMotionLevel() === 'reduced';
-  // Keep the fade in the same render loop as positioning to avoid Motion 11's native opacity handoff.
-  const panelOpacity = useMotionValue(0);
 
   const [tracks, setTracks] = useState<MetingSong[]>([]);
   const [groups, setGroups] = useState<PlaylistGroup[]>([]);
@@ -231,7 +229,6 @@ export default function GlobalBGMPlayer({ audioGroups, metingApi }: GlobalBGMPla
               ref={refs.setFloating}
               {...getFloatingProps()}
               className="fixed right-16 bottom-20 z-40 w-[460px] max-w-[calc(100vw-5rem)]"
-              style={{ opacity: panelOpacity }}
               initial={motionDisabled ? false : { opacity: 0, y: 12, scale: 0.98 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={motionDisabled ? { opacity: 0 } : { opacity: 0, y: 8, scale: 0.98 }}
