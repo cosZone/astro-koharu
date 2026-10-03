@@ -7,15 +7,8 @@
 import { Icon } from '@iconify/react';
 import { ErrorBoundary } from 'react-error-boundary';
 import { Toaster } from 'sonner';
-import {
-  CategoryStats,
-  CreatePostDialog,
-  DashboardStats,
-  ErrorFallback,
-  PostEditor,
-  PostTable,
-  RecentUpdates,
-} from '@/components';
+import { CategoryStats, CreatePostDialog, DashboardStats, ErrorFallback, PostTable, RecentUpdates } from '@/components';
+import { SourcePostEditor } from '@/components/SourcePostEditor';
 import { Button } from '@/components/ui/button';
 import { type StatusFilter, useDashboardState } from '@/hooks';
 import { MAX_CATEGORY_DISPLAY, MAX_RECENT_POSTS_DISPLAY } from '@/lib/paths';
@@ -53,7 +46,7 @@ function AppContent() {
 
   // Show editor if editing
   if (editingPostId) {
-    return <PostEditor postId={editingPostId} onClose={handleEditorClose} onSaved={handleEditorSaved} />;
+    return <SourcePostEditor postId={editingPostId} onClose={handleEditorClose} onSaved={handleEditorSaved} />;
   }
 
   return (

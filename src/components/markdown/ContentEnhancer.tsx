@@ -19,7 +19,7 @@ import {
   scanVideoPlayers,
   type ToolbarEntry,
 } from '@lib/content-scanner';
-import { useCallback, useEffect, useState } from 'react';
+import { type RefObject, useCallback, useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { AudioPlayer } from './AudioPlayer';
 import { CodeBlockToolbar } from './CodeBlockToolbar';
@@ -33,6 +33,8 @@ import { QuizBlock } from './QuizBlock';
 import { VideoPlayer } from './VideoPlayer';
 
 interface ContentEnhancerProps {
+  containerRef?: RefObject<HTMLElement | null>;
+  sanitizeDecryptedHtml?: (html: string) => string;
   enableCopy?: boolean;
   enableFullscreen?: boolean;
   enableQuiz?: boolean;
@@ -40,6 +42,8 @@ interface ContentEnhancerProps {
 }
 
 export default function ContentEnhancer({
+  containerRef,
+  sanitizeDecryptedHtml,
   enableCopy = true,
   enableFullscreen = true,
   enableQuiz = true,
@@ -48,7 +52,7 @@ export default function ContentEnhancer({
   const [entries, setEntries] = useState<ToolbarEntry[]>([]);
 
   const scan = useCallback(() => {
-    const container = document.querySelector('.custom-content');
+    const container = containerRef?.current ?? document.querySelector('.custom-content');
     if (!container) return;
 
     const newEntries: ToolbarEntry[] = [
@@ -67,7 +71,7 @@ export default function ContentEnhancer({
     if (newEntries.length > 0) {
       setEntries((prev) => [...prev, ...newEntries]);
     }
-  }, [enableQuiz, enableEncryptedBlock]);
+  }, [containerRef, enableQuiz, enableEncryptedBlock]);
 
   useEffect(() => {
     scan();
@@ -133,9 +137,15 @@ export default function ContentEnhancer({
               entry.mountPoint,
             );
           case 'encrypted':
-            return createPortal(<EncryptedBlock key={entry.id} element={entry.preElement} />, entry.mountPoint);
+            return createPortal(
+              <EncryptedBlock key={entry.id} element={entry.preElement} sanitizeHtml={sanitizeDecryptedHtml} />,
+              entry.mountPoint,
+            );
           case 'encrypted-post':
-            return createPortal(<EncryptedPost key={entry.id} element={entry.preElement} />, entry.mountPoint);
+            return createPortal(
+              <EncryptedPost key={entry.id} element={entry.preElement} sanitizeHtml={sanitizeDecryptedHtml} />,
+              entry.mountPoint,
+            );
           default:
             return null;
         }

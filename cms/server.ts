@@ -25,6 +25,7 @@ import {
   toggleStickyHandler,
   writeHandler,
 } from './src/api';
+import { sourceReadHandler, sourceWriteHandler } from './src/api/source';
 import { setCategoryMap } from './src/lib/category';
 import { CMS_PORT } from './src/lib/config';
 
@@ -94,6 +95,8 @@ async function main() {
   app.get('/api/cms/list', listHandler);
   app.get('/api/cms/read', readHandler);
   app.post('/api/cms/write', writeHandler);
+  app.get('/api/cms/source', sourceReadHandler);
+  app.post('/api/cms/source', sourceWriteHandler);
   app.post('/api/cms/create', createHandler);
   app.post('/api/cms/toggle-draft', toggleDraftHandler);
   app.post('/api/cms/toggle-sticky', toggleStickyHandler);

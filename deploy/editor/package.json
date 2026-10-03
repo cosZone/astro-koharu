@@ -1,0 +1,21 @@
+{
+  "name": "koharu-editor-og-runtime",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@10.28.2",
+  "engines": {
+    "node": ">=22.20.0"
+  },
+  "dependencies": {
+    "metascraper": "5.49.7",
+    "metascraper-description": "5.49.7",
+    "metascraper-image": "5.49.7",
+    "metascraper-logo": "5.49.7",
+    "metascraper-logo-favicon": "5.49.7",
+    "metascraper-title": "5.49.7",
+    "metascraper-url": "5.49.7",
+    "sanitize-html": "2.17.0",
+    "undici": "7.30.0",
+    "tsx": "4.21.0"
+  }
+}

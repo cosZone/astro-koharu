@@ -102,7 +102,7 @@ function handleImageClick(e: Event): void {
   openImageLightbox(img.src, img.alt || '图片', images, currentIndex);
 }
 
-export function enhanceImages(container: Element): void {
+export function enhanceImages(container: Element): () => void {
   const images = container.querySelectorAll<HTMLImageElement>('.markdown-image');
 
   // Event delegation for clicks
@@ -152,6 +152,10 @@ export function enhanceImages(container: Element): void {
 
   // Initial grouping for already-loaded images
   scheduleGrouping();
+  return () => {
+    clearTimeout(groupTimer);
+    container.removeEventListener('click', handleImageClick);
+  };
 }
 
 function handleImageLoaded(img: HTMLImageElement): void {

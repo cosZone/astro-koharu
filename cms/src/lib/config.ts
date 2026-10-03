@@ -16,7 +16,7 @@ export const CMS_PORT = 4322;
 export const DEV_SERVER_PORT = 4321;
 
 /** Astro dev server URL for previewing posts */
-export const DEV_SERVER_URL = `http://localhost:${DEV_SERVER_PORT}`;
+export const DEV_SERVER_URL = import.meta.env?.VITE_BLOG_DEV_SERVER_URL || `http://localhost:${DEV_SERVER_PORT}`;
 
 /**
  * Adds new category mappings to config/site.yaml

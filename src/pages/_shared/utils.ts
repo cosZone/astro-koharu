@@ -78,6 +78,9 @@ const MIRROR_EXEMPT = new Set([
   '404',
   // Locale-agnostic RSS stylesheet asset.
   'rss/feed.xsl',
+  // The first editor release is one shared Chinese workbench, including its preview frame.
+  'editor/index',
+  'editor/preview',
 ]);
 
 const toRoute = (moduleKey: string) => moduleKey.replace('/src/pages/', '').replace(/\.(astro|md|mdx|ts)$/, '');

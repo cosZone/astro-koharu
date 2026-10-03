@@ -332,6 +332,7 @@ comment:
 - **[快速开始](./GETTING-STARTED.md)** - 启动你的博客
 - **[更新主题](./GETTING-STARTED.md#7-更新主题)** - 如何安全地更新到新版本
 - **[完整使用指南](./src/content/blog/tools/astro-koharu-guide.md)** - 所有功能的详细配置和使用方法
+- **[Markdown 写作室](./docs/features/editor.md)** - 公开编辑器、Shoka 实时预览、浏览器草稿与 CMS 原文保存
 
 ## 特色功能演示图片
 

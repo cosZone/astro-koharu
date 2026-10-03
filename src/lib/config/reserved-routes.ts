@@ -16,6 +16,7 @@ export const RESERVED_ROUTES = new Set([
   'archives',
   'bangumi',
   'music',
+  'editor',
   '404',
   // Special files
   'rss.xml',

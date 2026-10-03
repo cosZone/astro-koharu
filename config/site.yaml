@@ -452,6 +452,10 @@ navigation:
     nameKey: nav.music
     path: /music
     icon: ri:music-2-fill
+  - name: 写作室
+    path: /editor
+    localeIndependent: true
+    icon: ri:edit-box-line
 
 # =============================================================================
 # Christmas/Seasonal Features

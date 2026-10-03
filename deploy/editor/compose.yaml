@@ -1,0 +1,42 @@
+name: koharu-editor
+
+services:
+  blog:
+    image: astro-koharu-editor-static:local
+    build:
+      context: ../..
+      dockerfile: docker/Dockerfile
+      target: static
+    ports:
+      - '${BLOG_PORT:-4321}:80'
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      editor-og:
+        condition: service_healthy
+    restart: unless-stopped
+
+  editor-og:
+    image: koharu-editor-og:local
+    build:
+      context: ../..
+      dockerfile: deploy/editor/Dockerfile
+    expose:
+      - '4323'
+    init: true
+    read_only: true
+    tmpfs:
+      - /tmp:size=16m,mode=1777
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    mem_limit: 256m
+    pids_limit: 64
+    stop_grace_period: 12s
+    restart: unless-stopped
+    logging:
+      driver: json-file
+      options:
+        max-file: '3'
+        max-size: 5m

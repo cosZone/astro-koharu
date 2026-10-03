@@ -1,4 +1,5 @@
 import fs from 'node:fs';
+import { createRequire } from 'node:module';
 import path from 'node:path';
 import { unified } from '@astrojs/markdown-remark';
 import node from '@astrojs/node';
@@ -20,6 +21,7 @@ import Sonda from 'sonda/vite';
 import { loadEnv } from 'vite';
 import svgr from 'vite-plugin-svgr';
 import YAML from 'yaml';
+import { editorDevIntegration } from './src/features/editor/dev-integration.ts';
 import { momentsRoutes } from './src/features/moments/integration/momentsRoutes.ts';
 import { normalizeContentConfig } from './src/lib/config/content.ts';
 import { enabledFeaturedSeriesSlugs, normalizeFeaturedSeries } from './src/lib/config/featured-series.ts';
@@ -135,6 +137,13 @@ function conditionalSnowfall() {
 // Build conditional plugin lists based on content config
 const contentConfig = normalizeContentConfig(yamlConfig.content);
 
+// KaTeX's browser parser needs DOMParser; its official worker/default entry uses the same DOM-free parser as builds.
+const configRequire = createRequire(import.meta.url);
+const katexRequire = createRequire(configRequire.resolve('rehype-katex'));
+const katexHtmlParser = katexRequire.resolve('hast-util-from-html-isomorphic');
+const markdownRequire = createRequire(configRequire.resolve('remark-parse'));
+const markdownEntities = markdownRequire.resolve('decode-named-character-reference');
+
 // Remark plugins — order matters
 // remarkShokaPreprocess MUST be first: it re-parses raw text to fix GFM/remark conflicts
 // (+++, ~sub~, {% links %} YAML etc.) before any AST-level plugin runs.
@@ -231,6 +240,7 @@ export default defineConfig({
     },
   },
   integrations: [
+    editorDevIntegration(),
     react(),
     sitemap(),
     icon({
@@ -258,6 +268,7 @@ export default defineConfig({
     enabled: true,
   },
   vite: {
+    worker: { format: 'es' },
     build: {
       // Enable sourcemap for Sonda bundle analysis
       sourcemap: isAnalyze,
@@ -268,6 +279,10 @@ export default defineConfig({
     },
     plugins: [...(isAnalyze ? [Sonda({ open: false })] : []), yaml(), conditionalSnowfall(), svgr(), tailwindcss()],
     resolve: {
+      alias: {
+        'hast-util-from-html-isomorphic': katexHtmlParser,
+        'decode-named-character-reference': markdownEntities,
+      },
       noExternal: ['react-tweet'],
     },
     optimizeDeps: {

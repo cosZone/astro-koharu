@@ -7,11 +7,12 @@ import { useCallback, useRef, useState } from 'react';
 
 interface EncryptedBlockProps {
   element: HTMLElement;
+  sanitizeHtml?: (html: string) => string;
 }
 
 type DecryptState = 'locked' | 'decrypting' | 'unlocked' | 'error';
 
-export function EncryptedBlock({ element }: EncryptedBlockProps) {
+export function EncryptedBlock({ element, sanitizeHtml }: EncryptedBlockProps) {
   const [state, setState] = useState<DecryptState>('locked');
   const [html, setHtml] = useState('');
   const inputRef = useRef<HTMLInputElement>(null);
@@ -28,14 +29,14 @@ export function EncryptedBlock({ element }: EncryptedBlockProps) {
     setState('decrypting');
     const result = await decryptContent(cipher, iv, salt, password);
 
-    if (result) {
-      setHtml(result);
+    if (result !== null) {
+      setHtml(sanitizeHtml ? sanitizeHtml(result) : result);
       setState('unlocked');
     } else {
       setState('error');
       retimer(setTimeout(() => setState('locked'), 600));
     }
-  }, [element, retimer]);
+  }, [element, retimer, sanitizeHtml]);
 
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent) => {
@@ -51,7 +52,7 @@ export function EncryptedBlock({ element }: EncryptedBlockProps) {
   if (state === 'unlocked') {
     return (
       <div className="encrypted-block-content prose dark:prose-invert max-w-none">
-        {/* biome-ignore lint/security/noDangerouslySetInnerHtml: content is from our own build-time markdown pipeline */}
+        {/* biome-ignore lint/security/noDangerouslySetInnerHtml: editor previews sanitize decrypted HTML; blog HTML comes from its build pipeline. */}
         <div dangerouslySetInnerHTML={{ __html: html }} />
       </div>
     );

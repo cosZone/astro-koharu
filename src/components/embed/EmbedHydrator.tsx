@@ -5,7 +5,7 @@
  */
 
 import { ErrorBoundary, ErrorFallback } from '@components/common';
-import { useEffect, useState } from 'react';
+import { type RefObject, useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import TweetEmbed from './TweetEmbed';
 
@@ -15,12 +15,12 @@ interface TweetPlaceholder {
   sourceUrl: string;
 }
 
-export function EmbedHydrator() {
+export function EmbedHydrator({ containerRef }: { containerRef?: RefObject<HTMLElement | null> } = {}) {
   const [tweetPlaceholders, setTweetPlaceholders] = useState<TweetPlaceholder[]>([]);
 
   useEffect(() => {
     // Find all tweet embed placeholders
-    const tweetEmbeds = document.querySelectorAll('[data-tweet-embed]');
+    const tweetEmbeds = (containerRef?.current ?? document).querySelectorAll('[data-tweet-embed]');
     const placeholders: TweetPlaceholder[] = [];
 
     tweetEmbeds.forEach((element) => {
@@ -38,7 +38,7 @@ export function EmbedHydrator() {
     });
 
     setTweetPlaceholders(placeholders);
-  }, []);
+  }, [containerRef]);
 
   // Render tweets using portals instead of creating new roots
   return (

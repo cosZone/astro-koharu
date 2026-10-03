@@ -1,0 +1,20 @@
+---
+import { defaultContentConfig } from '../../constants/content-config';
+import { siteConfig } from '../../constants/site-config';
+import PreviewSurface from '../../features/editor/PreviewSurface';
+import BootScripts from '../../layouts/BootScripts.astro';
+import '../../styles/index.css';
+import '../../features/editor/editor.css';
+---
+<!doctype html>
+<html lang="zh">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex" />
+    <title>博文预览 · Koharu</title>
+    <link rel="stylesheet" href="/katex/katex.min.css" />
+    <BootScripts />
+  </head>
+  <body class="editor-preview-page"><PreviewSurface client:only="react" config={defaultContentConfig} author={siteConfig.name} /></body>
+</html>

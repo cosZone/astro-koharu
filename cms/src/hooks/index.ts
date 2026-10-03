@@ -11,4 +11,3 @@ export {
   type UseDashboardStateResult,
   useDashboardState,
 } from './useDashboardState';
-export { type EditorHeading, useEditorHeadings } from './useEditorHeadings';

@@ -14,13 +14,14 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 
 interface EncryptedPostProps {
   element: HTMLElement;
+  sanitizeHtml?: (html: string) => string;
 }
 
 type DecryptState = 'locked' | 'decrypting' | 'unlocked' | 'error';
 
-export function EncryptedPost({ element }: EncryptedPostProps) {
+export function EncryptedPost({ element, sanitizeHtml }: EncryptedPostProps) {
   const [state, setState] = useState<DecryptState>('locked');
-  const decryptedRef = useRef('');
+  const decryptedRef = useRef<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const retimer = useRetimer();
   const { t } = useTranslation();
@@ -35,14 +36,14 @@ export function EncryptedPost({ element }: EncryptedPostProps) {
     setState('decrypting');
     const result = await decryptContent(cipher, iv, salt, password);
 
-    if (result) {
-      decryptedRef.current = result;
+    if (result !== null) {
+      decryptedRef.current = sanitizeHtml ? sanitizeHtml(result) : result;
       setState('unlocked');
     } else {
       setState('error');
       retimer(setTimeout(() => setState('locked'), 600));
     }
-  }, [element, retimer]);
+  }, [element, retimer, sanitizeHtml]);
 
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent) => {
@@ -53,10 +54,10 @@ export function EncryptedPost({ element }: EncryptedPostProps) {
 
   // Inject decrypted HTML after portal unmounts (component returns null when unlocked)
   useEffect(() => {
-    if (state !== 'unlocked' || !decryptedRef.current) return;
+    if (state !== 'unlocked' || decryptedRef.current === null) return;
 
     element.innerHTML = decryptedRef.current;
-    decryptedRef.current = '';
+    decryptedRef.current = null;
     element.classList.remove('encrypted-post');
     element.removeAttribute('data-cipher');
     element.removeAttribute('data-iv');

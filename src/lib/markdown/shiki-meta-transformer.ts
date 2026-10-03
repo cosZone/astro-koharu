@@ -21,6 +21,8 @@ interface CodeMeta {
   command?: string;
 }
 
+const MAX_COMMAND_PROMPTS = 128;
+
 /** Parse meta string into structured data */
 function parseMeta(meta: string | undefined): CodeMeta | null {
   if (!meta) return null;
@@ -50,27 +52,41 @@ function parseMeta(meta: string | undefined): CodeMeta | null {
   return result;
 }
 
-/** Expand line ranges like "1,3-5,7" into a Set of line numbers */
-function expandLineRanges(rangeStr: string): Set<number> {
+/** Intersect ranges with real code lines; work stays linear for overlapping or enormous ranges. */
+function expandLineRanges(rangeStr: string, lineCount: number): Set<number> {
   const lines = new Set<number>();
-  for (const part of rangeStr.split(',')) {
-    const trimmed = part.trim();
-    if (trimmed.includes('-')) {
-      const [start, end] = trimmed.split('-').map(Number);
-      for (let i = start; i <= end; i++) lines.add(i);
-    } else {
-      lines.add(Number(trimmed));
-    }
+  if (lineCount === 0) return lines;
+
+  const changes = new Int32Array(lineCount + 2);
+  const rangeRegex = /(?:^|,)(\d+)(?:-(\d+))?(?=,|$)/g;
+  let hasRange = false;
+  for (let match = rangeRegex.exec(rangeStr); match !== null; match = rangeRegex.exec(rangeStr)) {
+    const start = Math.max(1, Number(match[1]));
+    const end = Math.min(lineCount, Number(match[2] ?? match[1]));
+    if (!Number.isFinite(start) || start > end) continue;
+    changes[start] += 1;
+    changes[end + 1] -= 1;
+    hasRange = true;
+  }
+  if (!hasRange) return lines;
+  let activeRanges = 0;
+  for (let line = 1; line <= lineCount; line++) {
+    activeRanges += changes[line];
+    if (activeRanges > 0) lines.add(line);
   }
   return lines;
 }
 
 /** Parse command meta: "prompt":startLine-endLine,... */
-function parseCommand(commandStr: string): Record<string, Set<number>> {
+function parseCommand(commandStr: string, lineCount: number): Record<string, Set<number>> {
   const result: Record<string, Set<number>> = {};
   const pairRegex = /"([^"]+)":([\d,-]+)/g;
+  let promptCount = 0;
   for (let match = pairRegex.exec(commandStr); match !== null; match = pairRegex.exec(commandStr)) {
-    result[match[1]] = expandLineRanges(match[2]);
+    // The raw metadata remains intact; bound the per-line prompt scan for pasted or generated input.
+    if (promptCount >= MAX_COMMAND_PROMPTS) break;
+    promptCount += 1;
+    result[match[1]] = expandLineRanges(match[2], lineCount);
   }
   return result;
 }
@@ -78,16 +94,18 @@ function parseCommand(commandStr: string): Record<string, Set<number>> {
 export function shokaMetaTransformer(): ShikiTransformer {
   // Cache parsed meta to avoid re-parsing on every line of the same code block
   let cachedRaw: string | undefined;
+  let cachedLineCount = 0;
   let cachedMeta: CodeMeta | null = null;
   let cachedMarkLines: Set<number> | null = null;
   let cachedCommands: Record<string, Set<number>> | null = null;
 
-  function getMeta(raw: string | undefined): CodeMeta | null {
-    if (raw === cachedRaw) return cachedMeta;
+  function getMeta(raw: string | undefined, lineCount: number): CodeMeta | null {
+    if (raw === cachedRaw && lineCount === cachedLineCount) return cachedMeta;
     cachedRaw = raw;
+    cachedLineCount = lineCount;
     cachedMeta = parseMeta(raw);
-    cachedMarkLines = cachedMeta?.mark ? expandLineRanges(cachedMeta.mark) : null;
-    cachedCommands = cachedMeta?.command ? parseCommand(cachedMeta.command) : null;
+    cachedMarkLines = cachedMeta?.mark ? expandLineRanges(cachedMeta.mark, lineCount) : null;
+    cachedCommands = cachedMeta?.command ? parseCommand(cachedMeta.command, lineCount) : null;
     return cachedMeta;
   }
 
@@ -96,11 +114,12 @@ export function shokaMetaTransformer(): ShikiTransformer {
     pre(node) {
       // Reset cache to prevent cross-block leakage
       cachedRaw = undefined;
+      cachedLineCount = 0;
       cachedMeta = null;
       cachedMarkLines = null;
       cachedCommands = null;
 
-      const meta = getMeta(this.options.meta?.__raw);
+      const meta = getMeta(this.options.meta?.__raw, this.tokens.length);
       if (!meta) return;
 
       // Add data attributes
@@ -111,7 +130,7 @@ export function shokaMetaTransformer(): ShikiTransformer {
       if (meta.command) node.properties['data-command'] = meta.command;
     },
     line(node, line) {
-      const meta = getMeta(this.options.meta?.__raw);
+      const meta = getMeta(this.options.meta?.__raw, this.tokens.length);
       if (!meta) return;
 
       // Apply mark highlighting to specific lines

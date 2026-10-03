@@ -1,0 +1,23 @@
+---
+import Editor from '../../features/editor/Editor';
+import BootScripts from '../../layouts/BootScripts.astro';
+import '../../styles/index.css';
+import '../../features/editor/editor.css';
+
+const ogEndpoint = import.meta.env.PUBLIC_EDITOR_OG_ENDPOINT || '/api/editor/og';
+---
+<!doctype html>
+<html lang="zh">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="robots" content="noindex" />
+    <title>写作室 · Koharu</title>
+    <link rel="icon" href="/favicon.ico" />
+    <BootScripts />
+  </head>
+  <body class="editor-page">
+    <Editor client:only="react" ogEndpoint={ogEndpoint} />
+    <noscript>写作室需要 JavaScript 才能编辑和实时预览。</noscript>
+  </body>
+</html>
