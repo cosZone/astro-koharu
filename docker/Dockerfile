@@ -21,9 +21,10 @@ RUN corepack enable && corepack prepare pnpm@10.28.2 --activate
 
 # Copy dependency metadata first (for Docker layer caching)
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+COPY cms/package.json ./cms/package.json
 
 # Install dependencies (include dev deps for build)
-RUN pnpm install --frozen-lockfile --prod=false
+RUN pnpm install --frozen-lockfile --prod=false --filter astro-koharu
 
 # Copy source files
 COPY . .
@@ -44,6 +45,7 @@ ENV HOST=0.0.0.0 \
 RUN corepack enable && corepack prepare pnpm@10.28.2 --activate
 
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+COPY cms/package.json ./cms/package.json
 # Runtime dependencies only. Ignore the repository's developer-only `prepare`
 # hook (Husky is intentionally absent from this production stage).
 RUN pnpm install --frozen-lockfile --prod --ignore-scripts --filter astro-koharu

@@ -82,6 +82,10 @@ pnpm i
 pnpm dev
 ```
 
+サイトと CMS はルートの `pnpm-workspace.yaml` と `pnpm-lock.yaml` を共有し、`pnpm i` で両方の依存関係をインストールします。
+`pnpm cms` で CMS を起動できます。`pnpm cms:install` はルートの設定を使って CMS の依存関係だけをインストールします。
+サイトだけが必要な場合は `pnpm --filter astro-koharu install` を実行してください。
+
 ## 機能
 
 - Astro 7.x ベースの静的サイト生成、優れたパフォーマンス

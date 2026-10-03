@@ -82,6 +82,10 @@ pnpm i
 pnpm dev
 ```
 
+The site and CMS share the root `pnpm-workspace.yaml` and `pnpm-lock.yaml`; `pnpm i` installs dependencies for both.
+Run `pnpm cms` to start the CMS, or `pnpm cms:install` to install only CMS dependencies using the root configuration.
+To install only the site, run `pnpm --filter astro-koharu install`.
+
 ## Features
 
 - Built on Astro 7.x with static site generation and excellent performance

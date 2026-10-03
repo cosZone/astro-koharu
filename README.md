@@ -81,6 +81,10 @@ pnpm i
 pnpm dev
 ```
 
+主站和 CMS 共用根目录的 `pnpm-workspace.yaml` 和 `pnpm-lock.yaml`，`pnpm i` 会安装两者的依赖。运行
+`pnpm cms` 启动 CMS；`pnpm cms:install` 可单独安装 CMS 依赖，并沿用根目录配置。仅需主站时，使用
+`pnpm --filter astro-koharu install`。
+
 ## 功能特性
 
 - 基于 Astro 7.x，静态站点生成，性能优异
