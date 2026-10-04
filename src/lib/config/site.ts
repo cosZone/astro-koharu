@@ -10,6 +10,7 @@
 import yamlConfig from '../../../config/site.yaml';
 import { DEFAULT_TIMEZONE, isValidTimezone } from '../timezone';
 import { normalizeContentConfig } from './content';
+import { normalizeEditorConfig } from './editor';
 import { enabledFeaturedSeriesSlugs, normalizeFeaturedSeries } from './featured-series';
 import { normalizeMotionConfig } from './motion';
 import { RESERVED_ROUTES } from './reserved-routes';
@@ -40,6 +41,9 @@ export const contentConfig: ResolvedContentConfig = normalizeContentConfig(yamlC
 
 /** Default motion level and sakura effect switches with field-level defaults applied. */
 export const motionConfig: ResolvedMotionConfig = normalizeMotionConfig(yamlConfig.motion);
+
+/** Writing room pages are only available when explicitly enabled. */
+export const editorConfig = normalizeEditorConfig(yamlConfig.editor);
 
 /**
  * Site timezone in IANA format.

@@ -33,7 +33,7 @@
     "save-slugs": "npx tsx scripts/save-slugs.ts",
     "test": "npm run test:workspace && npm run test:config && npm run test:markdown && npm run test:meting && npm run test:umami && npm run test:toc && npm run test:lightbox && npm run test:glide && npm run test:diagram && npm run test:migrate && npm run test:moments && npm run test:motion",
     "test:workspace": "node --test tests/workspace.test.mjs",
-    "test:config": "tsx --test src/lib/config/content.test.ts src/lib/config/featured-series.test.ts src/lib/config/motion.test.ts",
+    "test:config": "tsx --test src/lib/config/content.test.ts src/lib/config/editor.test.ts src/lib/config/featured-series.test.ts src/lib/config/motion.test.ts",
     "test:markdown": "tsx --test src/lib/markdown/*.test.ts",
     "test:editor": "tsx --test src/features/editor/*.test.ts src/features/editor/server/*.test.ts cms/src/api/source.test.ts",
     "editor:og": "node --import tsx scripts/editor-og.ts",

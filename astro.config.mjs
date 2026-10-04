@@ -21,9 +21,10 @@ import Sonda from 'sonda/vite';
 import { loadEnv } from 'vite';
 import svgr from 'vite-plugin-svgr';
 import YAML from 'yaml';
-import { editorDevIntegration } from './src/features/editor/dev-integration.ts';
+import { editorIntegration } from './src/features/editor/integration.ts';
 import { momentsRoutes } from './src/features/moments/integration/momentsRoutes.ts';
 import { normalizeContentConfig } from './src/lib/config/content.ts';
+import { normalizeEditorConfig } from './src/lib/config/editor.ts';
 import { enabledFeaturedSeriesSlugs, normalizeFeaturedSeries } from './src/lib/config/featured-series.ts';
 import { normalizeMomentsConfig } from './src/lib/config/moments.ts';
 import { RESERVED_ROUTES } from './src/lib/config/reserved-routes.ts';
@@ -49,6 +50,7 @@ function loadConfigForAstro() {
 }
 
 const yamlConfig = loadConfigForAstro();
+const editorConfig = normalizeEditorConfig(yamlConfig.editor);
 
 // Bundle analysis mode: ANALYZE=true pnpm build
 // Use loadEnv to read .env file (astro.config.mjs runs before Vite loads .env)
@@ -240,7 +242,7 @@ export default defineConfig({
     },
   },
   integrations: [
-    editorDevIntegration(),
+    ...(editorConfig.enabled ? [editorIntegration()] : []),
     react(),
     sitemap(),
     icon({

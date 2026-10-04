@@ -6,9 +6,11 @@
  * may import this module — depend on `@lib/config/*` instead.
  */
 
+import { resolveEditorNavigation } from '@lib/config/editor';
 import { normalizeMomentsConfig, resolveMomentsNavigation } from '@lib/config/moments';
 import {
   contentConfig,
+  editorConfig,
   enabledLocaleCodes,
   enabledSeriesSlugList,
   featuredSeriesList,
@@ -31,7 +33,7 @@ import type { UmamiStatsConfig } from '@/types/umami-stats';
 import yamlConfig from '../../config/site.yaml';
 import { DEFAULT_ROUTERS, RESERVED_ROUTES } from './router';
 
-export { contentConfig, i18nConfig, motionConfig, siteConfig };
+export { contentConfig, editorConfig, i18nConfig, motionConfig, siteConfig };
 
 export const socialConfig: SocialConfig = yamlConfig.social ?? {};
 
@@ -114,7 +116,10 @@ export const momentsConfig = normalizeMomentsConfig(yamlConfig.moments, {
   seriesSlugs: enabledSeriesSlugList,
 });
 
-const momentsRouters = resolveMomentsNavigation(yamlConfig.navigation ?? DEFAULT_ROUTERS, momentsConfig);
+const momentsRouters = resolveMomentsNavigation(
+  resolveEditorNavigation(yamlConfig.navigation ?? DEFAULT_ROUTERS, editorConfig),
+  momentsConfig,
+);
 
 // Navigation routers with resolved feature placeholders and auto-injected bangumi entry
 export const routers: RouterItem[] = bangumiConfig

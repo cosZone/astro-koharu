@@ -25,4 +25,5 @@ export type {
   SnowfallConfig,
   SocialConfig,
   SocialPlatform,
+  WritingRoomConfig,
 } from './types';

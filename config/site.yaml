@@ -17,7 +17,7 @@ site:
   name: cos # 作者名称 - 请修改为你的名字
   description: 一个基于 Astro 的现代化博客主题 # 网站描述
   avatar: /img/avatar.webp # 网站头像
-  showLogo: true # 是否显示 Logo
+  showLogo: false # 是否显示图形 Logo；默认显示站点名称，启用后可替换 src/assets/svg/logo.svg
   author: Author # 作者名称 - 请修改为你的名字
   url: https://koharu.cosine.ren # 站点 URL 用于 RSS 和 SEO
   defaultOgImage: /img/avatar.webp # 默认 Open Graph 图片
@@ -395,6 +395,14 @@ moments:
   #     ogImage: /img/daily-og.png
   #     aliases:
   #       - old-daily
+
+# =============================================================================
+# Writing Room
+# 写作室 - 默认关闭，开启后生成 /editor/ 和 /editor/preview/，并显示已有导航入口
+# 使用本地 CMS 编辑文章时也需要开启；修改后重启开发服务器或重新构建
+# =============================================================================
+editor:
+  enabled: false
 
 # =============================================================================
 # Navigation Routes

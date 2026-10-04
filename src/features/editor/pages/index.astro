@@ -1,8 +1,8 @@
 ---
-import Editor from '../../features/editor/Editor';
-import BootScripts from '../../layouts/BootScripts.astro';
-import '../../styles/index.css';
-import '../../features/editor/editor.css';
+import BootScripts from '@layouts/BootScripts.astro';
+import Editor from '../Editor';
+import '@styles/index.css';
+import '../editor.css';
 
 const ogEndpoint = import.meta.env.PUBLIC_EDITOR_OG_ENDPOINT || '/api/editor/og';
 ---
