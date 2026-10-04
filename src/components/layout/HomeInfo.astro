@@ -25,6 +25,8 @@ const tagCount = Object.keys(getAllTags(posts)).length;
 const filteredRouters = filterNavItems(routers, configuredSeriesSlugs, enabledSeriesSlugs, RESERVED_ROUTES);
 const strippedPath = stripLocaleFromPath(Astro.url.pathname);
 const avatar = siteConfig.avatar ?? '/img/avatar.webp';
+// Glue each separator to the tag before it, so a wrapped "FE / ACG / INFP" bio never starts a line with "/".
+const description = siteConfig.description?.replace(/\s+([/|·])\s+/g, '\u00a0$1 ');
 
 const resolveUrl = (item: Router) =>
   item.path ? (item.localeIndependent ? item.path : localizedPath(item.path, locale)) : item.path;
@@ -53,7 +55,7 @@ const stats = [
       </div>
       <div class="home-identity-text">
         <p class="home-name">{siteConfig?.name}</p>
-        {siteConfig?.description && <p class="home-description">{siteConfig.description}</p>}
+        {description && <p class="home-description" title={siteConfig.description}>{description}</p>}
         <Social />
       </div>
     </div>

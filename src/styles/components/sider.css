@@ -121,15 +121,18 @@
   }
 }
 
-/* The greeting pops from the avatar's shoulder; its words follow the visitor's clock (HomeInfo script). */
+/*
+  The greeting pops up over the crown of the avatar, centred so it never runs past the narrow column
+  (the sider scroller would clip it); its words follow the visitor's clock (HomeInfo script).
+*/
 .home-greeting {
   position: absolute;
-  bottom: 78%;
-  left: 74%;
+  bottom: 86%;
+  left: 50%;
   z-index: 1;
   display: none;
   padding: 0.3125rem 0.75rem;
-  border-radius: 0.875rem 0.875rem 0.875rem 0.25rem;
+  border-radius: 0.875rem;
   background-image: var(--gradient-shoka-button);
   box-shadow: 0 0.5rem 1rem -0.5rem rgb(233 84 107 / 0.7);
   color: #fff;
@@ -138,13 +141,26 @@
   white-space: nowrap;
   opacity: 0;
   scale: 0.5;
-  translate: -0.25rem 0.375rem;
-  transform-origin: 0% 100%;
+  translate: -50% 0.375rem;
+  transform-origin: 50% 100%;
   pointer-events: none;
   transition:
     opacity 140ms var(--ease-in-quart),
     scale 160ms var(--ease-in-quart),
     translate 160ms var(--ease-in-quart);
+}
+
+/* The tail points down at the head it speaks for. */
+.home-greeting::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  width: 0.75rem;
+  height: 0.375rem;
+  background: color-mix(in srgb, var(--gradient-shoka-button-start), var(--gradient-shoka-button-end));
+  clip-path: polygon(0 0, 100% 0, 50% 100%);
+  translate: -50% 0;
 }
 
 @media (hover: hover) {
@@ -155,7 +171,7 @@
   .home-avatar:hover .home-greeting {
     opacity: 1;
     scale: 1;
-    translate: 0 0;
+    translate: -50% 0;
     transition:
       opacity 200ms var(--ease-out-quart) 140ms,
       scale 560ms cubic-bezier(0.34, 1.56, 0.64, 1) 140ms,
@@ -169,7 +185,7 @@ html[data-motion="subtle"] .home-avatar:hover .home-greeting {
 
 html:is([data-motion="reduced"], .motion-off) .home-greeting {
   scale: 1;
-  translate: none;
+  translate: -50% 0;
 }
 
 .home-name {
@@ -188,8 +204,11 @@ html:is([data-motion="reduced"], .motion-off) .home-greeting {
   font-size: 0.8125rem;
   line-height: 1.55;
   text-wrap: pretty;
+  /* Bios are often slash-separated tags: break only at spaces so no tag splits, unless the text has none. */
+  word-break: keep-all;
+  overflow-wrap: anywhere;
   -webkit-box-orient: vertical;
-  -webkit-line-clamp: 2;
+  -webkit-line-clamp: 3;
 }
 
 .home-social {
@@ -266,7 +285,6 @@ html:is([data-motion="reduced"], .motion-off) .home-greeting {
 
 .home-info[data-variant="sider"] .home-identity-text {
   align-items: center;
-  padding-inline: 0.5rem;
 }
 
 .home-info[data-variant="sider"] .home-avatar {
@@ -301,8 +319,16 @@ html:is([data-motion="reduced"], .motion-off) .home-greeting {
 }
 
 .home-info[data-variant="sider"] .home-social {
+  display: grid;
+  grid-template-columns: repeat(var(--social-columns), auto);
   justify-content: center;
+  gap: 0.125rem;
   margin-inline-start: 0;
+}
+
+.home-info[data-variant="sider"] .social-link {
+  width: 2.125rem;
+  height: 2.125rem;
 }
 
 /* ── Navigation ──────────────────────────────────────────── */

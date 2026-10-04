@@ -2,12 +2,17 @@
 import { socialConfig } from '@constants/site-config';
 import { Icon } from 'astro-icon/components';
 import { capitalize } from 'es-toolkit';
+
+const links = Object.entries(socialConfig);
+// The stacked sider fits six tiles a row; past that, split into even rows instead of leaving a lone straggler.
+const rows = Math.max(1, Math.ceil(links.length / 6));
+const columns = Math.ceil(links.length / rows);
 ---
 
 <!-- TODO: use CSS squircle corner-shape replace the rounded-xl border-radius with a squircle corner-shape (https://www.squircle.style/) -->
-<div class="home-social flex flex-wrap gap-1">
+<div class="home-social flex flex-wrap gap-1" style={`--social-columns: ${columns}`}>
   {
-    Object.entries(socialConfig).map(([key, config]) => {
+    links.map(([key, config]) => {
       const { url, icon, color } = config;
       return (
         <div>
