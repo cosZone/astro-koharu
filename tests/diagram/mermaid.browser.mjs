@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { chromium, firefox, webkit } from '@playwright/test';
+import { chromium, expect, firefox, webkit } from '@playwright/test';
 
 // Run against pnpm dev or pnpm preview; phone-size viewports do not substitute for a real phone.
 const origin = process.env.DIAGRAM_TEST_ORIGIN || 'http://127.0.0.1:4321';
@@ -12,6 +12,103 @@ async function isolateExternalResources(page) {
     if (new URL(route.request().url()).origin === new URL(origin).origin) return route.continue();
     return route.abort();
   });
+}
+
+async function checkFullscreen(page, wrapper, pre, source) {
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  const open = wrapper.getByRole('button', { name: '全屏查看', exact: true }).last();
+  await open.click();
+  const panel = page.getByRole('dialog').filter({ has: page.locator('.mermaid-svg-container') });
+  await expect(panel).toBeVisible();
+  const canvas = panel.locator('.mermaid-svg-container');
+  const fit = panel.getByRole('button', { name: '适应屏幕 (0)', exact: true });
+  const zoomIn = panel.getByRole('button', { name: '放大 (=)', exact: true });
+
+  // At fit scale, trackpad panning still changes position and must not disable recentering.
+  await canvas.evaluate((element) =>
+    element.parentElement.dispatchEvent(new WheelEvent('wheel', { bubbles: true, cancelable: true, deltaY: -40.5 })),
+  );
+  await expect.poll(() => canvas.evaluate((element) => new DOMMatrix(element.style.transform).f)).toBeGreaterThan(0);
+  await expect(fit).toBeEnabled();
+  await fit.click();
+  await expect(canvas).toHaveCSS('transform', 'matrix(1, 0, 0, 1, 0, 0)');
+
+  // Both sources of reduced motion must bypass JavaScript interpolation, not just CSS transitions.
+  for (const systemReduced of [false, true]) {
+    await page.emulateMedia({ reducedMotion: systemReduced ? 'reduce' : 'no-preference' });
+    const scale = await zoomIn.evaluate((button, systemReduced) => {
+      document.documentElement.dataset.motion = systemReduced ? 'lively' : 'reduced';
+      document.documentElement.classList.toggle('motion-off', !systemReduced);
+      button.click();
+      return new DOMMatrix(document.querySelector('.mermaid-svg-container').style.transform).a;
+    }, systemReduced);
+    assert.equal(scale, 1.5, 'Reduced motion zoom must finish synchronously');
+    await fit.click();
+  }
+
+  await page.emulateMedia({ reducedMotion: 'no-preference' });
+  await page.evaluate(() => {
+    document.documentElement.dataset.motion = 'lively';
+    document.documentElement.classList.remove('motion-off');
+  });
+  const interruption = await zoomIn.evaluate(async (button) => {
+    const canvas = document.querySelector('.mermaid-svg-container');
+    document.documentElement.dataset.motion = 'lively';
+    button.click();
+    await new Promise(requestAnimationFrame);
+    await new Promise(requestAnimationFrame);
+    const before = new DOMMatrix(canvas.style.transform).a;
+    document.documentElement.dataset.motion = 'reduced';
+    await new Promise(requestAnimationFrame);
+    const after = new DOMMatrix(canvas.style.transform).a;
+    await new Promise(requestAnimationFrame);
+    return { before, after, later: new DOMMatrix(canvas.style.transform).a };
+  });
+  assert.ok(
+    interruption.before > 1 && interruption.before < 1.5,
+    `The test must interrupt an active zoom: ${JSON.stringify(interruption)}`,
+  );
+  assert.equal(interruption.after, 1.5);
+  assert.equal(interruption.later, 1.5, 'No stale animation frame may undo the completed zoom');
+  await fit.click();
+  await page.keyboard.press('Escape');
+  await expect(panel).toHaveCount(0);
+
+  // A valid tall Mermaid is fitted by height while its CSS width remains natural.
+  const steps = Array.from({ length: 20 }, (_, index) => `N${index}[Step ${index}] --> N${index + 1}[Step ${index + 1}]`);
+  const tallSource = `flowchart TD\n${steps.join('\n')}`;
+  await pre.evaluate((element, definition) => {
+    element.dataset.diagram = definition;
+    element.removeAttribute('data-processed');
+  }, tallSource);
+  await page.evaluate(() => {
+    document.documentElement.dataset.theme = 'dark';
+    document.documentElement.classList.add('dark');
+  });
+  await expect.poll(() => pre.locator('svg').evaluate((svg) => svg.viewBox.baseVal.height)).toBeGreaterThan(2000);
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await open.click();
+  await expect(panel).toBeVisible();
+  const drawingScale = await canvas.locator('svg').evaluate((svg) => svg.getScreenCTM().a);
+  assert.ok(drawingScale < 0.5 && 1 / drawingScale < 6, 'The fixture must shrink by height within the zoom limit');
+  await expect(panel.getByRole('button', { name: '实际大小 (1)', exact: true })).toBeVisible();
+  await page.keyboard.press('1');
+  await expect.poll(() => canvas.locator('svg').evaluate((svg) => svg.getScreenCTM().a)).toBeCloseTo(1, 2);
+  await fit.click();
+  await panel.getByRole('button', { name: '实际大小 (1)', exact: true }).click();
+  await expect.poll(() => canvas.locator('svg').evaluate((svg) => svg.getScreenCTM().a)).toBeCloseTo(1, 2);
+  await page.keyboard.press('Escape');
+  await expect(panel).toHaveCount(0);
+  await pre.evaluate((element, definition) => {
+    element.dataset.diagram = definition;
+    element.removeAttribute('data-processed');
+  }, source);
+  await page.evaluate(() => {
+    document.documentElement.dataset.theme = 'light';
+    document.documentElement.classList.remove('dark');
+  });
+  await expect.poll(() => pre.locator('svg').evaluate((svg) => svg.viewBox.baseVal.height)).toBeLessThan(2000);
+  await page.emulateMedia({ reducedMotion: 'no-preference' });
 }
 
 for (const name of browsers) {
@@ -84,6 +181,8 @@ for (const name of browsers) {
         await wrapper.getByRole('status').waitFor({ state: 'detached' });
         assert.ok(await pre.isVisible());
 
+        await checkFullscreen(page, wrapper, pre, source);
+
         // Rehydrate a rendered block whose canonical source is missing. Its SVG CSS must stay out of source view.
         await page.evaluate(() => {
           const pre = document.querySelector('pre.mermaid').cloneNode(true);
@@ -98,7 +197,9 @@ for (const name of browsers) {
         await sourceButton.waitFor();
         assert.ok(await sourceButton.isDisabled(), 'SVG style text must never become Mermaid source');
         assert.equal(await missingSource.locator('.mermaid-source').count(), 0);
-        console.log(`PASS ${name} ${viewport.width}px: render, theme/source, failure, recovery, missing source`);
+        console.log(
+          `PASS ${name} ${viewport.width}px: render, theme/source, failure, recovery, missing source, fullscreen regressions`,
+        );
       } finally {
         await page.close();
       }

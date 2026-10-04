@@ -109,9 +109,10 @@ function useActualScale(content: HTMLElement | null, shown: DiagramFullscreenDat
     const measure = () => {
       const svg = content.querySelector('svg');
       const natural = svg && getNaturalSize(svg);
-      // Layout width, not the client rect: it ignores both the zoom transform and the panel's entrance scale.
-      const fitted = svg?.clientWidth;
-      const scale = natural && fitted ? natural.width / fitted : 1;
+      // Layout dimensions ignore zoom and entrance transforms; either axis can limit the SVG's viewBox fit.
+      const width = svg?.clientWidth;
+      const height = svg?.clientHeight;
+      const scale = natural && width && height ? Math.max(natural.width / width, natural.height / height) : 1;
       setActualScale(scale > 1.05 ? Math.min(MAX_SCALE, scale) : null);
     };
     measure();
@@ -147,7 +148,6 @@ function ZoomGroup({ controls, className }: { controls: ZoomControls; className?
   const { t } = useTranslation();
   const { zoom, actualScale } = controls;
   const { zoomBy, zoomTo, reset, zoomLevel, scale } = zoom;
-  const atFit = Math.abs(scale - 1) < 0.01;
 
   return (
     <div className={cn('flex items-center gap-0.5 rounded-xl p-1', className)}>
@@ -171,7 +171,7 @@ function ZoomGroup({ controls, className }: { controls: ZoomControls; className?
         icon="ri:fullscreen-exit-line"
         label={`${t('diagram.fitToScreen')} (0)`}
         onClick={() => reset()}
-        disabled={atFit}
+        disabled={false}
       />
       {actualScale && (
         <ToolButton

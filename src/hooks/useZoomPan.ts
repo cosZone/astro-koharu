@@ -13,6 +13,7 @@
  * Callback refs (not useRef) so listeners attach even when the viewer mounts inside a portal.
  */
 
+import { isMotionDisabled, subscribeMotionLevel } from '@lib/motion-level';
 import {
   clampToBounds,
   getPanBounds,
@@ -64,7 +65,6 @@ const easeOutQuart = (t: number) => 1 - (1 - t) ** 4;
 const clampScale = (s: number) => Math.min(MAX_SCALE, Math.max(MIN_SCALE, s));
 /** A little give past the limits while fingers are still moving; `settle` springs it back. */
 const softClampScale = (s: number) => Math.min(MAX_SCALE * 1.15, Math.max(MIN_SCALE * 0.85, s));
-const prefersReducedMotion = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 /**
  * Chromium and WebKit report pixel deltas for both devices, but a mouse notch keeps a legacy
@@ -132,7 +132,7 @@ export function useZoomPan(enabled = true): UseZoomPanReturn {
   const animateTo = useCallback(
     (target: ZoomPanTransform) => {
       stop();
-      if (prefersReducedMotion()) {
+      if (isMotionDisabled()) {
         write(target);
         return;
       }
@@ -214,6 +214,13 @@ export function useZoomPan(enabled = true): UseZoomPanReturn {
       window.clearTimeout(settleTimer);
       settleTimer = window.setTimeout(settle, SETTLE_DELAY);
     };
+    const unsubscribeMotion = subscribeMotionLevel(() => {
+      if (!isMotionDisabled()) return;
+      const target = animationTargetRef.current;
+      stop();
+      if (target) write(target);
+      else settle();
+    });
 
     // --- Wheel: pinch zoom, trackpad pan, mouse-notch zoom ---
     const handleWheel = (e: WheelEvent) => {
@@ -370,7 +377,7 @@ export function useZoomPan(enabled = true): UseZoomPanReturn {
       const t = transformRef.current;
       const s = clampScale(t.scale);
       const inside = clampToBounds(t, bounds);
-      if (s !== t.scale || inside.x !== t.x || inside.y !== t.y || e.type === 'pointercancel' || prefersReducedMotion()) {
+      if (s !== t.scale || inside.x !== t.x || inside.y !== t.y || e.type === 'pointercancel' || isMotionDisabled()) {
         settle();
         return;
       }
@@ -392,6 +399,7 @@ export function useZoomPan(enabled = true): UseZoomPanReturn {
     viewport.addEventListener('pointercancel', handlePointerUp);
 
     return () => {
+      unsubscribeMotion();
       window.clearTimeout(settleTimer);
       stop();
       viewport.removeEventListener('wheel', handleWheel);
