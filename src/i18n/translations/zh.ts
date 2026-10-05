@@ -20,7 +20,7 @@ export const uiStrings = {
   'archives.jumpToYear': '跳到 {year} 年',
   'archives.legendFew': '少',
   'archives.legendMany': '多',
-  'archives.calendar': '樱历',
+  'archives.calendar': '写作日历',
   'archives.monthLabel': '{year} 年 {month} 月 · {count} 篇',
 
   // ── Navigation ──────────────────────────────────────────────

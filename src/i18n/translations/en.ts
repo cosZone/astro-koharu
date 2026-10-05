@@ -21,7 +21,7 @@ export const uiStrings: UIStrings = {
   'archives.jumpToYear': 'Jump to {year}',
   'archives.legendFew': 'Less',
   'archives.legendMany': 'More',
-  'archives.calendar': 'Sakura calendar',
+  'archives.calendar': 'Writing calendar',
   'archives.monthLabel': '{year}, month {month} · {count} posts',
 
   // ── Navigation ──────────────────────────────────────────────
