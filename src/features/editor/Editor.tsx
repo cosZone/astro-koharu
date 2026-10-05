@@ -29,6 +29,11 @@ const draftTime = new Intl.DateTimeFormat('zh-CN', {
   minute: '2-digit',
 });
 
+function formatDraftTime(updated: number) {
+  // Stored drafts are untrusted; an out-of-range timestamp makes Intl throw and would unmount the editor.
+  return Number.isNaN(new Date(updated).getTime()) ? '时间未知' : draftTime.format(updated);
+}
+
 function createDraft(source = createEditorSource(), filename?: string): EditorDraft {
   return { id: crypto.randomUUID(), title: documentTitle(source), source, updated: Date.now(), filename };
 }
@@ -626,7 +631,7 @@ export default function Editor({ ogEndpoint = '/api/editor/og' }: Props) {
                             <strong>{entry.title}</strong>
                             <small>
                               {entry.id === draft.id && <span className="editor-draft-current">正在编辑</span>}
-                              {draftTime.format(entry.updated)}
+                              {formatDraftTime(entry.updated)}
                             </small>
                           </button>
                           <button

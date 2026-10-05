@@ -19,6 +19,10 @@ function hiddenOffset() {
 export function cancelSheetMotion(dialog: HTMLDialogElement) {
   const { sheet, scrim } = parts(dialog);
   for (const element of [sheet, scrim]) for (const animation of element?.getAnimations() ?? []) animation.cancel();
+  if (sheet) {
+    sheet.style.translate = '';
+    sheet.style.transition = '';
+  }
   delete dialog.dataset.closing;
   dialog.inert = false;
 }
