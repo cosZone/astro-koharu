@@ -1,0 +1,46 @@
+---
+import { friendsData } from '@constants/friends-config';
+import { defaultLocale, t } from '@/i18n';
+import FriendCard from './FriendCard.astro';
+
+interface Props {
+  locale?: string;
+}
+
+const { locale = defaultLocale } = Astro.props;
+---
+
+<div data-friends-grid>
+  {friendsData.length > 0 ? (
+    <div class="friends-grid grid gap-4">
+      {friendsData.map((friend) => <FriendCard friend={friend} />)}
+    </div>
+  ) : (
+    <div class="flex min-h-40 flex-col items-center justify-center gap-2 text-center">
+      <h2 class="font-semibold text-foreground text-lg">{t(locale, 'friends.emptyTitle')}</h2>
+      <p class="text-muted-foreground text-sm">{t(locale, 'friends.emptyDesc')}</p>
+    </div>
+  )}
+</div>
+
+<style>
+  .friends-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  @media (max-width: 1199px) {
+    .friends-grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+
+  @media (max-width: 600px) {
+    .friends-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+</style>
+
+<script>
+  import './friends-interactions';
+</script>

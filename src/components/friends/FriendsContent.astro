@@ -1,0 +1,57 @@
+---
+import FriendRequestForm from '@components/friends/FriendRequestForm';
+import FriendsGrid from '@components/friends/FriendsGrid.astro';
+import { friendsData } from '@constants/friends-config';
+import { CONTENT_PADDING } from '@constants/layout';
+import { cn } from '@lib/utils';
+import { Comment } from '@/components/comment';
+import { defaultLocale, t } from '@/i18n';
+
+interface Props {
+  locale?: string;
+}
+const { locale = defaultLocale } = Astro.props;
+---
+
+<div class={cn('flex flex-col gap-8 bg-card shadow-box tablet:shadow-none', CONTENT_PADDING.standard)}>
+  <p class="flex items-baseline gap-2 text-foreground" aria-label={t(locale, 'friends.count', { count: friendsData.length })}>
+    <span class="font-semibold text-[1.75rem] tabular-nums tablet:text-2xl">{friendsData.length}</span>
+    <span class="text-muted-foreground text-sm">{t(locale, 'friends.countUnit')}</span>
+  </p>
+  <FriendsGrid locale={locale} />
+  <details class="friend-request rounded-2xl border border-border" id="friend-request">
+    <summary class="relative flex min-h-16 cursor-pointer flex-wrap items-center gap-x-4 gap-y-1 rounded-2xl px-5 py-4 pr-12 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary">
+      <span class="font-semibold text-foreground text-[15px]">{t(locale, 'friends.applyTitle')}</span>
+      <span class="text-muted-foreground text-sm">{t(locale, 'friends.applySummary')}</span>
+    </summary>
+    <div class="border-border border-t px-5 py-6 tablet:px-4">
+      <FriendRequestForm locale={locale} client:visible />
+    </div>
+  </details>
+  <Comment />
+</div>
+
+<style>
+  .friend-request summary {
+    list-style: none;
+  }
+
+  .friend-request summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .friend-request summary::after {
+    content: '';
+    position: absolute;
+    right: 1.5rem;
+    width: 8px;
+    height: 8px;
+    border-right: 1px solid hsl(var(--muted-foreground));
+    border-bottom: 1px solid hsl(var(--muted-foreground));
+    transform: rotate(45deg);
+  }
+
+  .friend-request[open] summary::after {
+    transform: rotate(225deg);
+  }
+</style>
