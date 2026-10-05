@@ -1,5 +1,6 @@
 ---
 import type { FriendLink } from '@constants/friends-config';
+import { normalizeHexColor } from '@lib/utils';
 import { Icon } from 'astro-icon/components';
 
 interface Props {
@@ -20,12 +21,10 @@ try {
   target="_blank"
   rel="noopener noreferrer"
   class="friend-card relative flex flex-col overflow-hidden rounded-[1.125rem] bg-card text-foreground focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary"
-  style={{ '--friend-color': friend.color || 'hsl(var(--primary))' }}
+  style={{ '--friend-color': friend.color ? normalizeHexColor(friend.color) : 'hsl(var(--primary))' }}
 >
-  <!-- The banner is the friend's own avatar, blurred into a wash, so every card carries its owner's palette. -->
-  <div class="friend-banner" aria-hidden="true">
-    {friend.image && <img src={friend.image} alt="" loading="lazy" decoding="async" data-friend-avatar />}
-  </div>
+  <!-- The friend's configured color is the card's theme: banner, avatar ring, shadow and hover ink. -->
+  <div class="friend-banner" aria-hidden="true"></div>
   <div class="friend-avatar">
     <svg class="absolute inset-0 size-full" viewBox="0 0 100 100" aria-hidden="true">
       <rect width="100" height="100" fill="hsl(var(--primary))" />
@@ -66,32 +65,23 @@ try {
     height: 4.25rem;
     flex-shrink: 0;
     overflow: hidden;
-    background: linear-gradient(
-      135deg,
-      color-mix(in oklab, var(--friend-color) 75%, hsl(var(--card))),
-      color-mix(in oklab, var(--friend-color) 35%, hsl(var(--card)))
-    );
+    background:
+      radial-gradient(120% 140% at 0% 0%, hsl(0 0% 100% / 0.45), transparent 55%),
+      linear-gradient(
+        160deg,
+        color-mix(in oklab, var(--friend-color) 90%, white),
+        color-mix(in oklab, var(--friend-color) 55%, hsl(var(--card)))
+      );
   }
 
-  .friend-banner img {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    filter: blur(14px) saturate(1.35);
-    opacity: 0.85;
-    transform: scale(1.5);
-  }
-
-  /* Melt the wash into the card, then lay a fine highlight across the top edge. */
+  /* Fade the band into the card body, and draw a fine highlight along the top edge. */
   .friend-banner::after {
     content: '';
     position: absolute;
     inset: 0;
     background:
-      linear-gradient(to bottom, transparent 25%, hsl(var(--card) / 0.7) 70%, hsl(var(--card))),
-      linear-gradient(to bottom, hsl(0 0% 100% / 0.28), transparent 1px);
+      linear-gradient(to bottom, transparent 45%, hsl(var(--card) / 0.6) 80%, hsl(var(--card))),
+      linear-gradient(to bottom, hsl(0 0% 100% / 0.4), transparent 1px);
   }
 
   .friend-avatar {
@@ -114,8 +104,12 @@ try {
     border-top: 1px dashed hsl(var(--border));
   }
 
-  :global(html.dark) .friend-banner img {
-    opacity: 0.6;
+  :global(html.dark) .friend-banner {
+    background: linear-gradient(
+      160deg,
+      color-mix(in oklab, var(--friend-color) 60%, hsl(var(--card))),
+      color-mix(in oklab, var(--friend-color) 25%, hsl(var(--card)))
+    );
   }
 
   :global(html.dark) .friend-card {
@@ -126,7 +120,7 @@ try {
 
   @media (hover: hover) and (pointer: fine) {
     .friend-card:hover .friend-name {
-      color: hsl(var(--primary));
+      color: color-mix(in oklab, var(--friend-color) 75%, hsl(var(--foreground)));
     }
 
     @media (prefers-reduced-motion: no-preference) {
@@ -136,7 +130,6 @@ try {
           box-shadow 320ms cubic-bezier(0.2, 0.8, 0.2, 1);
       }
 
-      :global(html:not([data-motion='reduced'])) .friend-banner img,
       :global(html:not([data-motion='reduced'])) .friend-avatar {
         transition: transform 600ms cubic-bezier(0.2, 0.8, 0.2, 1);
       }
@@ -147,10 +140,6 @@ try {
           inset 0 0 0 1px color-mix(in oklab, var(--friend-color) 35%, hsl(var(--border))),
           0 2px 4px hsl(var(--foreground) / 0.04),
           0 18px 32px -16px color-mix(in oklab, var(--friend-color) 80%, transparent);
-      }
-
-      :global(html:not([data-motion='reduced'])) .friend-card:hover .friend-banner img {
-        transform: scale(1.7);
       }
 
       :global(html:not([data-motion='reduced'])) .friend-card:hover .friend-avatar {

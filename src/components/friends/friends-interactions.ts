@@ -1,6 +1,6 @@
 let dispose: (() => void) | undefined;
 
-/** Broken friend avatars are hidden so the SVG face (avatar) or the color wash (banner) shows through. */
+/** Broken friend avatars are hidden so the SVG face underneath shows through. */
 function init() {
   dispose?.();
   const grid = document.querySelector<HTMLElement>('[data-friends-grid]');
