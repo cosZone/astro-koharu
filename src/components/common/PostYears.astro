@@ -1,0 +1,22 @@
+---
+import { siteTimezone } from '@lib/config/site';
+import { groupPostsByYear } from '@lib/content/index-groups';
+import type { BlogPost } from 'types/blog';
+import { t } from '@/i18n';
+import PostRow from './PostRow.astro';
+import SilkTimeline from './SilkTimeline.astro';
+
+interface Props {
+  posts: BlogPost[];
+  locale: string;
+  showCategory?: boolean;
+}
+const { posts, locale, showCategory = true } = Astro.props;
+const groups = groupPostsByYear(posts, siteTimezone);
+---
+{groups.length ? <SilkTimeline>
+  {groups.map(({ year, posts }) => <section class="motion-reveal silk-year-group">
+    <h2 class="silk-heading">{year}<small>{t(locale, 'post.yearPosts', { count: posts.length })}</small></h2>
+    {posts.map((post) => <PostRow post={post} locale={locale} showCategory={showCategory} />)}
+  </section>)}
+</SilkTimeline> : <p class="text-muted-foreground">{t(locale, 'post.noPostsFound')}</p>}

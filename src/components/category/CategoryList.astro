@@ -1,45 +1,43 @@
 ---
-import { CONTENT_PADDING } from '@constants/layout';
-import { buildCategoryPath, type Category, translateCategoryName } from '@lib/content';
-import { getLocaleFromUrl, localizedPath, t } from '@/i18n';
-import CategoryTitle from './CategoryTitle.astro';
-import SubCategory from './SubCategory.astro';
+import PageIntro from '@components/common/PageIntro.astro';
+import { buildCategoryPath, type Category, getPostSlug, translateCategoryName } from '@lib/content';
+import { postsInCategoryPath } from '@lib/content/index-categories';
+import { encodeSlug } from '@lib/route';
+import type { BlogPost } from 'types/blog';
+import { localizedPath, t } from '@/i18n';
 
 interface Props {
   categories: Category[];
-  countMap: Record<string, number>;
+  posts: BlogPost[];
   totalCount: number;
+  locale: string;
 }
-const { categories, countMap, totalCount } = Astro.props;
-const locale = getLocaleFromUrl(Astro.url.pathname);
+const { categories, posts, totalCount, locale } = Astro.props;
+const catalogPosts = posts.filter(({ data }) => data.catalog);
+const cards = categories.map((category) => ({ category, posts: postsInCategoryPath(catalogPosts, [category.name]) }));
+const peak = Math.max(1, ...cards.map(({ posts }) => posts.length));
 ---
-
-<div class={`shadow-box mx-0 flex w-full flex-col bg-gradient-start ${CONTENT_PADDING.standard}`}>
-  <h2 class="shoka-decoration-circle group relative px-6 py-5 text-2xl/9 font-bold md:text-xl/9">
-    <a href={localizedPath('/', locale)} class="dashed-border text-muted-foreground group-hover:border-blue group-hover:text-blue border-b"> {t(locale, 'nav.home')} </a>
-    <span class="text-muted-foreground text-xl md:text-base">/</span> {t(locale, 'category.totalCategories', { count: totalCount })}
-  </h2>
-
-  <div class="flex w-full flex-col">
-    {
-      categories.map((category) => (
-        <>
-          <CategoryTitle
-            title={translateCategoryName(category.name, locale)}
-            count={countMap[category.name]}
-            href={localizedPath(buildCategoryPath(category.name), locale)}
-            className={category?.children?.length ? 'has-children' : ''}
-          />
-          {category?.children?.length && (
-            <div class="category-first-level-container flex flex-col">
-              {category?.children?.length &&
-                category.children.map((child) => (
-                  <SubCategory category={child} parentName={category.name} countMap={countMap} />
-                ))}
-            </div>
-          )}
-        </>
-      ))
-    }
+<div class="index-surface shadow-box">
+  <PageIntro stats={[{ value: totalCount, label: t(locale, 'index.categories') }, { value: posts.length, label: t(locale, 'index.posts') }]} />
+  <div class="category-cards">
+    {cards.map(({ category, posts: categoryPosts }) => {
+      const latest = categoryPosts[0];
+      return <article class="category-card motion-reveal">
+        <div class="category-card-heading">
+          <h2><a class="category-card-link" href={localizedPath(buildCategoryPath(category.name), locale)}>{translateCategoryName(category.name, locale)}</a></h2>
+          <span class="category-card-count">{categoryPosts.length}<small>{t(locale, 'index.posts')}</small></span>
+        </div>
+        <div class="category-card-progress" aria-hidden="true"><span style={{ transform: `scaleX(${categoryPosts.length / peak})` }}></span></div>
+        {category.children?.length && <div class="category-card-children">
+          {category.children.map((child) => <div>
+            <a class="index-chip" href={localizedPath(buildCategoryPath([category.name, child.name]), locale)}>{translateCategoryName(child.name, locale)}<span>{postsInCategoryPath(catalogPosts, [category.name, child.name]).length}</span></a>
+            {child.children?.length && <div class="category-grandchildren">
+              {child.children.map((grandchild) => <a href={localizedPath(buildCategoryPath([category.name, child.name, grandchild.name]), locale)}>{translateCategoryName(grandchild.name, locale)}<span>{postsInCategoryPath(catalogPosts, [category.name, child.name, grandchild.name]).length}</span></a>)}
+            </div>}
+          </div>)}
+        </div>}
+        {latest && <a class="category-card-latest" href={localizedPath(`/post/${encodeSlug(getPostSlug(latest))}`, locale)}>{t(locale, 'category.recentPost', { title: latest.data.title })}</a>}
+      </article>;
+    })}
   </div>
 </div>

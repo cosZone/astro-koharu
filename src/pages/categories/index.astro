@@ -5,7 +5,7 @@ import Cover from '@components/ui/cover/Cover.astro';
 import { seoConfig } from '@constants/site-config';
 import Layout from '@layouts/Layout.astro';
 import TwoColumnLayout from '@layouts/TwoColumnLayout.astro';
-import { getCategoryLinks, getCategoryList } from '@lib/content';
+import { getCategoryLinks, getCategoryList, getSortedPosts } from '@lib/content';
 import { defaultLocale, t } from '@/i18n';
 
 interface Props {
@@ -14,14 +14,15 @@ interface Props {
 
 // Root pages render the default locale; `[lang]/` mirrors pass their locale in explicitly.
 const { locale = defaultLocale } = Astro.props;
-const { categories, countMap } = await getCategoryList(locale);
+const { categories } = await getCategoryList(locale);
 const links = getCategoryLinks(categories, '');
+const posts = await getSortedPosts(locale);
 ---
 
 <Layout locale={locale} title={`${t(locale, 'category.allCategories')} | ${seoConfig.title}`}>
   <TwoColumnLayout>
     <Cover compact slot="cover" title={t(locale, 'category.allCategories')} />
     <HomeSider slot="sider" />
-    <CategoryList categories={categories} countMap={countMap} totalCount={links.length ?? 0} />
+    <CategoryList categories={categories} posts={posts} totalCount={links.length} locale={locale} />
   </TwoColumnLayout>
 </Layout>

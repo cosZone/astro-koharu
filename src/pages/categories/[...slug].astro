@@ -5,7 +5,8 @@ import Cover from '@components/ui/cover/Cover.astro';
 import { seoConfig } from '@constants/site-config';
 import Layout from '@layouts/Layout.astro';
 import TwoColumnLayout from '@layouts/TwoColumnLayout.astro';
-import { type Category, getCategoryList, translateCategoryName } from '@lib/content';
+import { type Category, getCategoryList, getSortedPosts, translateCategoryName } from '@lib/content';
+import { categoryTrail } from '@lib/content/index-categories';
 import { t } from '@/i18n';
 import { categoryRoute } from '../_shared/routes';
 
@@ -17,16 +18,16 @@ interface Props {
 }
 
 const { category, locale } = Astro.props;
-const { categories: allCategories, countMap } = await getCategoryList(locale);
+const { categories: allCategories } = await getCategoryList(locale);
 
-// 如果是子分类，只展示当前分类的内容
-const displayCategories = category ? [category] : allCategories;
+const path = categoryTrail(allCategories, category?.name ?? '');
+const allPosts = await getSortedPosts(locale);
 ---
 
 <Layout locale={locale} title={`${t(locale, 'category.postsInCategory', { name: translateCategoryName(category?.name ?? '', locale) })} | ${seoConfig.title}`}>
   <TwoColumnLayout>
     <Cover compact slot="cover" title={t(locale, 'category.postsInCategory', { name: translateCategoryName(category?.name ?? '', locale) })} />
     <HomeSider slot="sider" />
-    <CategoryPostList rootCategory={category} categories={displayCategories} countMap={countMap} />
+    <CategoryPostList category={category} path={path} allPosts={allPosts} locale={locale} />
   </TwoColumnLayout>
 </Layout>

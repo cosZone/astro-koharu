@@ -1,61 +1,33 @@
 ---
-import { CONTENT_PADDING } from '@constants/layout';
-import { type Category, getPostSlug, getPostsByCategory, translateCategoryName } from '@lib/content';
-import { displayDate } from '@lib/date';
-import { encodeSlug } from '@lib/route';
-import { cn } from '@lib/utils';
-import { getLocaleFromUrl, localizedPath, t } from '@/i18n';
-import SubCategory from './SubCategory.astro';
+import PageIntro from '@components/common/PageIntro.astro';
+import PostYears from '@components/common/PostYears.astro';
+import { buildCategoryPath, type Category, translateCategoryName } from '@lib/content';
+import { postsInCategoryPath } from '@lib/content/index-categories';
+import type { BlogPost } from 'types/blog';
+import { localizedPath, t } from '@/i18n';
 
 interface Props {
-  categories: Category[];
-  countMap: Record<string, number>;
-  rootCategory: Category | null;
+  category: Category | null;
+  path: string[];
+  allPosts: BlogPost[];
+  locale: string;
 }
-const { categories, countMap, rootCategory } = Astro.props;
-const locale = getLocaleFromUrl(Astro.url.pathname);
-const posts = await getPostsByCategory(rootCategory?.name ?? '', locale);
+const { category, path, allPosts, locale } = Astro.props;
+const posts = postsInCategoryPath(allPosts, path);
+const breadcrumbs = [
+  { label: t(locale, 'nav.categories'), href: localizedPath('/categories', locale) },
+  ...path.map((name, index) => ({
+    label: translateCategoryName(name, locale),
+    href: index === path.length - 1 ? undefined : localizedPath(buildCategoryPath(path.slice(0, index + 1)), locale),
+  })),
+];
 ---
-
-<div class={`shadow-box mx-0 flex w-full flex-col bg-gradient-start ${CONTENT_PADDING.normal}`}>
-  <h2
-    class={cn('shoka-decoration-circle px-6 group relative py-5 text-2xl/9 font-bold', {
-      'has-children': posts?.length || rootCategory?.children?.length,
-    })}
-  >
-    <a href={localizedPath('/', locale)} class="dashed-border text-muted-foreground hover:text-blue border-b"> {t(locale, 'nav.home')} </a>
-    <span class="text-muted-foreground mx-2 text-xl">/</span>
-    <span class="text-muted-foreground">{rootCategory ? translateCategoryName(rootCategory.name, locale) : ''}</span>
-    <span class="text-muted-foreground mx-2 text-xl">{t(locale, 'category.categoryLabel')}</span>
-  </h2>
-
-  <div class="flex w-full flex-col">
-    {
-      categories.map(
-        (category) =>
-          category?.children?.length && (
-            <div class="category-first-level-container flex flex-col">
-              {category?.children?.length &&
-                category.children.map((child) => (
-                  <SubCategory category={child} parentName={category.name} countMap={countMap} />
-                ))}
-            </div>
-          ),
-      )
-    }
-    {
-      posts?.length && (
-        <div class="category-second-level-container flex flex-col">
-          {posts.map((post) => (
-            <p class="shoka-decoration-circle group text-primary hover:text-blue relative px-6 py-2 text-base/9">
-              <span class="text-muted-foreground mr-2 text-xs">{displayDate.shortDate(post.data.date)}</span>
-              <a href={localizedPath(`/post/${encodeSlug(getPostSlug(post))}`, locale)} class="dashed-border">
-                {post?.data?.title}
-              </a>
-            </p>
-          ))}
-        </div>
-      )
-    }
-  </div>
+<div class="index-surface shadow-box">
+  <PageIntro stats={[{ value: posts.length, label: t(locale, 'index.posts') }]} breadcrumbs={breadcrumbs}>
+    {category?.children?.length && <nav class="index-chips" slot="tools" aria-label={t(locale, 'category.filter')}>
+      <span class="index-chip" aria-current="page">{translateCategoryName(category.name, locale)}</span>
+      {category.children.map((child) => <a class="index-chip" href={localizedPath(buildCategoryPath([...path, child.name]), locale)}>{translateCategoryName(child.name, locale)}<span>{postsInCategoryPath(allPosts, [...path, child.name]).length}</span></a>)}
+    </nav>}
+  </PageIntro>
+  <PostYears posts={posts} locale={locale} showCategory={Boolean(category?.children?.length)} />
 </div>
