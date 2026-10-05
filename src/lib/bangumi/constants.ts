@@ -2,7 +2,7 @@ import type { BangumiSubjectType } from '@/types/bangumi';
 
 export const BANGUMI_API_BASE = 'https://api.bgm.tv/v0';
 
-export const ITEMS_PER_PAGE = 20;
+export const ITEMS_PER_PAGE = 24;
 export const API_PAGE_SIZE = 50;
 export const MAX_API_PAGES = 20;
 
