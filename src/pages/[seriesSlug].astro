@@ -1,15 +1,14 @@
 ---
+import PageIntro from '@components/common/PageIntro.astro';
 import HomeSider from '@components/layout/HomeSider.astro';
 import PostList from '@components/post/PostList.astro';
 import SeriesCover from '@components/ui/cover/SeriesCover.astro';
-import { CONTENT_PADDING } from '@constants/layout';
 import { siteConfig } from '@constants/site-config';
-import Layout from '@layouts/Layout.astro';
-import TwoColumnLayout from '@layouts/TwoColumnLayout.astro';
+import { Layout, TwoColumnLayout } from '@layouts/index';
 import type { FeaturedSeriesItem } from '@lib/config/types';
 import { getPostsByCategory, translateSeriesField } from '@lib/content';
 import { toPostCardDataList } from '@lib/content/transforms';
-import { localizedPath, t } from '@/i18n';
+import { t } from '@/i18n';
 import { seriesRoute } from './_shared/routes';
 
 export const getStaticPaths = seriesRoute.root;
@@ -28,19 +27,15 @@ const seriesPosts = series.categoryName
 
 const seriesFullName = translateSeriesField(series.slug, 'fullName', series.fullName, locale);
 const seriesLabel = translateSeriesField(series.slug, 'label', series.label, locale);
-const pageTitle = seriesFullName || seriesLabel || series.categoryName;
+const pageTitle = `${seriesFullName || seriesLabel || series.categoryName} | ${siteConfig.title}`;
 ---
 
-<Layout locale={locale} title={`${pageTitle} | ${siteConfig.title}`} description={series.description?.slice(0, 160)}>
-  <TwoColumnLayout>
+<Layout articleTools={false} locale={locale} title={pageTitle} description={series.description?.slice(0, 160)}>
+  <TwoColumnLayout showPostFooter={false}>
     <SeriesCover slot="cover" series={series} />
     <HomeSider slot="sider" />
-    <div class={`shadow-box bg-gradient-start mx-0 flex w-full flex-col ${CONTENT_PADDING.standard}`}>
-      <h2 class="shoka-decoration-circle group relative h-19 px-6 py-5 text-2xl/9 font-bold md:text-xl/9">
-        <a href={localizedPath('/', locale)} class="dashed-border text-muted-foreground group-hover:border-blue group-hover:text-blue border-b">{t(locale, 'nav.home')}</a>
-        <span class="text-muted-foreground text-lg md:text-base"> / </span>
-        {t(locale, 'post.totalPosts', { count: seriesPosts.length })}
-      </h2>
+    <div class="index-surface shadow-box">
+      <PageIntro stats={[{ value: seriesPosts.length, label: t(locale, 'index.posts') }]} />
       <PostList posts={seriesPosts} showPaginator={false} isSimple={true} />
     </div>
   </TwoColumnLayout>

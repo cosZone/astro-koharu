@@ -3,8 +3,7 @@ import CategoryPostList from '@components/category/CategoryPostList.astro';
 import HomeSider from '@components/layout/HomeSider.astro';
 import Cover from '@components/ui/cover/Cover.astro';
 import { seoConfig } from '@constants/site-config';
-import Layout from '@layouts/Layout.astro';
-import TwoColumnLayout from '@layouts/TwoColumnLayout.astro';
+import { Layout, TwoColumnLayout } from '@layouts/index';
 import { type Category, getCategoryList, getSortedPosts, translateCategoryName } from '@lib/content';
 import { categoryTrail } from '@lib/content/index-categories';
 import { t } from '@/i18n';
@@ -24,8 +23,8 @@ const path = categoryTrail(allCategories, category?.name ?? '');
 const allPosts = await getSortedPosts(locale);
 ---
 
-<Layout locale={locale} title={`${t(locale, 'category.postsInCategory', { name: translateCategoryName(category?.name ?? '', locale) })} | ${seoConfig.title}`}>
-  <TwoColumnLayout>
+<Layout articleTools={false} locale={locale} title={`${t(locale, 'category.postsInCategory', { name: translateCategoryName(category?.name ?? '', locale) })} | ${seoConfig.title}`}>
+  <TwoColumnLayout showPostFooter={false}>
     <Cover compact slot="cover" title={t(locale, 'category.postsInCategory', { name: translateCategoryName(category?.name ?? '', locale) })} />
     <HomeSider slot="sider" />
     <CategoryPostList category={category} path={path} allPosts={allPosts} locale={locale} />

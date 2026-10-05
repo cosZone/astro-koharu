@@ -18,7 +18,8 @@ export function setupArchiveNavigation(): void {
     let frame = 0;
     const update = () => {
       frame = 0;
-      const current = years.findLast((year) => year.getBoundingClientRect().top <= 100) ?? years[0];
+      const atEnd = window.scrollY > 0 && window.scrollY + window.innerHeight >= document.documentElement.scrollHeight - 2;
+      const current = atEnd ? years.at(-1) : (years.findLast((year) => year.getBoundingClientRect().top <= 100) ?? years[0]);
       if (current) mark(current.id);
     };
     const schedule = () => {
@@ -26,7 +27,7 @@ export function setupArchiveNavigation(): void {
     };
     window.addEventListener('scroll', schedule, { passive: true, signal: controller.signal });
     window.addEventListener('resize', schedule, { signal: controller.signal });
-    update();
+    schedule();
     archive.addEventListener(
       'click',
       (event) => {

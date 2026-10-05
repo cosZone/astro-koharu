@@ -2,12 +2,11 @@
 import { PageIntro, PostRow, SilkTimeline } from '@components/common/index-pages';
 import HomeSider from '@components/layout/HomeSider.astro';
 import Cover from '@components/ui/cover/Cover.astro';
-import TwoColumnLayout from '@layouts/TwoColumnLayout.astro';
+import { Layout, TwoColumnLayout } from '@layouts/index';
 import { siteConfig, siteTimezone } from '@lib/config/site';
 import { getSortedPosts } from '@lib/content';
 import { bucketPostsByMonth, groupPostsByYear, monthIntensity, monthSpan } from '@lib/content/index-groups';
 import { defaultLocale, t } from '@/i18n';
-import Layout from '../layouts/Layout.astro';
 
 interface Props {
   locale?: string;
@@ -25,8 +24,8 @@ const stats = [
   { value: monthSpan(months.map(({ key }) => key)), label: t(locale, 'index.monthSpan') },
 ];
 ---
-<Layout locale={locale} title={`${t(locale, 'archives.title')} | ${siteConfig.title}`} description={t(locale, 'archives.title')}>
-  <TwoColumnLayout>
+<Layout articleTools={false} locale={locale} title={`${t(locale, 'archives.title')} | ${siteConfig.title}`} description={t(locale, 'archives.title')}>
+  <TwoColumnLayout showPostFooter={false}>
     <Cover compact slot="cover" title={t(locale, 'archives.title')} />
     <HomeSider slot="sider" />
     <div class="index-surface shadow-box" data-archive>

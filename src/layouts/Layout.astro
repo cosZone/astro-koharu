@@ -13,6 +13,8 @@ interface Props extends PageMetaProps {
   locale?: string;
   // TODO: siderType should be custom in router file, not in layout
   siderType?: HomeSiderType;
+  /** Text-only indexes can skip article fullscreen viewers; media pages keep the default. */
+  articleTools?: boolean;
   post?: BlogPost;
 }
 
@@ -34,6 +36,7 @@ const {
   description = seoConfig.description,
   locale = getLocaleFromUrl(Astro.url.pathname),
   siderType,
+  articleTools = true,
   post,
   ...metaProps
 } = Astro.props;
@@ -60,7 +63,7 @@ const isPostPage = stripLocaleFromPath(Astro.url.pathname).startsWith('/post/');
     <slot name="head" />
   </head>
   <body>
-    <AppShell post={post} siderType={siderType} isPostPage={isPostPage}>
+    <AppShell articleTools={articleTools} post={post} siderType={siderType} isPostPage={isPostPage}>
       <slot />
     </AppShell>
   </body>

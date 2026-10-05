@@ -3,8 +3,7 @@ import CategoryList from '@components/category/CategoryList.astro';
 import HomeSider from '@components/layout/HomeSider.astro';
 import Cover from '@components/ui/cover/Cover.astro';
 import { seoConfig } from '@constants/site-config';
-import Layout from '@layouts/Layout.astro';
-import TwoColumnLayout from '@layouts/TwoColumnLayout.astro';
+import { Layout, TwoColumnLayout } from '@layouts/index';
 import { getCategoryLinks, getCategoryList, getSortedPosts } from '@lib/content';
 import { defaultLocale, t } from '@/i18n';
 
@@ -19,8 +18,8 @@ const links = getCategoryLinks(categories, '');
 const posts = await getSortedPosts(locale);
 ---
 
-<Layout locale={locale} title={`${t(locale, 'category.allCategories')} | ${seoConfig.title}`}>
-  <TwoColumnLayout>
+<Layout articleTools={false} locale={locale} title={`${t(locale, 'category.allCategories')} | ${seoConfig.title}`}>
+  <TwoColumnLayout showPostFooter={false}>
     <Cover compact slot="cover" title={t(locale, 'category.allCategories')} />
     <HomeSider slot="sider" />
     <CategoryList categories={categories} posts={posts} totalCount={links.length} locale={locale} />

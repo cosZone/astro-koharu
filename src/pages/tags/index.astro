@@ -4,8 +4,7 @@ import HomeSider from '@components/layout/HomeSider.astro';
 import TagItem from '@components/tag/TagItem.astro';
 import Cover from '@components/ui/cover/Cover.astro';
 import { siteConfig } from '@constants/site-config';
-import Layout from '@layouts/Layout.astro';
-import TwoColumnLayout from '@layouts/TwoColumnLayout.astro';
+import { Layout, TwoColumnLayout } from '@layouts/index';
 import { getAllTags, getSortedPosts } from '@lib/content';
 import { tierTags } from '@lib/content/index-tags';
 import { defaultLocale, t } from '@/i18n';
@@ -23,8 +22,8 @@ const stats = [
   ...(tags.length ? [{ value: tags[0].tag, label: t(locale, 'index.mostUsed'), labelFirst: true }] : []),
 ];
 ---
-<Layout locale={locale} title={`${t(locale, 'tag.allTags')} | ${siteConfig.title}`} description={t(locale, 'tag.allTags')}>
-  <TwoColumnLayout>
+<Layout articleTools={false} locale={locale} title={`${t(locale, 'tag.allTags')} | ${siteConfig.title}`} description={t(locale, 'tag.allTags')}>
+  <TwoColumnLayout showPostFooter={false}>
     <Cover compact slot="cover" title={t(locale, 'tag.allTags')} />
     <HomeSider slot="sider" />
     <div class="index-surface shadow-box" data-tag-cloud>

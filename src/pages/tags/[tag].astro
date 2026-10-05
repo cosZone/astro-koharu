@@ -4,8 +4,7 @@ import PostYears from '@components/common/PostYears.astro';
 import HomeSider from '@components/layout/HomeSider.astro';
 import Cover from '@components/ui/cover/Cover.astro';
 import { siteConfig } from '@constants/site-config';
-import Layout from '@layouts/Layout.astro';
-import TwoColumnLayout from '@layouts/TwoColumnLayout.astro';
+import { Layout, TwoColumnLayout } from '@layouts/index';
 import { getSortedPosts, normalizeTag } from '@lib/content';
 import { localizedPath, t } from '@/i18n';
 import { tagRoute } from '../_shared/routes';
@@ -19,8 +18,8 @@ const { tag, locale } = Astro.props;
 const allPosts = await getSortedPosts(locale);
 const posts = allPosts.filter((post) => post.data.tags?.some((tg) => normalizeTag(tg) === tag));
 ---
-<Layout locale={locale} title={`${t(locale, 'tag.postsWithTag', { name: tag })} | ${siteConfig.title}`} description={t(locale, 'tag.postsWithTag', { name: tag })}>
-  <TwoColumnLayout>
+<Layout articleTools={false} locale={locale} title={`${t(locale, 'tag.postsWithTag', { name: tag })} | ${siteConfig.title}`} description={t(locale, 'tag.postsWithTag', { name: tag })}>
+  <TwoColumnLayout showPostFooter={false}>
     <Cover compact slot="cover" title={t(locale, 'tag.postsWithTag', { name: tag })} />
     <HomeSider slot="sider" />
     <div class="index-surface shadow-box">

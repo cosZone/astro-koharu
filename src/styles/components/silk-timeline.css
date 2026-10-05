@@ -18,7 +18,7 @@
   padding: 0.75rem 0 0.75rem 1.75rem;
   color: hsl(var(--foreground));
   font-size: 1.125rem;
-  font-weight: 600;
+  font-weight: 700;
   font-variant-numeric: tabular-nums;
 }
 .silk-heading::before {
@@ -89,12 +89,16 @@
   }
 }
 .post-row {
+  --post-row-date-width: 3.5rem;
   display: grid;
-  grid-template-columns: 3.5rem minmax(0, 1fr) auto;
+  grid-template-columns: var(--post-row-date-width) minmax(0, 1fr) auto;
   align-items: baseline;
   column-gap: 1rem;
   min-height: 3rem;
   padding: 0.75rem 0 0.75rem 1.75rem;
+}
+.post-row-full-date {
+  --post-row-date-width: 6.5rem;
 }
 .post-row time {
   color: hsl(var(--muted-foreground));
@@ -103,7 +107,7 @@
   white-space: nowrap;
 }
 .post-row:has(time:first-child:nth-last-child(2)) {
-  grid-template-columns: 3.5rem minmax(0, 1fr);
+  grid-template-columns: var(--post-row-date-width) minmax(0, 1fr);
 }
 .post-row-title {
   color: hsl(var(--foreground));
@@ -129,9 +133,6 @@
   color: hsl(var(--muted-foreground));
   font-size: 0.75rem;
 }
-.post-row:has(time[datetime]) {
-  grid-template-columns: minmax(3.5rem, max-content) minmax(0, 1fr) auto;
-}
 /* Long groups fade without translation so hash jumps and scroll anchoring stay stable. */
 html:is([data-motion="lively"], [data-motion="subtle"]) .silk-timeline .motion-reveal[data-reveal="in"] {
   animation-name: motion-fade;
@@ -141,7 +142,6 @@ html:is([data-motion="lively"], [data-motion="subtle"]) .silk-timeline .motion-r
     --silk-bead-y: 22px;
   }
   .post-row,
-  .post-row:has(time[datetime]),
   .post-row:has(time:first-child:nth-last-child(2)) {
     grid-template-columns: auto minmax(0, 1fr);
     gap: 0.25rem 0.75rem;
