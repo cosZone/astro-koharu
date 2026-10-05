@@ -12,7 +12,7 @@ const { locale = defaultLocale } = Astro.props;
 
 <div data-friends-grid>
   {friendsData.length > 0 ? (
-    <div class="friends-grid grid gap-4">
+    <div class="friends-grid grid">
       {friendsData.map((friend) => <FriendCard friend={friend} />)}
     </div>
   ) : (
@@ -25,18 +25,20 @@ const { locale = defaultLocale } = Astro.props;
 
 <style>
   .friends-grid {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.875rem;
   }
 
   @media (max-width: 1199px) {
     .friends-grid {
-      grid-template-columns: repeat(3, minmax(0, 1fr));
+      grid-template-columns: repeat(2, minmax(0, 1fr));
     }
   }
 
   @media (max-width: 600px) {
     .friends-grid {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
+      grid-template-columns: minmax(0, 1fr);
+      gap: 0.625rem;
     }
   }
 </style>
