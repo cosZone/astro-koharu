@@ -3,7 +3,6 @@ import PageIntro from '@components/common/PageIntro.astro';
 import FriendRequestForm from '@components/friends/FriendRequestForm';
 import FriendsGrid from '@components/friends/FriendsGrid.astro';
 import { friendsData } from '@constants/friends-config';
-import { PETAL_MASK } from '@lib/sakura/petal';
 import { Comment } from '@/components/comment';
 import { defaultLocale, t } from '@/i18n';
 
@@ -16,47 +15,8 @@ const { locale = defaultLocale } = Astro.props;
 <div class="index-surface shadow-box flex flex-col gap-8">
   <PageIntro className="page-intro-flush" stats={[{ value: friendsData.length, label: t(locale, 'friends.countUnit') }]} />
   <FriendsGrid locale={locale} />
-  <details class="friend-request rounded-2xl border border-border" id="friend-request" data-no-petals>
-    <summary class="relative flex min-h-16 cursor-pointer flex-wrap items-center gap-x-4 gap-y-1 rounded-2xl px-5 py-4 pr-12 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary">
-      <span class="inline-flex items-center gap-2 font-semibold text-foreground text-[15px]">
-        <span class="friend-request-petal size-3 bg-primary" style={{ '--friends-petal-mask': PETAL_MASK }} aria-hidden="true"></span>
-        {t(locale, 'friends.applyTitle')}
-      </span>
-      <span class="text-muted-foreground text-sm">{t(locale, 'friends.applySummary')}</span>
-    </summary>
-    <div class="border-border border-t px-5 py-6 tablet:px-4">
-      <FriendRequestForm locale={locale} client:visible />
-    </div>
-  </details>
-  <Comment />
+  <div class="mb-4">
+    <FriendRequestForm client:visible />
+    <Comment />
+  </div>
 </div>
-
-<style>
-  .friend-request-petal {
-    mask: var(--friends-petal-mask) center / contain no-repeat;
-    transform: rotate(-24deg);
-  }
-
-  .friend-request summary {
-    list-style: none;
-  }
-
-  .friend-request summary::-webkit-details-marker {
-    display: none;
-  }
-
-  .friend-request summary::after {
-    content: '';
-    position: absolute;
-    right: 1.5rem;
-    width: 8px;
-    height: 8px;
-    border-right: 1px solid hsl(var(--muted-foreground));
-    border-bottom: 1px solid hsl(var(--muted-foreground));
-    transform: rotate(45deg);
-  }
-
-  .friend-request[open] summary::after {
-    transform: rotate(225deg);
-  }
-</style>
