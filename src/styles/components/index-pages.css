@@ -1,6 +1,8 @@
 /* Shared vocabulary of the index pages (archives, categories, tags, friends): a quiet summary line,
    text crumbs and tabs, sakura year rules (the home page divider, left-aligned) and dense post rows. */
 .index-surface {
+  /* Small accent text needs more contrast than the decorative primary color. */
+  --index-ink: hsl(var(--badge-primary));
   /* Index content does not determine the outer flex column's width. */
   contain: layout style inline-size;
   padding: 2rem 2.5rem 2.5rem;
@@ -32,7 +34,7 @@
   color: hsl(var(--muted-foreground) / 0.5);
 }
 .page-crumbs a:is(:hover, :focus-visible) {
-  color: hsl(var(--primary));
+  color: var(--index-ink);
 }
 .page-crumbs [aria-current] {
   color: hsl(var(--foreground));
@@ -52,7 +54,7 @@
   font-size: 1.125rem;
   font-weight: 700;
   font-variant-numeric: tabular-nums;
-  color: hsl(var(--primary));
+  color: var(--index-ink);
 }
 .page-intro-tools {
   min-width: 0;
@@ -77,13 +79,12 @@
   margin-left: 0.125rem;
   font-size: 0.6875rem;
   font-variant-numeric: tabular-nums;
-  opacity: 0.75;
 }
 .index-tabs :is(a, button):is(:hover, :focus-visible) {
-  color: hsl(var(--primary));
+  color: var(--index-ink);
 }
 .index-tabs :is([aria-current], [aria-pressed="true"]) {
-  color: hsl(var(--primary));
+  color: var(--index-ink);
   font-weight: 700;
 }
 .index-tabs :is([aria-current], [aria-pressed="true"])::after {
@@ -210,7 +211,7 @@
 }
 .post-row-category:is(:hover, :focus-visible),
 .post-row:has(.post-row-title:is(:hover, :focus-visible)) .post-row-title {
-  color: hsl(var(--primary));
+  color: var(--index-ink);
 }
 @media (hover: hover) and (pointer: fine) {
   .post-row:has(.post-row-title:hover) {

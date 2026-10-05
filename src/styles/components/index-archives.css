@@ -51,7 +51,7 @@
   color: hsl(var(--muted-foreground));
 }
 .archive-calendar-year:is(:hover, :focus-visible) {
-  color: hsl(var(--primary));
+  color: var(--index-ink);
 }
 .calendar-short-year {
   display: none;

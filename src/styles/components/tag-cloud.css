@@ -37,7 +37,6 @@
   font-weight: 400;
   font-variant-numeric: tabular-nums;
   color: hsl(var(--muted-foreground));
-  opacity: 0.75;
 }
 .index-tag[data-tier="1"] {
   font-size: 0.875rem;
@@ -58,7 +57,7 @@
   color: hsl(var(--primary));
 }
 .index-tag:is(:hover, :focus-visible) {
-  color: hsl(var(--primary));
+  color: var(--index-ink);
 }
 .index-tag[hidden] {
   display: none;

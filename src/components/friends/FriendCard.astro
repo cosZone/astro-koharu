@@ -119,7 +119,7 @@ const { friend } = Astro.props;
     overflow: hidden;
     font-size: 0.8125rem;
     line-height: 1.5;
-    color: hsl(var(--foreground) / 0.62);
+    color: hsl(var(--muted-foreground));
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
   }
@@ -144,6 +144,10 @@ const { friend } = Astro.props;
 
     .friend-card:hover .friend-name {
       color: color-mix(in oklab, var(--friend-color) 65%, hsl(var(--foreground)));
+    }
+
+    :global(html:not(.dark)) .friend-card:hover .friend-name {
+      color: color-mix(in oklab, var(--friend-color) 35%, hsl(var(--foreground)));
     }
 
     .friend-card:hover .friend-arrow {
