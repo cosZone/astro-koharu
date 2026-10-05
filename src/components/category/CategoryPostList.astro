@@ -24,9 +24,9 @@ const breadcrumbs = [
 ---
 <div class="index-surface shadow-box">
   <PageIntro stats={[{ value: posts.length, label: t(locale, 'index.posts') }]} breadcrumbs={breadcrumbs}>
-    {category?.children?.length && <nav class="index-chips" slot="tools" aria-label={t(locale, 'category.filter')}>
-      <span class="index-chip" aria-current="page">{translateCategoryName(category.name, locale)}</span>
-      {category.children.map((child) => <a class="index-chip" href={localizedPath(buildCategoryPath([...path, child.name]), locale)}>{translateCategoryName(child.name, locale)}<span>{postsInCategoryPath(allPosts, [...path, child.name]).length}</span></a>)}
+    {category?.children?.length && <nav class="index-tabs" slot="tools" aria-label={t(locale, 'category.filter')}>
+      <span aria-current="page">{t(locale, 'tag.all')}<sup>{posts.length}</sup></span>
+      {category.children.map((child) => <a href={localizedPath(buildCategoryPath([...path, child.name]), locale)}>{translateCategoryName(child.name, locale)}<sup>{postsInCategoryPath(allPosts, [...path, child.name]).length}</sup></a>)}
     </nav>}
   </PageIntro>
   <PostYears posts={posts} locale={locale} showCategory={Boolean(category?.children?.length)} />

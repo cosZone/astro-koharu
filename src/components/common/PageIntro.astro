@@ -8,17 +8,12 @@ interface Props {
 }
 const { stats, breadcrumbs = [], className } = Astro.props;
 ---
-<div class={cn('page-intro', className)}>
-  <div class="page-intro-copy">
-    {breadcrumbs.length > 0 && <nav class="index-chips page-intro-breadcrumbs" aria-label={breadcrumbs[0].label}>
-      {breadcrumbs.map((crumb, index) => <>
-        {index > 0 && <span aria-hidden="true">›</span>}
-        {crumb.href ? <a class="index-chip" href={crumb.href}>{crumb.label}</a> : <span class="index-chip" aria-current="page">{crumb.label}</span>}
-      </>)}
-    </nav>}
-    <dl class="page-intro-stats">
-      {stats.map(({ value, label, labelFirst }) => <div class:list={[labelFirst && "page-intro-label-first"]}><dt>{label}</dt><dd>{value}</dd></div>)}
-    </dl>
-  </div>
+<header class={cn('page-intro', className)}>
+  {breadcrumbs.length > 0 && <nav class="page-crumbs" aria-label={breadcrumbs[0].label}>
+    {breadcrumbs.map((crumb) => crumb.href ? <a href={crumb.href}>{crumb.label}</a> : <span aria-current="page">{crumb.label}</span>)}
+  </nav>}
+  <p class="page-summary">
+    {stats.map(({ value, label, labelFirst }) => <span>{labelFirst ? <>{label} <b>{value}</b></> : <><b>{value}</b> {label}</>}</span>)}
+  </p>
   {Astro.slots.has('tools') && <div class="page-intro-tools"><slot name="tools" /></div>}
-</div>
+</header>

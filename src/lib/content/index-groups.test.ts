@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { bucketPostsByMonth, groupPostsByYear, monthIntensity, monthSpan } from './index-groups';
+import { bucketPostsByMonth, groupPostsByYear, monthIntensity } from './index-groups';
 
 const post = (id: string, date: string) => ({ id, data: { date: new Date(date) } });
 test('buckets follow site timezone at year/month boundaries and keep newest first', () => {
@@ -38,9 +38,4 @@ test('monthly intensity has five bounded tiers, including zero and a single post
   );
   assert.equal(monthIntensity(1, 1), 4);
   assert.equal(monthIntensity(5, 0), 0);
-});
-test('inclusive month span crosses year boundaries and includes empty months', () => {
-  assert.equal(monthSpan([]), 0);
-  assert.equal(monthSpan(['2024-01']), 1);
-  assert.equal(monthSpan(['2024-03', '2023-12']), 4);
 });

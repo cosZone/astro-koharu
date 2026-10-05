@@ -39,10 +39,3 @@ export function monthIntensity(count: number, peak: number): number {
   const weight = Math.log1p(count) / Math.log1p(peak);
   return weight >= 0.7 ? 4 : weight >= 0.5 ? 3 : weight >= 0.35 ? 2 : 1;
 }
-
-/** Inclusive span, including empty months between the oldest and newest post. */
-export function monthSpan(keys: readonly string[]): number {
-  if (!keys.length) return 0;
-  const ordinals = keys.map((key) => Number(key.slice(0, 4)) * 12 + Number(key.slice(5)) - 1);
-  return Math.max(...ordinals) - Math.min(...ordinals) + 1;
-}

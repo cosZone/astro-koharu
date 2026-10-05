@@ -7,13 +7,11 @@
 
 export const uiStrings = {
   // Index pages
-  'index.posts': '篇',
-  'index.years': '年间',
-  'index.monthSpan': '个月跨度',
+  'index.posts': '篇文章',
+  'index.years': '年',
   'index.categories': '个分类',
   'index.tags': '个标签',
   'index.mostUsed': '最常用',
-  'category.recentPost': '最近：{title}',
   'category.filter': '子分类',
   'tag.filter': '过滤标签',
   'tag.filterPlaceholder': '输入标签名称',
@@ -23,7 +21,6 @@ export const uiStrings = {
   'archives.legendFew': '少',
   'archives.legendMany': '多',
   'archives.calendar': '樱历',
-  'archives.month': '{month} 月',
   'archives.monthLabel': '{year} 年 {month} 月 · {count} 篇',
 
   // ── Navigation ──────────────────────────────────────────────

@@ -1,0 +1,88 @@
+/* Categories read like a book's table of contents: petal bullet, dotted leader, count. */
+.category-toc {
+  display: grid;
+  gap: 0.375rem;
+}
+.category-toc > li {
+  padding-block: 0.5rem;
+}
+.category-toc-head {
+  display: flex;
+  align-items: baseline;
+  gap: 0.625rem;
+  padding-block: 0.25rem;
+}
+.category-toc-name {
+  position: relative;
+  padding-left: 1.25rem;
+  font-size: 1.0625rem;
+  font-weight: 700;
+  color: hsl(var(--foreground) / 0.88);
+  transition: color 160ms var(--ease-out-quart);
+}
+.category-toc-name::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 11px;
+  height: 13px;
+  background: hsl(var(--primary) / 0.8);
+  mask: var(--petal-mask) center / contain no-repeat;
+  transform: translateY(-50%) rotate(-24deg);
+  transition: transform 260ms var(--ease-out-quart);
+}
+.category-toc-leader {
+  flex: 1;
+  min-width: 1.5rem;
+  border-bottom: 2px dotted hsl(var(--muted-foreground) / 0.3);
+  transform: translateY(-0.3em);
+}
+.category-toc-count {
+  font-size: 0.9375rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: hsl(var(--primary));
+}
+.category-toc-head:is(:hover, :focus-visible) .category-toc-name {
+  color: hsl(var(--primary));
+}
+.category-toc-children {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.125rem 1.125rem;
+  padding: 0.25rem 0 0 1.25rem;
+  font-size: 0.875rem;
+}
+.category-toc-children > li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+}
+.category-toc-children a {
+  padding-block: 0.25rem;
+  color: hsl(var(--muted-foreground));
+}
+.category-toc-children a:is(:hover, :focus-visible) {
+  color: hsl(var(--primary));
+}
+.category-toc-children sup {
+  margin-left: 0.125rem;
+  font-size: 0.6875rem;
+  font-variant-numeric: tabular-nums;
+  opacity: 0.7;
+}
+.category-toc-grand {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 0 0.625rem;
+  margin-left: 0.5rem;
+  padding-left: 0.5rem;
+  border-left: 1px solid hsl(var(--primary) / 0.3);
+  font-size: 0.8125rem;
+}
+@media (hover: hover) and (pointer: fine) {
+  html:not([data-motion="reduced"]) .category-toc-head:hover .category-toc-name::before {
+    transform: translateY(-50%) rotate(16deg) scale(1.15);
+  }
+}

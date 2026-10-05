@@ -1,11 +1,12 @@
 ---
-import { PageIntro, PostRow, SilkTimeline } from '@components/common/index-pages';
+import PageIntro from '@components/common/PageIntro.astro';
+import PostYears from '@components/common/PostYears.astro';
 import HomeSider from '@components/layout/HomeSider.astro';
 import Cover from '@components/ui/cover/Cover.astro';
 import { Layout, TwoColumnLayout } from '@layouts/index';
 import { siteConfig, siteTimezone } from '@lib/config/site';
 import { getSortedPosts } from '@lib/content';
-import { bucketPostsByMonth, groupPostsByYear, monthIntensity, monthSpan } from '@lib/content/index-groups';
+import { bucketPostsByMonth, groupPostsByYear, monthIntensity } from '@lib/content/index-groups';
 import { PETAL_MASK } from '@lib/sakura/petal';
 import { formatInTimeZone } from 'date-fns-tz';
 import { defaultLocale, t } from '@/i18n';
@@ -25,7 +26,6 @@ const range = years.length ? `${years.at(-1)?.year}–${years[0].year}` : '—';
 const stats = [
   { value: posts.length, label: t(locale, 'index.posts') },
   { value: range, label: t(locale, 'index.years') },
-  { value: monthSpan(months.map(({ key }) => key)), label: t(locale, 'index.monthSpan') },
 ];
 ---
 <Layout articleTools={false} locale={locale} title={`${t(locale, 'archives.title')} | ${siteConfig.title}`} description={t(locale, 'archives.title')}>
@@ -57,15 +57,7 @@ const stats = [
           </div>)}
         </div>
       </section>}
-      <SilkTimeline>
-        {years.map(({ year, posts: yearPosts }) => <section id={`year-${year}`} class="archive-year" tabindex="-1">
-          <h2 class="silk-heading archive-year-heading">{year}<small>{t(locale, 'post.yearPosts', { count: yearPosts.length })}</small></h2>
-          {months.filter((bucket) => bucket.year === year).map(({ key, month, posts }) => <section class="motion-reveal" id={`month-${key}`} tabindex="-1">
-            <h3 class="silk-heading silk-month">{t(locale, 'archives.month', { month })}</h3>
-            {posts.map((post) => <PostRow post={post} locale={locale} />)}
-          </section>)}
-        </section>)}
-      </SilkTimeline>
+      <PostYears posts={posts} locale={locale} anchors />
     </div>
   </TwoColumnLayout>
 </Layout>

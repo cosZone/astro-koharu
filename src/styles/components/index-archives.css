@@ -58,8 +58,8 @@
 }
 .archive-month-cell {
   display: block;
-  height: 22px;
-  border-radius: 5px;
+  height: 18px;
+  border-radius: 4px;
   background: var(--month-color, hsl(var(--muted)));
 }
 .archive-month-cell[data-tier="future"] {
@@ -106,30 +106,6 @@ a.archive-month-cell:focus-visible {
     box-shadow: 0 2px 8px -2px hsl(var(--primary) / 0.5);
   }
 }
-.archive-year {
-  scroll-margin-top: 5.5rem;
-}
-.archive-year-heading {
-  position: sticky;
-  top: 5rem;
-  z-index: 3;
-  font-size: 1.5rem;
-  line-height: 2rem;
-  background: hsl(var(--card));
-}
-.archive-year-heading::before {
-  top: 1.75rem;
-  width: 12px;
-  height: 14px;
-  border-radius: 0;
-  mask: var(--petal-mask) center / contain no-repeat;
-}
-.archive-year section {
-  scroll-margin-top: 9rem;
-}
-.archive-year + .archive-year {
-  margin-top: 1.5rem;
-}
 @media (width <= 767px) {
   .archive-calendar-grid,
   .archive-calendar-row {
@@ -151,20 +127,5 @@ a.archive-month-cell:focus-visible {
   }
   .calendar-short-year {
     display: inline;
-  }
-  [data-archive] .page-intro-stats {
-    column-gap: 0.75rem;
-  }
-  [data-archive] .page-intro-stats > div + div {
-    padding-left: 0.75rem;
-  }
-  [data-archive] .page-intro-stats > div {
-    gap: 0.375rem;
-  }
-  [data-archive] .page-intro-stats dd {
-    font-size: 1.25rem;
-  }
-  [data-archive] .page-intro-stats dt {
-    font-size: 0.75rem;
   }
 }
