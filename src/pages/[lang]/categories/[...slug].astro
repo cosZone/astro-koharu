@@ -7,9 +7,10 @@ export const getStaticPaths = categoryRoute.mirror;
 
 interface Props {
   category: Category | null;
+  path: string[];
   locale: string;
 }
 
-const { category, locale } = Astro.props;
+const { category, path, locale } = Astro.props;
 ---
-<CategoryPage category={category} locale={locale} />
+<CategoryPage category={category} path={path} locale={locale} />

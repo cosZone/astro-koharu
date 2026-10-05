@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { categoryTrail, postsInCategoryPath } from './index-categories';
+import { categoryAtPath, postsInCategoryPath } from './index-categories';
 
 test('category paths include descendants but distinguish branches with the same leaf name', () => {
   const posts = [
@@ -16,9 +16,17 @@ test('category paths include descendants but distinguish branches with the same 
   assert.equal(postsInCategoryPath(posts, []).length, 0);
   assert.equal(posts.length, 4);
 });
-test('breadcrumb ancestry includes every level and has a safe missing-category result', () => {
-  const tree = [{ name: 'Notes', children: [{ name: 'Web', children: [{ name: 'React' }] }] }];
-  assert.deepEqual(categoryTrail(tree, 'React'), ['Notes', 'Web', 'React']);
-  assert.deepEqual(categoryTrail(tree, 'Notes'), ['Notes']);
-  assert.deepEqual(categoryTrail(tree, 'Missing'), []);
+test('category routing resolves the full ancestry when different branches share names', () => {
+  const firstWeb = { name: 'Web', children: [{ name: 'React' }] };
+  const secondWeb = { name: 'Web', children: [{ name: 'CSS' }] };
+  const tree = [
+    { name: 'Notes', children: [firstWeb] },
+    { name: 'Work', children: [secondWeb] },
+  ];
+  assert.equal(categoryAtPath(tree, ['Notes', 'Web']), firstWeb);
+  assert.equal(categoryAtPath(tree, ['Work', 'Web']), secondWeb);
+  assert.equal(categoryAtPath(tree, ['Work', 'Web', 'CSS']), secondWeb.children[0]);
+  assert.equal(categoryAtPath(tree, ['Work', 'Web', 'React']), null);
+  assert.equal(categoryAtPath(tree, ['Web']), null);
+  assert.equal(categoryAtPath(tree, []), null);
 });

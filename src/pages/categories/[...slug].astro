@@ -4,8 +4,7 @@ import HomeSider from '@components/layout/HomeSider.astro';
 import Cover from '@components/ui/cover/Cover.astro';
 import { seoConfig } from '@constants/site-config';
 import { Layout, TwoColumnLayout } from '@layouts/index';
-import { type Category, getCategoryList, getSortedPosts, translateCategoryName } from '@lib/content';
-import { categoryTrail } from '@lib/content/index-categories';
+import { type Category, getSortedPosts, translateCategoryName } from '@lib/content';
 import { t } from '@/i18n';
 import { categoryRoute } from '../_shared/routes';
 
@@ -13,13 +12,11 @@ export const getStaticPaths = categoryRoute.root;
 
 interface Props {
   category: Category | null;
+  path: string[];
   locale: string;
 }
 
-const { category, locale } = Astro.props;
-const { categories: allCategories } = await getCategoryList(locale);
-
-const path = categoryTrail(allCategories, category?.name ?? '');
+const { category, path, locale } = Astro.props;
 const allPosts = await getSortedPosts(locale);
 ---
 

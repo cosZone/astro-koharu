@@ -12,11 +12,14 @@ export function postsInCategoryPath<T extends CategorizedPost>(posts: readonly T
   });
 }
 
-export function categoryTrail(categories: readonly Category[], name: string): string[] {
-  for (const category of categories) {
-    if (category.name === name) return [name];
-    const nested = categoryTrail(category.children ?? [], name);
-    if (nested.length) return [category.name, ...nested];
+/** Resolve each ancestor in order; leaf names alone do not identify a category. */
+export function categoryAtPath(categories: readonly Category[], path: readonly string[]): Category | null {
+  let siblings = categories;
+  let category: Category | undefined;
+  for (const name of path) {
+    category = siblings.find((candidate) => candidate.name === name);
+    if (!category) return null;
+    siblings = category.children ?? [];
   }
-  return [];
+  return category ?? null;
 }

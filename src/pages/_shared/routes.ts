@@ -7,15 +7,16 @@
 
 import { PAGINATION } from '@constants/layout';
 import {
-  getCategoryByLink,
   getCategoryLinks,
   getCategoryList,
+  getCategoryNameByLink,
   getEnabledSeries,
   getNonFeaturedPosts,
   getPostSlug,
   getSortedPosts,
   normalizeTag,
 } from '@lib/content';
+import { categoryAtPath } from '@lib/content/index-categories';
 import { localePaths } from './utils';
 
 /** Tags can contain `/`, which is not usable as a single route segment. */
@@ -34,10 +35,10 @@ export const tagRoute = localePaths(async ({ locale }) => {
 
 export const categoryRoute = localePaths(async ({ locale }) => {
   const { categories } = await getCategoryList(locale);
-  return getCategoryLinks(categories, '').map((link) => ({
-    params: { slug: link },
-    props: { category: getCategoryByLink(categories, link) },
-  }));
+  return getCategoryLinks(categories, '').map((link) => {
+    const path = link.split('/').map(getCategoryNameByLink);
+    return { params: { slug: link }, props: { category: categoryAtPath(categories, path), path } };
+  });
 });
 
 export const seriesRoute = localePaths(() =>
