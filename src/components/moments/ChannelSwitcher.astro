@@ -21,7 +21,7 @@ const { channels, label, className } = Astro.props;
               href={channel.href}
               aria-current={channel.isActive ? 'page' : undefined}
               class:list={[
-                'focus-visible:ring-primary inline-flex min-h-9 touch-manipulation items-center gap-2 rounded-full border px-3 py-1.5 text-sm transition-[background-color,border-color,color,scale] duration-150 ease-out active:scale-[0.96] focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none tablet:text-[0.8125rem]',
+                'focus-visible:ring-primary inline-flex min-h-10 touch-manipulation items-center gap-2 rounded-full border px-3 py-1.5 text-sm transition-transform duration-150 ease-out active:scale-[0.96] focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none tablet:text-[0.8125rem]',
                 channel.isActive
                   ? 'border-primary/70 bg-primary/12 text-primary'
                   : 'border-border/80 bg-card/80 text-muted-foreground hover:border-primary/40 hover:bg-card hover:text-foreground',

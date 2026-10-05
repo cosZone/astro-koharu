@@ -1,0 +1,27 @@
+---
+import { groupMomentConversations } from '@/features/moments/lib/message-groups';
+import MessageCard from './MessageCard.astro';
+import type { MomentMessageLabels, MomentMessageViewModel } from './types';
+
+interface Props {
+  messages: MomentMessageViewModel[];
+  labels: MomentMessageLabels;
+}
+
+const { messages, labels } = Astro.props;
+const conversations = groupMomentConversations(messages);
+---
+
+<ol class="moments-timeline" data-moments-timeline>
+  {conversations.map((conversation) => (
+    <li class="moments-conversation motion-reveal">
+      <ol class="moments-conversation-messages">
+        {conversation.map((message, index) => (
+          <li class="moments-timeline-row" data-moments-row data-group-start={index === 0 ? 'true' : 'false'}>
+            <MessageCard message={message} groupStart={index === 0} labels={labels} />
+          </li>
+        ))}
+      </ol>
+    </li>
+  ))}
+</ol>

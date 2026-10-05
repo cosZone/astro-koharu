@@ -435,6 +435,7 @@ export const uiStrings = {
   'moments.noResults': '没有找到匹配的碎碎念',
   'moments.clearSearch': '清除搜索条件',
   'moments.updated': '已更新',
+  'moments.messageActions': '消息操作',
   'moments.permalink': '永久链接',
   'moments.copyLink': '复制链接',
   'moments.copyFailed': '复制失败，请手动复制',

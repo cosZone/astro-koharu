@@ -87,6 +87,7 @@ export function toMessageViewModel(
   return {
     id: message.id,
     channel: toChannelViewModel(config, channel),
+    authorSignature: message.authorSignature,
     publishedAt: message.publishedAt,
     publishedLabel: displayDate.datetime(message.publishedAt),
     revision: message.revision,

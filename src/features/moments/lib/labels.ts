@@ -10,7 +10,7 @@ export const momentsLabels = {
   cacheNotice: tr('moments.cacheNotice'),
   collapse: tr('moments.collapse'),
   revealSpoiler: tr('content.revealSpoiler'),
-  copied: defaultLocale === 'en' ? 'Copied' : defaultLocale === 'ja' ? 'コピーしました' : '已复制',
+  copied: tr('common.copied'),
   copyFailed: tr('moments.copyFailed'),
   copyLink: tr('moments.copyLink'),
   emptyChannel: tr('moments.emptyChannel'),
@@ -73,6 +73,7 @@ export const cursorPaginationLabels = {
 } as const;
 
 export const messageCardLabels = {
+  actions: tr('moments.messageActions'),
   updated: momentsLabels.updated,
   permalink: momentsLabels.permalink,
   copyLink: momentsLabels.copyLink,

@@ -1,6 +1,6 @@
 ---
 import CursorPagination from '@components/moments/CursorPagination.astro';
-import MessageCard from '@components/moments/MessageCard.astro';
+import MessageTimeline from '@components/moments/MessageTimeline.astro';
 import MomentsShell from '@components/moments/MomentsShell.astro';
 import MomentsState from '@components/moments/MomentsState.astro';
 import SearchForm from '@components/moments/SearchForm.astro';
@@ -111,13 +111,7 @@ const nextHref = nextUrl ? `${nextUrl.pathname}${nextUrl.search}` : undefined;
     </div>
     {!failure && query && queryIsValid && results.length > 0 && (
       <>
-        <ol class="moments-timeline mt-3" data-moments-timeline>
-          {results.map((message) => (
-            <li>
-              <MessageCard message={message} labels={messageCardLabels} />
-            </li>
-          ))}
-        </ol>
+        <MessageTimeline messages={results} labels={messageCardLabels} />
         <CursorPagination nextHref={nextHref} labels={cursorPaginationLabels} />
       </>
     )}

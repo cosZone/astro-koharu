@@ -35,13 +35,13 @@ const { html, contentId, collapsible = true, emptyLabel, expandLabel, collapseLa
   <button
     hidden
     type="button"
-    class="moments-message-toggle text-muted-foreground hover:text-primary focus-visible:ring-primary min-h-9 touch-manipulation rounded-full px-3 text-sm font-medium backdrop-blur-sm transition-[background-color,color,box-shadow,scale] active:scale-[0.96] motion-reduce:transition-none focus-visible:ring-2 focus-visible:ring-offset-1 focus-visible:outline-none"
+    class="moments-message-toggle text-muted-foreground hover:text-primary focus-visible:ring-primary min-h-10 touch-manipulation rounded-full px-3 text-sm font-medium transition-transform active:scale-[0.96] motion-reduce:transition-none focus-visible:ring-2 focus-visible:ring-offset-1 focus-visible:outline-none"
     aria-expanded="true"
     aria-controls={contentId}
     data-message-toggle
   >
     <span data-message-toggle-label>{expandLabel}</span>
-    <Icon name="ri:arrow-down-s-line" class="moments-message-toggle-icon size-4" aria-hidden="true" />
+    <Icon is:inline name="ri:arrow-down-s-line" class="moments-message-toggle-icon size-4" aria-hidden="true" />
   </button>
 </moments-message-body>
 
@@ -217,7 +217,7 @@ const { html, contentId, collapsible = true, emptyLabel, expandLabel, collapseLa
     align-items: center;
     gap: 0.125rem;
     margin: 0.75rem auto 0;
-    background: hsl(var(--background) / 0.9);
+    background: hsl(var(--card));
     box-shadow:
       0 0 0 1px hsl(var(--border) / 0.72),
       0 1px 2px hsl(var(--foreground) / 0.05),
@@ -241,16 +241,6 @@ const { html, contentId, collapsible = true, emptyLabel, expandLabel, collapseLa
 
   moments-message-body[data-expanded='true'] .moments-message-toggle-icon {
     transform: rotate(180deg);
-  }
-
-  @media (prefers-reduced-motion: no-preference) {
-    .moments-message-toggle {
-      transition:
-        color 180ms ease,
-        background-color 180ms ease,
-        box-shadow 180ms ease,
-        scale 120ms ease;
-    }
   }
 
   @media (prefers-reduced-motion: reduce) {

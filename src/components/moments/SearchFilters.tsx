@@ -64,7 +64,7 @@ function FilterSelect({ label, value, options, onSelect }: FilterSelectProps) {
           <button
             type="button"
             aria-label={`${label}: ${current?.label}`}
-            className="flex min-h-9 w-full min-w-0 touch-manipulation items-center justify-between gap-2 rounded-lg border border-border/80 bg-background px-2.5 py-1.5 text-left outline-none transition-[border-color,box-shadow] hover:border-primary/50 focus-visible:ring-2 focus-visible:ring-primary"
+            className="flex min-h-10 w-full min-w-0 touch-manipulation items-center justify-between gap-2 rounded-lg border border-border/80 bg-background px-2.5 py-1.5 text-left outline-none hover:border-primary/50 focus-visible:ring-2 focus-visible:ring-primary"
           >
             <span className="truncate">{current?.label}</span>
             <ChevronIcon />
@@ -78,7 +78,7 @@ function FilterSelect({ label, value, options, onSelect }: FilterSelectProps) {
             <DropdownMenuItem
               key={option.value || '__all__'}
               onSelect={() => onSelect(option.value)}
-              className="justify-between"
+              className="min-h-10 justify-between"
             >
               <span className="truncate">{option.label}</span>
               {option.value === value && <CheckIcon />}

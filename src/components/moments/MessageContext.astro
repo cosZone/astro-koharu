@@ -23,7 +23,7 @@ const fallbackPreview = (item: MomentContextItemViewModel) => item.preview?.trim
         <a
           href={newer.href}
           rel="prev"
-          class="moments-context-card bg-card focus-visible:ring-primary group min-w-0 touch-manipulation rounded-xl p-3 transition-[box-shadow,scale] active:scale-[0.96] focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none"
+          class="moments-context-card bg-card focus-visible:ring-primary group min-w-0 touch-manipulation rounded-xl p-3 transition-transform active:scale-[0.96] focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none"
         >
           <span class="text-primary flex items-center gap-1 text-xs font-medium">
             <Icon name="ri:arrow-left-line" aria-hidden="true" />
@@ -39,7 +39,7 @@ const fallbackPreview = (item: MomentContextItemViewModel) => item.preview?.trim
         <a
           href={older.href}
           rel="next"
-          class="moments-context-card bg-card focus-visible:ring-primary group min-w-0 touch-manipulation rounded-xl p-3 text-end transition-[box-shadow,scale] active:scale-[0.96] focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none"
+          class="moments-context-card bg-card focus-visible:ring-primary group min-w-0 touch-manipulation rounded-xl p-3 text-end transition-transform active:scale-[0.96] focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none"
         >
           <span class="text-primary flex items-center justify-end gap-1 text-xs font-medium">
             {olderLabel}

@@ -1,7 +1,7 @@
 ---
 import ChannelSwitcher from '@components/moments/ChannelSwitcher.astro';
 import CursorPagination from '@components/moments/CursorPagination.astro';
-import MessageCard from '@components/moments/MessageCard.astro';
+import MessageTimeline from '@components/moments/MessageTimeline.astro';
 import MomentsShell from '@components/moments/MomentsShell.astro';
 import MomentsState from '@components/moments/MomentsState.astro';
 import { momentsConfig } from '@constants/site-config';
@@ -77,13 +77,7 @@ const nextHref = page?.nextCursor ? `${canonicalPath}?cursor=${encodeURIComponen
       <MomentsState kind="empty" title={momentsLabels.emptyChannel} />
     ) : (
       <>
-        <ol class="moments-timeline" data-moments-timeline>
-          {messages.map((message) => (
-            <li>
-              <MessageCard message={message} labels={messageCardLabels} />
-            </li>
-          ))}
-        </ol>
+        <MessageTimeline messages={messages} labels={messageCardLabels} />
         <CursorPagination nextHref={nextHref} labels={cursorPaginationLabels} />
       </>
     )}

@@ -1,6 +1,36 @@
 import type { PublicMessage } from '@coszone/koharu-astro';
 
 const TELEGRAM_ALBUM_LIMIT = 10;
+const CONVERSATION_GAP_MS = 10 * 60 * 1000;
+
+interface ConversationMessage {
+  channel: { id: string };
+  authorSignature?: string | null;
+  publishedAt: string;
+}
+
+/** Missing signatures represent the channel author; never infer identity across channels. */
+export function continuesMomentConversation(previous: ConversationMessage, candidate: ConversationMessage): boolean {
+  const gap = Math.abs(Date.parse(candidate.publishedAt) - Date.parse(previous.publishedAt));
+  return (
+    previous.channel.id === candidate.channel.id &&
+    (previous.authorSignature ?? null) === (candidate.authorSignature ?? null) &&
+    Number.isFinite(gap) &&
+    gap <= CONVERSATION_GAP_MS
+  );
+}
+
+/** Preserve feed/search order and compare adjacent messages, not the start of the conversation. */
+export function groupMomentConversations<T extends ConversationMessage>(messages: readonly T[]): T[][] {
+  const groups: T[][] = [];
+  for (const message of messages) {
+    const current = groups.at(-1);
+    const previous = current?.at(-1);
+    if (current && previous && continuesMomentConversation(previous, message)) current.push(message);
+    else groups.push([message]);
+  }
+  return groups;
+}
 
 export interface MomentMessageGroup {
   anchor: PublicMessage;
