@@ -20,7 +20,7 @@ const links = getCategoryLinks(categories, '');
 
 <Layout locale={locale} title={`${t(locale, 'category.allCategories')} | ${seoConfig.title}`}>
   <TwoColumnLayout>
-    <Cover slot="cover" title={t(locale, 'category.allCategories')} />
+    <Cover compact slot="cover" title={t(locale, 'category.allCategories')} />
     <HomeSider slot="sider" />
     <CategoryList categories={categories} countMap={countMap} totalCount={links.length ?? 0} />
   </TwoColumnLayout>

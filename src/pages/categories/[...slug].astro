@@ -25,7 +25,7 @@ const displayCategories = category ? [category] : allCategories;
 
 <Layout locale={locale} title={`${t(locale, 'category.postsInCategory', { name: translateCategoryName(category?.name ?? '', locale) })} | ${seoConfig.title}`}>
   <TwoColumnLayout>
-    <Cover slot="cover" title={t(locale, 'category.postsInCategory', { name: translateCategoryName(category?.name ?? '', locale) })} />
+    <Cover compact slot="cover" title={t(locale, 'category.postsInCategory', { name: translateCategoryName(category?.name ?? '', locale) })} />
     <HomeSider slot="sider" />
     <CategoryPostList rootCategory={category} categories={displayCategories} countMap={countMap} />
   </TwoColumnLayout>

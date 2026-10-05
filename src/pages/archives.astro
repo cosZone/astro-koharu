@@ -36,7 +36,7 @@ const years = Object.keys(postsByYear).sort((a, b) => Number(b) - Number(a));
 
 <Layout locale={locale} title={`${t(locale, 'archives.title')} | ${siteConfig.title}`} description={t(locale, 'archives.title')}>
   <TwoColumnLayout>
-    <Cover slot="cover" title={t(locale, 'archives.title')} />
+    <Cover compact slot="cover" title={t(locale, 'archives.title')} />
     <HomeSider slot="sider" />
     <div class={`shadow-box bg-gradient-start mx-0 flex w-full flex-col ${CONTENT_PADDING.standard}`}>
       <h2 class="shoka-decoration-circle group relative h-19 px-6 py-5 text-2xl/9 font-bold md:text-xl/9">

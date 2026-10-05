@@ -1,0 +1,24 @@
+---
+import { cn } from '@lib/utils';
+
+interface Props {
+  stats: { value: string | number; label: string }[];
+  breadcrumbs?: { label: string; href?: string }[];
+  className?: string;
+}
+const { stats, breadcrumbs = [], className } = Astro.props;
+---
+<div class={cn('page-intro', className)}>
+  <div class="page-intro-copy">
+    {breadcrumbs.length > 0 && <nav class="index-chips page-intro-breadcrumbs" aria-label={breadcrumbs[0].label}>
+      {breadcrumbs.map((crumb, index) => <>
+        {index > 0 && <span aria-hidden="true">›</span>}
+        {crumb.href ? <a class="index-chip" href={crumb.href}>{crumb.label}</a> : <span class="index-chip" aria-current="page">{crumb.label}</span>}
+      </>)}
+    </nav>}
+    <dl class="page-intro-stats">
+      {stats.map(({ value, label }) => <div><dd>{value}</dd><dt>{label}</dt></div>)}
+    </dl>
+  </div>
+  {Astro.slots.has('tools') && <div class="page-intro-tools"><slot name="tools" /></div>}
+</div>

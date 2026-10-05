@@ -28,7 +28,7 @@ const singleTags = sortedTags.filter(({ count }) => count === 1);
 
 <Layout locale={locale} title={`${t(locale, 'tag.allTags')} | ${siteConfig.title}`} description={t(locale, 'tag.allTags')}>
   <TwoColumnLayout>
-    <Cover slot="cover" title={t(locale, 'tag.allTags')} />
+    <Cover compact slot="cover" title={t(locale, 'tag.allTags')} />
     <HomeSider slot="sider" />
     <div class={`shadow-box bg-gradient-start mx-0 flex w-full flex-col ${CONTENT_PADDING.normal}`}>
       <h2 class="shoka-decoration-circle group relative h-19 px-6 py-5 text-2xl/9 font-bold md:text-xl/9">

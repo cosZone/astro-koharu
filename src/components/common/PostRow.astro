@@ -1,0 +1,22 @@
+---
+import { getPostLastCategory, getPostSlug, translateCategoryName } from '@lib/content';
+import { displayDate } from '@lib/date';
+import { encodeSlug } from '@lib/route';
+import type { BlogPost } from 'types/blog';
+import { localizedPath } from '@/i18n';
+
+interface Props {
+  post: BlogPost;
+  locale: string;
+  fullDate?: boolean;
+  showCategory?: boolean;
+}
+const { post, locale, fullDate = false, showCategory = true } = Astro.props;
+const date = displayDate.date(post.data.date);
+const category = getPostLastCategory(post);
+---
+<article class="post-row" data-silk-row>
+  <time datetime={date}>{fullDate ? date : date.slice(5)}</time>
+  <a class="post-row-title" href={localizedPath(`/post/${encodeSlug(getPostSlug(post))}`, locale)}>{post.data.title}</a>
+  {showCategory && category.link && <a class="post-row-category" href={localizedPath(category.link, locale)}>{translateCategoryName(category.name, locale)}</a>}
+</article>
