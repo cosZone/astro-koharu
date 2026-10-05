@@ -16,7 +16,7 @@ const { locale = defaultLocale } = Astro.props;
   <PageIntro className="page-intro-flush" stats={[{ value: friendsData.length, label: t(locale, 'friends.countUnit') }]} />
   <FriendsGrid locale={locale} />
   <div class="mb-4">
-    <FriendRequestForm client:visible />
+    <FriendRequestForm locale={locale} client:visible />
     <Comment />
   </div>
 </div>

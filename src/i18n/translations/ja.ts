@@ -7,6 +7,27 @@
 import type { UIStrings } from '../types';
 
 export const uiStrings: UIStrings = {
+  // Index pages
+  'index.posts': '件の投稿',
+  'index.years': '年',
+  'index.categories': '件のカテゴリー',
+  'index.tags': '個のタグ',
+  'index.mostUsed': '最多のタグ',
+  'category.filter': 'サブカテゴリー',
+  'tag.filter': 'タグを絞り込む',
+  'tag.filterPlaceholder': 'タグ名を入力',
+  'tag.noMatches': '一致するタグがありません',
+  'tag.singleTags': '1回だけ使われたタグがあと{count}個',
+  'archives.jumpToYear': '{year}年へ移動',
+  'archives.legendFew': '少ない',
+  'archives.legendMany': '多い',
+  'archives.calendar': '投稿カレンダー',
+  'archives.monthLabel': '{year}年{month}月 · {count}件の投稿',
+  'friends.countUnit': '人の友達',
+  'friends.emptyTitle': '友達リンクはまだありません',
+  'friends.emptyDesc': 'あなたのサイトを紹介して、最初の友達になりませんか。',
+  'moments.messageActions': 'メッセージの操作',
+
   // ── ナビゲーション ──────────────────────────────────────────────
   'nav.home': 'ホーム',
   'nav.posts': '投稿',

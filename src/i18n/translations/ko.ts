@@ -5,6 +5,27 @@
  */
 
 export const uiStrings = {
+  // Index pages
+  'index.posts': '개 게시물',
+  'index.years': '년',
+  'index.categories': '개 카테고리',
+  'index.tags': '개 태그',
+  'index.mostUsed': '가장 많이 사용한 태그',
+  'category.filter': '하위 카테고리',
+  'tag.filter': '태그 필터',
+  'tag.filterPlaceholder': '태그 이름 입력',
+  'tag.noMatches': '일치하는 태그가 없습니다',
+  'tag.singleTags': '한 번만 사용한 태그 {count}개 더 보기',
+  'archives.jumpToYear': '{year}년으로 이동',
+  'archives.legendFew': '적음',
+  'archives.legendMany': '많음',
+  'archives.calendar': '게시물 달력',
+  'archives.monthLabel': '{year}년 {month}월 · 게시물 {count}개',
+  'friends.countUnit': '명의 친구',
+  'friends.emptyTitle': '아직 친구 링크가 없습니다',
+  'friends.emptyDesc': '사이트를 소개하고 첫 번째 친구가 되어 주세요.',
+  'moments.messageActions': '메시지 작업',
+
   // ── Navigation ──────────────────────────────────────────────
   'nav.home': '홈',
   'nav.posts': '게시물',

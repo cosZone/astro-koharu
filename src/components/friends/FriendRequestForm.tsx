@@ -18,8 +18,12 @@ interface FormData {
   color: string;
 }
 
-export default function FriendRequestForm() {
-  const { t } = useTranslation();
+interface Props {
+  locale?: string;
+}
+
+export default function FriendRequestForm({ locale }: Props) {
+  const { t } = useTranslation(locale);
   const [formData, setFormData] = useState<FormData>({
     site: '',
     owner: '',
