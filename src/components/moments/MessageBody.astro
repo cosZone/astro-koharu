@@ -1,5 +1,5 @@
 ---
-import { Icon } from 'astro-icon/components';
+import InlineIcon from './InlineIcon.astro';
 
 interface Props {
   html: string;
@@ -41,7 +41,7 @@ const { html, contentId, collapsible = true, emptyLabel, expandLabel, collapseLa
     data-message-toggle
   >
     <span data-message-toggle-label>{expandLabel}</span>
-    <Icon is:inline name="ri:arrow-down-s-line" class="moments-message-toggle-icon size-4" aria-hidden="true" />
+    <InlineIcon name="arrow-down-s-line" class="moments-message-toggle-icon size-4" />
   </button>
 </moments-message-body>
 

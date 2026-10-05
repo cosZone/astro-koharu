@@ -1,6 +1,6 @@
 ---
 import { cn } from '@lib/utils';
-import { Icon } from 'astro-icon/components';
+import InlineIcon from './InlineIcon.astro';
 import MediaGallery from './MediaGallery.astro';
 import MessageBody from './MessageBody.astro';
 import type { MomentMessageLabels, MomentMessageViewModel } from './types';
@@ -59,7 +59,7 @@ const railDate = publishedDate?.slice(5);
     </div>
     <nav class="moments-message-tools" aria-label={labels.actions}>
       <a href={message.permalink} class="moments-message-tool" aria-label={labels.permalink} title={labels.permalink}>
-        <Icon is:inline name="ri:links-line" class="size-3.5" aria-hidden="true" />
+        <InlineIcon name="links-line" class="size-3.5" />
       </a>
       <button
         type="button"
@@ -71,12 +71,12 @@ const railDate = publishedDate?.slice(5);
         aria-label={labels.copyLink}
         title={labels.copyLink}
       >
-        <Icon is:inline name="ri:file-copy-line" class="size-3.5" aria-hidden="true" />
+        <InlineIcon name="file-copy-line" class="size-3.5" />
         <span class="sr-only" aria-live="polite" data-copy-status></span>
       </button>
       {message.sourceUrl && (
         <a href={message.sourceUrl} target="_blank" rel="noopener noreferrer" class="moments-message-tool" aria-label={labels.viewSource} title={labels.viewSource}>
-          <Icon is:inline name="ri:external-link-line" class="size-3.5" aria-hidden="true" />
+          <InlineIcon name="external-link-line" class="size-3.5" />
         </a>
       )}
     </nav>

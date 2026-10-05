@@ -1,0 +1,16 @@
+---
+import ri from '@iconify-json/ri/icons.json';
+
+/**
+ * Remix icon rendered as a standalone SVG. astro-icon counts `is:inline` icons toward its per-page
+ * sprite cache, so a later non-inline use of the same name (e.g. the sider's `ri:links-line`) would
+ * emit a `<use>` pointing at a symbol that was never written.
+ */
+interface Props {
+  name: keyof typeof ri.icons;
+  class?: string;
+}
+const { name, class: className } = Astro.props;
+const size = ri.height ?? 24;
+---
+<svg class={className} viewBox={`0 0 ${size} ${size}`} width="1em" height="1em" aria-hidden="true" set:html={ri.icons[name].body} />
