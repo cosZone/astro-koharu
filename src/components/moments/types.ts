@@ -27,6 +27,7 @@ export interface MomentMediaViewModel {
 export interface MomentMessageViewModel {
   id: string;
   channel: MomentChannelViewModel;
+  authorSignature?: string | null;
   publishedAt: string;
   publishedLabel: string;
   revision: number;
@@ -64,4 +65,27 @@ export function formatMomentFileSize(bytes?: number | null): string | undefined 
   }
 
   return `${value >= 10 ? value.toFixed(0) : value.toFixed(1)} ${unit}`;
+}
+
+export interface MomentMessageLabels {
+  actions: string;
+  updated: string;
+  permalink: string;
+  copyLink: string;
+  copied: string;
+  copyFailed: string;
+  viewSource: string;
+  emptyMessage: string;
+  expand: string;
+  collapse: string;
+  revealSpoiler: string;
+  mediaProcessing: string;
+  mediaUnavailable: string;
+  image: string;
+  video: string;
+  audio: string;
+  document: string;
+  openDocument: string;
+  mediaMore: string;
+  tags: string;
 }

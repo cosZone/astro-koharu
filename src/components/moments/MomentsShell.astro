@@ -2,6 +2,7 @@
 import HomeSider from '@components/layout/HomeSider.astro';
 import Cover from '@components/ui/cover/Cover.astro';
 import TwoColumnLayout from '@layouts/TwoColumnLayout.astro';
+import { PETAL_MASK } from '@lib/sakura/petal';
 import { cn } from '@lib/utils';
 
 interface Props {
@@ -17,80 +18,209 @@ const { title, className } = Astro.props;
   <HomeSider slot="sider" />
   <section
     class={cn(
-      'moments-panel shadow-box bg-gradient-start mx-0 flex w-full min-w-0 flex-col gap-3 px-6 py-5 tablet:gap-2.5 tablet:px-4 tablet:py-4',
+      'moments-panel shadow-box bg-card mx-0 flex w-full min-w-0 flex-col gap-3 px-6 py-5 tablet:gap-2.5 tablet:px-4 tablet:py-4',
       className,
     )}
+    style={{ '--moments-petal-mask': PETAL_MASK }}
   >
     <slot />
   </section>
 </TwoColumnLayout>
 
 <style>
-  :global(.moments-timeline) {
+  .moments-panel {
+    --moments-silk: color-mix(in oklab, hsl(var(--primary)) 30%, transparent);
+    --moments-bead: color-mix(in oklab, hsl(var(--primary)) 60%, transparent);
+    --moments-axis-offset: 0.75rem;
+    --moments-date-width: 0rem;
+    --moments-axis-inset: 0.25rem;
+    --moments-bead-y: 20px;
+    --moments-row-bead-size: 7px;
+    --moments-group-bead-size: 11px;
+    --moments-group-gap: 2rem;
+    --moments-message-gap: 1rem;
+  }
+
+  :global(.moments-timeline),
+  :global(.moments-conversation-messages) {
     display: flex;
     flex-direction: column;
-    gap: 2.25rem;
     margin: 0;
     padding: 0;
     list-style: none;
   }
 
+  :global(.moments-timeline) {
+    position: relative;
+    gap: var(--moments-group-gap);
+    padding-inline-start: calc(var(--moments-date-width) + var(--moments-axis-offset) + var(--moments-axis-inset));
+    margin-block-start: 1rem;
+  }
+
+  :global(.moments-conversation-messages) {
+    gap: var(--moments-message-gap);
+  }
+
+  :global(.moments-timeline)::before {
+    position: absolute;
+    inset-block: var(--moments-bead-y) 0;
+    inset-inline-start: calc(var(--moments-date-width) + var(--moments-axis-inset));
+    width: 1px;
+    content: '';
+    background: var(--moments-silk);
+  }
+
+  :global(.moments-timeline-row) {
+    position: relative;
+  }
+
+  :global(.moments-timeline-row)::before {
+    position: absolute;
+    top: calc(var(--moments-bead-y) - var(--moments-row-bead-size) / 2);
+    inset-inline-start: calc(-1 * var(--moments-axis-offset) - (var(--moments-row-bead-size) - 1px) / 2);
+    box-sizing: border-box;
+    width: var(--moments-row-bead-size);
+    height: var(--moments-row-bead-size);
+    content: '';
+    background: hsl(var(--card));
+    border: 1px solid var(--moments-bead);
+    border-radius: 9999px;
+  }
+
+  :global(.moments-timeline-row[data-group-start='true'])::before {
+    top: calc(var(--moments-bead-y) - var(--moments-group-bead-size) / 2);
+    inset-inline-start: calc(-1 * var(--moments-axis-offset) - (var(--moments-group-bead-size) - 1px) / 2);
+    width: var(--moments-group-bead-size);
+    height: var(--moments-group-bead-size);
+    background: hsl(var(--primary));
+    border: 0;
+    border-radius: 0;
+    mask: var(--moments-petal-mask) center / contain no-repeat;
+  }
+
+  :global(.moments-timeline-row[data-active='true'])::before {
+    background: hsl(var(--primary));
+  }
+
   :global(.moments-timeline-time) {
+    position: absolute;
+    top: 0;
+    inset-inline-start: calc(-1 * (var(--moments-date-width) + var(--moments-axis-offset) + var(--moments-axis-inset)));
     display: none;
+    width: var(--moments-date-width);
+    min-height: 2.5rem;
+    align-items: center;
+    justify-content: end;
+    text-align: end;
+  }
+
+  :global(.moments-timeline-time:focus-visible) {
+    outline: 2px solid hsl(var(--primary));
+    outline-offset: 3px;
+    border-radius: 0.25rem;
+  }
+
+  /* Shared scroll reveal owns observation; long conversations only fade to preserve anchoring. */
+  :global(html[data-motion] .moments-conversation[data-reveal='in']) {
+    animation-name: motion-fade;
+  }
+
+  :global(.moments-timeline)::after {
+    position: absolute;
+    top: -5px;
+    inset-inline-start: calc(var(--moments-date-width) + var(--moments-axis-inset) - 4.5px);
+    width: 10px;
+    height: 10px;
+    pointer-events: none;
+    content: '';
+    background: hsl(var(--primary));
+    mask: var(--moments-petal-mask) center / contain no-repeat;
+    opacity: 0;
+    transform: translateY(var(--moments-cursor-y, 0px));
+  }
+
+  @media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+    :global(html:is([data-motion='lively'], [data-motion='subtle']) .moments-timeline)::after {
+      transition: transform 260ms cubic-bezier(.2, .8, .2, 1), opacity 150ms ease;
+    }
+
+    :global(html:is([data-motion='lively'], [data-motion='subtle']) .moments-timeline[data-cursor-visible='true'])::after {
+      opacity: 1;
+    }
   }
 
   @media (min-width: 993px) {
-    /* All panel content shares one leading edge; only timeline furniture
-       (time, dots, rail) hangs in the reserved margin. */
     .moments-panel {
-      padding-inline-start: 8rem;
-    }
-
-    /* The search form uses the reserved margin instead of sharing the feed edge. */
-    :global(.moments-fullbleed) {
-      margin-inline-start: -6.5rem;
-    }
-
-    :global(.moments-inline-time) {
-      display: none;
-    }
-
-    :global(.moments-timeline) {
-      position: relative;
-    }
-
-    :global(.moments-timeline)::before {
-      position: absolute;
-      inset-block: 0.5rem;
-      inset-inline-start: -20px;
-      width: 1px;
-      content: '';
-      background: hsl(var(--foreground) / 0.14);
-    }
-
-    :global(.moments-timeline > li) {
-      position: relative;
-    }
-
-    :global(.moments-timeline > li)::before {
-      position: absolute;
-      top: 0.45rem;
-      inset-inline-start: -24px;
-      width: 9px;
-      height: 9px;
-      content: '';
-      background: hsl(var(--primary));
-      border-radius: 9999px;
-      box-shadow: 0 0 0 4px hsl(var(--primary) / 0.15);
+      --moments-date-width: 4rem;
+      --moments-bead-y: 12px;
+      --moments-axis-offset: 1rem;
+      --moments-axis-inset: 0.75rem;
     }
 
     :global(.moments-timeline-time) {
-      position: absolute;
-      top: 0.15rem;
-      inset-inline-start: -7.25rem;
-      display: block;
-      width: 5.5rem;
-      text-align: end;
+      display: flex;
     }
   }
 </style>
+
+<script>
+  import { readMotionLevel, subscribeMotionLevel } from '@lib/motion-level';
+
+  let lifecycle: AbortController | undefined;
+  let unsubscribe: (() => void) | undefined;
+
+  function cleanup() {
+    lifecycle?.abort();
+    lifecycle = undefined;
+    unsubscribe?.();
+    unsubscribe = undefined;
+  }
+
+  function init() {
+    cleanup();
+    const timelines = document.querySelectorAll<HTMLOListElement>('[data-moments-timeline]');
+    if (!timelines.length) return;
+    lifecycle = new AbortController();
+    const { signal } = lifecycle;
+    const finePointer = window.matchMedia('(hover: hover) and (pointer: fine)');
+    const hideAll = () => {
+      for (const timeline of timelines) {
+        delete timeline.dataset.cursorVisible;
+        for (const row of timeline.querySelectorAll<HTMLElement>('[data-active]')) delete row.dataset.active;
+      }
+    };
+    unsubscribe = subscribeMotionLevel(hideAll);
+    finePointer.addEventListener('change', hideAll, { signal });
+
+    for (const timeline of timelines) {
+      const hide = () => {
+        delete timeline.dataset.cursorVisible;
+        for (const row of timeline.querySelectorAll<HTMLElement>('[data-active]')) delete row.dataset.active;
+      };
+      const move = (event: Event) => {
+        if (!finePointer.matches || readMotionLevel() === 'reduced' || !(event.target instanceof Element)) return;
+        const row = event.target.closest<HTMLElement>('[data-moments-row]');
+        if (!row || !timeline.contains(row) || row.dataset.active === 'true') return;
+        hide();
+        row.dataset.active = 'true';
+        const beadY = Number.parseFloat(getComputedStyle(row).getPropertyValue('--moments-bead-y'));
+        const y = row.getBoundingClientRect().top - timeline.getBoundingClientRect().top + beadY;
+        timeline.style.setProperty('--moments-cursor-y', `${y}px`);
+        timeline.dataset.cursorVisible = 'true';
+      };
+      timeline.addEventListener('pointerover', move, { signal });
+      timeline.addEventListener('focusin', move, { signal });
+      timeline.addEventListener('pointerleave', () => {
+        if (!timeline.contains(document.activeElement)) hide();
+      }, { signal });
+      timeline.addEventListener('focusout', (event) => {
+        if (!(event.relatedTarget instanceof Node) || !timeline.contains(event.relatedTarget)) hide();
+      }, { signal });
+    }
+  }
+
+  if (document.readyState !== 'loading') init();
+  document.addEventListener('DOMContentLoaded', init, { once: true });
+  document.addEventListener('astro:page-load', init);
+  document.addEventListener('astro:before-swap', cleanup);
+</script>

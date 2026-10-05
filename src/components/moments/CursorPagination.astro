@@ -55,7 +55,7 @@ const { nextHref, backHref, labels } = Astro.props;
             <a
               href={backHref}
               rel="prev"
-              class="border-border/80 bg-card hover:border-primary/50 hover:text-primary focus-visible:ring-primary inline-flex min-h-9 touch-manipulation items-center gap-1.5 rounded-full border px-3 py-1.5 text-sm transition-[border-color,color,scale] active:scale-[0.96] focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none"
+              class="border-border/80 bg-card hover:border-primary/50 hover:text-primary focus-visible:ring-primary inline-flex min-h-10 touch-manipulation items-center gap-1.5 rounded-full border px-3 py-1.5 text-sm transition-transform active:scale-[0.96] focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none"
             >
               <Icon name="ri:arrow-left-line" aria-hidden="true" />
               {labels.back}
@@ -68,7 +68,7 @@ const { nextHref, backHref, labels } = Astro.props;
               href={nextHref}
               rel="next"
               data-next-link
-              class="border-border/80 bg-card hover:border-primary/50 hover:text-primary focus-visible:ring-primary ms-auto inline-flex min-h-9 touch-manipulation items-center gap-1.5 rounded-full border px-3 py-1.5 text-sm transition-[border-color,color,scale] active:scale-[0.96] focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none"
+              class="border-border/80 bg-card hover:border-primary/50 hover:text-primary focus-visible:ring-primary ms-auto inline-flex min-h-10 touch-manipulation items-center gap-1.5 rounded-full border px-3 py-1.5 text-sm transition-transform active:scale-[0.96] focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none"
             >
               <span data-next-label>{labels.next}</span>
               <Icon name="ri:arrow-right-line" aria-hidden="true" />
@@ -81,6 +81,7 @@ const { nextHref, backHref, labels } = Astro.props;
 }
 
 <script>
+  import { continuesMomentConversation } from '@/features/moments/lib/message-groups';
   const CONTENT_APPENDED_EVENT = 'moments:content-appended';
   // Keep the loading indicator on screen at least this long on successful
   // loads so fast responses do not make it flash.
@@ -255,22 +256,30 @@ const { nextHref, backHref, labels } = Astro.props;
         }
         if (controller.signal.aborted) throw controller.signal.reason;
 
-        const appendedItems = items.map((item) => {
-          item.dataset.momentsEntering = 'true';
-          return document.adoptNode(item);
+        const appendedItems = items.map((item) => document.adoptNode(item));
+        // API cursor boundaries can split a conversation; join only when both adjacent identities match.
+        const previousGroup = timeline.lastElementChild;
+        const firstGroup = appendedItems[0];
+        const previousMessages = previousGroup?.querySelector<HTMLOListElement>('.moments-conversation-messages');
+        const firstMessages = firstGroup?.querySelector<HTMLOListElement>('.moments-conversation-messages');
+        const previousCard = previousMessages?.lastElementChild?.querySelector<HTMLElement>('.moments-message-card');
+        const firstCard = firstMessages?.firstElementChild?.querySelector<HTMLElement>('.moments-message-card');
+        const identity = (card: HTMLElement) => ({
+          channel: { id: card.dataset.channelId ?? '' },
+          authorSignature: card.dataset.authorSignature || null,
+          publishedAt: card.dataset.publishedAt ?? '',
         });
+        if (previousMessages && firstMessages && previousCard && firstCard &&
+            continuesMomentConversation(identity(previousCard), identity(firstCard))) {
+          const firstRow = firstMessages.firstElementChild;
+          if (firstRow instanceof HTMLElement) firstRow.dataset.groupStart = 'false';
+          firstCard.dataset.groupStart = 'false';
+          previousMessages.append(...firstMessages.children);
+          appendedItems.shift();
+        }
         timeline.append(...appendedItems);
         this.loadedHrefs.add(requestedUrl.href);
         document.dispatchEvent(new CustomEvent(CONTENT_APPENDED_EVENT, { detail: { root: timeline } }));
-        requestAnimationFrame(() => {
-          requestAnimationFrame(() => {
-            if (!this.isConnected) return;
-            for (const item of appendedItems) item.dataset.momentsEntering = 'settled';
-            window.setTimeout(() => {
-              for (const item of appendedItems) delete item.dataset.momentsEntering;
-            }, 260);
-          });
-        });
 
         if (!this.isConnected) {
           controller.abort();
@@ -350,8 +359,8 @@ const { nextHref, backHref, labels } = Astro.props;
   }
 
   moments-cursor-pagination[data-state='error'] [data-pagination-status] {
-    color: hsl(var(--destructive));
-    border-color: hsl(var(--destructive) / 0.35);
+    color: hsl(var(--muted-foreground));
+    border-color: var(--moments-bead);
   }
 
   [data-status-spinner] {
@@ -398,56 +407,8 @@ const { nextHref, backHref, labels } = Astro.props;
     border-width: 1px;
   }
 
-  :global([data-moments-entering='true']) {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-
-  :global([data-moments-entering]) {
-    transition: opacity 240ms ease-out, transform 240ms ease-out;
-  }
-
-  :global([data-moments-entering='settled']) {
-    opacity: 1;
-    transform: translateY(0);
-  }
-
-  @media (min-width: 993px) {
-    moments-cursor-pagination[data-enhanced='true'] [data-pagination-tail]::before {
-      position: absolute;
-      top: -1.75rem;
-      bottom: calc(100% - 1.3rem);
-      inset-inline-start: -20px;
-      width: 1px;
-      content: '';
-      background: hsl(var(--foreground) / 0.14);
-    }
-
-    moments-cursor-pagination[data-enhanced='true'] [data-pagination-tail]::after {
-      position: absolute;
-      top: 1rem;
-      inset-inline-start: -24px;
-      width: 9px;
-      height: 9px;
-      content: '';
-      background: hsl(var(--muted-foreground));
-      border-radius: 9999px;
-      box-shadow: 0 0 0 4px hsl(var(--foreground) / 0.08);
-    }
-
-    moments-cursor-pagination[data-state='error'] [data-pagination-tail]::after {
-      background: hsl(var(--destructive));
-      box-shadow: 0 0 0 4px hsl(var(--destructive) / 0.12);
-    }
-  }
 
   @media (prefers-reduced-motion: reduce) {
-    :global([data-moments-entering]) {
-      opacity: 1;
-      transform: none;
-      transition: none;
-    }
-
     moments-cursor-pagination[data-state='loading'] [data-pagination-status] {
       animation: none;
     }

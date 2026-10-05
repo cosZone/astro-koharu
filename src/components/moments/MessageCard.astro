@@ -1,56 +1,36 @@
 ---
-import { displayDate } from '@lib/date';
+import { cn } from '@lib/utils';
 import { Icon } from 'astro-icon/components';
 import MediaGallery from './MediaGallery.astro';
 import MessageBody from './MessageBody.astro';
-import type { MomentMessageViewModel } from './types';
-
-interface Labels {
-  updated: string;
-  permalink: string;
-  copyLink: string;
-  copied: string;
-  copyFailed: string;
-  viewSource: string;
-  emptyMessage: string;
-  expand: string;
-  collapse: string;
-  revealSpoiler: string;
-  mediaProcessing: string;
-  mediaUnavailable: string;
-  image: string;
-  video: string;
-  audio: string;
-  document: string;
-  openDocument: string;
-  mediaMore: string;
-  tags: string;
-}
+import type { MomentMessageLabels, MomentMessageViewModel } from './types';
 
 interface Props {
   message: MomentMessageViewModel;
   detail?: boolean;
-  labels: Labels;
+  groupStart?: boolean;
+  labels: MomentMessageLabels;
 }
 
-const { message, detail = false, labels } = Astro.props;
+const { message, detail = false, groupStart = true, labels } = Astro.props;
 const [publishedDate, publishedTimeOfDay] = message.publishedLabel.split(' ');
-const currentYear = displayDate.date(new Date()).slice(0, 4);
-const railDate = publishedDate?.slice(0, 4) === currentYear ? publishedDate.slice(5) : publishedDate;
+const railDate = publishedDate?.slice(5);
 ---
 
 <article
-  class:list={[
-    'moments-message-card min-w-0',
-    !detail && '-m-2 cursor-pointer rounded-xl p-2 transition-colors hover:bg-muted/45',
-  ]}
+  class={cn('moments-message-card min-w-0', !detail && 'cursor-pointer')}
   data-message-href={!detail ? message.permalink : undefined}
+  data-group-start={groupStart ? 'true' : 'false'}
+  data-channel-id={message.channel.id}
+  data-author-signature={message.authorSignature ?? ''}
+  data-published-at={message.publishedAt}
 >
   {!detail && (
     <a
       href={message.permalink}
-      aria-label={labels.permalink}
-      class="moments-timeline-time text-muted-foreground hover:text-primary tabular-nums text-xs leading-5 transition-colors"
+      aria-label={`${labels.permalink}: ${message.publishedLabel}`}
+      title={message.publishedLabel}
+      class="moments-timeline-time text-muted-foreground hover:text-primary tabular-nums text-xs leading-5"
     >
       <time datetime={message.publishedAt}>
         <span class="block">{railDate}</span>
@@ -58,28 +38,49 @@ const railDate = publishedDate?.slice(0, 4) === currentYear ? publishedDate.slic
       </time>
     </a>
   )}
-  <header class="mb-2 flex items-center gap-x-2">
-    <span aria-hidden="true" class="bg-primary/12 text-primary inline-flex size-6 shrink-0 items-center justify-center rounded-full text-[0.6875rem] font-bold">
-      {Array.from(message.channel.title.trim())[0] ?? '#'}
-    </span>
-    <div class="text-muted-foreground flex min-w-0 items-baseline gap-1.5">
-      <a href={message.channel.href} class="hover:text-primary truncate text-xs leading-snug font-medium transition-colors">{message.channel.title}</a>
-      {message.channel.username && <span class="truncate text-xs tablet:hidden">@{message.channel.username}</span>}
-      {message.revision > 1 && <span class="bg-muted/70 text-muted-foreground inline-flex min-h-5 shrink-0 items-center self-center rounded-full px-1.5 text-[0.6875rem]">{labels.updated}</span>}
-    </div>
-    <div class="ms-auto flex shrink-0 items-center gap-2">
-      <a
-        href={message.permalink}
-        class:list={[
-          'text-muted-foreground hover:text-primary inline-flex min-h-7 items-center transition-colors',
-          !detail && 'moments-inline-time',
-        ]}
-        aria-label={labels.permalink}
-      >
-        <time datetime={message.publishedAt} class="tabular-nums text-xs">{message.publishedLabel}</time>
+  <header class="moments-message-header">
+    {groupStart && <div class="moments-message-identity flex min-w-0 items-center gap-1.5">
+      <span aria-hidden="true" class="moments-channel-avatar bg-primary/10 inline-flex size-6 shrink-0 items-center justify-center rounded-full" />
+      <a href={message.channel.href} title={message.channel.title} class="moments-channel-link text-foreground hover:text-primary min-w-0 text-sm font-medium">
+        <span class="block truncate">{message.channel.title}</span>
       </a>
-    </div>
+      {message.channel.username && <span class="moments-channel-handle text-muted-foreground min-w-0 truncate text-xs">@{message.channel.username}</span>}
+      {message.authorSignature && <span class="moments-author-signature text-muted-foreground min-w-0 truncate text-xs">{message.authorSignature}</span>}
+    </div>}
+    <time datetime={message.publishedAt} class="moments-group-time text-muted-foreground shrink-0 text-xs tabular-nums" title={message.publishedLabel}>
+      <span class="moments-date-year">{detail ? `${publishedDate?.slice(0,4)}-` : ''}</span>{railDate} {publishedTimeOfDay}
+    </time>
   </header>
+  <div class="moments-message-toolbar-row">
+    <div class="moments-message-meta text-muted-foreground flex min-w-0 items-center gap-2 text-xs">
+      <time datetime={message.publishedAt} class="moments-inline-time tabular-nums" title={message.publishedLabel}>
+        {detail ? message.publishedLabel : publishedTimeOfDay}
+      </time>
+    </div>
+    <nav class="moments-message-tools" aria-label={labels.actions}>
+      <a href={message.permalink} class="moments-message-tool" aria-label={labels.permalink} title={labels.permalink}>
+        <Icon is:inline name="ri:links-line" class="size-3.5" aria-hidden="true" />
+      </a>
+      <button
+        type="button"
+        class="moments-copy-link moments-message-tool"
+        data-copy-value={message.permalink}
+        data-copy-label={labels.copyLink}
+        data-copied-label={labels.copied}
+        data-copy-failed-label={labels.copyFailed}
+        aria-label={labels.copyLink}
+        title={labels.copyLink}
+      >
+        <Icon is:inline name="ri:file-copy-line" class="size-3.5" aria-hidden="true" />
+        <span class="sr-only" aria-live="polite" data-copy-status></span>
+      </button>
+      {message.sourceUrl && (
+        <a href={message.sourceUrl} target="_blank" rel="noopener noreferrer" class="moments-message-tool" aria-label={labels.viewSource} title={labels.viewSource}>
+          <Icon is:inline name="ri:external-link-line" class="size-3.5" aria-hidden="true" />
+        </a>
+      )}
+    </nav>
+  </div>
 
   {(message.html || message.media.length === 0) && (
     <MessageBody
@@ -114,13 +115,14 @@ const railDate = publishedDate?.slice(0, 4) === currentYear ? publishedDate.slic
     </div>
   )}
 
+  {message.revision > 1 && <span class="bg-muted text-muted-foreground mt-2 block w-fit rounded-full px-1.5 py-0.5 text-[0.6875rem]">{labels.updated}</span>}
+
   {message.tags.length > 0 && (
     <nav aria-label={labels.tags} class="mt-2.5 flex flex-wrap items-center gap-1.5">
-      <Icon name="ri:hashtag" class="text-muted-foreground size-3.5 shrink-0" aria-hidden="true" />
       {message.tags.map((tag) => (
         <a
           href={tag.href}
-          class="bg-muted/50 text-muted-foreground hover:bg-primary/10 hover:text-primary focus-visible:ring-primary inline-flex min-h-6 items-center rounded-full px-2 text-xs transition-[background-color,color] focus-visible:ring-2 focus-visible:outline-none"
+          class="bg-muted/50 text-muted-foreground hover:bg-primary/10 hover:text-primary focus-visible:ring-primary inline-flex min-h-10 items-center rounded-full px-2.5 text-[0.8125rem] focus-visible:ring-2 focus-visible:outline-none"
         >
           {tag.label}
         </a>
@@ -128,101 +130,245 @@ const railDate = publishedDate?.slice(0, 4) === currentYear ? publishedDate.slic
     </nav>
   )}
 
-  <footer class="text-muted-foreground mt-2.5 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs">
-    <a
-      href={message.permalink}
-      aria-label={labels.permalink}
-      class="hover:bg-muted/60 hover:text-primary inline-flex min-h-7 items-center gap-1.5 rounded-lg px-1.5 transition-[background-color,color]"
-    >
-      <Icon name="ri:links-line" class="size-3.5" aria-hidden="true" />
-      <span class="tablet:hidden">{labels.permalink}</span>
-    </a>
-    <button
-      type="button"
-      class="moments-copy-link hover:bg-muted/60 hover:text-primary focus-visible:ring-primary inline-flex min-h-7 touch-manipulation items-center gap-1.5 rounded-lg px-1.5 transition-[background-color,color,scale] active:scale-[0.96] focus-visible:ring-2 focus-visible:ring-offset-1 focus-visible:outline-none"
-      data-copy-value={message.permalink}
-      data-copy-label={labels.copyLink}
-      data-copied-label={labels.copied}
-      data-copy-failed-label={labels.copyFailed}
-      aria-label={labels.copyLink}
-    >
-      <Icon name="ri:file-copy-line" class="size-3.5" aria-hidden="true" />
-      <span class="tablet:hidden" data-copy-text>{labels.copyLink}</span>
-      <span class="sr-only" aria-live="polite" data-copy-status></span>
-    </button>
-    {message.sourceUrl && (
-      <a
-        href={message.sourceUrl}
-        target="_blank"
-        rel="noopener noreferrer"
-        aria-label={labels.viewSource}
-        class="hover:bg-muted/60 hover:text-primary inline-flex min-h-7 items-center gap-1.5 rounded-lg px-1.5 transition-[background-color,color]"
-      >
-        <Icon name="ri:external-link-line" class="size-3.5" aria-hidden="true" />
-        <span class="tablet:hidden">{labels.viewSource}</span>
-      </a>
-    )}
-  </footer>
 </article>
 
 <script>
   const cardInteractiveSelector =
     'a, button, input, select, textarea, summary, video, audio, spoiler-span, [data-static-spoiler], [role="button"], [contenteditable="true"]';
+  type TooltipElement = HTMLElement & {
+    _tippy?: {
+      setProps(props: { theme: string; arrow: boolean; interactive: boolean }): void;
+      setContent(content: string): void;
+    };
+  };
+  let lifecycle: AbortController | undefined;
+  const statusTimers = new Map<HTMLButtonElement, number>();
 
-  function installMomentCardLinks(root: ParentNode = document) {
-    root.querySelectorAll<HTMLElement>('.moments-message-card[data-message-href]:not([data-card-link-ready])').forEach((card) => {
-      card.dataset.cardLinkReady = 'true';
-      card.addEventListener('click', (event) => {
-        if (event.defaultPrevented || event.button !== 0) return;
-        if (!(event.target instanceof Element) || event.target.closest(cardInteractiveSelector)) return;
-        const selection = window.getSelection();
-        if (selection && !selection.isCollapsed) return;
-
-        const href = card.dataset.messageHref;
-        if (!href) return;
-        const url = new URL(href, window.location.href).href;
-        if (event.metaKey || event.ctrlKey) {
-          window.open(url, '_blank', 'noopener');
-          return;
-        }
-        window.location.assign(url);
-      });
-    });
+  function cleanup() {
+    lifecycle?.abort();
+    lifecycle = undefined;
+    for (const timer of statusTimers.values()) window.clearTimeout(timer);
+    statusTimers.clear();
   }
 
-  function installMomentCopyButtons(root: ParentNode = document) {
-    root.querySelectorAll<HTMLButtonElement>('.moments-copy-link:not([data-copy-ready])').forEach((button) => {
-      button.dataset.copyReady = 'true';
-      button.addEventListener('click', async () => {
-        const text = button.querySelector<HTMLElement>('[data-copy-text]');
-        const status = button.querySelector<HTMLElement>('[data-copy-status]');
-        const value = button.dataset.copyValue ?? window.location.href;
-        let succeeded = false;
-        try {
-          await navigator.clipboard.writeText(new URL(value, window.location.href).href);
-          succeeded = true;
-        } catch {
-          window.prompt(button.dataset.copyFailedLabel ?? '', new URL(value, window.location.href).href);
-        }
-
-        const result = succeeded ? button.dataset.copiedLabel : button.dataset.copyFailedLabel;
-        if (text) text.textContent = result ?? '';
-        if (status) status.textContent = result ?? '';
-        window.setTimeout(() => {
-          if (text) text.textContent = button.dataset.copyLabel ?? '';
-          if (status) status.textContent = '';
-        }, 1800);
-      });
-    });
+  function installMomentCardLinks(signal: AbortSignal) {
+    document.addEventListener('click', (event) => {
+      if (event.defaultPrevented || event.button !== 0) return;
+      if (!(event.target instanceof Element) || event.target.closest(cardInteractiveSelector)) return;
+      const card = event.target.closest<HTMLElement>('.moments-message-card[data-message-href]');
+      const selection = window.getSelection();
+      if (!card?.dataset.messageHref || (selection && !selection.isCollapsed)) return;
+      const url = new URL(card.dataset.messageHref, window.location.href).href;
+      if (event.metaKey || event.ctrlKey) window.open(url, '_blank', 'noopener');
+      else window.location.assign(url);
+    }, { signal });
   }
 
-  installMomentCardLinks();
-  installMomentCopyButtons();
-  document.addEventListener('astro:page-load', () => installMomentCardLinks());
-  document.addEventListener('astro:page-load', () => installMomentCopyButtons());
-  document.addEventListener('moments:content-appended', (event) => {
-    const root = event instanceof CustomEvent && event.detail?.root instanceof Element ? event.detail.root : document;
-    installMomentCardLinks(root);
-    installMomentCopyButtons(root);
-  });
+  function installMomentCopyButtons(signal: AbortSignal) {
+    document.addEventListener('click', async (event) => {
+      const button = event.target instanceof Element ? event.target.closest<HTMLButtonElement>('.moments-copy-link') : null;
+      if (!button) return;
+      const status = button.querySelector<HTMLElement>('[data-copy-status]');
+      const value = new URL(button.dataset.copyValue ?? window.location.href, window.location.href).href;
+      let succeeded = false;
+      try {
+        await navigator.clipboard.writeText(value);
+        succeeded = true;
+      } catch {
+        if (!signal.aborted) window.prompt(button.dataset.copyFailedLabel ?? '', value);
+      }
+      if (signal.aborted || !button.isConnected) return;
+      const result = (succeeded ? button.dataset.copiedLabel : button.dataset.copyFailedLabel) ?? '';
+      if (status) status.textContent = result;
+      button.title = result;
+      (button as TooltipElement)._tippy?.setContent(result);
+      window.clearTimeout(statusTimers.get(button));
+      statusTimers.set(button, window.setTimeout(() => {
+        if (status) status.textContent = '';
+        button.title = button.dataset.copyLabel ?? '';
+        (button as TooltipElement)._tippy?.setContent(button.title);
+        statusTimers.delete(button);
+      }, 1800));
+    }, { signal });
+  }
+
+  function init() {
+    cleanup();
+    if (!document.querySelector('.moments-message-card')) return;
+    for (const tool of document.querySelectorAll<TooltipElement>('.moments-message-tool')) {
+      tool._tippy?.setProps({ theme: 'moments', arrow: false, interactive: false });
+    }
+    lifecycle = new AbortController();
+    // Delegation also covers cursor pages appended after initialization.
+    installMomentCardLinks(lifecycle.signal);
+    installMomentCopyButtons(lifecycle.signal);
+  }
+
+  if (document.readyState !== 'loading') init();
+  document.addEventListener('DOMContentLoaded', init, { once: true });
+  document.addEventListener('astro:page-load', init);
+  document.addEventListener('astro:before-swap', cleanup);
 </script>
+
+<style>
+  .moments-message-card {
+    position: relative;
+    --moments-header-height: 1.5rem;
+    --moments-header-gap: 0.375rem;
+  }
+
+  .moments-message-header {
+    display: flex;
+    min-width: 0;
+    align-items: center;
+    gap: 0.5rem;
+    min-height: var(--moments-header-height);
+  }
+
+  .moments-message-identity {
+    flex: 1;
+  }
+
+  .moments-channel-avatar::before {
+    width: 13px;
+    height: 13px;
+    content: '';
+    background: hsl(var(--primary));
+    mask: var(--moments-petal-mask) center / contain no-repeat;
+  }
+
+  .moments-channel-link {
+    display: flex;
+    flex: 1;
+    min-height: 2.5rem;
+    align-items: center;
+    margin-block: -0.5rem;
+  }
+
+  .moments-channel-handle,
+  .moments-author-signature {
+    display: none;
+  }
+
+  .moments-message-card[data-group-start='false'] .moments-message-header,
+  .moments-message-card[data-group-start='true'] .moments-inline-time {
+    display: none;
+  }
+
+  .moments-message-toolbar-row {
+    display: flex;
+    min-height: 2.5rem;
+    align-items: center;
+    justify-content: space-between;
+    margin-block-end: var(--moments-header-gap);
+  }
+
+  .moments-message-tools {
+    display: flex;
+    flex-shrink: 0;
+    margin-inline-start: auto;
+  }
+
+  .moments-message-tool {
+    display: inline-flex;
+    width: 2.5rem;
+    height: 2.5rem;
+    align-items: center;
+    justify-content: center;
+    color: hsl(var(--muted-foreground));
+    cursor: pointer;
+    border-radius: 9999px;
+  }
+
+  .moments-message-tool:hover,
+  .moments-message-tool:focus-visible {
+    color: hsl(var(--primary));
+    background: hsl(var(--muted));
+  }
+
+  .moments-message-tool:focus-visible {
+    outline: 2px solid hsl(var(--primary));
+    outline-offset: 2px;
+  }
+
+  :global(.tippy-box[data-theme='moments']) {
+    color: hsl(var(--popover-foreground));
+    background: hsl(var(--popover));
+    border: 1px solid hsl(var(--border));
+    border-radius: 0.375rem;
+    font-size: 0.75rem;
+    box-shadow: 0 2px 8px hsl(var(--foreground) / 0.06);
+  }
+
+  @media (max-width: 992px) {
+    .moments-message-card[data-group-start='true'] .moments-message-header {
+      min-height: 2.5rem;
+      padding-inline-end: 7.5rem;
+      margin-block-end: var(--moments-header-gap);
+    }
+
+    .moments-message-card[data-group-start='true'] .moments-message-toolbar-row {
+      position: absolute;
+      inset-block-start: 0;
+      inset-inline-end: 0;
+      margin: 0;
+    }
+
+    .moments-message-card[data-group-start='true'] .moments-message-meta,
+    .moments-date-year {
+      display: none;
+    }
+  }
+
+  @media (min-width: 993px) {
+    .moments-message-header {
+      margin-block-end: var(--moments-header-gap);
+    }
+
+    .moments-channel-link {
+      flex: 0 1 auto;
+    }
+
+    .moments-channel-handle,
+    .moments-author-signature {
+      display: inline;
+    }
+
+    .moments-message-card[data-message-href] .moments-group-time {
+      display: none;
+    }
+
+    .moments-message-toolbar-row {
+      display: contents;
+    }
+
+    .moments-message-meta {
+      display: none;
+    }
+
+    .moments-message-tools {
+      position: absolute;
+      z-index: 1;
+      inset-block-start: calc(var(--moments-header-height) + var(--moments-header-gap) - 0.375rem);
+      inset-inline-end: 0;
+      background: hsl(var(--card));
+      border-radius: 9999px;
+    }
+
+    .moments-message-card[data-group-start='false'] .moments-message-tools {
+      inset-block-start: -0.375rem;
+    }
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .moments-message-tools {
+      opacity: 0;
+      transition: opacity 150ms ease;
+    }
+
+    .moments-message-card:hover .moments-message-tools,
+    .moments-message-card:focus-within .moments-message-tools {
+      opacity: 1;
+    }
+  }
+</style>

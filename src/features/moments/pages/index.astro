@@ -1,7 +1,7 @@
 ---
 import ChannelSwitcher from '@components/moments/ChannelSwitcher.astro';
 import CursorPagination from '@components/moments/CursorPagination.astro';
-import MessageCard from '@components/moments/MessageCard.astro';
+import MessageTimeline from '@components/moments/MessageTimeline.astro';
 import MomentsShell from '@components/moments/MomentsShell.astro';
 import MomentsState from '@components/moments/MomentsState.astro';
 import { momentsConfig } from '@constants/site-config';
@@ -67,11 +67,11 @@ const errorDescription = errorKind === 'rate-limited' ? momentsLabels.rateLimite
     <div class="flex flex-wrap items-center justify-between gap-2">
       <p class="text-muted-foreground text-sm">{momentsConfig.description}</p>
       <div class="flex items-center gap-1 text-sm">
-        <a class="hover:bg-muted focus-visible:ring-primary inline-flex min-h-8 touch-manipulation items-center gap-1.5 rounded-lg px-2 text-primary transition-[background-color,scale] active:scale-[0.96] focus-visible:ring-2 focus-visible:outline-none" href={searchPath(momentsConfig)}>
+        <a class="hover:bg-muted focus-visible:ring-primary inline-flex min-h-10 touch-manipulation items-center gap-1.5 rounded-lg px-2 text-primary transition-transform active:scale-[0.96] focus-visible:ring-2 focus-visible:outline-none" href={searchPath(momentsConfig)}>
           <Icon name="ri:search-line" class="size-4" aria-hidden="true" />
           {momentsLabels.search}
         </a>
-        <a class="hover:bg-muted focus-visible:ring-primary inline-flex min-h-8 touch-manipulation items-center gap-1.5 rounded-lg px-2 text-primary transition-[background-color,scale] active:scale-[0.96] focus-visible:ring-2 focus-visible:outline-none" href={rssPath(momentsConfig)}>
+        <a class="hover:bg-muted focus-visible:ring-primary inline-flex min-h-10 touch-manipulation items-center gap-1.5 rounded-lg px-2 text-primary transition-transform active:scale-[0.96] focus-visible:ring-2 focus-visible:outline-none" href={rssPath(momentsConfig)}>
           <Icon name="ri:rss-line" class="size-4" aria-hidden="true" />
           RSS
         </a>
@@ -92,13 +92,7 @@ const errorDescription = errorKind === 'rate-limited' ? momentsLabels.rateLimite
       <MomentsState kind="empty" title={momentsLabels.emptyChannel} />
     ) : (
       <>
-        <ol class="moments-timeline" data-moments-timeline>
-          {messages.map((message) => (
-            <li>
-              <MessageCard message={message} labels={messageCardLabels} />
-            </li>
-          ))}
-        </ol>
+        <MessageTimeline messages={messages} labels={messageCardLabels} />
         <CursorPagination nextHref={nextHref} labels={cursorPaginationLabels} />
       </>
     )}

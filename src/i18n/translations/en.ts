@@ -462,6 +462,7 @@ export const uiStrings: UIStrings = {
   'moments.noResults': 'No matching Moments found',
   'moments.clearSearch': 'Clear search',
   'moments.updated': 'Updated',
+  'moments.messageActions': 'Message actions',
   'moments.permalink': 'Permalink',
   'moments.copyLink': 'Copy link',
   'moments.copyFailed': 'Copy failed. Copy the URL manually.',
