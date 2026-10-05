@@ -11,6 +11,10 @@
   gap: 1.5rem;
   margin-bottom: 2rem;
 }
+/* Inside a flex/gap container the container owns the spacing. */
+.page-intro.page-intro-flush {
+  margin-bottom: 0;
+}
 .page-intro:has(.page-intro-breadcrumbs) {
   align-items: flex-start;
 }

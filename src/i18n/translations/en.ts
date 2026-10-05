@@ -113,7 +113,6 @@ export const uiStrings: UIStrings = {
 
   // ── Friends ─────────────────────────────────────────────────
   'friends.title': 'Friends',
-  'friends.count': '{count} friends',
   'friends.countUnit': 'friends',
   'friends.applySummary': 'Share your site and meet fellow bloggers.',
   'friends.emptyTitle': 'No friends yet',
