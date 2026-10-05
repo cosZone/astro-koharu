@@ -112,6 +112,11 @@ export const uiStrings = {
 
   // ── Friends ─────────────────────────────────────────────────
   'friends.title': '친구 링크',
+  'friends.all': '전체',
+  'friends.ungrouped': '미분류',
+  'friends.filterLabel': '그룹별 친구 링크 필터',
+  'friends.emptyGroupTitle': '이 그룹에는 아직 사이트가 없어요',
+  'friends.emptyGroupDescription': '다른 그룹의 블로그도 둘러보세요.',
   'friends.applyTitle': '링크 교환 신청',
   'friends.siteName': '사이트 이름',
   'friends.siteUrl': '사이트 주소',

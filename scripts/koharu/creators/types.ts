@@ -62,4 +62,5 @@ export interface FriendData {
   desc: string;
   image: string;
   color?: string;
+  group?: string;
 }

@@ -1,14 +1,27 @@
 import { TextInput } from '@inkjs/ui';
 import { Box, Text } from 'ink';
 import { useCallback, useEffect, useState } from 'react';
+import type { FriendGroup } from '../../../src/lib/config/types';
 import { ConfirmScreen, CreatingScreen, DoneScreen, ErrorScreen, CycleSelect as Select, StepItem } from '../components';
 import { useStepFlow } from '../hooks';
-import { appendFriend, isValidUrl } from '../utils/new-operations';
+import { appendFriend, getFriendGroups, isValidUrl } from '../utils/new-operations';
 import type { CreatorProps, FriendData } from './types';
 
-type Step = 'site' | 'url' | 'owner' | 'desc' | 'image' | 'color' | 'color-custom' | 'confirm' | 'creating' | 'done' | 'error';
+type Step =
+  | 'site'
+  | 'url'
+  | 'owner'
+  | 'desc'
+  | 'image'
+  | 'color'
+  | 'color-custom'
+  | 'group'
+  | 'confirm'
+  | 'creating'
+  | 'done'
+  | 'error';
 
-const INPUT_STEPS: Step[] = ['site', 'url', 'owner', 'desc', 'image', 'color'];
+const INPUT_STEPS: Step[] = ['site', 'url', 'owner', 'desc', 'image', 'color', 'group'];
 
 interface StepConfig {
   id: Step;
@@ -22,6 +35,7 @@ const STEP_CONFIGS: StepConfig[] = [
   { id: 'desc', label: '站点描述' },
   { id: 'image', label: '头像 URL' },
   { id: 'color', label: '主题色' },
+  { id: 'group', label: '分组' },
 ];
 
 const PRESET_COLORS = [
@@ -40,17 +54,37 @@ export function FriendCreator({ onComplete, showReturnHint = false }: CreatorPro
   const [desc, setDesc] = useState('');
   const [image, setImage] = useState('');
   const [color, setColor] = useState('');
+  const [group, setGroup] = useState('');
+  const [groups, setGroups] = useState<FriendGroup[]>([]);
   const [inputError, setInputError] = useState('');
   const [operationError, setOperationError] = useState('');
+  const inputSteps = INPUT_STEPS.filter((id) => id !== 'group' || groups.length > 0);
+  const stepConfigs = STEP_CONFIGS.filter(({ id }) => inputSteps.includes(id));
 
   // Step flow management
   const { step, setStep, getStepStatus, goBack } = useStepFlow({
     initialStep: 'site' as Step,
-    inputSteps: INPUT_STEPS,
+    inputSteps,
     onComplete,
     showReturnHint,
     normalizeStep: (s) => (s === 'color-custom' ? 'color' : s) as Step,
   });
+
+  useEffect(() => {
+    let cancelled = false;
+    getFriendGroups()
+      .then((configuredGroups) => {
+        if (!cancelled) setGroups(configuredGroups);
+      })
+      .catch((err) => {
+        if (cancelled) return;
+        setOperationError(err instanceof Error ? err.message : String(err));
+        setStep('error');
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [setStep]);
 
   // Get display value for a completed step
   const getStepDisplayValue = useCallback(
@@ -68,11 +102,13 @@ export function FriendCreator({ onComplete, showReturnHint = false }: CreatorPro
           return image;
         case 'color':
           return color || '(无)';
+        case 'group':
+          return groups.find((item) => item.id === group)?.title ?? '(未分组)';
         default:
           return '';
       }
     },
-    [site, url, owner, desc, image, color],
+    [site, url, owner, desc, image, color, group, groups],
   );
 
   useEffect(() => {
@@ -161,9 +197,9 @@ export function FriendCreator({ onComplete, showReturnHint = false }: CreatorPro
         return;
       }
       setColor(value);
-      setStep('confirm');
+      setStep(groups.length > 0 ? 'group' : 'confirm');
     },
-    [setStep],
+    [groups.length, setStep],
   );
 
   const handleCustomColorSubmit = useCallback(
@@ -175,9 +211,9 @@ export function FriendCreator({ onComplete, showReturnHint = false }: CreatorPro
       }
       setColor(trimmed);
       setInputError('');
-      setStep('confirm');
+      setStep(groups.length > 0 ? 'group' : 'confirm');
     },
-    [setStep],
+    [groups.length, setStep],
   );
 
   const handleConfirm = useCallback(async () => {
@@ -190,6 +226,7 @@ export function FriendCreator({ onComplete, showReturnHint = false }: CreatorPro
         desc,
         image,
         ...(color ? { color } : {}),
+        ...(group ? { group } : {}),
       };
       await appendFriend(friendData);
       setStep('done');
@@ -197,7 +234,7 @@ export function FriendCreator({ onComplete, showReturnHint = false }: CreatorPro
       setOperationError(err instanceof Error ? err.message : String(err));
       setStep('error');
     }
-  }, [site, url, owner, desc, image, color, setStep]);
+  }, [site, url, owner, desc, image, color, group, setStep]);
 
   const handleCancel = useCallback(() => {
     goBack('confirm');
@@ -247,7 +284,19 @@ export function FriendCreator({ onComplete, showReturnHint = false }: CreatorPro
           </Box>
         );
       case 'color':
-        return <Select options={PRESET_COLORS} onChange={handleColorSelect} />;
+        return <Select key="color" options={PRESET_COLORS} onChange={handleColorSelect} />;
+      case 'group':
+        return (
+          <Select
+            key="group"
+            defaultValue={group}
+            options={[{ label: '未分组', value: '' }, ...groups.map((item) => ({ label: item.title, value: item.id }))]}
+            onChange={(value) => {
+              setGroup(value);
+              setStep('confirm');
+            }}
+          />
+        );
       case 'color-custom':
         return (
           <Box flexDirection="column">
@@ -267,7 +316,7 @@ export function FriendCreator({ onComplete, showReturnHint = false }: CreatorPro
     return (
       <ConfirmScreen
         title="新建友情链接"
-        steps={STEP_CONFIGS.map((c) => ({
+        steps={stepConfigs.map((c) => ({
           label: c.label,
           value: getStepDisplayValue(c.id),
         }))}
@@ -298,7 +347,7 @@ export function FriendCreator({ onComplete, showReturnHint = false }: CreatorPro
   }
 
   const normalizedStep = step === 'color-custom' ? 'color' : step;
-  const showBackHint = INPUT_STEPS.includes(normalizedStep);
+  const showBackHint = inputSteps.includes(normalizedStep);
 
   return (
     <Box flexDirection="column">
@@ -308,7 +357,7 @@ export function FriendCreator({ onComplete, showReturnHint = false }: CreatorPro
         </Text>
       </Box>
 
-      {STEP_CONFIGS.map((config) => (
+      {stepConfigs.map((config) => (
         <StepItem
           key={config.id}
           label={config.label}

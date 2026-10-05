@@ -114,6 +114,11 @@ export const uiStrings: UIStrings = {
 
   // ── 友達 ─────────────────────────────────────────────────
   'friends.title': '友達',
+  'friends.all': 'すべて',
+  'friends.ungrouped': '未分類',
+  'friends.filterLabel': 'リンクをグループで絞り込む',
+  'friends.emptyGroupTitle': 'このグループにはまだサイトがありません',
+  'friends.emptyGroupDescription': 'ほかのグループのブログも見てみましょう。',
   'friends.applyTitle': '友達のリンクに適用',
   'friends.siteName': 'サイト名',
   'friends.siteUrl': 'サイトのURL',

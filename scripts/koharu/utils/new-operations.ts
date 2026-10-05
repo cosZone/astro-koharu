@@ -2,6 +2,8 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { slugify } from 'transliteration';
 import YAML from 'yaml';
+import { normalizeFriendGroups } from '../../../src/lib/config/friends';
+import type { FriendGroup } from '../../../src/lib/config/types';
 import { BLOG_CONTENT_PATH, SITE_CONFIG_PATH } from '../constants/paths';
 import type { CategoryTreeItem, FriendData, PostData } from '../creators/types';
 
@@ -33,6 +35,12 @@ export async function loadSiteConfig(): Promise<Record<string, unknown>> {
     throw new Error('Invalid site config format');
   }
   return parsed as Record<string, unknown>;
+}
+
+export async function getFriendGroups(): Promise<FriendGroup[]> {
+  const config = await loadSiteConfig();
+  const friends = config.friends as { groups?: unknown } | undefined;
+  return normalizeFriendGroups(friends?.groups);
 }
 
 /**
@@ -232,8 +240,8 @@ export async function createPost(data: PostData): Promise<string> {
 /**
  * Append a friend link to site.yaml while preserving comments and formatting
  */
-export async function appendFriend(data: FriendData): Promise<void> {
-  const content = await fs.promises.readFile(SITE_CONFIG_PATH, 'utf-8');
+export async function appendFriend(data: FriendData, configPath = SITE_CONFIG_PATH): Promise<void> {
+  const content = await fs.promises.readFile(configPath, 'utf-8');
   const doc = YAML.parseDocument(content);
 
   // Navigate to friends.data array
@@ -247,6 +255,11 @@ export async function appendFriend(data: FriendData): Promise<void> {
     throw new Error('friends.data array not found in site.yaml');
   }
 
+  const groups = normalizeFriendGroups(friends.toJSON().groups);
+  if (data.group && !groups.some((group) => group.id === data.group)) {
+    throw new Error(`Friend group "${data.group}" no longer exists. Choose a configured group or leave it ungrouped.`);
+  }
+
   // Create new friend entry
   const newFriend = doc.createNode({
     site: data.site,
@@ -255,6 +268,7 @@ export async function appendFriend(data: FriendData): Promise<void> {
     desc: data.desc,
     image: data.image,
     ...(data.color ? { color: data.color } : {}),
+    ...(data.group ? { group: data.group } : {}),
   });
 
   // Add to array
@@ -265,7 +279,7 @@ export async function appendFriend(data: FriendData): Promise<void> {
     lineWidth: 0, // Don't wrap lines
   });
 
-  await fs.promises.writeFile(SITE_CONFIG_PATH, output, 'utf-8');
+  await fs.promises.writeFile(configPath, output, 'utf-8');
 }
 
 /**
