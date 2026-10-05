@@ -51,8 +51,6 @@ export function BangumiCollection({ userId }: BangumiCollectionProps) {
   const [currentPage, setCurrentPage] = useState(1);
   const shouldReduceMotion = useMotionLevel() === 'reduced';
 
-  const springTransition = shouldReduceMotion ? { duration: 0 } : { type: 'spring' as const, stiffness: 400, damping: 30 };
-
   const tabs = useMemo(() => {
     return SUBJECT_TYPE_KEYS.flatMap((key) =>
       data[key].length > 0
@@ -100,18 +98,18 @@ export function BangumiCollection({ userId }: BangumiCollectionProps) {
   if (isLoading) {
     return (
       <div className="space-y-4 py-8" aria-hidden="true">
-        <div className="flex gap-2">
-          {Array.from({ length: 4 }, (_, i) => (
+        <div className="flex gap-5">
+          {Array.from({ length: 3 }, (_, i) => (
             // biome-ignore lint/suspicious/noArrayIndexKey: skeleton placeholders have no stable id
-            <div key={i} className="h-8 w-16 animate-pulse rounded bg-muted" />
+            <div key={i} className="h-5 w-14 animate-pulse rounded bg-muted" />
           ))}
         </div>
-        <div className="grid desktop:grid-cols-4 grid-cols-3 gap-4 md:grid-cols-2">
-          {Array.from({ length: 8 }, (_, i) => (
+        <div className="bangumi-grid">
+          {Array.from({ length: 10 }, (_, i) => (
             // biome-ignore lint/suspicious/noArrayIndexKey: skeleton placeholders have no stable id
             <div key={i} className="animate-pulse">
-              <div className="aspect-[2/3] rounded-lg bg-muted" />
-              <div className="mt-2 h-4 w-3/4 rounded bg-muted" />
+              <div className="aspect-[2/3] rounded-xl bg-muted" />
+              <div className="mt-2 h-3.5 w-3/4 rounded bg-muted" />
             </div>
           ))}
         </div>
@@ -144,71 +142,40 @@ export function BangumiCollection({ userId }: BangumiCollectionProps) {
 
   return (
     <LazyMotionProvider>
-      <div className="space-y-4 py-4">
-        <div className="flex items-center gap-6 border-border border-b">
-          {tabs.map((tab) => (
-            <button
-              key={tab.key}
-              type="button"
-              onClick={() => handleTabChange(tab.key)}
-              className={cn(
-                'relative flex items-center gap-1.5 pb-2.5 font-medium text-sm transition-colors',
-                activeTab === tab.key ? 'text-primary' : 'text-muted-foreground hover:text-foreground',
-              )}
-            >
-              {tab.label}
-              <span
-                className={cn(
-                  'rounded-full px-1.5 text-xs tabular-nums',
-                  activeTab === tab.key ? 'text-primary' : 'text-muted-foreground/60',
-                )}
-              >
-                {tab.count}
-              </span>
-              {activeTab === tab.key && (
-                <m.span
-                  layoutId={shouldReduceMotion ? undefined : 'bangumi-tab-indicator'}
-                  className="absolute inset-x-0 -bottom-px h-0.5 rounded-full bg-primary"
-                  transition={springTransition}
-                />
-              )}
-            </button>
-          ))}
-        </div>
-
-        <div className="flex flex-wrap gap-1.5">
-          {FILTER_OPTIONS.map(
-            ({ key, labelKey }) =>
-              (key === 'all' || (filterCounts[key] ?? 0) > 0) && (
-                <button
-                  key={key}
-                  type="button"
-                  onClick={() => handleFilterChange(key)}
-                  className={cn(
-                    'rounded-full border px-3 py-1 font-medium text-xs transition-colors',
-                    activeFilter === key
-                      ? 'border-primary bg-primary/10 text-primary'
-                      : 'border-transparent bg-muted text-muted-foreground hover:text-foreground',
-                  )}
-                >
-                  {t(labelKey)}
-                  <span className="ml-1 tabular-nums opacity-60">({filterCounts[key] ?? 0})</span>
-                </button>
-              ),
-          )}
+      <div className="space-y-5">
+        <div className="space-y-1">
+          <div className="index-tabs bangumi-type-tabs">
+            {tabs.map((tab) => (
+              <button key={tab.key} type="button" aria-pressed={activeTab === tab.key} onClick={() => handleTabChange(tab.key)}>
+                {tab.label}
+                <sup>{tab.count}</sup>
+              </button>
+            ))}
+          </div>
+          <div className="index-tabs index-tabs-quiet">
+            {FILTER_OPTIONS.map(
+              ({ key, labelKey }) =>
+                (key === 'all' || (filterCounts[key] ?? 0) > 0) && (
+                  <button key={key} type="button" aria-pressed={activeFilter === key} onClick={() => handleFilterChange(key)}>
+                    {t(labelKey)}
+                    <sup>{filterCounts[key] ?? 0}</sup>
+                  </button>
+                ),
+            )}
+          </div>
         </div>
 
         <AnimatePresence mode="popLayout">
           <m.div
             key={`${activeTab}-${activeFilter}-${currentPage}`}
-            className="grid desktop:grid-cols-4 grid-cols-3 gap-3 md:grid-cols-2"
+            className="bangumi-grid"
             initial={shouldReduceMotion ? false : { opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -8 }}
             transition={{ duration: shouldReduceMotion ? 0 : 0.2 }}
           >
             {pageItems.map((item) => (
-              <BangumiCard key={item.subject_id} item={item} />
+              <BangumiCard key={item.subject_id} item={item} showStatus={activeFilter === 'all'} />
             ))}
           </m.div>
         </AnimatePresence>

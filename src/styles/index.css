@@ -29,6 +29,7 @@
 @import "./components/index-archives.css";
 @import "./components/category-toc.css";
 @import "./components/tag-cloud.css";
+@import "./components/bangumi.css";
 @import "./components/post.css";
 @import "./components/toc.css";
 @import "./components/pagefind.css";

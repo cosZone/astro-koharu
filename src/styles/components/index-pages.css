@@ -79,20 +79,29 @@
   font-variant-numeric: tabular-nums;
   opacity: 0.75;
 }
-.index-tabs a:is(:hover, :focus-visible) {
+.index-tabs :is(a, button):is(:hover, :focus-visible) {
   color: hsl(var(--primary));
 }
-.index-tabs [aria-current] {
+.index-tabs :is([aria-current], [aria-pressed="true"]) {
   color: hsl(var(--primary));
   font-weight: 700;
 }
-.index-tabs [aria-current]::after {
+.index-tabs :is([aria-current], [aria-pressed="true"])::after {
   content: "";
   position: absolute;
   inset: auto 0 0;
   height: 2px;
   border-radius: 1px;
   background: linear-gradient(to right, hsl(var(--primary)), hsl(var(--primary) / 0.25));
+}
+
+/* Secondary filters under a tab row: same ink rules, smaller and without the underline. */
+.index-tabs-quiet {
+  gap: 0.25rem 1rem;
+  font-size: 0.8125rem;
+}
+.index-tabs-quiet > :is([aria-current], [aria-pressed="true"])::after {
+  content: none;
 }
 
 /* Year rule: the home page's sakura divider, set flush left with the count trailing the line. */
