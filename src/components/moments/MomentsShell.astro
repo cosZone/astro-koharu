@@ -31,8 +31,10 @@ const { title, className } = Astro.props;
   .moments-panel {
     --moments-silk: color-mix(in oklab, hsl(var(--primary)) 30%, transparent);
     --moments-bead: color-mix(in oklab, hsl(var(--primary)) 60%, transparent);
-    --moments-axis-offset: 1rem;
-    --moments-date-width: 3rem;
+    --moments-axis-offset: 0.75rem;
+    --moments-date-width: 0rem;
+    --moments-axis-inset: 0.25rem;
+    --moments-bead-y: 20px;
     --moments-row-bead-size: 7px;
     --moments-group-bead-size: 11px;
     --moments-group-gap: 2rem;
@@ -51,7 +53,7 @@ const { title, className } = Astro.props;
   :global(.moments-timeline) {
     position: relative;
     gap: var(--moments-group-gap);
-    padding-inline-start: calc(var(--moments-date-width) + var(--moments-axis-offset) + 0.75rem);
+    padding-inline-start: calc(var(--moments-date-width) + var(--moments-axis-offset) + var(--moments-axis-inset));
     margin-block-start: 1rem;
   }
 
@@ -61,8 +63,8 @@ const { title, className } = Astro.props;
 
   :global(.moments-timeline)::before {
     position: absolute;
-    inset-block: 1.25rem 0;
-    inset-inline-start: calc(var(--moments-date-width) + 0.75rem);
+    inset-block: var(--moments-bead-y) 0;
+    inset-inline-start: calc(var(--moments-date-width) + var(--moments-axis-inset));
     width: 1px;
     content: '';
     background: var(--moments-silk);
@@ -74,7 +76,7 @@ const { title, className } = Astro.props;
 
   :global(.moments-timeline-row)::before {
     position: absolute;
-    top: calc(1.25rem - var(--moments-row-bead-size) / 2);
+    top: calc(var(--moments-bead-y) - var(--moments-row-bead-size) / 2);
     inset-inline-start: calc(-1 * var(--moments-axis-offset) - (var(--moments-row-bead-size) - 1px) / 2);
     box-sizing: border-box;
     width: var(--moments-row-bead-size);
@@ -86,7 +88,7 @@ const { title, className } = Astro.props;
   }
 
   :global(.moments-timeline-row[data-group-start='true'])::before {
-    top: calc(1.25rem - var(--moments-group-bead-size) / 2);
+    top: calc(var(--moments-bead-y) - var(--moments-group-bead-size) / 2);
     inset-inline-start: calc(-1 * var(--moments-axis-offset) - (var(--moments-group-bead-size) - 1px) / 2);
     width: var(--moments-group-bead-size);
     height: var(--moments-group-bead-size);
@@ -103,8 +105,8 @@ const { title, className } = Astro.props;
   :global(.moments-timeline-time) {
     position: absolute;
     top: 0;
-    inset-inline-start: calc(-1 * (var(--moments-date-width) + var(--moments-axis-offset) + 0.75rem));
-    display: flex;
+    inset-inline-start: calc(-1 * (var(--moments-date-width) + var(--moments-axis-offset) + var(--moments-axis-inset)));
+    display: none;
     width: var(--moments-date-width);
     min-height: 2.5rem;
     align-items: center;
@@ -126,7 +128,7 @@ const { title, className } = Astro.props;
   :global(.moments-timeline)::after {
     position: absolute;
     top: -5px;
-    inset-inline-start: calc(var(--moments-date-width) + 0.75rem - 4.5px);
+    inset-inline-start: calc(var(--moments-date-width) + var(--moments-axis-inset) - 4.5px);
     width: 10px;
     height: 10px;
     pointer-events: none;
@@ -150,10 +152,13 @@ const { title, className } = Astro.props;
   @media (min-width: 993px) {
     .moments-panel {
       --moments-date-width: 4rem;
+      --moments-bead-y: 12px;
+      --moments-axis-offset: 1rem;
+      --moments-axis-inset: 0.75rem;
     }
 
-    :global(.moments-message-card[data-message-href] .moments-inline-time) {
-      display: none;
+    :global(.moments-timeline-time) {
+      display: flex;
     }
   }
 </style>
@@ -198,7 +203,8 @@ const { title, className } = Astro.props;
         if (!row || !timeline.contains(row) || row.dataset.active === 'true') return;
         hide();
         row.dataset.active = 'true';
-        const y = row.getBoundingClientRect().top - timeline.getBoundingClientRect().top + 20;
+        const beadY = Number.parseFloat(getComputedStyle(row).getPropertyValue('--moments-bead-y'));
+        const y = row.getBoundingClientRect().top - timeline.getBoundingClientRect().top + beadY;
         timeline.style.setProperty('--moments-cursor-y', `${y}px`);
         timeline.dataset.cursorVisible = 'true';
       };

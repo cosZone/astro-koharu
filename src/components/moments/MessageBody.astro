@@ -22,7 +22,7 @@ const { html, contentId, collapsible = true, emptyLabel, expandLabel, collapseLa
 >
   <div
     id={contentId}
-    class="moments-message-content prose prose-sm dark:prose-invert max-w-[72ch] break-words prose-p:my-2"
+    class="moments-message-content prose prose-sm text-foreground font-normal max-w-[72ch] break-words prose-p:my-2"
     data-message-content
     data-spoiler-reveal-label={spoilerRevealLabel}
   >
@@ -202,6 +202,16 @@ const { html, contentId, collapsible = true, emptyLabel, expandLabel, collapseLa
     mask-image: linear-gradient(to bottom, #000 0%, #000 calc(100% - 5.5rem), transparent 100%);
     -webkit-mask-repeat: no-repeat;
     mask-repeat: no-repeat;
+  }
+
+  .moments-message-content {
+    color: hsl(var(--foreground));
+    font-weight: 400;
+  }
+
+  .moments-message-content :global(a) {
+    color: hsl(var(--primary));
+    font-weight: inherit;
   }
 
   .moments-message-content :global(pre),
