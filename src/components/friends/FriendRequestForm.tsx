@@ -44,7 +44,7 @@ color: "${formData.color || '#ffc0cb'}"`;
   }, []);
 
   return (
-    <div className="grid grid-cols-2 tablet:grid-cols-1 gap-8">
+    <div className="grid grid-cols-2 tablet:grid-cols-1 items-start gap-8">
       <div className="min-w-0 space-y-4">
         <p className="text-muted-foreground text-sm">{friendsIntro.applyDesc}</p>
         <div className="grid grid-cols-2 gap-4">
@@ -143,7 +143,7 @@ color: "${formData.color || '#ffc0cb'}"`;
           </div>
         </div>
       </div>
-      <div className="flex min-w-0 flex-col gap-4">
+      <div className="friend-request-preview tablet:static sticky top-20 flex min-w-0 flex-col gap-4 self-start">
         <div className="flex flex-wrap items-center justify-between gap-2">
           <h3 className="font-semibold text-base text-foreground">{t('friends.previewTitle')}</h3>
           <button
@@ -155,7 +155,7 @@ color: "${formData.color || '#ffc0cb'}"`;
             {copied ? t('friends.copiedConfig') : t('friends.copyConfig')}
           </button>
         </div>
-        <pre className="wrap-anywhere flex-1 whitespace-pre-wrap rounded-xl bg-muted p-4 font-mono text-foreground text-xs leading-relaxed">
+        <pre className="wrap-anywhere whitespace-pre-wrap rounded-xl bg-muted p-4 font-mono text-foreground text-xs leading-relaxed">
           {generateText()}
         </pre>
         <p className="text-muted-foreground text-sm leading-relaxed">{t('friends.hint')}</p>

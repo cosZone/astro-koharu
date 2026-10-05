@@ -1,11 +1,18 @@
 ---
 import type { FriendLink } from '@constants/friends-config';
+import { Icon } from 'astro-icon/components';
 
 interface Props {
   friend: FriendLink;
 }
 
 const { friend } = Astro.props;
+let hostname: string;
+try {
+  hostname = new URL(friend.url).hostname.replace(/^www\./, '');
+} catch {
+  hostname = friend.url;
+}
 ---
 
 <a
@@ -16,7 +23,7 @@ const { friend } = Astro.props;
   style={{ '--friend-color': friend.color || 'hsl(var(--primary))' }}
   data-friend-card
 >
-  <div class="friend-band h-14" aria-hidden="true"></div>
+  <div class="friend-band relative h-14 overflow-hidden" aria-hidden="true"></div>
   <div class="friend-avatar absolute top-7 left-1/2 size-14 -translate-x-1/2 overflow-hidden rounded-full border-4 border-card bg-card">
     <svg class="absolute inset-0 size-full" viewBox="0 0 100 100" aria-hidden="true">
       <rect width="100" height="100" fill="hsl(var(--primary))" />
@@ -32,20 +39,28 @@ const { friend } = Astro.props;
     </svg>
     {friend.image && <img src={friend.image} alt="" width="56" height="56" loading="lazy" decoding="async" class="relative size-full object-cover" data-friend-avatar />}
   </div>
-  <div class="px-3 pt-9 pb-4 text-center">
-    <h2 class="truncate font-semibold text-[15px] leading-6">{friend.owner}</h2>
+  <div class="friend-copy flex flex-col px-3 pt-9 pb-3 text-center">
+    <h2 class="truncate font-semibold text-foreground text-[15px] leading-6">{friend.owner}</h2>
     <p class="mt-0.5 truncate text-muted-foreground text-xs leading-5">{friend.site}</p>
-    <p class="mt-2 line-clamp-2 text-[13px] leading-5">{friend.desc}</p>
+    <p class="mt-2 line-clamp-2 font-normal text-muted-foreground text-[13px] leading-relaxed">{friend.desc}</p>
+    <div class="mt-auto flex items-center justify-center gap-1 text-muted-foreground text-[11px] leading-4" data-friend-domain>
+      <span class="truncate">{hostname}</span>
+      <Icon name="ri:external-link-line" class="size-3 shrink-0" aria-hidden="true" />
+    </div>
   </div>
 </a>
 
 <style>
   .friend-card {
-    height: 218px;
+    height: 228px;
     --rx: 0deg;
     --ry: 0deg;
     --mx: 50%;
     --my: 50%;
+  }
+
+  .friend-copy {
+    height: calc(100% - 56px);
   }
 
   .friend-band {
@@ -54,6 +69,24 @@ const { friend } = Astro.props;
       color-mix(in oklab, var(--friend-color) 70%, hsl(var(--card))),
       color-mix(in oklab, var(--friend-color) 30%, transparent)
     );
+  }
+
+  .friend-band::after {
+    content: '';
+    position: absolute;
+    top: -7px;
+    right: 10px;
+    width: 48px;
+    height: 58px;
+    mask: var(--friends-petal-mask) center / contain no-repeat;
+    background: hsl(var(--primary-foreground));
+    opacity: 0.24;
+    transform: rotate(22deg);
+    pointer-events: none;
+  }
+
+  :global(html.dark) .friend-band::after {
+    opacity: 0.14;
   }
 
   .friend-card::after {
@@ -83,6 +116,14 @@ const { friend } = Astro.props;
         transform: perspective(800px) rotateX(var(--rx)) rotateY(var(--ry));
       }
 
+      :global(html[data-motion='lively']) .friend-band::after {
+        transition: transform 300ms ease-out;
+      }
+
+      :global(html[data-motion='lively']) .friend-card:hover .friend-band::after {
+        transform: translate(-4px, 4px) rotate(28deg);
+      }
+
       :global(html[data-motion='lively']) .friend-card::after {
         transition: opacity 200ms ease-out;
       }
@@ -90,6 +131,16 @@ const { friend } = Astro.props;
       :global(html[data-motion='lively']) .friend-card[data-tilting]::after {
         opacity: 1;
       }
+    }
+  }
+
+  @media (hover: none) and (pointer: coarse) and (prefers-reduced-motion: no-preference) {
+    :global(html:is([data-motion='lively'], [data-motion='subtle'])) .friend-card {
+      transition: transform 180ms ease-out;
+    }
+
+    :global(html:is([data-motion='lively'], [data-motion='subtle'])) .friend-card:active {
+      transform: scale(0.98);
     }
   }
 </style>

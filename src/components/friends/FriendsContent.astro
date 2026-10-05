@@ -3,6 +3,7 @@ import FriendRequestForm from '@components/friends/FriendRequestForm';
 import FriendsGrid from '@components/friends/FriendsGrid.astro';
 import { friendsData } from '@constants/friends-config';
 import { CONTENT_PADDING } from '@constants/layout';
+import { PETAL_MASK } from '@lib/sakura/petal';
 import { cn } from '@lib/utils';
 import { Comment } from '@/components/comment';
 import { defaultLocale, t } from '@/i18n';
@@ -19,9 +20,12 @@ const { locale = defaultLocale } = Astro.props;
     <span class="text-muted-foreground text-sm">{t(locale, 'friends.countUnit')}</span>
   </p>
   <FriendsGrid locale={locale} />
-  <details class="friend-request rounded-2xl border border-border" id="friend-request">
+  <details class="friend-request rounded-2xl border border-border" id="friend-request" data-no-petals>
     <summary class="relative flex min-h-16 cursor-pointer flex-wrap items-center gap-x-4 gap-y-1 rounded-2xl px-5 py-4 pr-12 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary">
-      <span class="font-semibold text-foreground text-[15px]">{t(locale, 'friends.applyTitle')}</span>
+      <span class="inline-flex items-center gap-2 font-semibold text-foreground text-[15px]">
+        <span class="friend-request-petal size-3 bg-primary" style={{ '--friends-petal-mask': PETAL_MASK }} aria-hidden="true"></span>
+        {t(locale, 'friends.applyTitle')}
+      </span>
       <span class="text-muted-foreground text-sm">{t(locale, 'friends.applySummary')}</span>
     </summary>
     <div class="border-border border-t px-5 py-6 tablet:px-4">
@@ -32,6 +36,11 @@ const { locale = defaultLocale } = Astro.props;
 </div>
 
 <style>
+  .friend-request-petal {
+    mask: var(--friends-petal-mask) center / contain no-repeat;
+    transform: rotate(-24deg);
+  }
+
   .friend-request summary {
     list-style: none;
   }

@@ -1,5 +1,6 @@
 ---
 import { friendsData } from '@constants/friends-config';
+import { PETAL_MASK } from '@lib/sakura/petal';
 import { defaultLocale, t } from '@/i18n';
 import FriendCard from './FriendCard.astro';
 
@@ -10,7 +11,7 @@ interface Props {
 const { locale = defaultLocale } = Astro.props;
 ---
 
-<div data-friends-grid>
+<div data-friends-grid style={{ '--friends-petal-mask': PETAL_MASK }}>
   {friendsData.length > 0 ? (
     <div class="friends-grid grid gap-4">
       {friendsData.map((friend) => <FriendCard friend={friend} />)}
