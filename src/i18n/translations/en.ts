@@ -113,6 +113,11 @@ export const uiStrings: UIStrings = {
 
   // ── Friends ─────────────────────────────────────────────────
   'friends.title': 'Friends',
+  'friends.count': '{count} friends',
+  'friends.countUnit': 'friends',
+  'friends.applySummary': 'Share your site and meet fellow bloggers.',
+  'friends.emptyTitle': 'No friends yet',
+  'friends.emptyDesc': 'Share your site and become the first friend.',
   'friends.applyTitle': 'Apply for Friend Link',
   'friends.siteName': 'Site Name',
   'friends.siteUrl': 'Site URL',

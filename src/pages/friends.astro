@@ -1,13 +1,10 @@
 ---
-import FriendRequestForm from '@components/friends/FriendRequestForm';
-import FriendsGrid from '@components/friends/FriendsGrid';
+import FriendsContent from '@components/friends/FriendsContent.astro';
 import HomeSider from '@components/layout/HomeSider.astro';
 import Cover from '@components/ui/cover/Cover.astro';
-import { CONTENT_PADDING } from '@constants/layout';
 import { siteConfig } from '@constants/site-config';
 import Layout from '@layouts/Layout.astro';
 import TwoColumnLayout from '@layouts/TwoColumnLayout.astro';
-import { Comment } from '@/components/comment';
 import { defaultLocale, t } from '@/i18n';
 
 interface Props {
@@ -22,18 +19,8 @@ const description = t(locale, 'friends.title');
 
 <Layout locale={locale} title={title} description={description}>
   <TwoColumnLayout>
-    <Cover slot="cover" title={t(locale, 'friends.title')} />
+    <Cover slot="cover" title={t(locale, 'friends.title')} compact />
     <HomeSider slot="sider" />
-    <div
-      class={`bg-gradient-start shadow-box tablet:shadow-none flex flex-col gap-10 overflow-clip ${CONTENT_PADDING.standard}`}
-    >
-      <div class="mt-4">
-        <FriendsGrid client:load />
-      </div>
-      <div class="mb-4">
-        <FriendRequestForm client:visible />
-        <Comment />
-      </div>
-    </div>
+    <FriendsContent locale={locale} />
   </TwoColumnLayout>
 </Layout>
