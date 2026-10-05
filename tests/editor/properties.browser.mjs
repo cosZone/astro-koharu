@@ -37,12 +37,12 @@ try {
   const source = '---\ntitle: 属性回归\ntags: [alpha]\ncategories: [[Parent, Child]]\ncustom: null\n---\n\n保留正文\n';
   await importSource(page, source);
   await page.getByRole('button', { name: '文章属性', exact: true }).click();
-  const categories = page.getByLabel('分类（以逗号分隔）', { exact: true });
+  const categories = page.getByLabel('分类', { exact: true });
   await categories.focus();
-  await page.getByLabel('标题', { exact: true }).focus();
+  await page.getByRole('dialog').getByLabel('标题', { exact: true }).focus();
   assert.equal(await cachedSource(page), source, 'focusing and leaving a nested category must not rewrite it');
 
-  const tags = page.getByLabel('标签（以逗号分隔）', { exact: true });
+  const tags = page.getByLabel('标签', { exact: true });
   await tags.focus();
   await tags.press('End');
   await tags.pressSequentially('，beta,gamma');
@@ -56,7 +56,7 @@ try {
   await categories.fill('');
   await categories.pressSequentially('First，Second,Third');
   await expect(categories).toHaveValue('First，Second,Third');
-  await page.getByLabel('标题', { exact: true }).focus();
+  await page.getByRole('dialog').getByLabel('标题', { exact: true }).focus();
   await expect(categories).toHaveValue('First, Second, Third');
   await expect.poll(async () => properties(await cachedSource(page)).categories).toEqual(['First', 'Second', 'Third']);
   assert.equal(properties(await cachedSource(page)).custom, null);
@@ -73,7 +73,7 @@ try {
   const malformed = '---\ntitle: [unfinished\n---\n\n错误 YAML 也必须保留正文\n';
   await importSource(page, malformed);
   await page.getByRole('button', { name: '文章属性', exact: true }).click();
-  await page.getByLabel('标题', { exact: true }).fill('不能覆盖原文');
+  await page.getByRole('dialog').getByLabel('标题', { exact: true }).fill('不能覆盖原文');
   await expect(page.locator('.editor-workspace')).toBeVisible();
   await expect(page.getByRole('alert')).toContainText('YAML');
   assert.equal(await cachedSource(page), malformed);

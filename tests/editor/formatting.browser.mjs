@@ -24,7 +24,7 @@ async function exported(page) {
     });
   });
   await page.getByRole('button', { name: '复制', exact: true }).click();
-  await expect(page.locator('.editor-status')).toContainText('已复制完整 Markdown');
+  await expect(page.locator('.editor-document-meta')).toContainText('已复制完整 Markdown');
   return page.evaluate(() => window.formattingCopiedSource);
 }
 

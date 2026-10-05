@@ -1,3 +1,4 @@
+import { useRetainedValue } from '@hooks/useRetainedValue';
 import { type CSSProperties, type MouseEvent, useEffect, useMemo, useRef, useState } from 'react';
 import { copyMarkdown } from './clipboard';
 import ArticleProperties from './components/ArticleProperties';
@@ -5,11 +6,14 @@ import CodeEditor, { type CodeEditorHandle } from './components/CodeEditor';
 import EditorIcon from './components/EditorIcon';
 import LinkPreviewSettings from './components/LinkPreviewSettings';
 import PreviewFrame from './components/PreviewFrame';
+import SheetHandle from './components/SheetHandle';
 import SyntaxPanel from './components/SyntaxPanel';
+import ViewSwitch from './components/ViewSwitch';
 import { createEditorSource, documentTitle, markdownFilename, parseEditorDocument, updateEditorProperty } from './document';
 import { clearEditorHistory } from './editor-history';
 import { type EditorFormat, toolbarFormats } from './formatting';
 import { readOGEndpoint, saveOGEndpoint } from './link-service';
+import { cancelSheetMotion, playSheetEnter, playSheetExit } from './sheet-motion';
 import { activeDraft, type DraftSummary, type EditorDraft, listDrafts, readDraft, removeDraft, writeDraft } from './storage';
 import { syntaxEntries } from './syntax';
 
@@ -17,6 +21,13 @@ type Panel = 'drafts' | 'syntax' | 'properties' | 'copy' | 'service' | null;
 interface Props {
   ogEndpoint?: string;
 }
+
+const draftTime = new Intl.DateTimeFormat('zh-CN', {
+  month: 'numeric',
+  day: 'numeric',
+  hour: '2-digit',
+  minute: '2-digit',
+});
 
 function createDraft(source = createEditorSource(), filename?: string): EditorDraft {
   return { id: crypto.randomUUID(), title: documentTitle(source), source, updated: Date.now(), filename };
@@ -28,6 +39,8 @@ export default function Editor({ ogEndpoint = '/api/editor/og' }: Props) {
   const [drafts, setDrafts] = useState<DraftSummary[]>([]);
   const [initialized, setInitialized] = useState(false);
   const [panel, setPanel] = useState<Panel>(null);
+  const shownPanel = useRetainedValue(panel);
+  const [panelSession, setPanelSession] = useState(0);
   const [tab, setTab] = useState<'edit' | 'preview'>('edit');
   const [mode, setMode] = useState<'body' | 'article'>('body');
   const [focus, setFocus] = useState(false);
@@ -173,7 +186,12 @@ export default function Editor({ ogEndpoint = '/api/editor/og' }: Props) {
   }, []);
 
   useEffect(() => {
-    if (panel && dialog.current && !dialog.current.open) dialog.current.showModal();
+    const node = dialog.current;
+    if (panel && node && !node.open) {
+      cancelSheetMotion(node);
+      node.showModal();
+      playSheetEnter(node);
+    }
     if (panel === 'copy') {
       copySource.current?.focus({ preventScroll: true });
       copySource.current?.select();
@@ -181,11 +199,15 @@ export default function Editor({ ogEndpoint = '/api/editor/og' }: Props) {
   }, [panel]);
 
   const closePanel = (restoreFocus = true) => {
+    const node = dialog.current;
     // Commit property fields before WebKit dismisses the dialog without firing blur.
-    if (document.activeElement instanceof HTMLElement && dialog.current?.contains(document.activeElement))
-      document.activeElement.blur();
-    dialog.current?.close();
+    if (document.activeElement instanceof HTMLElement && node?.contains(document.activeElement)) document.activeElement.blur();
     setPanel(null);
+    // Close first so the page is interactive (and insertable) at once; the sheet animates out as a visual only.
+    if (node?.open) {
+      node.close();
+      void playSheetExit(node);
+    }
     if (restoreFocus) requestAnimationFrame(() => panelTrigger.current?.focus({ preventScroll: true }));
   };
   const openPanel = (name: Exclude<Panel, null>, trigger?: HTMLElement) => {
@@ -194,6 +216,7 @@ export default function Editor({ ogEndpoint = '/api/editor/og' }: Props) {
       return;
     }
     panelTrigger.current = trigger ?? (document.activeElement instanceof HTMLElement ? document.activeElement : null);
+    setPanelSession((value) => value + 1);
     setPanel(name);
   };
 
@@ -306,6 +329,11 @@ export default function Editor({ ogEndpoint = '/api/editor/og' }: Props) {
       <span>{label}</span>
     </button>
   );
+  const iconAction = (name: string, label: string, onClick: () => void) => (
+    <button type="button" className="editor-icon-button" onClick={onClick} title={label} aria-label={label}>
+      <EditorIcon name={name} />
+    </button>
+  );
 
   return (
     <div
@@ -314,27 +342,22 @@ export default function Editor({ ogEndpoint = '/api/editor/og' }: Props) {
       style={{ '--editor-split': `${split}%` } as CSSProperties}
     >
       <header className="editor-header">
-        <a className="editor-brand" href="/">
+        <a className="editor-brand" href="/" title="返回博客">
           <span>Koharu</span>
           <small>写作室</small>
         </a>
         <div className="editor-document-name">
           <strong title={articleTitle}>{articleTitle}</strong>
-          <span className={cms ? 'editor-cms-context' : undefined} title={cms?.postId}>
-            {cms ? (
-              <>
-                CMS<span className="editor-cms-filename"> · {cms.postId}</span>
-              </>
-            ) : (
-              '只保存在你的浏览器'
-            )}
+          <span className="editor-document-meta" title={cms?.postId}>
+            {cms && <span className="editor-cms-badge">CMS</span>}
+            <output>{status || (cms ? cms.postId : '草稿自动保存在此浏览器')}</output>
           </span>
         </div>
         <div className="editor-header-actions">
           {action('copy', '复制', (event) => {
             void copy(event.currentTarget);
           })}
-          {action('download', '下载 MD', download, 'editor-primary')}
+          {action('download', '下载 MD', download, cms ? '' : 'editor-primary')}
           {cms && (
             <button
               type="button"
@@ -353,8 +376,8 @@ export default function Editor({ ogEndpoint = '/api/editor/og' }: Props) {
       <div className="editor-toolbar">
         <div className="editor-tools">
           {action('draft', '草稿', (event) => openPanel('drafts', event.currentTarget))}
-          {action('new', '新建', () => activate(createDraft()))}
-          {action('import', '导入', () => importInput.current?.click())}
+          {iconAction('new', '新建', () => activate(createDraft()))}
+          {iconAction('import', '导入', () => importInput.current?.click())}
           <span className="editor-divider" />
           {toolbarFormats.map((id) => {
             const entry = syntaxEntries.find((item) => item.id === id);
@@ -374,9 +397,11 @@ export default function Editor({ ogEndpoint = '/api/editor/og' }: Props) {
               )
             );
           })}
-          {action('help', '语法手册', (event) => openPanel('syntax', event.currentTarget))}
-          {action('undo', '撤销', () => editor.current?.undo())}
-          {action('redo', '重做', () => editor.current?.redo())}
+          <span className="editor-divider" />
+          {iconAction('undo', '撤销', () => editor.current?.undo())}
+          {iconAction('redo', '重做', () => editor.current?.redo())}
+          <span className="editor-divider editor-view-tools" />
+          {action('help', '语法手册', (event) => openPanel('syntax', event.currentTarget), 'editor-view-tools')}
         </div>
         <div className="editor-tools editor-view-tools">
           {action('settings', '文章属性', (event) => openPanel('properties', event.currentTarget))}
@@ -387,16 +412,16 @@ export default function Editor({ ogEndpoint = '/api/editor/og' }: Props) {
             aria-pressed={focus}
             onClick={() => setFocus(!focus)}
           >
-            <EditorIcon name="edit" />
+            <EditorIcon name="focus" />
             <span>{focus ? '退出专注' : '专注'}</span>
           </button>
         </div>
       </div>
       {error && (
         <div className="editor-error" role="alert">
-          {error}
-          <button type="button" aria-label="关闭提示" onClick={() => setError('')}>
-            ×
+          <p>{error}</p>
+          <button type="button" className="editor-icon-button" aria-label="关闭提示" onClick={() => setError('')}>
+            <EditorIcon name="close" />
           </button>
         </div>
       )}
@@ -404,7 +429,7 @@ export default function Editor({ ogEndpoint = '/api/editor/og' }: Props) {
         <section className="editor-source-pane" aria-label="源码编辑区">
           <div className="editor-pane-heading">
             <span>Markdown</span>
-            <small>
+            <small className="editor-cursor">
               第 {cursor.line} 行 · 第 {cursor.column} 列
             </small>
           </div>
@@ -460,45 +485,46 @@ export default function Editor({ ogEndpoint = '/api/editor/og' }: Props) {
                 title="链接预览服务"
                 onClick={(event) => openPanel('service', event.currentTarget)}
               >
-                <EditorIcon name="link" />
+                <EditorIcon name="service" />
               </button>
             </div>
-            <div className="editor-segmented">
-              <button type="button" aria-pressed={mode === 'body'} onClick={() => setMode('body')}>
-                正文
-              </button>
-              <button type="button" aria-pressed={mode === 'article'} onClick={() => setMode('article')}>
-                完整文章
-              </button>
-            </div>
+            <ViewSwitch
+              label="预览范围"
+              value={mode}
+              onChange={setMode}
+              options={[
+                { value: 'body', label: '正文' },
+                { value: 'article', label: '完整文章' },
+              ]}
+            />
           </div>
           <PreviewFrame source={draft.source} mode={mode} ogEndpoint={previewEndpoint} />
         </section>
       </div>
       <footer className="editor-status">
-        <output>{status || '草稿会自动保存在此浏览器'}</output>
-        <span className="editor-toolbar-hint">工具栏可横滑</span>
         <span>{draft.source.length.toLocaleString()} 字符</span>
         <a href="/post/note/shoka-features" target="_blank" rel="noreferrer">
-          Shoka 语法演示 ↗
+          Shoka 语法演示
+          <EditorIcon name="external" />
         </a>
       </footer>
-      <nav className="editor-mobile-tabs" aria-label="编辑与预览">
-        <button type="button" aria-pressed={tab === 'edit'} onClick={() => setTab('edit')}>
-          <EditorIcon name="edit" />
-          编辑
-        </button>
-        <button type="button" aria-pressed={tab === 'preview'} onClick={() => setTab('preview')}>
-          <EditorIcon name="preview" />
-          预览
-        </button>
-        <button type="button" onClick={(event) => openPanel('syntax', event.currentTarget)}>
+      <nav className="editor-mobile-tabs" aria-label="写作室导航">
+        <ViewSwitch
+          label="编辑与预览"
+          value={tab}
+          onChange={setTab}
+          options={[
+            { value: 'edit', label: '编辑', icon: 'edit' },
+            { value: 'preview', label: '预览', icon: 'preview' },
+          ]}
+        />
+        <button type="button" className="editor-tab-button" onClick={(event) => openPanel('syntax', event.currentTarget)}>
           <EditorIcon name="help" />
-          语法
+          <span>语法</span>
         </button>
-        <button type="button" onClick={(event) => openPanel('properties', event.currentTarget)}>
+        <button type="button" className="editor-tab-button" onClick={(event) => openPanel('properties', event.currentTarget)}>
           <EditorIcon name="settings" />
-          属性
+          <span>属性</span>
         </button>
       </nav>
       <input
@@ -522,18 +548,18 @@ export default function Editor({ ogEndpoint = '/api/editor/og' }: Props) {
           event.target.value = '';
         }}
       />
-      {panel && (
+      {shownPanel && (
         <dialog
           ref={dialog}
           className="editor-panel-backdrop"
           aria-label={
-            panel === 'syntax'
+            shownPanel === 'syntax'
               ? '语法手册'
-              : panel === 'drafts'
+              : shownPanel === 'drafts'
                 ? '浏览器草稿'
-                : panel === 'copy'
+                : shownPanel === 'copy'
                   ? '复制 Markdown'
-                  : panel === 'service'
+                  : shownPanel === 'service'
                     ? '链接预览服务'
                     : '文章属性'
           }
@@ -549,119 +575,124 @@ export default function Editor({ ogEndpoint = '/api/editor/og' }: Props) {
           }}
           onClose={() => setPanel(null)}
           onClick={(event) => {
-            if (event.target === event.currentTarget) closePanel();
+            if (event.target === event.currentTarget || event.target === event.currentTarget.firstElementChild) closePanel();
           }}
         >
+          <div className="editor-panel-scrim" />
           <aside className="editor-panel">
-            {panel === 'syntax' ? (
-              <SyntaxPanel
-                onInsert={insert}
-                onClose={() => closePanel()}
-                renderExample={(source) => <PreviewFrame source={source} example ogEndpoint={previewEndpoint} />}
-              />
-            ) : (
-              <>
-                <div className="editor-panel-header">
-                  <h2>
-                    {panel === 'drafts'
-                      ? '你的草稿'
-                      : panel === 'copy'
-                        ? '复制 Markdown'
-                        : panel === 'service'
-                          ? '链接预览服务'
-                          : '文章属性'}
-                  </h2>
-                  <button type="button" className="editor-icon-button" aria-label="关闭面板" onClick={() => closePanel()}>
-                    <EditorIcon name="close" />
-                  </button>
-                </div>
-                {panel === 'drafts' ? (
-                  <div className="editor-panel-content">
-                    <p className="editor-muted">这些草稿只存在当前浏览器，下载 Markdown 可以带走完整原文。</p>
-                    <div className="editor-draft-actions">
-                      {action('new', '新建文章', () => activate(createDraft()))}
-                      {action('help', '载入 Shoka 示例', () => {
-                        void loadExample();
-                      })}
-                    </div>
-                    {drafts.map((entry) => (
-                      <div key={entry.id} className="editor-draft-row" data-current={entry.id === draft.id}>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            const value = readDraft(localStorage, entry.id);
-                            if (value) activate(value);
-                            else setError('草稿不存在或已损坏，请检查本地备份。');
-                          }}
-                        >
-                          <strong>{entry.title}</strong>
-                          <small>
-                            {entry.id === draft.id ? '当前文章 · ' : ''}
-                            {new Date(entry.updated).toLocaleString()}
-                          </small>
-                        </button>
-                        <button
-                          type="button"
-                          className="editor-icon-button"
-                          aria-label={`删除草稿 ${entry.title}`}
-                          onClick={() => {
-                            if (!window.confirm(`删除「${entry.title}」的浏览器草稿？`)) return;
-                            try {
-                              removeDraft(localStorage, entry.id);
-                              try {
-                                clearEditorHistory(sessionStorage, entry.id);
-                              } catch {
-                                // Browser restrictions can block access to optional history storage.
-                              }
-                              setDrafts(listDrafts(localStorage));
-                              if (entry.id === draft.id) {
-                                detachCMS();
-                                setError('');
-                                setDraft(createDraft());
-                              }
-                            } catch {
-                              setError('无法删除草稿');
-                            }
-                          }}
-                        >
-                          <EditorIcon name="delete" />
-                        </button>
+            <SheetHandle onDismiss={() => closePanel()} />
+            <div className="editor-panel-body" key={panelSession}>
+              {shownPanel === 'syntax' ? (
+                <SyntaxPanel
+                  onInsert={insert}
+                  onClose={() => closePanel()}
+                  renderExample={(source) => <PreviewFrame source={source} example ogEndpoint={previewEndpoint} />}
+                />
+              ) : (
+                <>
+                  <div className="editor-panel-header">
+                    <h2>
+                      {shownPanel === 'drafts'
+                        ? '你的草稿'
+                        : shownPanel === 'copy'
+                          ? '复制 Markdown'
+                          : shownPanel === 'service'
+                            ? '链接预览服务'
+                            : '文章属性'}
+                    </h2>
+                    <button type="button" className="editor-icon-button" aria-label="关闭面板" onClick={() => closePanel()}>
+                      <EditorIcon name="close" />
+                    </button>
+                  </div>
+                  {shownPanel === 'drafts' ? (
+                    <div className="editor-panel-content">
+                      <p className="editor-muted">草稿只保存在当前浏览器，下载 Markdown 即可带走完整原文。</p>
+                      <div className="editor-draft-actions">
+                        {action('new', '新建文章', () => activate(createDraft()), 'editor-soft')}
+                        {action('sample', '载入 Shoka 示例', () => {
+                          void loadExample();
+                        })}
                       </div>
-                    ))}
-                  </div>
-                ) : panel === 'copy' ? (
-                  <div className="editor-panel-content">
-                    <p className="editor-muted">浏览器未允许自动复制。下方已选中完整原文，可长按选区选择「复制」。</p>
-                    <textarea
-                      ref={copySource}
-                      className="editor-copy-source"
-                      aria-label="完整 Markdown 原文"
-                      value={draft.source}
-                      readOnly
-                      spellCheck={false}
-                    />
-                    <div className="editor-copy-actions">
-                      {action('copy', '全选原文', () => {
-                        copySource.current?.focus({ preventScroll: true });
-                        copySource.current?.select();
-                      })}
-                      {action('copy', '再次复制', () => {
-                        void copy();
-                      })}
-                      {action('download', '下载 MD', download, 'editor-primary')}
+                      {drafts.map((entry) => (
+                        <div key={entry.id} className="editor-draft-row" data-current={entry.id === draft.id}>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const value = readDraft(localStorage, entry.id);
+                              if (value) activate(value);
+                              else setError('草稿不存在或已损坏，请检查本地备份。');
+                            }}
+                          >
+                            <strong>{entry.title}</strong>
+                            <small>
+                              {entry.id === draft.id && <span className="editor-draft-current">正在编辑</span>}
+                              {draftTime.format(entry.updated)}
+                            </small>
+                          </button>
+                          <button
+                            type="button"
+                            className="editor-icon-button editor-danger"
+                            title="删除草稿"
+                            aria-label={`删除草稿 ${entry.title}`}
+                            onClick={() => {
+                              if (!window.confirm(`删除「${entry.title}」的浏览器草稿？`)) return;
+                              try {
+                                removeDraft(localStorage, entry.id);
+                                try {
+                                  clearEditorHistory(sessionStorage, entry.id);
+                                } catch {
+                                  // Browser restrictions can block access to optional history storage.
+                                }
+                                setDrafts(listDrafts(localStorage));
+                                if (entry.id === draft.id) {
+                                  detachCMS();
+                                  setError('');
+                                  setDraft(createDraft());
+                                }
+                              } catch {
+                                setError('无法删除草稿');
+                              }
+                            }}
+                          >
+                            <EditorIcon name="delete" />
+                          </button>
+                        </div>
+                      ))}
                     </div>
-                  </div>
-                ) : panel === 'service' ? (
-                  <LinkPreviewSettings
-                    endpoint={previewEndpoint}
-                    defaultEndpoint={ogEndpoint}
-                    onChange={changePreviewService}
-                  />
-                ) : (
-                  <ArticleProperties data={parsed.data} error={parsed.error} onChange={setProperty} />
-                )}
-              </>
-            )}
+                  ) : shownPanel === 'copy' ? (
+                    <div className="editor-panel-content">
+                      <p className="editor-muted">浏览器未允许自动复制。下方已选中完整原文，可长按选区选择「复制」。</p>
+                      <textarea
+                        ref={copySource}
+                        className="editor-copy-source"
+                        aria-label="完整 Markdown 原文"
+                        value={draft.source}
+                        readOnly
+                        spellCheck={false}
+                      />
+                      <div className="editor-copy-actions">
+                        {action('copy', '全选原文', () => {
+                          copySource.current?.focus({ preventScroll: true });
+                          copySource.current?.select();
+                        })}
+                        {action('copy', '再次复制', () => {
+                          void copy();
+                        })}
+                        {action('download', '下载 MD', download, 'editor-primary')}
+                      </div>
+                    </div>
+                  ) : shownPanel === 'service' ? (
+                    <LinkPreviewSettings
+                      endpoint={previewEndpoint}
+                      defaultEndpoint={ogEndpoint}
+                      onChange={changePreviewService}
+                    />
+                  ) : (
+                    <ArticleProperties data={parsed.data} error={parsed.error} onChange={setProperty} />
+                  )}
+                </>
+              )}
+            </div>
           </aside>
         </dialog>
       )}

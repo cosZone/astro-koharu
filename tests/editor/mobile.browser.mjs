@@ -19,7 +19,7 @@ async function importSource(scope) {
     buffer: Buffer.from(source),
   });
   await expect(scope.locator('.editor-document-name')).toContainText('手机回归');
-  await expect(scope.locator('.editor-status')).toContainText('草稿已保存在此浏览器');
+  await expect(scope.locator('.editor-document-meta')).toContainText('草稿已保存在此浏览器');
 }
 
 async function setClipboardMode(scope, mode) {
@@ -53,7 +53,7 @@ async function checkClipboard(scope, page, label) {
   for (const mode of ['missing', 'rejected']) {
     await setClipboardMode(scope, mode);
     await scope.getByRole('button', { name: '复制', exact: true }).click();
-    await expect(scope.locator('.editor-status')).toContainText('已复制完整 Markdown');
+    await expect(scope.locator('.editor-document-meta')).toContainText('已复制完整 Markdown');
     const state = await scope.evaluate(() => ({
       calls: window.editorClipboardTest.calls,
       copied: window.editorClipboardTest.copied,
@@ -186,6 +186,8 @@ try {
 
   await page.setViewportSize({ width: 320, height: 568 });
   await syntaxTrigger.click();
+  // The sheet slides up on open; measure its resting position.
+  await page.evaluate(() => Promise.all(document.getAnimations().map((animation) => animation.finished)));
   // Simulate the browser's resize/scroll events without claiming to exercise a real software keyboard.
   await page.evaluate(() => {
     Object.defineProperty(visualViewport, 'height', { configurable: true, value: 280 });

@@ -112,7 +112,7 @@ try {
   assert.notEqual(first.requestId, busy.requestId);
   await finish(0);
   await expect(editor.getByRole('alert')).toContainText('仍在保存');
-  await expect(editor.locator('.editor-status')).not.toContainText('已保存到博客文件');
+  await expect(editor.locator('.editor-document-meta')).not.toContainText('已保存到博客文件');
 
   await save().click();
   await expect.poll(() => writes.length).toBe(2);
@@ -125,7 +125,7 @@ try {
   await append('C');
   await finish(1);
   await expect(save()).toBeEnabled();
-  await expect(editor.locator('.editor-status')).toContainText('后续修改仍待保存');
+  await expect(editor.locator('.editor-document-meta')).toContainText('后续修改仍待保存');
 
   await save().click();
   await expect.poll(() => writes.length).toBe(3);
@@ -143,7 +143,7 @@ try {
   await expect(editor.getByRole('alert')).toHaveCount(0);
   await finish(3);
   await expect(save()).toBeEnabled();
-  await expect(editor.locator('.editor-status')).toContainText('已保存到博客文件');
+  await expect(editor.locator('.editor-document-meta')).toContainText('已保存到博客文件');
 
   await append('D');
   await save().click();
@@ -151,7 +151,7 @@ try {
   await editor.getByRole('button', { name: '新建', exact: true }).click();
   await expect(save()).toHaveCount(0);
   await finish(4);
-  await expect(editor.locator('.editor-status')).not.toContainText('已保存到博客文件');
+  await expect(editor.locator('.editor-document-meta')).not.toContainText('已保存到博客文件');
   await expect(editor.getByRole('alert')).toHaveCount(0);
   assert.deepEqual(errors, []);
   console.log(`PASS ${browserName}: reload/busy retry, stale and duplicate ACKs, newer edits, CAS baseline, detach`);

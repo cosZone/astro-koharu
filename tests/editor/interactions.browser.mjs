@@ -111,7 +111,7 @@ try {
       await runCase(mobile, newline, 'Escape commits pending tag input', async ({ page, exported, load, openProperties }) => {
         const source = await load('Pending-tags');
         await openProperties();
-        const tags = page.getByRole('textbox', { name: '标签（以逗号分隔）', exact: true });
+        const tags = page.getByRole('textbox', { name: '标签', exact: true });
         await tags.fill('old,new');
         await tags.press('Escape');
         await expect(page.getByRole('dialog')).toHaveCount(0);
