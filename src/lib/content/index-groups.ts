@@ -29,10 +29,15 @@ export function groupPostsByYear<T extends DatedPost>(posts: readonly T[], timez
   return [...years].map(([year, items]) => ({ year, posts: items }));
 }
 
-/** Empty months have tier 0; occupied months use four equal ranges relative to the peak. */
+/**
+ * Empty months have tier 0. Occupied months are tiered on a log scale against the peak, so one
+ * burst month (a 30-post sprint) does not flatten every ordinary month into the palest tier.
+ */
 export function monthIntensity(count: number, peak: number): number {
   if (count <= 0 || peak <= 0) return 0;
-  return Math.min(4, Math.max(1, Math.ceil((count / peak) * 4)));
+  if (count >= peak) return 4;
+  const weight = Math.log1p(count) / Math.log1p(peak);
+  return weight >= 0.7 ? 4 : weight >= 0.5 ? 3 : weight >= 0.35 ? 2 : 1;
 }
 
 /** Inclusive span, including empty months between the oldest and newest post. */

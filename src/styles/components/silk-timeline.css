@@ -39,16 +39,18 @@
   font-weight: 400;
 }
 .silk-month {
-  margin-top: 0.75rem;
+  margin-top: 0.5rem;
+  padding-block: 0.5rem;
   font-size: 0.875rem;
   color: hsl(var(--muted-foreground));
 }
 .silk-month::before {
+  top: 1.3rem;
   width: 7px;
   height: 7px;
 }
 [data-silk-row] {
-  --silk-bead-y: 24px;
+  --silk-bead-y: 21px;
   position: relative;
 }
 [data-silk-row]::before {
@@ -94,8 +96,15 @@
   grid-template-columns: var(--post-row-date-width) minmax(0, 1fr) auto;
   align-items: baseline;
   column-gap: 1rem;
-  min-height: 3rem;
-  padding: 0.75rem 0 0.75rem 1.75rem;
+  min-height: 2.625rem;
+  padding: 0.5rem 0.75rem 0.5rem 1.75rem;
+  border-radius: 0.625rem;
+  transition: background-color 160ms var(--ease-out-quart);
+}
+@media (hover: hover) and (pointer: fine) {
+  .post-row:has(.post-row-title:hover) {
+    background: color-mix(in oklab, hsl(var(--primary)) 5%, transparent);
+  }
 }
 .post-row-full-date {
   --post-row-date-width: 6.5rem;

@@ -1,74 +1,110 @@
-.archive-jumps {
-  display: flex;
-  gap: 0.5rem;
-  overflow-x: auto;
-  padding-bottom: 0.25rem;
-}
-.archive-jumps .index-chip {
-  flex-shrink: 0;
-}
-.archive-jumps [aria-current] {
-  background: color-mix(in oklab, hsl(var(--primary)) 14%, hsl(var(--card)));
-}
 .archive-calendar {
-  margin-bottom: 2rem;
+  margin-bottom: 2.25rem;
 }
-.archive-calendar h2 {
+.archive-calendar-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
   margin-bottom: 0.75rem;
+}
+.archive-calendar-head h2 {
   font-size: 1rem;
   font-weight: 700;
+}
+.archive-calendar-legend {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.6875rem;
+  color: hsl(var(--muted-foreground));
+}
+.archive-calendar-legend .archive-month-cell {
+  width: 12px;
+  height: 12px;
+}
+.archive-calendar-legend .archive-month-cell:first-of-type {
+  margin-left: 2px;
+}
+.archive-calendar-legend .archive-month-cell:last-of-type {
+  margin-right: 2px;
+}
+.archive-calendar-grid {
+  display: grid;
+  gap: 5px;
 }
 .archive-calendar-row {
   display: grid;
   grid-template-columns: 3rem repeat(12, minmax(0, 1fr));
-  gap: 3px;
+  gap: 5px;
   align-items: center;
 }
 .archive-month-labels {
   text-align: center;
   font-size: 0.6875rem;
+  font-variant-numeric: tabular-nums;
   color: hsl(var(--muted-foreground));
 }
 .archive-calendar-year {
-  display: flex;
-  align-items: center;
-  min-height: 40px;
   font-size: 0.75rem;
   font-variant-numeric: tabular-nums;
   color: hsl(var(--muted-foreground));
+}
+.archive-calendar-year:is(:hover, :focus-visible) {
+  color: hsl(var(--primary));
 }
 .calendar-short-year {
   display: none;
 }
 .archive-month-cell {
-  display: flex;
-  min-height: 40px;
-  align-items: center;
-  justify-content: center;
-  border-radius: 4px;
-}
-.archive-month-cell::before {
-  content: "";
-  width: min(100%, 24px);
-  aspect-ratio: 1;
-  border-radius: 4px;
+  display: block;
+  height: 22px;
+  border-radius: 5px;
   background: var(--month-color, hsl(var(--muted)));
 }
+.archive-month-cell[data-tier="future"] {
+  background: none;
+  box-shadow: inset 0 0 0 1px hsl(var(--border));
+  opacity: 0.6;
+}
 .archive-month-cell[data-tier="1"] {
-  --month-color: color-mix(in oklab, hsl(var(--primary)) 25%, transparent);
+  --month-color: color-mix(in oklab, hsl(var(--primary)) 22%, hsl(var(--muted)));
 }
 .archive-month-cell[data-tier="2"] {
-  --month-color: color-mix(in oklab, hsl(var(--primary)) 45%, transparent);
+  --month-color: color-mix(in oklab, hsl(var(--primary)) 42%, hsl(var(--muted)));
 }
 .archive-month-cell[data-tier="3"] {
-  --month-color: color-mix(in oklab, hsl(var(--primary)) 70%, transparent);
+  --month-color: color-mix(in oklab, hsl(var(--primary)) 68%, hsl(var(--muted)));
 }
 .archive-month-cell[data-tier="4"] {
   --month-color: hsl(var(--primary));
 }
-.archive-month-cell[href]:is(:hover, :focus-visible) {
-  outline: 1px solid hsl(var(--primary));
-  outline-offset: 1px;
+/* Peak months bloom: the cell keeps its footprint and a white petal settles on it. */
+.archive-calendar-grid .archive-month-cell[data-tier="4"] {
+  position: relative;
+}
+.archive-calendar-grid .archive-month-cell[data-tier="4"]::after {
+  content: "";
+  position: absolute;
+  inset: 50% auto auto 50%;
+  width: 10px;
+  height: 12px;
+  background: hsl(var(--primary-foreground) / 0.9);
+  mask: var(--petal-mask) center / contain no-repeat;
+  transform: translate(-50%, -50%) rotate(-18deg);
+}
+a.archive-month-cell {
+  transition: transform 160ms var(--ease-out-quart, ease-out);
+}
+a.archive-month-cell:focus-visible {
+  outline: 2px solid hsl(var(--primary));
+  outline-offset: 2px;
+}
+@media (hover: hover) and (pointer: fine) {
+  a.archive-month-cell:hover {
+    transform: scale(1.18);
+    box-shadow: 0 2px 8px -2px hsl(var(--primary) / 0.5);
+  }
 }
 .archive-year {
   scroll-margin-top: 5.5rem;
@@ -77,7 +113,16 @@
   position: sticky;
   top: 5rem;
   z-index: 3;
+  font-size: 1.5rem;
+  line-height: 2rem;
   background: hsl(var(--card));
+}
+.archive-year-heading::before {
+  top: 1.75rem;
+  width: 12px;
+  height: 14px;
+  border-radius: 0;
+  mask: var(--petal-mask) center / contain no-repeat;
 }
 .archive-year section {
   scroll-margin-top: 9rem;
@@ -86,12 +131,20 @@
   margin-top: 1.5rem;
 }
 @media (width <= 767px) {
+  .archive-calendar-grid,
   .archive-calendar-row {
-    grid-template-columns: 2rem repeat(12, minmax(0, 1fr));
-    gap: 3px;
+    gap: 4px;
   }
-  .archive-month-cell::before {
-    width: min(100%, 18px);
+  .archive-calendar-row {
+    grid-template-columns: 1.75rem repeat(12, minmax(0, 1fr));
+  }
+  .archive-calendar-grid .archive-month-cell {
+    height: auto;
+    aspect-ratio: 1;
+  }
+  .archive-calendar-grid .archive-month-cell[data-tier="4"]::after {
+    width: 8px;
+    height: 10px;
   }
   .calendar-full-year {
     display: none;

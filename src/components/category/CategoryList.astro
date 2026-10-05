@@ -3,6 +3,7 @@ import PageIntro from '@components/common/PageIntro.astro';
 import { buildCategoryPath, type Category, getPostSlug, translateCategoryName } from '@lib/content';
 import { postsInCategoryPath } from '@lib/content/index-categories';
 import { encodeSlug } from '@lib/route';
+import { PETAL_MASK } from '@lib/sakura/petal';
 import type { BlogPost } from 'types/blog';
 import { localizedPath, t } from '@/i18n';
 
@@ -14,30 +15,54 @@ interface Props {
 }
 const { categories, posts, totalCount, locale } = Astro.props;
 const catalogPosts = posts.filter(({ data }) => data.catalog);
+const count = (path: string[]) => postsInCategoryPath(catalogPosts, path).length;
 const cards = categories.map((category) => ({ category, posts: postsInCategoryPath(catalogPosts, [category.name]) }));
 const peak = Math.max(1, ...cards.map(({ posts }) => posts.length));
+// Categories with sub-branches get a full-width card; leaf categories pack into compact tiles.
+const branches = cards.filter(({ category }) => category.children?.length);
+const leaves = cards.filter(({ category }) => !category.children?.length);
+const href = (path: string[]) => localizedPath(buildCategoryPath(path), locale);
+const postHref = (post: BlogPost) => localizedPath(`/post/${encodeSlug(getPostSlug(post))}`, locale);
 ---
-<div class="index-surface shadow-box">
+<div class="index-surface shadow-box" style={{ '--petal-mask': PETAL_MASK }}>
   <PageIntro stats={[{ value: totalCount, label: t(locale, 'index.categories') }, { value: posts.length, label: t(locale, 'index.posts') }]} />
-  <div class="category-cards">
-    {cards.map(({ category, posts: categoryPosts }) => {
-      const latest = categoryPosts[0];
-      return <article class="category-card motion-reveal">
+  {branches.length > 0 && <div class="category-branches">
+    {branches.map(({ category, posts: categoryPosts }) => {
+      const childPeak = Math.max(1, ...(category.children ?? []).map((child) => count([category.name, child.name])));
+      return <article class="category-card category-branch motion-reveal">
         <div class="category-card-heading">
-          <h2><a class="category-card-link" href={localizedPath(buildCategoryPath(category.name), locale)}>{translateCategoryName(category.name, locale)}</a></h2>
+          <h2><a class="category-card-link" href={href([category.name])}>{translateCategoryName(category.name, locale)}</a></h2>
           <span class="category-card-count">{categoryPosts.length}<small>{t(locale, 'index.posts')}</small></span>
         </div>
-        <div class="category-card-progress" aria-hidden="true"><span style={{ transform: `scaleX(${categoryPosts.length / peak})` }}></span></div>
-        {category.children?.length && <div class="category-card-children">
-          {category.children.map((child) => <div>
-            <a class="index-chip" href={localizedPath(buildCategoryPath([category.name, child.name]), locale)}>{translateCategoryName(child.name, locale)}<span>{postsInCategoryPath(catalogPosts, [category.name, child.name]).length}</span></a>
-            {child.children?.length && <div class="category-grandchildren">
-              {child.children.map((grandchild) => <a href={localizedPath(buildCategoryPath([category.name, child.name, grandchild.name]), locale)}>{translateCategoryName(grandchild.name, locale)}<span>{postsInCategoryPath(catalogPosts, [category.name, child.name, grandchild.name]).length}</span></a>)}
-            </div>}
-          </div>)}
-        </div>}
-        {latest && <a class="category-card-latest" href={localizedPath(`/post/${encodeSlug(getPostSlug(latest))}`, locale)}>{t(locale, 'category.recentPost', { title: latest.data.title })}</a>}
+        <div class="category-twig" aria-hidden="true" style={{ '--share': categoryPosts.length / peak }}></div>
+        <ul class="category-branch-children">
+          {(category.children ?? []).map((child) => {
+            const childPath = [category.name, child.name];
+            const childCount = count(childPath);
+            return <li>
+              <a class="category-child" href={href(childPath)}>
+                <span class="category-child-name">{translateCategoryName(child.name, locale)}</span>
+                <span class="category-child-count">{childCount}</span>
+                <span class="category-twig category-twig-small" aria-hidden="true" style={{ '--share': childCount / childPeak }}></span>
+              </a>
+              {child.children?.length && <div class="category-grandchildren">
+                {child.children.map((grandchild) => <a href={href([...childPath, grandchild.name])}>{translateCategoryName(grandchild.name, locale)}<span>{count([...childPath, grandchild.name])}</span></a>)}
+              </div>}
+            </li>;
+          })}
+        </ul>
+        {categoryPosts[0] && <a class="category-card-latest" href={postHref(categoryPosts[0])}>{t(locale, 'category.recentPost', { title: categoryPosts[0].data.title })}</a>}
       </article>;
     })}
-  </div>
+  </div>}
+  {leaves.length > 0 && <div class="category-leaves">
+    {leaves.map(({ category, posts: categoryPosts }) => <article class="category-card category-leaf motion-reveal">
+      <div class="category-card-heading">
+        <h2><a class="category-card-link" href={href([category.name])}>{translateCategoryName(category.name, locale)}</a></h2>
+        <span class="category-card-count">{categoryPosts.length}<small>{t(locale, 'index.posts')}</small></span>
+      </div>
+      <div class="category-twig" aria-hidden="true" style={{ '--share': categoryPosts.length / peak }}></div>
+      {categoryPosts[0] && <a class="category-card-latest" href={postHref(categoryPosts[0])}>{t(locale, 'category.recentPost', { title: categoryPosts[0].data.title })}</a>}
+    </article>)}
+  </div>}
 </div>

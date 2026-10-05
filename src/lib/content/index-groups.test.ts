@@ -33,8 +33,8 @@ test('buckets follow site timezone at year/month boundaries and keep newest firs
 });
 test('monthly intensity has five bounded tiers, including zero and a single post', () => {
   assert.deepEqual(
-    [0, 1, 3, 6, 9, 12, 99].map((count) => monthIntensity(count, 12)),
-    [0, 1, 1, 2, 3, 4, 4],
+    [0, 1, 2, 3, 5, 6, 10, 13, 34, 99].map((count) => monthIntensity(count, 37)),
+    [0, 1, 1, 2, 2, 3, 3, 4, 4, 4],
   );
   assert.equal(monthIntensity(1, 1), 4);
   assert.equal(monthIntensity(5, 0), 0);

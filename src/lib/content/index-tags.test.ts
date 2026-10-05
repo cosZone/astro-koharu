@@ -1,24 +1,12 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { tierTags } from './index-tags';
+import { tagTier, tierTags } from './index-tags';
 
-test('quantile tiers give repeated tags weight while keeping singletons in tier zero', () => {
-  const input = { single: 1, a: 2, b: 3, c: 4, d: 5, e: 6, f: 7, g: 8, h: 9 };
+test('log tiers keep a few staple tags prominent and the long tail calm', () => {
   assert.deepEqual(
-    tierTags(input).map(({ count, tier }) => [count, tier]),
-    [
-      [9, 4],
-      [8, 4],
-      [7, 3],
-      [6, 3],
-      [5, 2],
-      [4, 2],
-      [3, 1],
-      [2, 1],
-      [1, 0],
-    ],
+    [1, 2, 4, 5, 8, 12, 26, 35, 61].map((count) => tagTier(count, 61)),
+    [0, 1, 1, 2, 2, 3, 3, 4, 4],
   );
-  assert.equal(input.a, 2);
 });
 test('equal counts share a tier, name breaks ties, empty and uniform clouds are safe', () => {
   assert.deepEqual(tierTags({}), []);
@@ -32,8 +20,8 @@ test('equal counts share a tier, name breaks ties, empty and uniform clouds are 
   assert.deepEqual(
     tierTags({ z: 5, a: 5 }).map(({ tag, tier }) => [tag, tier]),
     [
-      ['a', 2],
-      ['z', 2],
+      ['a', 4],
+      ['z', 4],
     ],
   );
   assert.deepEqual(

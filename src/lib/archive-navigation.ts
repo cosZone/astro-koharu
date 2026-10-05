@@ -7,27 +7,6 @@ export function setupArchiveNavigation(): void {
     const archive = document.querySelector<HTMLElement>('[data-archive]');
     if (!archive) return;
     const controller = new AbortController();
-    const links = [...archive.querySelectorAll<HTMLAnchorElement>('[data-year-jump]')];
-    const years = [...archive.querySelectorAll<HTMLElement>('[data-archive-year]')];
-    const mark = (id: string) => {
-      for (const link of links) {
-        if (link.hash === `#${id}`) link.setAttribute('aria-current', 'date');
-        else link.removeAttribute('aria-current');
-      }
-    };
-    let frame = 0;
-    const update = () => {
-      frame = 0;
-      const atEnd = window.scrollY > 0 && window.scrollY + window.innerHeight >= document.documentElement.scrollHeight - 2;
-      const current = atEnd ? years.at(-1) : (years.findLast((year) => year.getBoundingClientRect().top <= 100) ?? years[0]);
-      if (current) mark(current.id);
-    };
-    const schedule = () => {
-      if (!frame) frame = requestAnimationFrame(update);
-    };
-    window.addEventListener('scroll', schedule, { passive: true, signal: controller.signal });
-    window.addEventListener('resize', schedule, { signal: controller.signal });
-    schedule();
     archive.addEventListener(
       'click',
       (event) => {
@@ -47,14 +26,10 @@ export function setupArchiveNavigation(): void {
         history.pushState(null, '', link.hash);
         target.scrollIntoView({ behavior: getScrollBehavior(), block: 'start' });
         target.focus({ preventScroll: true });
-        mark(target.closest<HTMLElement>('[data-archive-year]')?.id ?? target.id);
       },
       { signal: controller.signal },
     );
-    dispose = () => {
-      cancelAnimationFrame(frame);
-      controller.abort();
-    };
+    dispose = () => controller.abort();
   }
   if (document.readyState !== 'loading') init();
   document.addEventListener('astro:page-load', init);

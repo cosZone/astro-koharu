@@ -6,6 +6,8 @@ import { Layout, TwoColumnLayout } from '@layouts/index';
 import { siteConfig, siteTimezone } from '@lib/config/site';
 import { getSortedPosts } from '@lib/content';
 import { bucketPostsByMonth, groupPostsByYear, monthIntensity, monthSpan } from '@lib/content/index-groups';
+import { PETAL_MASK } from '@lib/sakura/petal';
+import { formatInTimeZone } from 'date-fns-tz';
 import { defaultLocale, t } from '@/i18n';
 
 interface Props {
@@ -17,6 +19,8 @@ const months = bucketPostsByMonth(posts, siteTimezone);
 const years = groupPostsByYear(posts, siteTimezone);
 const peak = Math.max(0, ...months.map(({ posts }) => posts.length));
 const monthMap = new Map(months.map((bucket) => [bucket.key, bucket]));
+// Months after the build month have not happened yet; they render as open outlines, not as empty months.
+const currentMonth = formatInTimeZone(new Date(), siteTimezone, 'yyyy-MM');
 const range = years.length ? `${years.at(-1)?.year}–${years[0].year}` : '—';
 const stats = [
   { value: posts.length, label: t(locale, 'index.posts') },
@@ -29,29 +33,35 @@ const stats = [
     <Cover compact slot="cover" title={t(locale, 'archives.title')} />
     <HomeSider slot="sider" />
     <div class="index-surface shadow-box" data-archive>
-      <PageIntro stats={stats}>
-        <nav slot="tools" class="archive-jumps" aria-label={t(locale, 'archives.jumpYear')}>
-          {years.map(({ year }, index) => <a class="index-chip" href={`#year-${year}`} data-year-jump aria-current={index === 0 ? 'date' : undefined}>{year}</a>)}
-        </nav>
-      </PageIntro>
-      {years.length > 0 && <section class="archive-calendar" aria-labelledby="calendar-title">
-        <h2 id="calendar-title">{t(locale, 'archives.calendar')}</h2>
-        <div class="archive-calendar-row archive-month-labels" aria-hidden="true"><span></span>{Array.from({ length: 12 }, (_, i) => <span>{i + 1}</span>)}</div>
-        {years.map(({ year }) => <div class="archive-calendar-row">
-          <a class="archive-calendar-year" href={`#year-${year}`}><span class="calendar-full-year">{year}</span><span class="calendar-short-year">'{String(year).slice(-2)}</span></a>
-          {Array.from({ length: 12 }, (_, i) => {
-            const key = `${year}-${String(i + 1).padStart(2, '0')}`;
-            const count = monthMap.get(key)?.posts.length ?? 0;
-            const label = t(locale, 'archives.monthLabel', { year, month: i + 1, count });
-            return count ? <a class="archive-month-cell" data-tier={monthIntensity(count, peak)} href={`#month-${key}`} title={label} aria-label={label}></a> : <span class="archive-month-cell" data-tier="0" title={label} aria-label={label}></span>;
-          })}
-        </div>)}
+      <PageIntro stats={stats} />
+      {years.length > 0 && <section class="archive-calendar" aria-labelledby="calendar-title" style={{ '--petal-mask': PETAL_MASK }}>
+        <div class="archive-calendar-head">
+          <h2 id="calendar-title">{t(locale, 'archives.calendar')}</h2>
+          <div class="archive-calendar-legend" aria-hidden="true">
+            {t(locale, 'archives.legendFew')}
+            {[0, 1, 2, 3, 4].map((tier) => <span class="archive-month-cell" data-tier={tier}></span>)}
+            {t(locale, 'archives.legendMany')}
+          </div>
+        </div>
+        <div class="archive-calendar-grid">
+          <div class="archive-calendar-row archive-month-labels" aria-hidden="true"><span></span>{Array.from({ length: 12 }, (_, i) => <span>{i + 1}</span>)}</div>
+          {years.map(({ year }) => <div class="archive-calendar-row">
+            <a class="archive-calendar-year" href={`#year-${year}`} aria-label={t(locale, 'archives.jumpToYear', { year })}><span class="calendar-full-year">{year}</span><span class="calendar-short-year">'{String(year).slice(-2)}</span></a>
+            {Array.from({ length: 12 }, (_, i) => {
+              const key = `${year}-${String(i + 1).padStart(2, '0')}`;
+              const count = monthMap.get(key)?.posts.length ?? 0;
+              const label = t(locale, 'archives.monthLabel', { year, month: i + 1, count });
+              if (count) return <a class="archive-month-cell" data-tier={monthIntensity(count, peak)} href={`#month-${key}`} title={label} aria-label={label}></a>;
+              return <span class="archive-month-cell" data-tier={key > currentMonth ? 'future' : '0'} title={key > currentMonth ? undefined : label}></span>;
+            })}
+          </div>)}
+        </div>
       </section>}
       <SilkTimeline>
-        {years.map(({ year, posts: yearPosts }) => <section id={`year-${year}`} class="archive-year" data-archive-year tabindex="-1">
+        {years.map(({ year, posts: yearPosts }) => <section id={`year-${year}`} class="archive-year" tabindex="-1">
           <h2 class="silk-heading archive-year-heading">{year}<small>{t(locale, 'post.yearPosts', { count: yearPosts.length })}</small></h2>
           {months.filter((bucket) => bucket.year === year).map(({ key, month, posts }) => <section class="motion-reveal" id={`month-${key}`} tabindex="-1">
-            <h3 class="silk-heading silk-month">{t(locale, 'archives.month', { month })}<small>{t(locale, 'post.yearPosts', { count: posts.length })}</small></h3>
+            <h3 class="silk-heading silk-month">{t(locale, 'archives.month', { month })}</h3>
             {posts.map((post) => <PostRow post={post} locale={locale} />)}
           </section>)}
         </section>)}

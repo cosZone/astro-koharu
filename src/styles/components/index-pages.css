@@ -11,6 +11,9 @@
   gap: 1.5rem;
   margin-bottom: 2rem;
 }
+.page-intro:has(.page-intro-breadcrumbs) {
+  align-items: flex-start;
+}
 .page-intro-copy {
   min-width: 0;
 }
