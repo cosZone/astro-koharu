@@ -7,6 +7,24 @@
 import type { UIStrings } from '../types';
 
 export const uiStrings: UIStrings = {
+  // Index pages
+  'index.posts': 'posts',
+  'index.years': 'years',
+  'index.monthSpan': 'months spanned',
+  'index.categories': 'categories',
+  'index.tags': 'tags',
+  'index.mostUsed': 'most used',
+  'category.recentPost': 'Latest: {title}',
+  'category.filter': 'Subcategories',
+  'tag.filter': 'Filter tags',
+  'tag.filterPlaceholder': 'Enter a tag name',
+  'tag.noMatches': 'No matching tags',
+  'tag.singleTags': '{count} more tags used only once',
+  'archives.jumpYear': 'Jump to year',
+  'archives.calendar': 'Sakura calendar',
+  'archives.month': 'Month {month}',
+  'archives.monthLabel': '{year}, month {month} · {count} posts',
+
   // ── Navigation ──────────────────────────────────────────────
   'nav.home': 'Home',
   'nav.posts': 'Posts',

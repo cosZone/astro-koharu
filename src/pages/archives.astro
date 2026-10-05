@@ -1,76 +1,66 @@
 ---
+import { PageIntro, PostRow, SilkTimeline } from '@components/common/index-pages';
 import HomeSider from '@components/layout/HomeSider.astro';
 import Cover from '@components/ui/cover/Cover.astro';
-import { CONTENT_PADDING } from '@constants/layout';
-import { siteConfig } from '@constants/site-config';
 import TwoColumnLayout from '@layouts/TwoColumnLayout.astro';
-import { getPostSlug, getSortedPosts } from '@lib/content';
-import { displayDate } from '@lib/date';
-import { encodeSlug } from '@lib/route';
-import { defaultLocale, localizedPath, t } from '@/i18n';
+import { siteConfig, siteTimezone } from '@lib/config/site';
+import { getSortedPosts } from '@lib/content';
+import { bucketPostsByMonth, groupPostsByYear, monthIntensity, monthSpan } from '@lib/content/index-groups';
+import { defaultLocale, t } from '@/i18n';
 import Layout from '../layouts/Layout.astro';
 
 interface Props {
   locale?: string;
 }
-
-// Root pages render the default locale; `[lang]/` mirrors pass their locale in explicitly.
 const { locale = defaultLocale } = Astro.props;
 const posts = await getSortedPosts(locale);
-
-// 按年份对文章进行分组
-const postsByYear = posts.reduce(
-  (acc, post) => {
-    const year = new Date(post.data.date).getFullYear();
-    if (!acc[year]) {
-      acc[year] = [];
-    }
-    acc[year].push(post);
-    return acc;
-  },
-  {} as Record<number, typeof posts>,
-);
-
-const years = Object.keys(postsByYear).sort((a, b) => Number(b) - Number(a));
+const months = bucketPostsByMonth(posts, siteTimezone);
+const years = groupPostsByYear(posts, siteTimezone);
+const peak = Math.max(0, ...months.map(({ posts }) => posts.length));
+const monthMap = new Map(months.map((bucket) => [bucket.key, bucket]));
+const range = years.length ? `${years.at(-1)?.year}–${years[0].year}` : '—';
+const stats = [
+  { value: posts.length, label: t(locale, 'index.posts') },
+  { value: range, label: t(locale, 'index.years') },
+  { value: monthSpan(months.map(({ key }) => key)), label: t(locale, 'index.monthSpan') },
+];
 ---
-
 <Layout locale={locale} title={`${t(locale, 'archives.title')} | ${siteConfig.title}`} description={t(locale, 'archives.title')}>
   <TwoColumnLayout>
     <Cover compact slot="cover" title={t(locale, 'archives.title')} />
     <HomeSider slot="sider" />
-    <div class={`shadow-box bg-gradient-start mx-0 flex w-full flex-col ${CONTENT_PADDING.standard}`}>
-      <h2 class="shoka-decoration-circle group relative h-19 px-6 py-5 text-2xl/9 font-bold md:text-xl/9">
-        <a href={localizedPath('/', locale)} class="dashed-border text-muted-foreground group-hover:border-blue group-hover:text-blue border-b">{t(locale, 'nav.home')}</a>
-        <span class="text-muted-foreground text-lg md:text-base"> / </span>
-        {t(locale, 'post.totalPosts', { count: posts.length })}
-      </h2>
-      <div class="flex flex-col gap-4 [--rise-y:0.5rem] md:gap-5">
-        {
-          years.map((year) => (
-            <div>
-              <h3 class="motion-reveal text-xl font-bold md:text-base">
-                {year}
-                <span class="text-muted-foreground ml-2 text-base md:text-sm">{t(locale, 'post.yearPosts', { count: postsByYear[Number(year)].length })}</span>
-              </h3>
-              <div class="mt-2">
-                {postsByYear[Number(year)].map((post) => (
-                  <p class="motion-reveal shoka-decoration-circle group text-primary hover:text-blue relative px-6 py-2 text-base/9 md:flex md:flex-col md:items-stretch md:text-sm/9">
-                    <span class="text-muted-foreground mr-2 text-xs">
-                      {displayDate.date(post.data.date)}
-                    </span>
-                    <a
-                      href={localizedPath(`/post/${encodeSlug(getPostSlug(post))}`, locale)}
-                      class="dashed-border text-primary hover:text-blue truncate transition-colors"
-                    >
-                      {post.data.title}
-                    </a>
-                  </p>
-                ))}
-              </div>
-            </div>
-          ))
-        }
-      </div>
+    <div class="index-surface shadow-box" data-archive>
+      <PageIntro stats={stats}>
+        <nav slot="tools" class="archive-jumps" aria-label={t(locale, 'archives.jumpYear')}>
+          {years.map(({ year }, index) => <a class="index-chip" href={`#year-${year}`} data-year-jump aria-current={index === 0 ? 'date' : undefined}>{year}</a>)}
+        </nav>
+      </PageIntro>
+      {years.length > 0 && <section class="archive-calendar" aria-labelledby="calendar-title">
+        <h2 id="calendar-title">{t(locale, 'archives.calendar')}</h2>
+        <div class="archive-calendar-row archive-month-labels" aria-hidden="true"><span></span>{Array.from({ length: 12 }, (_, i) => <span>{i + 1}</span>)}</div>
+        {years.map(({ year }) => <div class="archive-calendar-row">
+          <a class="archive-calendar-year" href={`#year-${year}`}><span class="calendar-full-year">{year}</span><span class="calendar-short-year">'{String(year).slice(-2)}</span></a>
+          {Array.from({ length: 12 }, (_, i) => {
+            const key = `${year}-${String(i + 1).padStart(2, '0')}`;
+            const count = monthMap.get(key)?.posts.length ?? 0;
+            const label = t(locale, 'archives.monthLabel', { year, month: i + 1, count });
+            return count ? <a class="archive-month-cell" data-tier={monthIntensity(count, peak)} href={`#month-${key}`} title={label} aria-label={label}></a> : <span class="archive-month-cell" data-tier="0" title={label} aria-label={label}></span>;
+          })}
+        </div>)}
+      </section>}
+      <SilkTimeline>
+        {years.map(({ year, posts: yearPosts }) => <section id={`year-${year}`} class="archive-year" data-archive-year tabindex="-1">
+          <h2 class="silk-heading archive-year-heading">{year}<small>{t(locale, 'post.yearPosts', { count: yearPosts.length })}</small></h2>
+          {months.filter((bucket) => bucket.year === year).map(({ key, month, posts }) => <section class="motion-reveal" id={`month-${key}`} tabindex="-1">
+            <h3 class="silk-heading silk-month">{t(locale, 'archives.month', { month })}<small>{t(locale, 'post.yearPosts', { count: posts.length })}</small></h3>
+            {posts.map((post) => <PostRow post={post} locale={locale} />)}
+          </section>)}
+        </section>)}
+      </SilkTimeline>
     </div>
   </TwoColumnLayout>
 </Layout>
+<script>
+  import { setupArchiveNavigation } from '@lib/archive-navigation';
+  setupArchiveNavigation();
+</script>
