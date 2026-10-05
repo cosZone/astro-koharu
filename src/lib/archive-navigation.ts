@@ -1,3 +1,4 @@
+import { navigate } from 'astro:transitions/client';
 import { getScrollBehavior } from '@lib/motion-level';
 
 export function setupArchiveNavigation(): void {
@@ -9,7 +10,7 @@ export function setupArchiveNavigation(): void {
     const controller = new AbortController();
     archive.addEventListener(
       'click',
-      (event) => {
+      async (event) => {
         if (
           event.button !== 0 ||
           event.metaKey ||
@@ -23,7 +24,9 @@ export function setupArchiveNavigation(): void {
         const target = link?.hash && document.getElementById(link.hash.slice(1));
         if (!link || !target) return;
         event.preventDefault();
-        history.pushState(null, '', link.hash);
+        // The ClientRouter owns history indices and scroll restoration across pages.
+        await navigate(link.hash, { sourceElement: link });
+        if (controller.signal.aborted || !target.isConnected) return;
         target.scrollIntoView({ behavior: getScrollBehavior(), block: 'start' });
         target.focus({ preventScroll: true });
       },
