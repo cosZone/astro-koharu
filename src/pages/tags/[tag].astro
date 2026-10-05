@@ -1,67 +1,31 @@
 ---
+import PageIntro from '@components/common/PageIntro.astro';
+import PostYears from '@components/common/PostYears.astro';
 import HomeSider from '@components/layout/HomeSider.astro';
 import Cover from '@components/ui/cover/Cover.astro';
-import { CONTENT_PADDING } from '@constants/layout';
 import { siteConfig } from '@constants/site-config';
 import Layout from '@layouts/Layout.astro';
 import TwoColumnLayout from '@layouts/TwoColumnLayout.astro';
-import { getPostLastCategory, getPostSlug, getSortedPosts, normalizeTag, translateCategoryName } from '@lib/content';
-import { displayDate } from '@lib/date';
-import { encodeSlug } from '@lib/route';
+import { getSortedPosts, normalizeTag } from '@lib/content';
 import { localizedPath, t } from '@/i18n';
 import { tagRoute } from '../_shared/routes';
 
 export const getStaticPaths = tagRoute.root;
-
 interface Props {
   tag: string;
   locale: string;
 }
-
 const { tag, locale } = Astro.props;
 const allPosts = await getSortedPosts(locale);
 const posts = allPosts.filter((post) => post.data.tags?.some((tg) => normalizeTag(tg) === tag));
 ---
-
 <Layout locale={locale} title={`${t(locale, 'tag.postsWithTag', { name: tag })} | ${siteConfig.title}`} description={t(locale, 'tag.postsWithTag', { name: tag })}>
   <TwoColumnLayout>
     <Cover compact slot="cover" title={t(locale, 'tag.postsWithTag', { name: tag })} />
     <HomeSider slot="sider" />
-    <div class={`shadow-box mx-0 flex w-full flex-col bg-gradient-start ${CONTENT_PADDING.standard}`}>
-      <h2 class="shoka-decoration-circle has-children group relative h-19 px-6 py-5 text-2xl/9 font-bold">
-        <a
-          href={localizedPath('/tags', locale)}
-          class="dashed-border text-muted-foreground group-hover:border-blue group-hover:text-blue border-b">{t(locale, 'tag.all')}</a
-        >
-        <span class="text-muted-foreground text-lg"> / </span>
-        <span class="text-muted-foreground">{tag}</span>
-        <span class="text-muted-foreground text-lg">({t(locale, 'tag.postCount', { count: posts.length })})</span>
-      </h2>
-      {
-        posts?.length && (
-          <div class="category-second-level-container flex flex-col">
-            {posts.map((post) => {
-              const { link, name } = getPostLastCategory(post);
-              return (
-                <p class="shoka-decoration-circle group text-primary relative px-6 py-2 text-base/9 md:overflow-visible">
-                  <span class="text-muted-foreground inline-block w-15 text-xs md:relative md:-top-1">
-                    {displayDate.shortDate(post.data.date)}
-                  </span>
-                  <a
-                    href={localizedPath(link, locale)}
-                    class="text-muted-foreground hover:text-blue mr-2 inline-block text-xs md:relative md:-top-1"
-                  >
-                    {translateCategoryName(name, locale)}
-                  </a>
-                  <a href={localizedPath(`/post/${encodeSlug(getPostSlug(post))}`, locale)} class="dashed-border md:mt-0.5 md:block md:w-fit">
-                    {post?.data?.title}
-                  </a>
-                </p>
-              );
-            })}
-          </div>
-        )
-      }
+    <div class="index-surface shadow-box">
+      <PageIntro stats={[{ value: posts.length, label: t(locale, 'index.posts') }]} breadcrumbs={[{ label: t(locale, 'nav.tags'), href: localizedPath('/tags', locale) }, { label: tag }]} />
+      <PostYears posts={posts} locale={locale} />
     </div>
   </TwoColumnLayout>
 </Layout>

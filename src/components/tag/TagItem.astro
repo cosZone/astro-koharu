@@ -1,0 +1,15 @@
+---
+import { buildTagPath } from '@lib/content/tags';
+import { localizedPath, t } from '@/i18n';
+
+interface Props {
+  tag: string;
+  count: number;
+  tier: number;
+  locale: string;
+}
+const { tag, count, tier, locale } = Astro.props;
+---
+<a class="index-tag" data-tag={tag.toLowerCase()} data-tier={tier} href={localizedPath(buildTagPath(tag), locale)} aria-label={t(locale, 'tag.viewTagPosts', { tag, count })}>
+  {tag}<sup>{count}</sup>
+</a>

@@ -2,7 +2,7 @@
 import { cn } from '@lib/utils';
 
 interface Props {
-  stats: { value: string | number; label: string }[];
+  stats: { value: string | number; label: string; labelFirst?: boolean }[];
   breadcrumbs?: { label: string; href?: string }[];
   className?: string;
 }
@@ -17,7 +17,7 @@ const { stats, breadcrumbs = [], className } = Astro.props;
       </>)}
     </nav>}
     <dl class="page-intro-stats">
-      {stats.map(({ value, label }) => <div><dd>{value}</dd><dt>{label}</dt></div>)}
+      {stats.map(({ value, label, labelFirst }) => <div class:list={[labelFirst && "page-intro-label-first"]}><dt>{label}</dt><dd>{value}</dd></div>)}
     </dl>
   </div>
   {Astro.slots.has('tools') && <div class="page-intro-tools"><slot name="tools" /></div>}

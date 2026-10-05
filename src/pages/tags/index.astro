@@ -1,45 +1,49 @@
 ---
+import PageIntro from '@components/common/PageIntro.astro';
 import HomeSider from '@components/layout/HomeSider.astro';
-import { CollapsibleTags } from '@components/tag/CollapsibleTags';
-import { TagItem } from '@components/tag/TagItem';
+import TagItem from '@components/tag/TagItem.astro';
 import Cover from '@components/ui/cover/Cover.astro';
-import { CONTENT_PADDING } from '@constants/layout';
 import { siteConfig } from '@constants/site-config';
 import Layout from '@layouts/Layout.astro';
 import TwoColumnLayout from '@layouts/TwoColumnLayout.astro';
 import { getAllTags, getSortedPosts } from '@lib/content';
-import { defaultLocale, localizedPath, t } from '@/i18n';
+import { tierTags } from '@lib/content/index-tags';
+import { defaultLocale, t } from '@/i18n';
 
 interface Props {
   locale?: string;
 }
-
-// Root pages render the default locale; `[lang]/` mirrors pass their locale in explicitly.
 const { locale = defaultLocale } = Astro.props;
 const posts = await getSortedPosts(locale);
-const tags = getAllTags(posts);
-const sortedTags = Object.entries(tags)
-  .sort(([, a], [, b]) => b - a)
-  .map(([tag, count], index) => ({ tag, count, colorIndex: index % 4 }));
-
-const mainTags = sortedTags.filter(({ count }) => count > 1);
-const singleTags = sortedTags.filter(({ count }) => count === 1);
+const tags = tierTags(getAllTags(posts));
+const mainTags = tags.filter(({ count }) => count > 1);
+const singleTags = tags.filter(({ count }) => count === 1);
+const stats = [
+  { value: tags.length, label: t(locale, 'index.tags') },
+  ...(tags.length ? [{ value: tags[0].tag, label: t(locale, 'index.mostUsed'), labelFirst: true }] : []),
+];
 ---
-
 <Layout locale={locale} title={`${t(locale, 'tag.allTags')} | ${siteConfig.title}`} description={t(locale, 'tag.allTags')}>
   <TwoColumnLayout>
     <Cover compact slot="cover" title={t(locale, 'tag.allTags')} />
     <HomeSider slot="sider" />
-    <div class={`shadow-box bg-gradient-start mx-0 flex w-full flex-col ${CONTENT_PADDING.normal}`}>
-      <h2 class="shoka-decoration-circle group relative h-19 px-6 py-5 text-2xl/9 font-bold md:text-xl/9">
-        <a href={localizedPath('/', locale)} class="dashed-border text-muted-foreground group-hover:border-blue group-hover:text-blue border-b">{t(locale, 'nav.home')}</a>
-        <span class="text-muted-foreground text-lg md:text-base"> / </span>
-        {t(locale, 'tag.totalTags', { count: sortedTags.length })}
-      </h2>
-      <div class="flex flex-wrap gap-3 px-4 md:px-0">
-        {mainTags.map((props) => <TagItem {...props} locale={locale} />)}
-      </div>
-      <CollapsibleTags tags={singleTags} locale={locale} client:only="react" />
+    <div class="index-surface shadow-box" data-tag-cloud>
+      <PageIntro stats={stats}>
+        <label class="tag-filter" slot="tools">
+          <span class="sr-only">{t(locale, 'tag.filter')}</span>
+          <input type="search" data-tag-filter placeholder={t(locale, 'tag.filterPlaceholder')} autocomplete="off" />
+        </label>
+      </PageIntro>
+      <div class="tag-cloud-list">{mainTags.map((tag) => <TagItem {...tag} locale={locale} />)}</div>
+      {singleTags.length > 0 && <details class="tag-singletons">
+        <summary>{t(locale, 'tag.singleTags', { count: singleTags.length })}</summary>
+        <div class="tag-cloud-list">{singleTags.map((tag) => <TagItem {...tag} locale={locale} />)}</div>
+      </details>}
+      <p class="tag-empty text-muted-foreground" data-tag-empty role="status" aria-live="polite" hidden={tags.length > 0}>{t(locale, 'tag.noMatches')}</p>
     </div>
   </TwoColumnLayout>
 </Layout>
+<script>
+  import { setupTagFilter } from '@lib/tag-filter';
+  setupTagFilter();
+</script>
