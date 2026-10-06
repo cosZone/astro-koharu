@@ -17,7 +17,13 @@ const { className, post, showPostFooter = true } = Astro.props;
 
 <div class="flex flex-col">
   <slot name="cover" />
-  <div class={cn('mx-auto md:mx-0 flex w-full items-start justify-center md:w-full', MAX_WIDTH.content, className)}>
+  <div
+    class={cn(
+      'two-column-content mx-auto md:mx-0 flex w-full items-start justify-center md:w-full',
+      MAX_WIDTH.content,
+      className,
+    )}
+  >
     <slot name="sider" />
     <div class="flex min-w-0 grow flex-col gap-8 md:w-full">
       <slot />
@@ -26,3 +32,12 @@ const { className, post, showPostFooter = true } = Astro.props;
     </div>
   </div>
 </div>
+
+<style>
+  @media (width > 992px) {
+    /* Reserve the sidebar's full height so its header-following motion cannot shrink a short page. */
+    .two-column-content:global(:has(> .page-home-sider)) {
+      min-height: 100vh;
+    }
+  }
+</style>

@@ -264,7 +264,7 @@ const seriesName = post && type === HomeSiderType.POST ? translateCategoryName(g
     z-index: 5;
   }
 
-  /* Keep the reading navigation stable while the header hides and reveals. */
+  /* The directory fills the space released by the header without changing the article layout. */
   .page-home-sider {
     top: 0;
     height: 100vh;
@@ -274,6 +274,26 @@ const seriesName = post && type === HomeSiderType.POST ? translateCategoryName(g
     .page-home-sider {
       top: 4.25rem;
       height: calc(100vh - 4.25rem);
+      transition:
+        top 480ms var(--ease-out-expo),
+        height 480ms var(--ease-out-expo);
+    }
+
+    :global(body:has(#site-header.-translate-y-full)) .page-home-sider {
+      top: 0;
+      height: 100vh;
+      transition-duration: 260ms;
+      transition-timing-function: var(--ease-in-quart);
+    }
+  }
+
+  :global(html.motion-off) .page-home-sider {
+    transition: none;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .page-home-sider {
+      transition: none;
     }
   }
 

@@ -83,10 +83,10 @@ function createTocGlide(nav: HTMLElement, parts: TocGlideParts): TocGlideControl
     knots = [];
     let floor = Number.NEGATIVE_INFINITY;
     for (const element of nav.querySelectorAll<HTMLElement>('[data-toc-row]')) {
-      if (element.closest('[inert]')) continue;
       let top = offsetIn(element).y;
       let bottom = top + element.offsetHeight;
-      // A section that is still unfolding clips its rows; the ribbon only reaches what shows.
+      // `inert` disables interaction as soon as folding starts, while the rows still slide shut.
+      // Use their clipped geometry during both folding and unfolding so the ribbon stays attached.
       for (
         let clip = element.parentElement?.closest<HTMLElement>('.silk-heading-children-inner');
         clip;

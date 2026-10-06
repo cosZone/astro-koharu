@@ -1,4 +1,4 @@
-# Mobile TOC regression tests
+# TOC regression tests
 
 Run against an Astro development server:
 
@@ -11,4 +11,6 @@ Without `TOC_BASE_URL`, Playwright starts a server at port 4353. Artifacts defau
 Chromium and WebKit cover repeated touch opening at 320px/390px portrait and 844px landscape, per-frame opacity and
 clip-path completion, current-heading focus, stable article position, dismissal and reduced motion.
 The desktop case checks keyboard opening, focus restoration and switching back to the sidebar TOC.
+Sidebar cases sample the ribbon against still-visible children throughout chapter collapse, including an interrupted
+collapse that reverses into expansion. Reduced motion checks immediate folding and the current marker's final position.
 These are browser-emulated viewports, not physical-device verification.
