@@ -1,5 +1,7 @@
 ---
-import { friendsData } from '@constants/friends-config';
+import SakuraSVG from '@components/svg/SakuraSvg';
+import { friendGroups, friendsData } from '@constants/friends-config';
+import { groupFriendLinks } from '@lib/config/friends';
 import { defaultLocale, t } from '@/i18n';
 import FriendCard from './FriendCard.astro';
 
@@ -8,17 +10,54 @@ interface Props {
 }
 
 const { locale = defaultLocale } = Astro.props;
+const grouped = friendGroups.length > 0;
+const sections = groupFriendLinks(friendsData, friendGroups).map(({ group, friends }) => ({
+  id: group?.id ?? 'ungrouped',
+  title: group?.title ?? t(locale, 'friends.ungrouped'),
+  description: group?.description,
+  friends,
+}));
 ---
 
 <div data-friends-grid>
-  {friendsData.length > 0 ? (
-    <div class="friends-grid grid">
-      {friendsData.map((friend) => <FriendCard friend={friend} />)}
-    </div>
-  ) : (
+  {friendsData.length === 0 ? (
     <div class="flex min-h-40 flex-col items-center justify-center gap-2 text-center">
       <h2 class="font-semibold text-foreground text-lg">{t(locale, 'friends.emptyTitle')}</h2>
       <p class="text-muted-foreground text-sm">{t(locale, 'friends.emptyDesc')}</p>
+    </div>
+  ) : grouped ? (
+    <>
+      {/* Plain anchors without JS; the script turns them into an instant filter. */}
+      <nav id="friends-groups" class="index-tabs friends-group-tabs" aria-label={t(locale, 'friends.filterLabel')}>
+        <a href="#friends-groups" data-friends-filter="all" aria-current="true">{t(locale, 'friends.all')}<sup>{friendsData.length}</sup></a>
+        {sections.map((section) => (
+          <a href={`#friends-${section.id}`} data-friends-filter={section.id}>{section.title}<sup>{section.friends.length}</sup></a>
+        ))}
+      </nav>
+      {sections.map((section) => (
+        <section id={`friends-${section.id}`} class="friends-section" data-friends-section={section.id} data-empty={section.friends.length === 0 || undefined} tabindex="-1">
+          <h2 class="year-rule friends-section-rule">
+            <SakuraSVG className="year-rule-bloom" />
+            <span>{section.title}</span>
+            <small>{section.friends.length}</small>
+          </h2>
+          {section.description && <p class="friends-section-desc">{section.description}</p>}
+          {section.friends.length > 0 ? (
+            <div class="friends-grid grid">
+              {section.friends.map((friend) => <FriendCard friend={friend} />)}
+            </div>
+          ) : (
+            <div class="friends-section-empty">
+              <p class="font-semibold text-foreground">{t(locale, 'friends.emptyGroupTitle')}</p>
+              <p class="text-muted-foreground text-sm">{t(locale, 'friends.emptyGroupDescription')}</p>
+            </div>
+          )}
+        </section>
+      ))}
+    </>
+  ) : (
+    <div class="friends-grid grid">
+      {friendsData.map((friend) => <FriendCard friend={friend} />)}
     </div>
   )}
 </div>
@@ -27,6 +66,50 @@ const { locale = defaultLocale } = Astro.props;
   .friends-grid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 0.875rem;
+  }
+
+  .friends-group-tabs {
+    margin-bottom: 0.5rem;
+  }
+
+  .friends-section {
+    scroll-margin-top: 5rem;
+  }
+
+  .friends-section + .friends-section {
+    margin-top: 2rem;
+  }
+
+  /* With every group shown, empty groups add nothing; they appear only when picked in the filter. */
+  [data-friends-grid]:not([data-friends-active]) .friends-section[data-empty] {
+    display: none;
+  }
+
+  .friends-section-rule {
+    margin-top: 1.25rem;
+  }
+
+  .friends-section-desc {
+    margin: -0.25rem 0 0.875rem;
+    font-size: 0.8125rem;
+    color: hsl(var(--muted-foreground));
+  }
+
+  .friends-section-rule + .friends-grid,
+  .friends-section-rule + .friends-section-empty {
+    margin-top: 0.875rem;
+  }
+
+  .friends-section-empty {
+    display: flex;
+    min-height: 8rem;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.25rem;
+    border-radius: 1rem;
+    background: color-mix(in oklab, hsl(var(--muted)) 45%, hsl(var(--card)));
+    text-align: center;
   }
 
   @media (max-width: 1199px) {
