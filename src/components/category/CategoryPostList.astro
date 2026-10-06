@@ -31,7 +31,7 @@ const breadcrumbs = [
 <div class="index-surface shadow-box" data-category-filter-root>
   <PageIntro stats={[{ value: posts.length, label: t(locale, 'index.posts') }]} breadcrumbs={breadcrumbs}>
     {category?.children?.length && <div class="index-tabs" slot="tools" role="group" aria-label={t(locale, 'category.filter')}>
-      <button type="button" data-category-filter="all" aria-pressed="true">{t(locale, 'tag.all')}<sup>{posts.length}</sup></button>
+      <button type="button" data-category-filter="" aria-pressed="true">{t(locale, 'tag.all')}<sup>{posts.length}</sup></button>
       {category.children.map((child) => <button type="button" data-category-filter={child.name} aria-pressed="false">{translateCategoryName(child.name, locale)}<sup>{postsInCategoryPath(allPosts, [...path, child.name]).length}</sup></button>)}
     </div>}
   </PageIntro>

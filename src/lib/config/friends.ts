@@ -22,6 +22,9 @@ export function normalizeFriendGroups(raw: unknown): FriendGroup[] {
       throw new Error(`Friends configuration error: description of group "${id}" must be a string.`);
     }
     const normalizedId = id.trim();
+    if (normalizedId === 'all' || normalizedId === 'ungrouped') {
+      throw new Error(`Friends configuration error: group id "${normalizedId}" is reserved.`);
+    }
     if (ids.has(normalizedId)) throw new Error(`Friends configuration error: duplicate group id "${normalizedId}".`);
     ids.add(normalizedId);
     return { id: normalizedId, title: title.trim(), ...(description !== undefined ? { description } : {}) };

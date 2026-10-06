@@ -20,7 +20,7 @@ const sections = groupFriendLinks(friendsData, friendGroups).map(({ group, frien
 ---
 
 <div data-friends-grid>
-  {friendsData.length === 0 ? (
+  {friendsData.length === 0 && !grouped ? (
     <div class="flex min-h-40 flex-col items-center justify-center gap-2 text-center">
       <h2 class="font-semibold text-foreground text-lg">{t(locale, 'friends.emptyTitle')}</h2>
       <p class="text-muted-foreground text-sm">{t(locale, 'friends.emptyDesc')}</p>
@@ -28,12 +28,16 @@ const sections = groupFriendLinks(friendsData, friendGroups).map(({ group, frien
   ) : grouped ? (
     <>
       {/* In-page filter tabs; without JS every group is listed anyway. */}
-      <div id="friends-groups" class="index-tabs friends-group-tabs" role="group" aria-label={t(locale, 'friends.filterLabel')}>
+      <div class="index-tabs friends-group-tabs" role="group" aria-label={t(locale, 'friends.filterLabel')}>
         <button type="button" data-friends-filter="all" aria-pressed="true">{t(locale, 'friends.all')}<sup>{friendsData.length}</sup></button>
         {sections.map((section) => (
           <button type="button" data-friends-filter={section.id} aria-pressed="false">{section.title}<sup>{section.friends.length}</sup></button>
         ))}
       </div>
+      {friendsData.length === 0 && <div data-friends-empty class="flex min-h-40 flex-col items-center justify-center gap-2 text-center">
+        <h2 class="font-semibold text-foreground text-lg">{t(locale, 'friends.emptyTitle')}</h2>
+        <p class="text-muted-foreground text-sm">{t(locale, 'friends.emptyDesc')}</p>
+      </div>}
       {sections.map((section) => (
         <section id={`friends-${section.id}`} class="friends-section" data-friends-section={section.id} data-empty={section.friends.length === 0 || undefined} tabindex="-1">
           <h2 class="year-rule friends-section-rule">
@@ -82,6 +86,10 @@ const sections = groupFriendLinks(friendsData, friendGroups).map(({ group, frien
 
   /* With every group shown, empty groups add nothing; they appear only when picked in the filter. */
   [data-friends-grid]:not([data-friends-active]) .friends-section[data-empty] {
+    display: none;
+  }
+
+  [data-friends-active] [data-friends-empty] {
     display: none;
   }
 

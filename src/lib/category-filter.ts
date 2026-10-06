@@ -16,7 +16,7 @@ export function setupCategoryFilter(): void {
       for (const year of years) {
         let visible = 0;
         for (const row of year.querySelectorAll<HTMLElement>('.post-row')) {
-          row.hidden = key !== 'all' && row.dataset.filterKey !== key;
+          row.hidden = key !== '' && row.dataset.filterKey !== key;
           if (!row.hidden) visible++;
         }
         year.hidden = visible === 0;
@@ -31,7 +31,7 @@ export function setupCategoryFilter(): void {
       'click',
       (event) => {
         const tab = event.target instanceof Element ? event.target.closest<HTMLButtonElement>('[data-category-filter]') : null;
-        if (tab?.dataset.categoryFilter) select(tab.dataset.categoryFilter);
+        if (tab?.dataset.categoryFilter !== undefined) select(tab.dataset.categoryFilter);
       },
       { signal: controller.signal },
     );

@@ -48,9 +48,19 @@ function init() {
     },
     { signal: controller.signal },
   );
-  // A shared `#friends-<group>` link opens with that group selected.
-  const linked = sections.find((section) => `#${section.id}` === window.location.hash);
-  if (linked?.dataset.friendsSection) select(linked.dataset.friendsSection);
+  const selectHash = () => {
+    let hash = window.location.hash.slice(1);
+    try {
+      hash = decodeURIComponent(hash);
+    } catch {
+      // Malformed escapes cannot identify a section; keep every link visible.
+    }
+    const linked = sections.find((section) => section.id === hash);
+    select(linked?.dataset.friendsSection ?? 'all');
+    linked?.scrollIntoView({ block: 'start', behavior: 'instant' });
+  };
+  window.addEventListener('hashchange', selectHash, { signal: controller.signal });
+  selectHash();
 
   dispose = () => controller.abort();
 }

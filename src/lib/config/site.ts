@@ -12,12 +12,15 @@ import { DEFAULT_TIMEZONE, isValidTimezone } from '../timezone';
 import { normalizeContentConfig } from './content';
 import { normalizeEditorConfig } from './editor';
 import { enabledFeaturedSeriesSlugs, normalizeFeaturedSeries } from './featured-series';
+import { normalizeFriendGroups } from './friends';
 import { normalizeMotionConfig } from './motion';
 import { RESERVED_ROUTES } from './reserved-routes';
 import type { I18nConfig, ResolvedContentConfig, ResolvedMotionConfig, ResolvedSiteConfig } from './types';
 
 /** Category name → URL slug map, e.g. `{ '随笔': 'life' }`. */
 export const categoryMap: Record<string, string> = yamlConfig.categoryMap ?? {};
+
+export const friendGroups = normalizeFriendGroups(yamlConfig.friends?.groups);
 
 /** Validated featured series, always an array with lowercase slugs. */
 export const featuredSeriesList = normalizeFeaturedSeries(yamlConfig.featuredSeries, {

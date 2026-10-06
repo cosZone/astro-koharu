@@ -47,17 +47,19 @@ test('empty configured groups remain available and an unnecessary ungrouped sect
   assert.deepEqual(groupFriendLinks([], []), [{ group: null, friends: [] }]);
 });
 
-test('group IDs cannot collide with the ungrouped section', () => {
-  const configured = normalizeFriendGroups([{ id: 'ungrouped', title: '自定义分组' }]);
-  const sections = groupFriendLinks([friend('assigned', 'ungrouped'), friend('unassigned')], configured);
-  assert.equal(sections[0].group?.id, 'ungrouped');
-  assert.equal(sections[1].group, null);
+test('group IDs cannot collide with system filters and sections', () => {
+  for (const id of ['all', 'ungrouped', ' all ', ' ungrouped ']) {
+    assert.throws(() => normalizeFriendGroups([{ id, title: '自定义分组' }]), /is reserved/);
+  }
 });
 
 test('normalizes IDs and titles, and rejects ambiguous or invalid group definitions', () => {
   assert.deepEqual(normalizeFriendGroups([{ id: ' familiar ', title: ' 熟人 ' }]), [{ id: 'familiar', title: '熟人' }]);
   assert.throws(() => normalizeFriendGroups({ id: 'familiar' }), /must be an array/);
   assert.throws(() => normalizeFriendGroups([null]), /must be an object/);
+  for (const value of [{}, { id: 'familiar' }, { title: '熟人' }, { id: 1, title: '熟人' }, { id: 'familiar', title: 1 }]) {
+    assert.throws(() => normalizeFriendGroups([value]), /non-empty id and title/);
+  }
   assert.throws(() => normalizeFriendGroups([{ id: ' ', title: '熟人' }]), /non-empty id and title/);
   assert.throws(() => normalizeFriendGroups([{ id: 'familiar', title: '熟人', description: 1 }]), /must be a string/);
   assert.throws(
