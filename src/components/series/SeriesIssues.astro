@@ -30,11 +30,11 @@ const issues = posts.map((post, index) => {
     ...title,
     masthead: title.masthead !== previous ? title.masthead : '',
     date: displayDate.date(post.date),
-    stats: createArticleStatsConfig(href),
     data: { date: post.date },
   };
 });
 const [latest, ...rest] = issues;
+const latestStats = latest && createArticleStatsConfig(latest.href);
 const years = groupPostsByYear(rest, siteTimezone);
 ---
 {latest ? <div class="series-issues" style={{ '--petal-mask': PETAL_MASK }}>
@@ -56,7 +56,7 @@ const years = groupPostsByYear(rest, siteTimezone);
       <p class="issue-meta">
         <span>{t(locale, 'post.wordCount', { count: latest.post.wordCount })}</span>
         <span>{latest.post.readingTime}</span>
-        {latest.stats && <span><Icon name="ri:eye-line" aria-hidden="true" /><UmamiPVSpan client:visible statsConfig={latest.stats} /></span>}
+        {latestStats && <span><Icon name="ri:eye-line" aria-hidden="true" /><UmamiPVSpan client:visible statsConfig={latestStats} /></span>}
       </p>
       <span class="issue-latest-cta" aria-hidden="true">{t(locale, 'series.readIssue')}<Icon name="ri:arrow-right-line" /></span>
     </div>
@@ -66,18 +66,12 @@ const years = groupPostsByYear(rest, siteTimezone);
     <h2 class="year-rule"><SakuraSVG className="year-rule-bloom" /><span>{year}</span><small>{yearIssues.length} {t(locale, 'series.issues')}</small></h2>
     <ol class="issue-rows">
       {yearIssues.map((issue) => <li class="issue-row">
-        <span class="issue-no" aria-hidden="true">{issue.number ? <><small>Vol.</small>{issue.number}</> : <SakuraSVG className="issue-no-bloom" />}</span>
-        <div class="min-w-0">
-          {issue.masthead && <p class="issue-masthead">{issue.masthead}</p>}
-          <h3 class="issue-title"><a class="issue-link" href={issue.href} aria-label={issue.post.title}>{issue.headline}</a></h3>
-          {issue.post.description && <p class="issue-desc">{issue.post.description}</p>}
-          <p class="issue-meta">
-            <time datetime={issue.date}>{issue.date.slice(5)}</time>
-            <span>{t(locale, 'post.wordCount', { count: issue.post.wordCount })}</span>
-            <span class="issue-meta-wide">{issue.post.readingTime}</span>
-            {issue.stats && <span><Icon name="ri:eye-line" aria-hidden="true" /><UmamiPVSpan client:visible statsConfig={issue.stats} /></span>}
-          </p>
-        </div>
+        <span class="issue-no" aria-hidden="true">{issue.number ?? <SakuraSVG className="issue-no-bloom" />}</span>
+        <h3 class="issue-title">
+          {issue.masthead && <span class="issue-masthead">{issue.masthead}</span>}
+          <a class="issue-link" href={issue.href} aria-label={issue.post.title} title={issue.post.description}>{issue.headline}</a>
+        </h3>
+        <time datetime={issue.date}>{issue.date.slice(5)}</time>
       </li>)}
     </ol>
   </section>)}
