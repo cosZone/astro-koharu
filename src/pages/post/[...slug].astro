@@ -2,15 +2,19 @@
 import { render } from 'astro:content';
 import CustomContent from '@components/common/CustomContent.astro';
 import HomeSider from '@components/layout/HomeSider.astro';
+import ColophonBanner from '@components/post/colophon/ColophonBanner.astro';
+import ColophonSeal from '@components/post/colophon/ColophonSeal.astro';
 import PostPagination from '@components/post/PostPagination.astro';
 import SummaryPanel, { type SummarySource } from '@components/post/SummaryPanel';
 import Cover from '@components/ui/cover/Cover.astro';
 import { defaultContentConfig } from '@constants/content-config';
 import { HomeSiderType } from '@constants/enum';
 import { CONTENT_PADDING } from '@constants/layout';
-import { siteConfig } from '@constants/site-config';
+import { devConfig, siteConfig } from '@constants/site-config';
 import Layout from '@layouts/Layout.astro';
 import TwoColumnLayout from '@layouts/TwoColumnLayout.astro';
+import { isOpenInEditorAvailable } from '@lib/config/post-actions';
+import { editorConfig, postActionsConfig } from '@lib/config/site';
 import {
   buildCategoryPath,
   getCategoryArr,
@@ -21,6 +25,9 @@ import {
   getPostSummary,
   translateCategoryName,
 } from '@lib/content';
+import { colophonItemsAt } from '@lib/content/colophon';
+import { getPostColophon } from '@lib/content/post-colophon';
+import { getLocalEditorHref, getPostSourceFilename, getPostSourcePath, isPostSourcePublic } from '@lib/content/post-source';
 import { getAdjacentSeriesPosts } from '@lib/content/posts';
 import { toPostRef } from '@lib/content/transforms';
 import { formatForSeo } from '@lib/date';
@@ -28,7 +35,7 @@ import { encodeSlug } from '@lib/route';
 import { getOgImageUrl } from '@lib/seo/og-image';
 import { Icon } from 'astro-icon/components';
 import { Comment } from '@/components/comment';
-import EditButton from '@/components/EditButton';
+import PostMarkdownActions from '@/components/post/PostMarkdownActions';
 import { defaultLocale, getLocaleLabel, localizedPath, t } from '@/i18n';
 import { extractTextFromMarkdown } from '@/lib/sanitize';
 import { postRoute } from '../_shared/routes';
@@ -138,6 +145,22 @@ const breadcrumbJsonLd = {
 
 // 确定显示的摘要内容和来源类型
 const postSlug = getPostSlug(post);
+const colophonItems = getPostColophon(post, locale);
+const bannerMarks = colophonItemsAt(colophonItems, 'banner');
+const sealMarks = colophonItemsAt(colophonItems, 'seal');
+const postSourcePath = getPostSourcePath(localizedPath(`/post/${encodeSlug(postSlug)}`, locale));
+const postEditorHref = isOpenInEditorAvailable(postActionsConfig, editorConfig.enabled, import.meta.env.DEV)
+  ? `${localizedPath('/editor/')}?from=${encodeURIComponent(postSourcePath)}`
+  : undefined;
+const localEditors =
+  import.meta.env.DEV && devConfig.localProjectPath && postRelativePath
+    ? devConfig.editors.map(({ id, name, icon, urlTemplate }) => ({
+        id,
+        name,
+        icon,
+        href: getLocalEditorHref({ urlTemplate }, devConfig, postRelativePath),
+      }))
+    : [];
 let summaryText: string | null = null;
 let summarySource: SummarySource | null = null;
 
@@ -204,8 +227,17 @@ if (post.data.description) {
           }
         </div>
         {
-          import.meta.env.DEV && postRelativePath && (
-            <EditButton client:only="react" postRelativePath={postRelativePath} />
+          isPostSourcePublic(post.data, post.body, import.meta.env.PROD) && (
+            <PostMarkdownActions
+              client:idle
+              locale={locale}
+              sourcePath={postSourcePath}
+              filename={getPostSourceFilename(postSlug)}
+              copy={postActionsConfig.copyMarkdown}
+              download={postActionsConfig.downloadMarkdown}
+              editorHref={postEditorHref}
+              localEditors={localEditors}
+            />
           )
         }
       </nav>
@@ -215,6 +247,7 @@ if (post.data.description) {
           <span>{t(locale, 'post.fallbackNotice', { lang: getLocaleLabel(locale) })}</span>
         </div>
       )}
+      {bannerMarks.length > 0 && <ColophonBanner items={bannerMarks} />}
       {
         !post.data.password && summaryText && summarySource && (
           <SummaryPanel client:visible summary={summaryText} source={summarySource} className="mt-2" locale={locale} />
@@ -223,6 +256,7 @@ if (post.data.description) {
       <article class="prose dark:prose-invert" data-pagefind-body>
         <CustomContent Content={Content} />
       </article>
+      {sealMarks.length > 0 && <ColophonSeal items={sealMarks} date={post.data.date} locale={locale} />}
       <PostPagination prevPost={prevPost} nextPost={nextPost} locale={locale} />
       <Comment />
     </div>

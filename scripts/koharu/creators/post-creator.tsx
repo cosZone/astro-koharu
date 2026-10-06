@@ -1,28 +1,46 @@
 import { TextInput } from '@inkjs/ui';
 import { Box, Text } from 'ink';
-import { useCallback, useEffect, useState } from 'react';
-import { ConfirmScreen, CreatingScreen, DoneScreen, ErrorScreen, CycleSelect as Select, StepItem } from '../components';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import {
+  ConfirmScreen,
+  CreatingScreen,
+  DoneScreen,
+  ErrorScreen,
+  MultiSelect,
+  CycleSelect as Select,
+  StepItem,
+} from '../components';
 import { useStepFlow } from '../hooks';
-import { createPost, generateSlug, getCategoryTree, postExists } from '../utils/new-operations';
+import { type ColophonChoiceStep, collectColophon, getColophonChoiceSteps } from '../utils/colophon-choices';
+import { createPost, generateSlug, getCategoryTree, getColophonConfig, postExists } from '../utils/new-operations';
 import type { CategoryTreeItem, CreatorProps, PostData } from './types';
 
-type Step = 'title' | 'slug' | 'description' | 'category' | 'tags' | 'draft' | 'confirm' | 'creating' | 'done' | 'error';
-
-const INPUT_STEPS: Step[] = ['title', 'slug', 'description', 'category', 'tags', 'draft'];
+type Step =
+  | 'title'
+  | 'slug'
+  | 'description'
+  | 'category'
+  | 'tags'
+  | ColophonChoiceStep['id']
+  | 'draft'
+  | 'confirm'
+  | 'creating'
+  | 'done'
+  | 'error';
 
 interface StepConfig {
   id: Step;
   label: string;
 }
 
-const STEP_CONFIGS: StepConfig[] = [
+const LEADING_STEPS: StepConfig[] = [
   { id: 'title', label: '标题' },
   { id: 'slug', label: 'Slug' },
   { id: 'description', label: '描述' },
   { id: 'category', label: '分类' },
   { id: 'tags', label: '标签' },
-  { id: 'draft', label: '草稿' },
 ];
+const DRAFT_STEP: StepConfig = { id: 'draft', label: '草稿' };
 
 export function PostCreator({ onComplete, showReturnHint = false }: CreatorProps) {
   // Data state
@@ -37,18 +55,31 @@ export function PostCreator({ onComplete, showReturnHint = false }: CreatorProps
   const [operationError, setOperationError] = useState('');
   const [createdPath, setCreatedPath] = useState('');
   const [categories, setCategories] = useState<CategoryTreeItem[]>([]);
+  const [colophonSteps, setColophonSteps] = useState<ColophonChoiceStep[]>([]);
+  const [colophonPicks, setColophonPicks] = useState<Record<string, string[]>>({});
+
+  // Colophon steps sit between tags and draft, one per exclusive group plus one multi-select.
+  const stepConfigs = useMemo<StepConfig[]>(
+    () => [...LEADING_STEPS, ...colophonSteps.map(({ id, label }) => ({ id, label })), DRAFT_STEP],
+    [colophonSteps],
+  );
+  const inputSteps = useMemo(() => stepConfigs.map((config) => config.id), [stepConfigs]);
 
   // Step flow management
   const { step, setStep, getStepStatus, goBack } = useStepFlow({
     initialStep: 'title' as Step,
-    inputSteps: INPUT_STEPS,
+    inputSteps,
     onComplete,
     showReturnHint,
   });
+  const advance = useCallback((from: Step) => setStep(inputSteps[inputSteps.indexOf(from) + 1]), [inputSteps, setStep]);
 
   // Load categories asynchronously
   useEffect(() => {
     getCategoryTree().then(setCategories).catch(console.error);
+    getColophonConfig()
+      .then((config) => setColophonSteps(getColophonChoiceSteps(config)))
+      .catch(console.error);
   }, []);
 
   useEffect(() => {
@@ -73,11 +104,14 @@ export function PostCreator({ onComplete, showReturnHint = false }: CreatorProps
           return tags.length > 0 ? tags.join(', ') : '(无)';
         case 'draft':
           return draft ? '是' : '否';
-        default:
-          return '';
+        default: {
+          const choice = colophonSteps.find((item) => item.id === stepId);
+          const labels = choice?.options.filter((option) => colophonPicks[choice.id]?.includes(option.value));
+          return labels?.length ? labels.map((option) => option.label).join(', ') : '(无)';
+        }
       }
     },
-    [title, slug, description, category, tags, draft],
+    [title, slug, description, category, tags, draft, colophonSteps, colophonPicks],
   );
 
   const handleTitleSubmit = useCallback(
@@ -134,9 +168,17 @@ export function PostCreator({ onComplete, showReturnHint = false }: CreatorProps
         .filter(Boolean);
       setTags(tagList);
       setInputError('');
-      setStep('draft');
+      advance('tags');
     },
-    [setStep],
+    [advance],
+  );
+
+  const handleColophonPick = useCallback(
+    (stepId: ColophonChoiceStep['id'], values: string[]) => {
+      setColophonPicks((previous) => ({ ...previous, [stepId]: values }));
+      advance(stepId);
+    },
+    [advance],
   );
 
   const handleDraftSelect = useCallback(
@@ -171,6 +213,7 @@ export function PostCreator({ onComplete, showReturnHint = false }: CreatorProps
         description: description || undefined,
         categories: category.path,
         tags,
+        colophon: collectColophon(colophonSteps, colophonPicks),
         draft,
       };
 
@@ -181,7 +224,7 @@ export function PostCreator({ onComplete, showReturnHint = false }: CreatorProps
       setOperationError(err instanceof Error ? err.message : String(err));
       setStep('error');
     }
-  }, [category, slug, title, description, tags, draft, setStep]);
+  }, [category, slug, title, description, tags, colophonSteps, colophonPicks, draft, setStep]);
 
   const handleCancel = useCallback(() => {
     goBack('confirm');
@@ -240,8 +283,31 @@ export function PostCreator({ onComplete, showReturnHint = false }: CreatorProps
             onChange={handleDraftSelect}
           />
         );
-      default:
-        return null;
+      default: {
+        const choice = colophonSteps.find((item) => item.id === step);
+        if (!choice) return null;
+        if (choice.exclusive) {
+          return (
+            <Select
+              key={choice.id}
+              options={[
+                { label: '跳过', value: '' },
+                ...choice.options.map(({ label, value, hint }) => ({ label: hint ? `${label} — ${hint}` : label, value })),
+              ]}
+              defaultValue={colophonPicks[choice.id]?.[0]}
+              onChange={(value) => handleColophonPick(choice.id, value ? [value] : [])}
+            />
+          );
+        }
+        return (
+          <MultiSelect
+            key={choice.id}
+            options={choice.options}
+            defaultValue={colophonPicks[choice.id]}
+            onSubmit={(values) => handleColophonPick(choice.id, values)}
+          />
+        );
+      }
     }
   };
 
@@ -249,7 +315,7 @@ export function PostCreator({ onComplete, showReturnHint = false }: CreatorProps
     return (
       <ConfirmScreen
         title="新建博客文章"
-        steps={STEP_CONFIGS.map((c) => ({
+        steps={stepConfigs.map((c) => ({
           label: c.label,
           value: getStepDisplayValue(c.id),
         }))}
@@ -279,7 +345,7 @@ export function PostCreator({ onComplete, showReturnHint = false }: CreatorProps
     return <ErrorScreen title="新建博客文章" error={operationError} showReturnHint={showReturnHint} />;
   }
 
-  const showBackHint = INPUT_STEPS.includes(step);
+  const showBackHint = inputSteps.includes(step);
 
   return (
     <Box flexDirection="column">
@@ -289,7 +355,7 @@ export function PostCreator({ onComplete, showReturnHint = false }: CreatorProps
         </Text>
       </Box>
 
-      {STEP_CONFIGS.map((config) => (
+      {stepConfigs.map((config) => (
         <StepItem
           key={config.id}
           label={config.label}

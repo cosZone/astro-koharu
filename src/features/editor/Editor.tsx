@@ -1,6 +1,7 @@
 import { useRetainedValue } from '@hooks/useRetainedValue';
 import { type CSSProperties, type MouseEvent, useEffect, useMemo, useRef, useState } from 'react';
 import { copyMarkdown } from './clipboard';
+import type { EditorColophonGroup } from './colophon';
 import ArticleProperties from './components/ArticleProperties';
 import CodeEditor, { type CodeEditorHandle } from './components/CodeEditor';
 import EditorIcon from './components/EditorIcon';
@@ -9,17 +10,35 @@ import PreviewFrame from './components/PreviewFrame';
 import SheetHandle from './components/SheetHandle';
 import SyntaxPanel from './components/SyntaxPanel';
 import ViewSwitch from './components/ViewSwitch';
-import { createEditorSource, documentTitle, markdownFilename, parseEditorDocument, updateEditorProperty } from './document';
+import {
+  createEditorSource,
+  documentTitle,
+  type ListEdit,
+  markdownFilename,
+  parseEditorDocument,
+  updateEditorList,
+  updateEditorProperty,
+} from './document';
 import { clearEditorHistory } from './editor-history';
 import { type EditorFormat, toolbarFormats } from './formatting';
+import {
+  fetchMarkdownSource,
+  findImportedDraft,
+  IMPORT_PARAM,
+  importFilename,
+  MAX_MARKDOWN_BYTES,
+  parseImportSource,
+  withoutImportParam,
+} from './import-source';
 import { readOGEndpoint, saveOGEndpoint } from './link-service';
 import { cancelSheetMotion, playSheetEnter, playSheetExit } from './sheet-motion';
 import { activeDraft, type DraftSummary, type EditorDraft, listDrafts, readDraft, removeDraft, writeDraft } from './storage';
 import { syntaxEntries } from './syntax';
 
-type Panel = 'drafts' | 'syntax' | 'properties' | 'copy' | 'service' | null;
+type Panel = 'drafts' | 'syntax' | 'properties' | 'copy' | 'service' | 'import' | null;
 interface Props {
   ogEndpoint?: string;
+  colophon?: EditorColophonGroup[];
 }
 
 const draftTime = new Intl.DateTimeFormat('zh-CN', {
@@ -34,11 +53,11 @@ function formatDraftTime(updated: number) {
   return Number.isNaN(new Date(updated).getTime()) ? '时间未知' : draftTime.format(updated);
 }
 
-function createDraft(source = createEditorSource(), filename?: string): EditorDraft {
-  return { id: crypto.randomUUID(), title: documentTitle(source), source, updated: Date.now(), filename };
+function createDraft(source = createEditorSource(), filename?: string, importedFrom?: string): EditorDraft {
+  return { id: crypto.randomUUID(), title: documentTitle(source), source, updated: Date.now(), filename, importedFrom };
 }
 
-export default function Editor({ ogEndpoint = '/api/editor/og' }: Props) {
+export default function Editor({ ogEndpoint = '/api/editor/og', colophon = [] }: Props) {
   const [previewEndpoint, setPreviewEndpoint] = useState(ogEndpoint);
   const [draft, setDraft] = useState<EditorDraft>(() => createDraft());
   const [drafts, setDrafts] = useState<DraftSummary[]>([]);
@@ -54,6 +73,10 @@ export default function Editor({ ogEndpoint = '/api/editor/og' }: Props) {
   const [error, setError] = useState('');
   const [cms, setCMS] = useState<{ origin: string; postId: string } | null>(null);
   const [saving, setSaving] = useState(false);
+  const [importOffer, setImportOffer] = useState<{ path: string; draft: DraftSummary } | null>(null);
+  const [importFailure, setImportFailure] = useState<{ path: string; message: string } | null>(null);
+  const [importing, setImporting] = useState(false);
+  const importFromBlog = useRef<(path: string) => Promise<void>>(async () => {});
   const pendingSave = useRef<{ requestId: string; draftId: string; postId: string; source: string } | null>(null);
   const [cursor, setCursor] = useState({ line: 1, column: 1 });
   const editor = useRef<CodeEditorHandle>(null);
@@ -64,6 +87,7 @@ export default function Editor({ ogEndpoint = '/api/editor/og' }: Props) {
   const copySource = useRef<HTMLTextAreaElement>(null);
   const current = useRef(draft);
   current.current = draft;
+  const starterDraft = useRef(draft);
   const parsed = useMemo(() => parseEditorDocument(draft.source), [draft.source]);
   const articleTitle = typeof parsed.data.title === 'string' && parsed.data.title.trim() ? parsed.data.title : '未命名文章';
 
@@ -77,6 +101,23 @@ export default function Editor({ ogEndpoint = '/api/editor/og' }: Props) {
       setError('浏览器存储不可用，请及时复制或下载文章。');
     }
     setInitialized(true);
+    const requested = new URL(location.href).searchParams.get(IMPORT_PARAM);
+    if (requested !== null) {
+      history.replaceState(history.state, '', withoutImportParam(location.href));
+      const path = parseImportSource(requested, location.origin);
+      let existing: DraftSummary | null = null;
+      try {
+        existing = path ? findImportedDraft(listDrafts(localStorage), path) : null;
+      } catch {
+        // Without storage there is no earlier copy to offer; import directly.
+      }
+      if (!path) setError('只能导入本站文章的 Markdown 原文，链接中的地址无效。');
+      else if (existing) {
+        setImportOffer({ path, draft: existing });
+        setPanelSession((value) => value + 1);
+        setPanel('import');
+      } else void importFromBlog.current(path);
+    }
     const receive = (event: MessageEvent) => {
       if (!import.meta.env.DEV || event.source !== window.parent || window.parent === window) return;
       if (!URL.canParse(event.origin)) return;
@@ -252,6 +293,42 @@ export default function Editor({ ogEndpoint = '/api/editor/og' }: Props) {
     setError('');
     closePanel(false);
   };
+  const activateLatest = useRef(activate);
+  activateLatest.current = activate;
+  importFromBlog.current = async (path: string) => {
+    setImportFailure(null);
+    setImporting(true);
+    setStatus('正在从博客导入原文…');
+    try {
+      const source = await fetchMarkdownSource(path);
+      const imported = createDraft(source, importFilename(path), path);
+      if (current.current === starterDraft.current) {
+        // A first visit's blank starter was never edited; replace it rather than leave an empty draft behind.
+        try {
+          removeDraft(localStorage, starterDraft.current.id);
+        } catch {
+          // The starter may never have been stored.
+        }
+        current.current = imported;
+        setDraft(imported);
+      } else activateLatest.current(imported);
+      setStatus('已导入博客原文，修改只保存在此浏览器');
+    } catch (failure) {
+      setStatus('');
+      setImportFailure({ path, message: failure instanceof Error ? failure.message : '原文导入失败，请重试。' });
+    } finally {
+      setImporting(false);
+    }
+  };
+  const continueImported = (summary: DraftSummary) => {
+    const value = readDraft(localStorage, summary.id);
+    if (!value) {
+      setError('之前导入的草稿不存在或已损坏，可以重新导入。');
+      return;
+    }
+    activate(value);
+    setStatus('已打开之前导入的草稿');
+  };
   const insert = (source: string) => {
     closePanel(false);
     setTab('edit');
@@ -269,9 +346,9 @@ export default function Editor({ ogEndpoint = '/api/editor/og' }: Props) {
     if (tab === 'edit') apply();
     else requestAnimationFrame(apply);
   };
-  const setProperty = (key: string, value: unknown) => {
+  const editSource = (edit: (source: string) => string) => {
     try {
-      const valueAfterEdit = { ...current.current, source: updateEditorProperty(current.current.source, key, value) };
+      const valueAfterEdit = { ...current.current, source: edit(current.current.source) };
       current.current = valueAfterEdit;
       setDraft(valueAfterEdit);
       setError('');
@@ -279,6 +356,8 @@ export default function Editor({ ogEndpoint = '/api/editor/og' }: Props) {
       setError(failure instanceof Error ? failure.message : '无法更新文章属性');
     }
   };
+  const setProperty = (key: string, value: unknown) => editSource((source) => updateEditorProperty(source, key, value));
+  const setListProperty = (key: string, edit: ListEdit) => editSource((source) => updateEditorList(source, key, edit));
 
   const changePreviewService = (endpoint: string | null) => {
     let persisted = true;
@@ -430,6 +509,24 @@ export default function Editor({ ogEndpoint = '/api/editor/og' }: Props) {
           </button>
         </div>
       )}
+      {importFailure && (
+        <div className="editor-error" role="alert">
+          <p>{importFailure.message}</p>
+          <button
+            type="button"
+            className="editor-button"
+            disabled={importing}
+            onClick={() => {
+              void importFromBlog.current(importFailure.path);
+            }}
+          >
+            {importing ? '导入中…' : '重试'}
+          </button>
+          <button type="button" className="editor-icon-button" aria-label="关闭提示" onClick={() => setImportFailure(null)}>
+            <EditorIcon name="close" />
+          </button>
+        </div>
+      )}
       <div className="editor-panes">
         <section className="editor-source-pane" aria-label="源码编辑区">
           <div className="editor-pane-heading">
@@ -540,7 +637,7 @@ export default function Editor({ ogEndpoint = '/api/editor/og' }: Props) {
         onChange={async (event) => {
           const file = event.target.files?.[0];
           if (file) {
-            if (file.size > 5 * 1024 * 1024) setError('请导入小于 5 MB 的 Markdown 文件');
+            if (file.size > MAX_MARKDOWN_BYTES) setError('请导入小于 5 MB 的 Markdown 文件');
             else {
               try {
                 const source = new TextDecoder('utf-8', { fatal: true, ignoreBOM: true }).decode(await file.arrayBuffer());
@@ -566,7 +663,9 @@ export default function Editor({ ogEndpoint = '/api/editor/og' }: Props) {
                   ? '复制 Markdown'
                   : shownPanel === 'service'
                     ? '链接预览服务'
-                    : '文章属性'
+                    : shownPanel === 'import'
+                      ? '已有导入的草稿'
+                      : '文章属性'
           }
           onKeyDown={(event) => {
             if (event.key === 'Escape') {
@@ -603,7 +702,9 @@ export default function Editor({ ogEndpoint = '/api/editor/og' }: Props) {
                           ? '复制 Markdown'
                           : shownPanel === 'service'
                             ? '链接预览服务'
-                            : '文章属性'}
+                            : shownPanel === 'import'
+                              ? '已有导入的草稿'
+                              : '文章属性'}
                     </h2>
                     <button type="button" className="editor-icon-button" aria-label="关闭面板" onClick={() => closePanel()}>
                       <EditorIcon name="close" />
@@ -631,6 +732,7 @@ export default function Editor({ ogEndpoint = '/api/editor/og' }: Props) {
                             <strong>{entry.title}</strong>
                             <small>
                               {entry.id === draft.id && <span className="editor-draft-current">正在编辑</span>}
+                              {entry.importedFrom && <span title={entry.importedFrom}>博客原文副本</span>}
                               {formatDraftTime(entry.updated)}
                             </small>
                           </button>
@@ -686,6 +788,23 @@ export default function Editor({ ogEndpoint = '/api/editor/og' }: Props) {
                         {action('download', '下载 MD', download, 'editor-primary')}
                       </div>
                     </div>
+                  ) : shownPanel === 'import' && importOffer ? (
+                    <div className="editor-panel-content">
+                      <p className="editor-muted">
+                        这篇文章之前导入过，浏览器里还有那份草稿。重新导入会另存一份博客当前的原文，旧草稿仍保留在「草稿」里。
+                      </p>
+                      <div className="editor-draft-row editor-import-draft" title={importOffer.path}>
+                        <strong>{importOffer.draft.title}</strong>
+                        <small>上次编辑 {formatDraftTime(importOffer.draft.updated)}</small>
+                      </div>
+                      <div className="editor-copy-actions">
+                        {action('draft', '继续编辑草稿', () => continueImported(importOffer.draft), 'editor-primary')}
+                        {action('import', '重新导入', () => {
+                          closePanel(false);
+                          void importFromBlog.current(importOffer.path);
+                        })}
+                      </div>
+                    </div>
                   ) : shownPanel === 'service' ? (
                     <LinkPreviewSettings
                       endpoint={previewEndpoint}
@@ -693,7 +812,13 @@ export default function Editor({ ogEndpoint = '/api/editor/og' }: Props) {
                       onChange={changePreviewService}
                     />
                   ) : (
-                    <ArticleProperties data={parsed.data} error={parsed.error} onChange={setProperty} />
+                    <ArticleProperties
+                      data={parsed.data}
+                      error={parsed.error}
+                      colophon={colophon}
+                      onChange={setProperty}
+                      onListChange={setListProperty}
+                    />
                   )}
                 </>
               )}

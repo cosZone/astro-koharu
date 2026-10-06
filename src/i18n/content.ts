@@ -39,3 +39,8 @@ export function getContentFeaturedCategoryField(locale: string, link: string, fi
   if (!cat) return undefined;
   return cat[field as keyof typeof cat];
 }
+
+/** Colophon group/mark overrides for a locale (`<locale>.colophon` in the YAML content config). */
+export function getContentColophon(locale: string) {
+  return config[locale]?.colophon;
+}

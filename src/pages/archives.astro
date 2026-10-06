@@ -6,9 +6,14 @@ import Cover from '@components/ui/cover/Cover.astro';
 import { Layout, TwoColumnLayout } from '@layouts/index';
 import { siteConfig, siteTimezone } from '@lib/config/site';
 import { getSortedPosts } from '@lib/content';
+import { colophonMarkIds } from '@lib/content/colophon';
+import { colophonFilterChips } from '@lib/content/colophon-view';
 import { bucketPostsByMonth, groupPostsByYear, monthIntensity } from '@lib/content/index-groups';
+import { getColophonConfig, getPostColophon } from '@lib/content/post-colophon';
 import { PETAL_MASK } from '@lib/sakura/petal';
+import { Icon } from 'astro-icon/components';
 import { formatInTimeZone } from 'date-fns-tz';
+import type { BlogPost } from 'types/blog';
 import { defaultLocale, t } from '@/i18n';
 
 interface Props {
@@ -27,13 +32,21 @@ const stats = [
   { value: posts.length, label: t(locale, 'index.posts') },
   { value: range, label: t(locale, 'index.years') },
 ];
+const markIds = new Map<BlogPost, string[]>(posts.map((post) => [post, colophonMarkIds(getPostColophon(post, locale))]));
+const markChips = colophonFilterChips(getColophonConfig(locale).marks, [...markIds.values()]);
+const marksOf = markChips.length ? (post: BlogPost) => markIds.get(post) ?? [] : undefined;
 ---
 <Layout articleTools={false} locale={locale} title={`${t(locale, 'archives.title')} | ${siteConfig.title}`} description={t(locale, 'archives.title')}>
   <TwoColumnLayout showPostFooter={false}>
     <Cover compact slot="cover" title={t(locale, 'archives.title')} />
     <HomeSider slot="sider" />
-    <div class="index-surface shadow-box" data-archive>
-      <PageIntro stats={stats} />
+    <div class="index-surface shadow-box" data-archive data-colophon-filter-root>
+      <PageIntro stats={stats}>
+        {markChips.length > 0 && <div class="index-tabs index-tabs-quiet colophon-filter" slot="tools" role="group" aria-label={t(locale, 'colophon.filter')}>
+          <button type="button" data-colophon-filter="" aria-pressed="true">{t(locale, 'tag.all')}<sup>{posts.length}</sup></button>
+          {markChips.map((chip) => <button type="button" data-colophon-filter={chip.id} aria-pressed="false"><Icon name={chip.icon} aria-hidden="true" />{chip.label}<sup>{chip.count}</sup></button>)}
+        </div>}
+      </PageIntro>
       {years.length > 0 && <section class="archive-calendar" aria-labelledby="calendar-title" style={{ '--petal-mask': PETAL_MASK }}>
         <div class="archive-calendar-head">
           <h2 id="calendar-title">{t(locale, 'archives.calendar')}</h2>
@@ -57,11 +70,13 @@ const stats = [
           </div>)}
         </div>
       </section>}
-      <PostYears posts={posts} locale={locale} anchors />
+      <PostYears posts={posts} locale={locale} anchors marksOf={marksOf} />
     </div>
   </TwoColumnLayout>
 </Layout>
 <script>
   import { setupArchiveNavigation } from '@lib/archive-navigation';
+  import { setupColophonFilter } from '@lib/colophon-filter';
   setupArchiveNavigation();
+  setupColophonFilter();
 </script>

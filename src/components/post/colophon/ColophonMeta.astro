@@ -1,0 +1,116 @@
+---
+import type { ColophonItem } from '@lib/content/colophon';
+import { Icon } from 'astro-icon/components';
+
+interface Props {
+  /** Meta-placed marks; rendered inline inside the cover meta row. */
+  items: ColophonItem[];
+}
+const { items } = Astro.props;
+---
+{
+  items.map((item, index) => {
+    const hasDetails = Boolean(item.description || item.note);
+    const popId = `colophon-pop-${item.id}`;
+    const anchor = `--colophon-${index}`;
+    return hasDetails ? (
+      <span class="colophon-meta" data-tone={item.tone}>
+        <button
+          type="button"
+          class="colophon-meta-trigger"
+          popovertarget={popId}
+          style={`anchor-name: ${anchor}`}
+          data-colophon-trigger
+        >
+          <Icon name={item.icon} aria-hidden="true" />
+          {item.label}
+        </button>
+        <span popover id={popId} class="colophon-pop" style={`position-anchor: ${anchor}`}>
+          <span class="colophon-pop-title">
+            <Icon name={item.icon} aria-hidden="true" />
+            {item.label}
+          </span>
+          {item.description && <span class="colophon-pop-text">{item.description}</span>}
+          {item.note && <span class="colophon-pop-note">{item.note}</span>}
+        </span>
+      </span>
+    ) : (
+      <span class="colophon-meta" data-tone={item.tone}>
+        <Icon name={item.icon} aria-hidden="true" />
+        {item.label}
+      </span>
+    );
+  })
+}
+
+<script>
+  /**
+   * Native `popovertarget` already handles click/tap toggling, Escape and light dismiss.
+   * This adds mouse hover and keyboard-focus previews: a previewed popover closes on leave/blur,
+   * and clicking while it previews pins it open instead of toggling it shut.
+   */
+  const OPEN_DELAY = 80;
+  const CLOSE_DELAY = 140;
+
+  function placeWithoutAnchor(trigger: HTMLElement, pop: HTMLElement) {
+    const rect = trigger.getBoundingClientRect();
+    const gap = 8;
+    const width = pop.offsetWidth;
+    const left = Math.min(Math.max(rect.left + rect.width / 2 - width / 2, gap), window.innerWidth - width - gap);
+    const below = rect.bottom + gap;
+    const top = below + pop.offsetHeight > window.innerHeight ? rect.top - gap - pop.offsetHeight : below;
+    Object.assign(pop.style, { inset: 'auto', margin: '0', left: `${left}px`, top: `${Math.max(top, gap)}px` });
+  }
+
+  function setupColophonPopovers() {
+    const anchorSupported = CSS.supports('anchor-name', '--colophon');
+    document.querySelectorAll<HTMLButtonElement>('[data-colophon-trigger]:not([data-colophon-ready])').forEach((trigger) => {
+      const pop = document.getElementById(trigger.getAttribute('popovertarget') ?? '');
+      if (!pop) return;
+      trigger.dataset.colophonReady = '';
+      let preview = false;
+      let timer: number | undefined;
+      const isOpen = () => pop.matches(':popover-open');
+      const open = () => {
+        window.clearTimeout(timer);
+        timer = window.setTimeout(() => {
+          if (isOpen()) return;
+          preview = true;
+          pop.showPopover();
+        }, OPEN_DELAY);
+      };
+      const close = () => {
+        window.clearTimeout(timer);
+        if (!preview) return;
+        timer = window.setTimeout(() => {
+          if (preview && isOpen()) pop.hidePopover();
+        }, CLOSE_DELAY);
+      };
+      const keep = () => window.clearTimeout(timer);
+
+      trigger.addEventListener('pointerenter', (event) => event.pointerType === 'mouse' && open());
+      trigger.addEventListener('pointerleave', (event) => event.pointerType === 'mouse' && close());
+      pop.addEventListener('pointerenter', keep);
+      pop.addEventListener('pointerleave', (event) => event.pointerType === 'mouse' && close());
+      trigger.addEventListener('focus', () => trigger.matches(':focus-visible') && open());
+      trigger.addEventListener('blur', close);
+      trigger.addEventListener('click', (event) => {
+        window.clearTimeout(timer);
+        if (isOpen() && preview) {
+          event.preventDefault();
+          preview = false;
+        }
+      });
+      pop.addEventListener('toggle', (event) => {
+        if ((event as ToggleEvent).newState === 'closed') {
+          preview = false;
+          return;
+        }
+        if (!anchorSupported) placeWithoutAnchor(trigger, pop);
+      });
+    });
+  }
+
+  if (document.readyState !== 'loading') setupColophonPopovers();
+  document.addEventListener('astro:page-load', setupColophonPopovers);
+</script>

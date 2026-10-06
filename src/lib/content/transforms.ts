@@ -6,8 +6,10 @@
  */
 
 import { defaultLocale } from '@/i18n/config';
-import type { BlogPost } from '@/types/blog';
+import type { BlogPost, PostCardMark } from '@/types/blog';
+import { colophonItemsAt } from './colophon';
 import { getPostLocale, getPostSlug } from './locale';
+import { getPostColophon } from './post-colophon';
 import { getPostDescriptionWithSummary, getPostLastCategory, getPostReadingTime } from './posts';
 
 /**
@@ -31,6 +33,7 @@ export type PostFieldMap = {
   wordCount: number; // from reading-time
   readingTime: string; // from reading-time
   postLocale: string; // from getPostLocale()
+  cardMarks: PostCardMark[]; // card-placed colophon marks
 };
 
 /**
@@ -53,6 +56,7 @@ const fieldExtractors: { [K in keyof PostFieldMap]: (post: BlogPost, locale: str
   wordCount: (p) => getPostReadingTime(p).words,
   readingTime: (p) => getPostReadingTime(p).text,
   postLocale: (p) => getPostLocale(p),
+  cardMarks: (p, locale) => colophonItemsAt(getPostColophon(p, locale), 'card').map(({ icon, label }) => ({ icon, label })),
 };
 
 /**
@@ -107,6 +111,7 @@ const POST_CARD_DATA_KEYS = [
   'wordCount',
   'readingTime',
   'postLocale',
+  'cardMarks',
 ] as const;
 
 /**

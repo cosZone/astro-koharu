@@ -1,0 +1,25 @@
+---
+import type { ColophonItem } from '@lib/content/colophon';
+import { Icon } from 'astro-icon/components';
+
+interface Props {
+  /** Banner-placed marks; one notice row each. */
+  items: ColophonItem[];
+}
+const { items } = Astro.props;
+---
+{
+  items.map((item) => (
+    <p class="colophon-banner" data-tone={item.tone} role="note">
+      <Icon name={item.icon} class="colophon-banner-icon" aria-hidden="true" />
+      {item.note ? (
+        <span>{item.note}</span>
+      ) : (
+        <span>
+          <b>{item.label}</b>
+          {item.description && <span class="colophon-banner-text">{item.description}</span>}
+        </span>
+      )}
+    </p>
+  ))
+}

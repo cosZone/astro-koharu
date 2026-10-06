@@ -12,12 +12,14 @@ interface Props {
   id?: string;
   /** Lets an in-page filter (category sub-tabs) match this row without re-deriving it on the client. */
   filterKey?: string;
+  /** Colophon mark ids matched by the archive mark filter. */
+  marks?: string[];
 }
-const { post, locale, showCategory = true, id, filterKey } = Astro.props;
+const { post, locale, showCategory = true, id, filterKey, marks } = Astro.props;
 const date = displayDate.date(post.data.date);
 const category = getPostLastCategory(post);
 ---
-<li class="post-row" id={id} tabindex={id ? -1 : undefined} data-filter-key={filterKey}>
+<li class="post-row" id={id} tabindex={id ? -1 : undefined} data-filter-key={filterKey} data-colophon={marks?.length ? marks.join(' ') : undefined}>
   <time datetime={date}>{date.slice(5)}</time>
   <a class="post-row-title" href={localizedPath(`/post/${encodeSlug(getPostSlug(post))}`, locale)}>{post.data.title}</a>
   {showCategory && category.link && <a class="post-row-category" href={localizedPath(category.link, locale)}>{translateCategoryName(category.name, locale)}</a>}

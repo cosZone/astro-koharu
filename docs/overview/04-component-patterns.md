@@ -6,7 +6,7 @@
 
 ### 选择指南
 
-```
+```plain
 ┌─────────────────────────────────────────────────────────────┐
 │                     需要交互/状态吗？                        │
 └─────────────────────────────────────────────────────────────┘
@@ -378,7 +378,7 @@ const handleClick = useCallback(() => {
 ```astro
 ---
 // 服务端条件渲染 - 不会产生额外 JS
-const showSidebar = post.data.catalog;
+const showSidebar = headings.length > 0;
 ---
 
 {showSidebar && <TableOfContents client:visible headings={headings} />}
@@ -490,7 +490,7 @@ export default DropdownNavWithErrorBoundary;
 
 ## 组件组织结构
 
-```
+```plain
 src/components/
 ├── common/              # 通用工具组件
 │   ├── ErrorBoundary.tsx

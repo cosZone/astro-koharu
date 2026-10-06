@@ -131,7 +131,7 @@ CMS 提供以下功能：
 
 ### 本地编辑器跳转
 
-文章页的编辑按钮支持一键跳转到本地编辑器（VS Code / Cursor / Zed 等）。
+开发环境下，文章页「复制 Markdown」按钮组的下拉菜单支持一键跳转到本地编辑器（VS Code / Cursor / Zed 等）。
 
 **配置文件：** `config/site.yaml` 的 `dev` 部分
 
@@ -158,7 +158,7 @@ dev:
 
 - `localProjectPath` 必须是本机的绝对路径，否则无法生成正确的文件路径
 - `urlTemplate` 支持 `{path}` 占位符，会被替换为文件的完整路径
-- 配置后，文章页会显示编辑按钮，点击可直接在本地编辑器中打开文件
+- 配置后，开发环境的文章页下拉菜单会列出这些编辑器，点击可直接在本地编辑器中打开文件
 
 **特色分类配置：**
 
@@ -375,7 +375,7 @@ tags: # 标签列表
 categories: # 分类（见下方详细说明）
   - 笔记
 subtitle: 副标题 # 文章副标题
-catalog: true # 是否显示目录（默认 true）
+catalog: true # 是否计入分类页的分类树与篇数（默认 true）
 tocNumbering: true # 是否显示目录编号（默认 true）
 draft: false # 是否为草稿（默认 false）
 sticky: false # 是否置顶（默认 false）
@@ -384,6 +384,8 @@ math: false # 是否启用数学公式渲染（默认 false，启用后支持 Ka
 quiz: false # 是否启用练习题交互（默认 false，启用后支持四种题型）
 password: mySecret # 整篇文章加密密码（可选，设置后整篇文章需输入密码才能阅读）
 keywords: # 文章关键词（可选）
+colophon: # 文章落款（可选，见下方「文章落款」）
+  - handwritten
 ---
 ```
 
@@ -650,6 +652,76 @@ tocNumbering: false # 关闭目录编号（默认为 true）
 
 - 滚动时自动更新当前章节
 - 支持 `prefers-reduced-motion` 减少动画
+
+### 文章落款
+
+落款用来告诉读者一篇文章是怎么写出来的、读之前要注意什么，比如「手写」「与 AI 合写」「含剧透」「可能已过时」。标记的字典定义在 `config/site.yaml` 的 `colophon` 段，文章在 frontmatter 里按 id 引用：
+
+```yaml
+---
+title: 我的文章
+colophon:
+  - ai-cowrite # 直接引用字典里的标记
+  - { id: spoiler, note: 含《我推的孩子》第二季剧透 } # note 是本篇自己的补充说明
+  - { icon: 'fa6-solid:mug-hot', label: 两杯咖啡 } # 一次性标记，不进字典
+---
+```
+
+字典的结构：
+
+```yaml title="config/site.yaml"
+colophon:
+  enabled: true
+  groups:
+    authorship:
+      label: 执笔
+      exclusive: true # 互斥组：一篇文章只能选一个
+      placement: [meta, seal, card]
+    notice:
+      label: 阅读提示
+      placement: [meta, banner]
+  marks:
+    handwritten:
+      group: authorship
+      icon: ri:quill-pen-line
+      label: 手写
+      description: 每个字都是我自己敲的。
+    spoiler:
+      group: notice
+      icon: ri:eye-off-line
+      label: 含剧透
+      tone: warn # muted（默认）| accent | warn
+```
+
+- **默认标记**：`handwritten`（手写）、`ai-cowrite`（与 AI 合写）、`ai-lead`（AI 主笔）属于互斥的「执笔」组；`spoiler`（含剧透）、`outdated`（可能已过时）属于「阅读提示」组
+- **显示位置**（`placement`）：`meta` 封面信息行、`banner` 正文前的提示条、`seal` 文末落款、`card` 文章列表卡片。标记上的设置优先于分组
+- **图标**：只能使用 `ri`、`fa6-solid`、`fa6-regular`、`gg` 四套 Iconify 图标，一次性标记也一样
+- **多语言**：在 `config/i18n-content.yaml` 的 `<locale>.colophon` 下覆盖分组和标记的文案
+- **默认标记**（`defaults`）：文章没有某一组的标记时自动补上，主题默认 `defaults: [handwritten]`，没写执笔的文章都显示「手写」。不想显示任何标记的文章写 `colophon: []`
+- 删掉整个 `colophon` 配置段即可关闭此功能
+
+站内的示例文章：《我推的孩子》第二季观后感（手写 + 含剧透）、Tailwind CSS v4 升级笔记（可能已过时）、一篇 Markdown 在构建时经过了什么（AI 主笔）、容器查询实战（与 AI 合写 + 一次性标记）。
+
+### 文章操作：复制 Markdown 与在写作室打开
+
+文章页面包屑右侧有一组操作按钮：
+
+- **复制 Markdown**：复制整篇文章的原始 Markdown，包括 frontmatter
+- **下载**：把原文保存为 `.md` 文件
+- **在写作室打开**：在写作室里打开这篇文章继续编辑
+
+```yaml title="config/site.yaml"
+postActions:
+  copyMarkdown: true
+  downloadMarkdown: true
+  openInEditor: everyone # off | dev | everyone
+```
+
+`openInEditor` 的三个取值：`off` 不显示；`dev` 只在本地开发服务器显示；`everyone` 对所有访客显示，访客打开的是一份浏览器里的草稿副本，不会改动博客本身。这个按钮还要求 `editor.enabled: true`，写作室没开启时不会出现。
+
+:::warning
+设置了 `password` 的整篇加密文章，以及正文里含 `:::encrypted` 局部加密块的文章，都不提供原文，也不显示这些按钮，避免明文和密码随源文件公开。
+:::
 
 ### 响应式设计
 

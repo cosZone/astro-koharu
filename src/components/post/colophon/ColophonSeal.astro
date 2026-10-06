@@ -1,0 +1,39 @@
+---
+import type { ColophonItem } from '@lib/content/colophon';
+import { colophonSealRows } from '@lib/content/colophon-view';
+import { displayDate } from '@lib/date';
+import { t } from '@/i18n';
+
+interface Props {
+  /** Seal-placed marks. */
+  items: ColophonItem[];
+  date: Date;
+  locale: string;
+}
+const { items, date, locale } = Astro.props;
+const rows = colophonSealRows(items);
+const day = displayDate.date(date);
+---
+{
+  rows.length > 0 && (
+    <div class="colophon-seal" role="note" aria-label={t(locale, 'colophon.seal')}>
+      {rows.map((row) => (
+        <p>
+          {row.label && <span class="colophon-seal-group">{row.label}</span>}
+          {row.marks.map((mark, index) => (
+            <>
+              {index > 0 && ' · '}
+              <span>
+                {mark.label}
+                {mark.note && <span class="colophon-seal-note"> — {mark.note}</span>}
+              </span>
+            </>
+          ))}
+        </p>
+      ))}
+      <p class="colophon-seal-date">
+        <time datetime={day}>{day}</time>
+      </p>
+    </div>
+  )
+}

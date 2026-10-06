@@ -72,6 +72,8 @@ categoryMap:
   周刊: weekly
   # Secondary categories (for nested paths)
   前端: front-end
+  CSS: css
+  番剧: anime
   # Add more as needed:
   # 书摘: reading
   # 后端: back-end
@@ -449,7 +451,112 @@ moments:
 # 使用本地 CMS 编辑文章时也需要开启；修改后重启开发服务器或重新构建
 # =============================================================================
 editor:
-  enabled: false
+  enabled: true
+
+# =============================================================================
+# Colophon (落款)
+# 文章落款 - 为文章标注创作方式、阅读提示等，字典在这里定义，文章 frontmatter 引用
+# =============================================================================
+# 用法（文章 frontmatter）：
+#   colophon: [ai-cowrite, spoiler]
+#   colophon:
+#     - ai-cowrite
+#     - { id: spoiler, note: 含《我推的孩子》第二季剧透 }   # note：本篇自己的补充说明
+#     - { icon: fa6-solid:cat, label: 猫猫审阅过 }          # 一次性标记，不进字典
+# 字段说明：
+#   groups.<id>.label: 分组名称（显示在文末落款）
+#   groups.<id>.exclusive: 是否互斥，互斥组一篇文章只能选一个（默认 false）
+#   groups.<id>.placement / marks.<id>.placement: 显示位置，可多选（标记优先，其次分组，默认 [meta, seal]）
+#     meta   封面信息行（字数、阅读时长旁）
+#     banner 正文前的提示条
+#     seal   文末落款
+#     card   文章列表卡片上的小图标
+#   marks.<id>.icon: Iconify 图标，限 ri / fa6-solid / fa6-regular / gg 四套（见 src/lib/config/icon-sets.ts）
+#   marks.<id>.tone: muted（默认）| accent | warn
+#   defaults: 默认标记，文章没有该组的标记时自动补上（每组最多一个）；文章写 colophon: [] 可不显示任何标记
+# 多语言：在 config/i18n-content.yaml 的 <locale>.colophon 下覆盖 groups / marks 文案
+# 删除整个 colophon 段落即可关闭此功能
+# -----------------------------------------------------------------------------
+colophon:
+  enabled: true
+  defaults: [handwritten] # 没写执笔的文章默认显示「手写」
+  groups:
+    authorship:
+      label: 执笔
+      exclusive: true
+      placement: [meta, seal, card]
+    notice:
+      label: 阅读提示
+      placement: [meta, banner]
+    # ai:
+    #   label: AI 参与
+    #   placement: [seal]
+    # art:
+    #   label: 图像
+    #   placement: [seal]
+    # status:
+    #   label: 文章状态
+    #   placement: [meta, seal]
+    # mood:
+    #   label: 写作时
+    #   placement: [seal]
+  marks:
+    handwritten:
+      group: authorship
+      icon: ri:quill-pen-line
+      label: 手写
+      description: 每个字都是我自己敲的。
+    ai-cowrite:
+      group: authorship
+      icon: ri:sparkling-2-line
+      label: 与 AI 合写
+      description: 我主笔，AI 帮我理思路、换说法。
+    ai-lead:
+      group: authorship
+      icon: ri:sparkling-2-fill
+      label: AI 主笔
+      description: 正文主要由 AI 起草，我负责挑选和改写。
+    spoiler:
+      group: notice
+      icon: ri:eye-off-line
+      label: 含剧透
+      description: 涉及作品后续剧情，还没看完的话可以先收藏。
+      tone: warn
+    outdated:
+      group: notice
+      icon: ri:hourglass-line
+      label: 可能已过时
+      description: 写得比较早，文中的版本和做法可能已经变了。
+      tone: warn
+    # ai-idea: { group: ai, icon: ri:lightbulb-flash-line, label: 构思, description: 和 AI 聊过选题与结构。 }
+    # ai-polish: { group: ai, icon: ri:magic-line, label: 润色, description: AI 帮忙改过措辞和错字。 }
+    # ai-code: { group: ai, icon: ri:code-s-slash-line, label: 代码, description: 示例代码有 AI 参与编写。 }
+    # ai-translate: { group: ai, icon: ri:translate-2, label: 翻译, description: 译文由 AI 初译，我校对过。 }
+    # self-drawn: { group: art, icon: ri:brush-line, label: 自己画的, description: 文中插图是我自己画的。 }
+    # photo: { group: art, icon: ri:camera-3-line, label: 自己拍的, description: 照片都是我自己拍的。 }
+    # ai-art: { group: art, icon: ri:image-ai-line, label: AI 配图, description: 文中有 AI 生成或协作绘制的图。 }
+    # ongoing: { group: status, icon: ri:refresh-line, label: 持续更新, description: 这篇会不定期补充。 }
+    # wip: { group: status, icon: ri:seedling-line, label: 未完待续, description: 坑还没填完，后面会接着写。 }
+    # late-night: { group: mood, icon: ri:moon-clear-line, label: 深夜写的 }
+    # one-sitting: { group: mood, icon: ri:cup-line, label: 一口气写完 }
+
+# =============================================================================
+# Post Actions
+# 文章操作 - 面包屑右侧的「复制 Markdown」按钮组
+# =============================================================================
+# 字段说明：
+#   copyMarkdown: 复制全文 Markdown（含 frontmatter）
+#   downloadMarkdown: 下载 .md 文件
+#   openInEditor: 在写作室打开，需要 editor.enabled
+#     off      不显示
+#     dev      仅本地开发服务器显示
+#     everyone 所有访客可见，访客打开的是一份浏览器草稿副本，不会改动博客
+# 加密文章（password）不提供原文，也不显示这些按钮
+# -----------------------------------------------------------------------------
+postActions:
+  copyMarkdown: true
+  downloadMarkdown: true
+  openInEditor: everyone
 
 # =============================================================================
 # Navigation Routes

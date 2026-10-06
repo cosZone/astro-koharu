@@ -49,6 +49,8 @@ export interface PostData {
   description?: string;
   categories: string | string[];
   tags: string[];
+  /** Colophon mark ids from `config/site.yaml`. */
+  colophon?: string[];
   draft: boolean;
 }
 

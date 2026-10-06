@@ -1,11 +1,14 @@
 import { useGlideIndicator } from '@hooks/useGlideIndicator';
-import { useRef } from 'react';
+import { type ReactNode, useRef } from 'react';
 import EditorIcon from './EditorIcon';
 
 interface Option<T extends string> {
   value: T;
   label: string;
   icon?: string;
+  /** Custom leading graphic, used instead of a built-in editor icon. */
+  media?: ReactNode;
+  title?: string;
 }
 
 interface Props<T extends string> {
@@ -30,9 +33,10 @@ export default function ViewSwitch<T extends string>({ options, value, onChange,
           aria-pressed={option.value === value}
           data-selected={option.value === value || undefined}
           data-glide-key={option.value}
+          title={option.title}
           onClick={() => onChange(option.value)}
         >
-          {option.icon && <EditorIcon name={option.icon} />}
+          {option.media ?? (option.icon && <EditorIcon name={option.icon} />)}
           <span>{option.label}</span>
         </button>
       ))}

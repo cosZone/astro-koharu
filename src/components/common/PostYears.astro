@@ -15,8 +15,9 @@ interface Props {
   /** Archive mode: larger year rules, and `#year-YYYY` / `#month-YYYY-MM` anchors for the calendar. */
   anchors?: boolean;
   filterKeyOf?: (post: BlogPost) => string | undefined;
+  marksOf?: (post: BlogPost) => string[];
 }
-const { posts, locale, showCategory = true, anchors = false, filterKeyOf } = Astro.props;
+const { posts, locale, showCategory = true, anchors = false, filterKeyOf, marksOf } = Astro.props;
 // The in-page filter rewrites year counts from this template, so it stays localized.
 const countTemplate = t(locale, 'post.yearPosts', { count: '#' });
 const groups = groupPostsByYear(posts, siteTimezone);
@@ -29,7 +30,7 @@ const monthKey = (post: BlogPost) => formatInTimeZone(post.data.date, siteTimezo
       {yearPosts.map((post, index) => {
         const key = monthKey(post);
         const firstOfMonth = anchors && (index === 0 || monthKey(yearPosts[index - 1]) !== key);
-        return <PostRow post={post} locale={locale} showCategory={showCategory} id={firstOfMonth ? `month-${key}` : undefined} filterKey={filterKeyOf?.(post)} />;
+        return <PostRow post={post} locale={locale} showCategory={showCategory} id={firstOfMonth ? `month-${key}` : undefined} filterKey={filterKeyOf?.(post)} marks={marksOf?.(post)} />;
       })}
     </ol>
   </section>)}

@@ -9,6 +9,7 @@
 #     categories:    { <slug>: <translated name> }
 #     series:        { <slug>: { label?, fullName?, description? } }
 #     featuredCategories: { <link>: { label?, description? } }
+#     colophon:      { groups: { <id>: <label> }, marks: { <id>: { label?, description? } } }
 # =============================================================================
 
 en:
@@ -18,6 +19,8 @@ en:
     tools: Tools
     weekly: Weekly
     front-end: Frontend
+    css: CSS
+    anime: Anime
 
   series:
     weekly:
@@ -38,6 +41,17 @@ en:
       label: Tools
       description: Tool usage and productivity
 
+  colophon:
+    groups:
+      authorship: Written by
+      notice: Heads-up
+    marks:
+      handwritten: { label: Handwritten, description: Every word here was typed by me. }
+      ai-cowrite: { label: Co-written with AI, description: "I wrote it; AI helped shape ideas and wording." }
+      ai-lead: { label: AI-drafted, description: "AI drafted most of the text; I selected and edited it." }
+      spoiler: { label: Spoilers, description: Discusses later plot points. Maybe bookmark it until you catch up. }
+      outdated: { label: Possibly outdated, description: "Written a while ago; versions and approaches may have changed." }
+
 ja:
   categories:
     life: 日常
@@ -45,6 +59,8 @@ ja:
     tools: ツール
     weekly: 週刊
     front-end: フロントエンド
+    css: CSS
+    anime: アニメ
 
   series:
     weekly:
@@ -65,6 +81,17 @@ ja:
       label: ツール
       description: ツールの使い方と生産性
 
+  colophon:
+    groups:
+      authorship: 執筆
+      notice: ご注意
+    marks:
+      handwritten: { label: 手書き, description: 一字一句、自分で書きました。 }
+      ai-cowrite: { label: AI と共作, description: 主筆は私、AI には構成や言い回しを手伝ってもらいました。 }
+      ai-lead: { label: AI 主筆, description: 本文の大半は AI が下書きし、私が選んで手直ししました。 }
+      spoiler: { label: ネタバレあり, description: 作品の後半の展開に触れています。未視聴ならブックマークしてからどうぞ。 }
+      outdated: { label: 情報が古い可能性, description: 少し前に書いた記事なので、バージョンややり方が変わっているかもしれません。 }
+
 ko:
   categories:
     life: 에세이
@@ -72,6 +99,8 @@ ko:
     tools: 도구
     weekly: 주간지
     front-end: 프론트엔드
+    css: CSS
+    anime: 애니메이션
 
   series:
     weekly:
@@ -91,3 +120,13 @@ ko:
     tools:
       label: 도구
       description: 도구 사용법, 효율성 향상
+  colophon:
+    groups:
+      authorship: 집필
+      notice: 읽기 전에
+    marks:
+      handwritten: { label: 직접 씀, description: 모든 글자를 제가 직접 썼어요. }
+      ai-cowrite: { label: AI와 함께 씀, description: 제가 쓰고 AI가 구성과 표현을 도와줬어요. }
+      ai-lead: { label: AI 초안, description: 본문 대부분은 AI가 초안을 쓰고 제가 골라 다듬었어요. }
+      spoiler: { label: 스포일러, description: 작품 후반부 내용을 다룹니다. 아직 안 보셨다면 북마크해 두세요. }
+      outdated: { label: 오래된 내용일 수 있음, description: 예전에 쓴 글이라 버전이나 방법이 바뀌었을 수 있어요. }
