@@ -473,11 +473,13 @@ editor:
 #     card   文章列表卡片上的小图标
 #   marks.<id>.icon: Iconify 图标，限 ri / fa6-solid / fa6-regular / gg 四套（见 src/lib/config/icon-sets.ts）
 #   marks.<id>.tone: muted（默认）| accent | warn
+#   defaults: 默认标记，文章没有该组的标记时自动补上（每组最多一个）；文章写 colophon: [] 可不显示任何标记
 # 多语言：在 config/i18n-content.yaml 的 <locale>.colophon 下覆盖 groups / marks 文案
-# 未标注落款的文章不会显示任何标记；删除整个 colophon 段落即可关闭此功能
+# 删除整个 colophon 段落即可关闭此功能
 # -----------------------------------------------------------------------------
 colophon:
   enabled: true
+  defaults: [handwritten] # 没写执笔的文章默认显示「手写」
   groups:
     authorship:
       label: 执笔

@@ -19,6 +19,8 @@ export interface EditorColophonGroup {
   label: string;
   exclusive: boolean;
   marks: EditorColophonMark[];
+  /** Label of the site default that applies when the post leaves this group empty. */
+  defaultLabel?: string;
 }
 
 /** `'id'` and `{ id, note? }` reference the dictionary; one-off `{ icon, label }` entries have no id. */

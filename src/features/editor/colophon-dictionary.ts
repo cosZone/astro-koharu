@@ -46,12 +46,18 @@ export function buildEditorColophon(
     const data = resolveIcon(icon);
     return { id, label, ...(description ? { description } : {}), ...(data ? { icon: data } : {}) };
   };
-  const groups = config.groups.map((group) => ({
-    id: group.id,
-    label: group.label,
-    exclusive: group.exclusive,
-    marks: config.marks.filter((mark) => mark.group === group.id).map(toMark),
-  }));
+  const defaultLabel = (groupId: string) =>
+    config.marks.find((mark) => mark.group === groupId && config.defaults.includes(mark.id))?.label;
+  const groups: EditorColophonGroup[] = config.groups.map((group) => {
+    const fallback = defaultLabel(group.id);
+    return {
+      id: group.id,
+      label: group.label,
+      exclusive: group.exclusive,
+      marks: config.marks.filter((mark) => mark.group === group.id).map(toMark),
+      ...(fallback ? { defaultLabel: fallback } : {}),
+    };
+  });
   const loose = config.marks.filter((mark) => mark.group === undefined).map(toMark);
   if (loose.length) groups.push({ id: '', label: '其他', exclusive: false, marks: loose });
   return groups.filter((group) => group.marks.length);

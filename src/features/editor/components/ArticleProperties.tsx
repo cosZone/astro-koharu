@@ -110,7 +110,11 @@ function ColophonProperty({ value, groups, onEdit }: ColophonPropertyProps) {
                 value={current?.id ?? noMark}
                 onChange={(id) => onEdit(selectExclusiveColophon(value, group, id === noMark ? null : id))}
                 options={[
-                  { value: noMark, label: '不标注' },
+                  {
+                    value: noMark,
+                    label: group.defaultLabel ? `默认 · ${group.defaultLabel}` : '不标注',
+                    ...(group.defaultLabel ? { title: '不写这一组时，博客按站点默认显示' } : {}),
+                  },
                   ...group.marks.map((mark) => ({
                     value: mark.id,
                     label: mark.label,

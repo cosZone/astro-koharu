@@ -17,7 +17,7 @@ const raw = {
 
 test('a missing or disabled section turns every colophon surface off', () => {
   for (const value of [undefined, null, { enabled: false, marks: { x: { icon: 'nope', label: 'x' } } }]) {
-    assert.deepEqual(normalizeColophonConfig(value), { enabled: false, groups: [], marks: [] });
+    assert.deepEqual(normalizeColophonConfig(value), { enabled: false, groups: [], marks: [], defaults: [] });
   }
 });
 
@@ -65,6 +65,19 @@ test('rejects malformed groups and marks', () => {
     () => normalizeColophonConfig({ marks: { x: { icon: 'ri:eye-line', label: 'x', placement: ['footer'] } } }),
     /must be one of/,
   );
+});
+
+test('defaults must reference known marks, at most one per group', () => {
+  assert.deepEqual(normalizeColophonConfig({ ...raw, defaults: ['handwritten', 'handwritten'] }).defaults, ['handwritten']);
+  assert.deepEqual(normalizeColophonConfig({ ...raw, defaults: 'loose' }).defaults, ['loose']);
+  assert.deepEqual(normalizeColophonConfig(raw).defaults, []);
+  assert.throws(() => normalizeColophonConfig({ ...raw, defaults: ['nope'] }), /unknown mark "nope"/);
+  const twoAuthors = {
+    ...raw,
+    marks: { ...raw.marks, other: { group: 'authorship', icon: 'ri:eye-line', label: '另一个' } },
+    defaults: ['handwritten', 'other'],
+  };
+  assert.throws(() => normalizeColophonConfig(twoAuthors), /more than one mark of group "authorship"/);
 });
 
 test('localization overrides labels and keeps untranslated text', () => {

@@ -68,6 +68,18 @@ test('one-off marks get stable ids, default placement and a fallback for unusabl
   assert.deepEqual(colophonMarkIds(items), ['handwritten']);
 });
 
+test('defaults fill empty groups ahead of the post marks; colophon: [] opts out', () => {
+  const withDefault = { ...config, defaults: ['handwritten'] };
+  const ids = (entries?: Parameters<typeof resolvePostColophon>[0]) =>
+    resolvePostColophon(entries, withDefault).items.map((item) => item.id);
+  assert.deepEqual(ids(undefined), ['handwritten']);
+  assert.deepEqual(ids(['spoiler']), ['handwritten', 'spoiler']);
+  assert.deepEqual(ids(['ai-cowrite', 'spoiler']), ['ai-cowrite', 'spoiler']);
+  assert.deepEqual(ids([{ id: 'handwritten', note: '纸笔' }]), ['handwritten']);
+  assert.deepEqual(ids([]), []);
+  assert.deepEqual(resolvePostColophon(undefined, { ...withDefault, enabled: false }).items, []);
+});
+
 test('filters items by placement', () => {
   const { items } = resolvePostColophon(['handwritten', 'spoiler'], config);
   assert.deepEqual(

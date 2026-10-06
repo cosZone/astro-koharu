@@ -9,6 +9,7 @@
 import {
   assertBundledIcon,
   type ColophonGroup,
+  type ColophonMark,
   type ColophonPlacement,
   type ColophonTone,
   DEFAULT_COLOPHON_PLACEMENT,
@@ -61,14 +62,29 @@ export function resolvePostColophon(
 ): ResolvedPostColophon {
   const items: ColophonItem[] = [];
   const warnings: string[] = [];
-  if (!config.enabled || !entries?.length) return { items, warnings };
+  // `colophon: []` is an explicit opt-out, including from site defaults.
+  if (!config.enabled || entries?.length === 0) return { items, warnings };
 
   const markById = new Map(config.marks.map((mark) => [mark.id, mark]));
   const groupById = new Map(config.groups.map((group) => [group.id, group]));
   const seen = new Set<string>();
   const takenExclusive = new Map<string, string>();
+  const toItem = (mark: ColophonMark, note?: string): ColophonItem => {
+    const group = mark.group ? groupById.get(mark.group) : undefined;
+    return {
+      id: mark.id,
+      custom: false,
+      ...(group ? { group } : {}),
+      icon: mark.icon,
+      label: mark.label,
+      ...(mark.description !== undefined ? { description: mark.description } : {}),
+      ...(note !== undefined ? { note } : {}),
+      tone: mark.tone,
+      placement: mark.placement,
+    };
+  };
 
-  entries.forEach((entry, index) => {
+  (entries ?? []).forEach((entry, index) => {
     if (typeof entry === 'string' || 'id' in entry) {
       const id = typeof entry === 'string' ? entry.trim() : entry.id.trim();
       const mark = markById.get(id);
@@ -87,18 +103,7 @@ export function resolvePostColophon(
         takenExclusive.set(group.id, id);
       }
       seen.add(id);
-      const note = typeof entry === 'string' ? undefined : cleanNote(entry.note);
-      items.push({
-        id,
-        custom: false,
-        ...(group ? { group } : {}),
-        icon: mark.icon,
-        label: mark.label,
-        ...(mark.description !== undefined ? { description: mark.description } : {}),
-        ...(note !== undefined ? { note } : {}),
-        tone: mark.tone,
-        placement: mark.placement,
-      });
+      items.push(toItem(mark, typeof entry === 'string' ? undefined : cleanNote(entry.note)));
       return;
     }
 
@@ -136,7 +141,15 @@ export function resolvePostColophon(
     });
   });
 
-  return { items, warnings };
+  // Defaults fill groups the post left empty and go first, ahead of the post's own marks.
+  const fills = config.defaults.flatMap((id) => {
+    const mark = markById.get(id);
+    if (!mark || seen.has(id)) return [];
+    if (mark.group !== undefined && items.some((item) => item.group?.id === mark.group)) return [];
+    return [toItem(mark)];
+  });
+
+  return { items: [...fills, ...items], warnings };
 }
 
 export function colophonItemsAt(items: readonly ColophonItem[], placement: ColophonPlacement): ColophonItem[] {

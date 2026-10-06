@@ -106,6 +106,8 @@ test('the site dictionary is grouped for the panel with offline icon bodies', ()
   );
   assert.match(groups[0].marks[0].icon?.body ?? '', /<path/);
   assert.equal(groups[0].marks[0].description, '自己敲的');
+  assert.equal(groups[0].defaultLabel, undefined);
+  assert.equal(buildEditorColophon({ ...config, defaults: ['handwritten'] })[0].defaultLabel, '手写');
   assert.deepEqual(buildEditorColophon(normalizeColophonConfig({ enabled: false })), []);
   assert.equal(resolveBundledIcon('ri:not-an-icon'), undefined);
   assert.equal(resolveBundledIcon('unknown:icon'), undefined);

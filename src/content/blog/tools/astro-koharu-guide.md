@@ -697,7 +697,8 @@ colophon:
 - **显示位置**（`placement`）：`meta` 封面信息行、`banner` 正文前的提示条、`seal` 文末落款、`card` 文章列表卡片。标记上的设置优先于分组
 - **图标**：只能使用 `ri`、`fa6-solid`、`fa6-regular`、`gg` 四套 Iconify 图标，一次性标记也一样
 - **多语言**：在 `config/i18n-content.yaml` 的 `<locale>.colophon` 下覆盖分组和标记的文案
-- 没写 `colophon` 的文章不显示任何标记；删掉整个 `colophon` 配置段即可关闭此功能
+- **默认标记**（`defaults`）：文章没有某一组的标记时自动补上，主题默认 `defaults: [handwritten]`，没写执笔的文章都显示「手写」。不想显示任何标记的文章写 `colophon: []`
+- 删掉整个 `colophon` 配置段即可关闭此功能
 
 站内的示例文章：《我推的孩子》第二季观后感（手写 + 含剧透）、Tailwind CSS v4 升级笔记（可能已过时）、一篇 Markdown 在构建时经过了什么（AI 主笔）、容器查询实战（与 AI 合写 + 一次性标记）。
 

@@ -40,6 +40,8 @@ export interface ResolvedColophonConfig {
   enabled: boolean;
   groups: ColophonGroup[];
   marks: ColophonMark[];
+  /** Mark ids added to posts that carry no mark of the same group; `colophon: []` opts a post out. */
+  defaults: string[];
 }
 
 /** Locale overrides from `config/i18n-content.yaml` → `<locale>.colophon`. */
@@ -48,7 +50,7 @@ export interface ColophonContentTranslation {
   marks?: Record<string, { label?: string; description?: string }>;
 }
 
-const DISABLED: ResolvedColophonConfig = { enabled: false, groups: [], marks: [] };
+const DISABLED: ResolvedColophonConfig = { enabled: false, groups: [], marks: [], defaults: [] };
 
 function fail(message: string): never {
   throw new Error(`Colophon configuration error: ${message}`);
@@ -147,7 +149,27 @@ export function normalizeColophonConfig(raw: unknown): ResolvedColophonConfig {
     };
   });
 
-  return { enabled: true, groups, marks };
+  return { enabled: true, groups, marks, defaults: normalizeDefaults(raw.defaults, marks) };
+}
+
+function normalizeDefaults(raw: unknown, marks: readonly ColophonMark[]): string[] {
+  if (raw === undefined || raw === null) return [];
+  const list = Array.isArray(raw) ? raw : [raw];
+  const markById = new Map(marks.map((mark) => [mark.id, mark]));
+  const groupsTaken = new Set<string>();
+  const defaults: string[] = [];
+  for (const value of list) {
+    const id = requireText(value, '"defaults" entry');
+    const mark = markById.get(id);
+    if (!mark) fail(`"defaults" refers to unknown mark "${id}".`);
+    if (defaults.includes(id)) continue;
+    if (mark.group !== undefined) {
+      if (groupsTaken.has(mark.group)) fail(`"defaults" has more than one mark of group "${mark.group}".`);
+      groupsTaken.add(mark.group);
+    }
+    defaults.push(id);
+  }
+  return defaults;
 }
 
 /** Apply locale overrides; missing keys keep the default-locale text. */
