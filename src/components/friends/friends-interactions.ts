@@ -1,8 +1,10 @@
+import { readMotionLevel } from '@lib/motion-level';
+
 let dispose: (() => void) | undefined;
 
 /**
- * Group tabs are plain anchors to each section; here they become an instant filter. The URL is left
- * alone so the ClientRouter keeps owning history. Broken avatars are hidden so the SVG face shows.
+ * Group tabs filter sections in place; the URL is left alone so the ClientRouter keeps owning history
+ * (a shared `#friends-<group>` link still opens with that group). Broken avatars fall back to the SVG face.
  */
 function init() {
   dispose?.();
@@ -24,26 +26,25 @@ function init() {
     if (image.complete && image.naturalWidth === 0) image.hidden = true;
   }
 
-  const tabs = [...grid.querySelectorAll<HTMLAnchorElement>('[data-friends-filter]')];
+  const tabs = [...grid.querySelectorAll<HTMLButtonElement>('[data-friends-filter]')];
   const sections = [...grid.querySelectorAll<HTMLElement>('[data-friends-section]')];
   const select = (id: string) => {
     const filtered = id !== 'all';
     if (filtered) grid.dataset.friendsActive = id;
     else delete grid.dataset.friendsActive;
     for (const section of sections) section.hidden = filtered && section.dataset.friendsSection !== id;
-    for (const tab of tabs) {
-      if (tab.dataset.friendsFilter === id) tab.setAttribute('aria-current', 'true');
-      else tab.removeAttribute('aria-current');
+    for (const tab of tabs) tab.setAttribute('aria-pressed', String(tab.dataset.friendsFilter === id));
+    if (readMotionLevel() !== 'reduced') {
+      for (const section of sections) {
+        if (!section.hidden) section.animate({ opacity: [0, 1] }, { duration: 180, easing: 'ease-out' });
+      }
     }
   };
   grid.addEventListener(
     'click',
     (event) => {
-      if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
-      const tab = event.target instanceof Element ? event.target.closest<HTMLAnchorElement>('[data-friends-filter]') : null;
-      if (!tab?.dataset.friendsFilter) return;
-      event.preventDefault();
-      select(tab.dataset.friendsFilter);
+      const tab = event.target instanceof Element ? event.target.closest<HTMLButtonElement>('[data-friends-filter]') : null;
+      if (tab?.dataset.friendsFilter) select(tab.dataset.friendsFilter);
     },
     { signal: controller.signal },
   );

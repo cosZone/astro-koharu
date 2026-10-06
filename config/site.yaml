@@ -241,7 +241,7 @@ friends:
         desc: 站点简介 # 站点简介
         image: https://your-blog.com/avatar.jpg # 头像链接
         color: "#ffc0cb" # 主题色（可选）
-  data: # 友链列表
+  data: # 友链列表；同组内按这里的顺序展示
     - site: 余弦の博客
       url: https://blog.cosine.ren
       owner: cos
@@ -255,7 +255,7 @@ friends:
       desc: 一个热爱技术的开发者
       image: https://api.dicebear.com/7.x/avataaars/svg?seed=Alice
       color: '#BEDCFF'
-      group: community
+      group: familiar
     - site: 示例博客 B
       url: https://example-b.com
       owner: Bob
@@ -269,7 +269,35 @@ friends:
       desc: 记录学习与成长的地方
       image: https://api.dicebear.com/7.x/avataaars/svg?seed=Carol
       color: '#ABDCFF'
+      group: community
+    - site: 示例博客 D
+      url: https://example-d.com
+      owner: Dave
+      desc: 喜欢折腾键盘和终端
+      image: https://api.dicebear.com/7.x/avataaars/svg?seed=Dave
+      color: '#C8E6C9'
+      group: community
+    - site: 示例博客 E
+      url: https://example-e.com
+      owner: Eve
+      desc: 设计、插画与日常碎碎念
+      image: https://api.dicebear.com/7.x/avataaars/svg?seed=Eve
+      color: '#E1BEE7'
       group: following
+    - site: 示例博客 F
+      url: https://example-f.com
+      owner: Frank
+      desc: 长文写作与阅读笔记
+      image: https://api.dicebear.com/7.x/avataaars/svg?seed=Frank
+      color: '#FFE0B2'
+      group: following
+    # 不写 group（或写了不存在的分组 id）的友链会归入最后的「未分组」
+    - site: 示例博客 G
+      url: https://example-g.com
+      owner: Grace
+      desc: 还没想好放在哪一组的新朋友
+      image: https://api.dicebear.com/7.x/avataaars/svg?seed=Grace
+      color: '#B2EBF2'
 
 # =============================================================================
 # Announcements

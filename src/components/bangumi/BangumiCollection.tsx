@@ -3,9 +3,10 @@ import { useBangumiData } from '@hooks/useBangumiData';
 import { useMotionLevel } from '@hooks/useMotionLevel';
 import { useTranslation } from '@hooks/useTranslation';
 import { Icon } from '@iconify/react';
+import { getScrollBehavior } from '@lib/motion-level';
 import { cn } from '@lib/utils';
 import { AnimatePresence, m } from 'motion/react';
-import { useMemo, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import type { TranslationKey } from '@/i18n/types';
 import { ITEMS_PER_PAGE, SUBJECT_TYPE_KEYS, type SubjectTypeKey } from '@/lib/bangumi/constants';
 import type { BangumiCollectionType } from '@/types/bangumi';
@@ -84,6 +85,16 @@ export function BangumiCollection({ userId }: BangumiCollectionProps) {
   const pageItems = filteredItems.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);
   const visiblePages = getVisiblePages(totalPages, currentPage);
 
+  const shelfRef = useRef<HTMLDivElement>(null);
+  /** Switching pages from the bottom pager brings the shelf's top back into view instead of leaving the reader mid-page. */
+  function goToPage(page: number) {
+    setCurrentPage(page);
+    const shelf = shelfRef.current;
+    if (shelf && shelf.getBoundingClientRect().top < 0) {
+      shelf.scrollIntoView({ behavior: getScrollBehavior(), block: 'start' });
+    }
+  }
+
   function handleTabChange(key: SubjectTypeKey) {
     setActiveTab(key);
     setActiveFilter('all');
@@ -142,7 +153,7 @@ export function BangumiCollection({ userId }: BangumiCollectionProps) {
 
   return (
     <LazyMotionProvider>
-      <div className="space-y-5">
+      <div ref={shelfRef} className="bangumi-shelf space-y-5">
         <div className="space-y-1">
           <div className="index-tabs bangumi-type-tabs">
             {tabs.map((tab) => (
@@ -190,7 +201,7 @@ export function BangumiCollection({ userId }: BangumiCollectionProps) {
           <div className="flex items-center justify-center gap-2 pt-4">
             <button
               type="button"
-              onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+              onClick={() => goToPage(Math.max(1, currentPage - 1))}
               disabled={currentPage === 1}
               aria-label={t('pagination.prev')}
               className="flex size-8 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground disabled:pointer-events-none disabled:opacity-40"
@@ -206,7 +217,7 @@ export function BangumiCollection({ userId }: BangumiCollectionProps) {
                     {showEllipsis && <span className="px-1 text-muted-foreground">…</span>}
                     <button
                       type="button"
-                      onClick={() => setCurrentPage(page)}
+                      onClick={() => goToPage(page)}
                       aria-current={currentPage === page ? 'page' : undefined}
                       className={cn(
                         'min-w-[2rem] rounded-md px-2 py-1.5 text-sm transition-colors',
@@ -223,7 +234,7 @@ export function BangumiCollection({ userId }: BangumiCollectionProps) {
             </div>
             <button
               type="button"
-              onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+              onClick={() => goToPage(Math.min(totalPages, currentPage + 1))}
               disabled={currentPage === totalPages}
               aria-label={t('pagination.next')}
               className="flex size-8 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground disabled:pointer-events-none disabled:opacity-40"

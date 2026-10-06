@@ -27,13 +27,13 @@ const sections = groupFriendLinks(friendsData, friendGroups).map(({ group, frien
     </div>
   ) : grouped ? (
     <>
-      {/* Plain anchors without JS; the script turns them into an instant filter. */}
-      <nav id="friends-groups" class="index-tabs friends-group-tabs" aria-label={t(locale, 'friends.filterLabel')}>
-        <a href="#friends-groups" data-friends-filter="all" aria-current="true">{t(locale, 'friends.all')}<sup>{friendsData.length}</sup></a>
+      {/* In-page filter tabs; without JS every group is listed anyway. */}
+      <div id="friends-groups" class="index-tabs friends-group-tabs" role="group" aria-label={t(locale, 'friends.filterLabel')}>
+        <button type="button" data-friends-filter="all" aria-pressed="true">{t(locale, 'friends.all')}<sup>{friendsData.length}</sup></button>
         {sections.map((section) => (
-          <a href={`#friends-${section.id}`} data-friends-filter={section.id}>{section.title}<sup>{section.friends.length}</sup></a>
+          <button type="button" data-friends-filter={section.id} aria-pressed="false">{section.title}<sup>{section.friends.length}</sup></button>
         ))}
-      </nav>
+      </div>
       {sections.map((section) => (
         <section id={`friends-${section.id}`} class="friends-section" data-friends-section={section.id} data-empty={section.friends.length === 0 || undefined} tabindex="-1">
           <h2 class="year-rule friends-section-rule">

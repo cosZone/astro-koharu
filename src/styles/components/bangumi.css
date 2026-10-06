@@ -127,3 +127,6 @@
   color: var(--index-ink);
   font-weight: 700;
 }
+.bangumi-shelf {
+  scroll-margin-top: 5rem;
+}

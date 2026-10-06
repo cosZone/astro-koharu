@@ -14,19 +14,22 @@ interface Props {
   showCategory?: boolean;
   /** Archive mode: larger year rules, and `#year-YYYY` / `#month-YYYY-MM` anchors for the calendar. */
   anchors?: boolean;
+  filterKeyOf?: (post: BlogPost) => string | undefined;
 }
-const { posts, locale, showCategory = true, anchors = false } = Astro.props;
+const { posts, locale, showCategory = true, anchors = false, filterKeyOf } = Astro.props;
+// The in-page filter rewrites year counts from this template, so it stays localized.
+const countTemplate = t(locale, 'post.yearPosts', { count: '#' });
 const groups = groupPostsByYear(posts, siteTimezone);
 const monthKey = (post: BlogPost) => formatInTimeZone(post.data.date, siteTimezone, 'yyyy-MM');
 ---
 {groups.length ? <div class:list={['post-years', anchors && 'post-years-archive']} style={{ '--petal-mask': PETAL_MASK }}>
-  {groups.map(({ year, posts: yearPosts }) => <section class="motion-reveal" id={anchors ? `year-${year}` : undefined} tabindex={anchors ? -1 : undefined}>
-    <h2 class="year-rule"><SakuraSVG className="year-rule-bloom" /><span>{year}</span><small>{t(locale, 'post.yearPosts', { count: yearPosts.length })}</small></h2>
+  {groups.map(({ year, posts: yearPosts }) => <section class="motion-reveal" id={anchors ? `year-${year}` : undefined} tabindex={anchors ? -1 : undefined} data-post-year>
+    <h2 class="year-rule"><SakuraSVG className="year-rule-bloom" /><span>{year}</span><small data-count-template={countTemplate}>{t(locale, 'post.yearPosts', { count: yearPosts.length })}</small></h2>
     <ol class="post-rows">
       {yearPosts.map((post, index) => {
         const key = monthKey(post);
         const firstOfMonth = anchors && (index === 0 || monthKey(yearPosts[index - 1]) !== key);
-        return <PostRow post={post} locale={locale} showCategory={showCategory} id={firstOfMonth ? `month-${key}` : undefined} />;
+        return <PostRow post={post} locale={locale} showCategory={showCategory} id={firstOfMonth ? `month-${key}` : undefined} filterKey={filterKeyOf?.(post)} />;
       })}
     </ol>
   </section>)}
