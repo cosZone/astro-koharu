@@ -15,16 +15,6 @@
   outline-offset: 2px;
 }
 
-.issue-masthead {
-  display: block;
-  margin-bottom: 0.25rem;
-  font-size: 0.6875rem;
-  font-weight: 700;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--index-ink);
-}
-
 .issue-meta {
   display: flex;
   flex-wrap: wrap;
@@ -198,12 +188,6 @@
   line-height: 1.6;
   color: hsl(var(--foreground) / 0.88);
   text-wrap: pretty;
-}
-.issue-title .issue-masthead {
-  display: inline;
-  margin: 0 0.5rem 0 0;
-  font-size: 0.625rem;
-  vertical-align: 0.1em;
 }
 .issue-row time {
   font-size: 0.75rem;

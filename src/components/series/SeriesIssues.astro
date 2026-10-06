@@ -19,16 +19,12 @@ interface Props {
 }
 const { posts, locale } = Astro.props;
 
-// The masthead only shows where it changes (e.g. FE Bits → 余弦杂谈), so a renamed series reads as eras.
-const issues = posts.map((post, index) => {
+const issues = posts.map((post) => {
   const href = localizedPath(routeBuilder(Routes.Post, { slug: post.slug, link: post.link, title: post.title }), locale);
-  const title = parseIssueTitle(post.title);
-  const previous = index > 0 ? parseIssueTitle(posts[index - 1].title).masthead : '';
   return {
     post,
     href,
-    ...title,
-    masthead: title.masthead !== previous ? title.masthead : '',
+    ...parseIssueTitle(post.title),
     date: displayDate.date(post.date),
     data: { date: post.date },
   };
@@ -47,7 +43,6 @@ const years = groupPostsByYear(rest, siteTimezone);
     <div class="issue-latest-head">
       {latest.number && <span class="issue-latest-no" aria-hidden="true"><small>Vol.</small>{latest.number}</span>}
       <div class="min-w-0">
-        {latest.masthead && <p class="issue-masthead">{latest.masthead}</p>}
         <h2 class="issue-latest-title"><a class="issue-link" href={latest.href} aria-label={latest.post.title}>{latest.headline}</a></h2>
       </div>
     </div>
@@ -68,7 +63,6 @@ const years = groupPostsByYear(rest, siteTimezone);
       {yearIssues.map((issue) => <li class="issue-row">
         <span class="issue-no" aria-hidden="true">{issue.number ?? <SakuraSVG className="issue-no-bloom" />}</span>
         <h3 class="issue-title">
-          {issue.masthead && <span class="issue-masthead">{issue.masthead}</span>}
           <a class="issue-link" href={issue.href} aria-label={issue.post.title} title={issue.post.description}>{issue.headline}</a>
         </h3>
         <time datetime={issue.date}>{issue.date.slice(5)}</time>
