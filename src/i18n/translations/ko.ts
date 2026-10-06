@@ -359,6 +359,9 @@ export const uiStrings = {
   'series.rss': 'RSS 구독',
   'series.chromeExtension': 'Chrome 확장 프로그램',
   'series.docs': '문서',
+  'series.issues': '호',
+  'series.latestIssue': '최신호',
+  'series.readIssue': '이번 호 읽기',
 
   // ── Home Info ───────────────────────────────────────────────
   'homeInfo.articles': '게시물',

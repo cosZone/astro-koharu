@@ -361,6 +361,9 @@ export const uiStrings: UIStrings = {
   'series.rss': 'RSSフィード',
   'series.chromeExtension': 'Chrome拡張機能',
   'series.docs': 'ドキュメント',
+  'series.issues': '号',
+  'series.latestIssue': '最新号',
+  'series.readIssue': 'この号を読む',
 
   // ── ホーム情報 ───────────────────────────────────────────────
   'homeInfo.articles': '記事',

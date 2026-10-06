@@ -1,4 +1,5 @@
 ---
+import { motionConfig } from '@constants/site-config';
 import type { FeaturedSeriesItem } from '@lib/config/types';
 import { translateSeriesField } from '@lib/content';
 import { getLqipStyle } from '@lib/lqip';
@@ -7,6 +8,7 @@ import { Icon } from 'astro-icon/components';
 import { marked } from 'marked';
 import { MAX_WIDTH } from '@/constants/layout';
 import { getLocaleFromUrl, t } from '@/i18n';
+import SakuraPetals from './SakuraPetals.astro';
 import WaveSvg from './wave';
 
 interface Props {
@@ -24,89 +26,46 @@ const seriesTitle = seriesFullName || seriesLabel || series.categoryName;
 // Convert Markdown description to HTML and sanitize for XSS protection
 const rawHtml = series.description ? await marked.parse(series.description) : '';
 const descriptionHtml = getSanitizeHtml(rawHtml);
+
+const links = [
+  { href: series.links?.github, icon: 'ri:github-fill', label: 'GitHub' },
+  { href: series.links?.rss, icon: 'ri:rss-line', label: t(locale, 'series.rss'), reload: true },
+  { href: series.links?.chrome, icon: 'ri:chrome-fill', label: t(locale, 'series.chromeExtension') },
+  { href: series.links?.docs, icon: 'ri:book-open-line', label: t(locale, 'series.docs') },
+].filter((link) => link.href);
 ---
 
-<div class="relative flex z-0 max-h-200 min-h-[70dvh] items-center justify-center overflow-hidden pb-6">
-  <div class="absolute inset-0 h-full bg-black/40"></div>
-  <!-- Series cover image -->
-  {
-    series.cover && (
-      <div class="absolute inset-0 -z-10 h-full w-full" style={getLqipStyle(series.cover)}>
-        <img
-          src={series.cover}
-          alt={seriesTitle}
-          class="h-full w-full object-cover"
-          loading="eager"
-          fetchpriority="high"
-          decoding="async"
-        />
-      </div>
-    )
-  }
-
-  <!-- Main content area -->
-  <div class={`relative z-10 flex flex-col items-center justify-center px-5 py-4 text-white ${MAX_WIDTH.content}`}>
-    <!-- Title -->
-    <h1 class="shadow-text text-center text-5xl font-bold md:text-3xl">
+<div class="cover-hero relative z-0 flex h-[52dvh] max-h-140 min-h-96 overflow-hidden tablet:h-auto tablet:min-h-[26rem]">
+  <div class="cover-scrim absolute inset-0 h-full"></div>
+  {motionConfig.heroPetals && <SakuraPetals />}
+  <div class={`cover-copy relative z-10 mx-auto flex w-full flex-col items-center justify-center px-6 pt-20 pb-[max(4.5rem,9dvh)] text-white ${MAX_WIDTH.content}`}>
+    <h1 class="motion-rise shadow-text text-center text-4xl/[1.2] font-bold tracking-[0.08em] text-balance tablet:text-3xl/[1.2]">
       {seriesTitle}
     </h1>
-
-    <!-- Link buttons -->
     {
-      series.links && (
-        <div class="mt-6 flex flex-wrap items-center justify-center gap-3">
-          {series.links.github && (
-            <a
-              href={series.links.github}
-              target="_blank"
-              class="flex items-center gap-2 rounded-full bg-white/10 px-4 py-2 text-sm backdrop-blur-sm transition-all hover:scale-105 hover:bg-white/20"
-            >
-              <Icon name="ri:github-fill" class="h-5 w-5" />
-              <span>GitHub</span>
+      series.description && (
+        <div class="series-cover-description motion-rise mt-4 max-w-xl text-center" style="--i: 1" set:html={descriptionHtml} />
+      )
+    }
+    {
+      links.length > 0 && (
+        <div class="motion-rise mt-6 flex flex-wrap items-center justify-center gap-2.5" style="--i: 2">
+          {links.map((link) => (
+            <a href={link.href} target="_blank" rel="noopener" data-astro-reload={link.reload} class="series-cover-link">
+              <Icon name={link.icon} class="size-4" aria-hidden="true" />
+              <span>{link.label}</span>
             </a>
-          )}
-          {series.links.rss && (
-            <a
-              href={series.links.rss}
-              target="_blank"
-              data-astro-reload
-              class="flex items-center gap-2 rounded-full bg-white/10 px-4 py-2 text-sm backdrop-blur-sm transition-all hover:scale-105 hover:bg-white/20"
-            >
-              <Icon name="ri:rss-line" class="h-5 w-5" />
-              <span>{t(locale, 'series.rss')}</span>
-            </a>
-          )}
-          {series.links.chrome && (
-            <a
-              href={series.links.chrome}
-              target="_blank"
-              class="flex items-center gap-2 rounded-full bg-white/10 px-4 py-2 text-sm backdrop-blur-sm transition-all hover:scale-105 hover:bg-white/20"
-            >
-              <Icon name="ri:chrome-fill" class="h-5 w-5" />
-              <span>{t(locale, 'series.chromeExtension')}</span>
-            </a>
-          )}
-          {series.links.docs && (
-            <a
-              href={series.links.docs}
-              target="_blank"
-              class="flex items-center gap-2 rounded-full bg-white/10 px-4 py-2 text-sm backdrop-blur-sm transition-all hover:scale-105 hover:bg-white/20"
-            >
-              <Icon name="ri:book-open-line" class="h-5 w-5" />
-              <span>{t(locale, 'series.docs')}</span>
-            </a>
-          )}
+          ))}
         </div>
       )
     }
-
-    <!-- Description -->
-    {
-      series.description && (
-        <div class="series-cover-description mt-7 max-w-2xl text-center md:mt-5" set:html={descriptionHtml} />
-      )
-    }
   </div>
-
+  {
+    series.cover && (
+      <div class="series-cover-art absolute inset-0 -z-10" style={getLqipStyle(series.cover)}>
+        <img src={series.cover} alt="" class="h-full w-full object-cover" loading="eager" fetchpriority="high" decoding="async" />
+      </div>
+    )
+  }
   <WaveSvg />
 </div>

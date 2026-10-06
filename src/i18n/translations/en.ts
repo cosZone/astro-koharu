@@ -359,6 +359,9 @@ export const uiStrings: UIStrings = {
   'series.rss': 'RSS Feed',
   'series.chromeExtension': 'Chrome Extension',
   'series.docs': 'Documentation',
+  'series.issues': 'issues',
+  'series.latestIssue': 'Latest issue',
+  'series.readIssue': 'Read this issue',
 
   // ── Home Info ───────────────────────────────────────────────
   'homeInfo.articles': 'Articles',

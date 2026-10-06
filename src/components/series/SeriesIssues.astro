@@ -1,0 +1,84 @@
+---
+import SakuraSVG from '@components/svg/SakuraSvg';
+import { Routes } from '@constants/router';
+import { createArticleStatsConfig } from '@constants/site-config';
+import { siteTimezone } from '@lib/config/site';
+import { groupPostsByYear } from '@lib/content/index-groups';
+import { parseIssueTitle } from '@lib/content/series-issue';
+import { displayDate } from '@lib/date';
+import { routeBuilder } from '@lib/route';
+import { PETAL_MASK } from '@lib/sakura/petal';
+import { Icon } from 'astro-icon/components';
+import UmamiPVSpan from '@/components/umami/UmamiPVSpan';
+import { localizedPath, t } from '@/i18n';
+import type { PostCardData } from '@/types/blog';
+
+interface Props {
+  posts: PostCardData[];
+  locale: string;
+}
+const { posts, locale } = Astro.props;
+
+// The masthead only shows where it changes (e.g. FE Bits → 余弦杂谈), so a renamed series reads as eras.
+const issues = posts.map((post, index) => {
+  const href = localizedPath(routeBuilder(Routes.Post, { slug: post.slug, link: post.link, title: post.title }), locale);
+  const title = parseIssueTitle(post.title);
+  const previous = index > 0 ? parseIssueTitle(posts[index - 1].title).masthead : '';
+  return {
+    post,
+    href,
+    ...title,
+    masthead: title.masthead !== previous ? title.masthead : '',
+    date: displayDate.date(post.date),
+    stats: createArticleStatsConfig(href),
+    data: { date: post.date },
+  };
+});
+const [latest, ...rest] = issues;
+const years = groupPostsByYear(rest, siteTimezone);
+---
+{latest ? <div class="series-issues" style={{ '--petal-mask': PETAL_MASK }}>
+  <article class="issue-latest motion-rise" style="--i: 0">
+    <SakuraSVG className="issue-latest-bloom" />
+    <p class="issue-latest-label">
+      <span>{t(locale, 'series.latestIssue')}</span>
+      <time datetime={latest.date}>{latest.date}</time>
+    </p>
+    <div class="issue-latest-head">
+      {latest.number && <span class="issue-latest-no" aria-hidden="true"><small>Vol.</small>{latest.number}</span>}
+      <div class="min-w-0">
+        {latest.masthead && <p class="issue-masthead">{latest.masthead}</p>}
+        <h2 class="issue-latest-title"><a class="issue-link" href={latest.href} aria-label={latest.post.title}>{latest.headline}</a></h2>
+      </div>
+    </div>
+    {latest.post.description && <p class="issue-latest-desc">{latest.post.description}</p>}
+    <div class="issue-latest-foot">
+      <p class="issue-meta">
+        <span>{t(locale, 'post.wordCount', { count: latest.post.wordCount })}</span>
+        <span>{latest.post.readingTime}</span>
+        {latest.stats && <span><Icon name="ri:eye-line" aria-hidden="true" /><UmamiPVSpan client:visible statsConfig={latest.stats} /></span>}
+      </p>
+      <span class="issue-latest-cta" aria-hidden="true">{t(locale, 'series.readIssue')}<Icon name="ri:arrow-right-line" /></span>
+    </div>
+  </article>
+
+  {years.map(({ year, posts: yearIssues }) => <section class="motion-reveal">
+    <h2 class="year-rule"><SakuraSVG className="year-rule-bloom" /><span>{year}</span><small>{yearIssues.length} {t(locale, 'series.issues')}</small></h2>
+    <ol class="issue-rows">
+      {yearIssues.map((issue) => <li class="issue-row">
+        <span class="issue-no" aria-hidden="true">{issue.number ? <><small>Vol.</small>{issue.number}</> : <SakuraSVG className="issue-no-bloom" />}</span>
+        <div class="min-w-0">
+          {issue.masthead && <p class="issue-masthead">{issue.masthead}</p>}
+          <h3 class="issue-title"><a class="issue-link" href={issue.href} aria-label={issue.post.title}>{issue.headline}</a></h3>
+          {issue.post.description && <p class="issue-desc">{issue.post.description}</p>}
+          <p class="issue-meta">
+            <time datetime={issue.date}>{issue.date.slice(5)}</time>
+            <span>{t(locale, 'post.wordCount', { count: issue.post.wordCount })}</span>
+            <span class="issue-meta-wide">{issue.post.readingTime}</span>
+            {issue.stats && <span><Icon name="ri:eye-line" aria-hidden="true" /><UmamiPVSpan client:visible statsConfig={issue.stats} /></span>}
+          </p>
+        </div>
+      </li>)}
+    </ol>
+  </section>)}
+</div> : <p class="text-muted-foreground">{t(locale, 'series.noPosts')}</p>}

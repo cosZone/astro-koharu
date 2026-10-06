@@ -20,24 +20,10 @@ export interface PostItemCardProps {
   data: PostCardData;
   leftClip?: boolean;
   randomCover: string;
-  showTags?: boolean;
-  hideCover?: boolean; // 隐藏图片，让内容铺满
-  isSimple?: boolean; // 是否简单模式
   isUniformPosition?: boolean; // 是否统一图片位置（非交替模式）
 }
 
-const {
-  randomCover,
-  data,
-  leftClip = true,
-  hideCover: hideCoverProp,
-  showTags: showTagsProp,
-  isSimple = false,
-  isUniformPosition = false,
-} = Astro.props as PostItemCardProps;
-
-const showTags = showTagsProp ?? !isSimple;
-const hideCover = hideCoverProp ?? isSimple;
+const { randomCover, data, leftClip = true, isUniformPosition = false } = Astro.props as PostItemCardProps;
 
 const { cover, date, categories, title, draft, description, slug, link, tags, wordCount, readingTime, postLocale } = data ?? {};
 
@@ -68,7 +54,7 @@ const staggerAmounts = ['pl-0', 'pl-2', 'pl-4', 'pl-6'] as const;
  */
 function getStaggerPadding(rowIndex: number): string {
   // Only apply stagger for left image position (diagonal faces content)
-  if (!isUniformPosition || hideCover || !leftClip) return '';
+  if (!isUniformPosition || !leftClip) return '';
   return staggerAmounts[rowIndex];
 }
 
@@ -82,38 +68,34 @@ const titleMorph = postTitleMorphName(slug);
     'post-item-card motion-reveal',
   )}
 >
-  {
-    !hideCover && (
-      <a
-        href={href}
-        tabindex="-1"
-        aria-hidden="true"
-        style={lqipProps.style}
-        class={cn(
-          'post-item-cover md:clip-path-none relative h-46.5 max-h-46.5 w-[calc(50%-2rem)] overflow-hidden md:w-auto',
-          leftClip ? 'rounded-s-lg clip-path-post-img-left order-1' : 'rounded-e-lg clip-path-post-img-right order-2',
-          'md:clip-path-none md:order-0',
-          lqipProps.class,
-        )}
-      >
-        <img src={finalCover} loading="lazy" alt="" class="h-full w-full cursor-pointer object-cover" />
-      </a>
-    )
-  }
+  <a
+    href={href}
+    tabindex="-1"
+    aria-hidden="true"
+    style={lqipProps.style}
+    class={cn(
+      'post-item-cover md:clip-path-none relative h-46.5 max-h-46.5 w-[calc(50%-2rem)] overflow-hidden md:w-auto',
+      leftClip ? 'rounded-s-lg clip-path-post-img-left order-1' : 'rounded-e-lg clip-path-post-img-right order-2',
+      'md:clip-path-none md:order-0',
+      lqipProps.class,
+    )}
+  >
+    <img src={finalCover} loading="lazy" alt="" class="h-full w-full cursor-pointer object-cover" />
+  </a>
   <div
     class={cn(
       'flex flex-col gap-2 pb-2 md:pb-4 pt-4 md:pt-1',
       'px-4 md:px-4',
       // Reduce margin on the side adjacent to image diagonal when uniform left position
-      isUniformPosition && !hideCover && leftClip && '-ml-3',
-      hideCover ? 'w-full' : 'w-[calc(50%+2rem)] md:w-full',
-      !hideCover && (leftClip ? 'order-2' : 'order-1'),
+      isUniformPosition && leftClip && '-ml-3',
+      'w-[calc(50%+2rem)] md:w-full',
+      leftClip ? 'order-2' : 'order-1',
       'md:order-0',
     )}
   >
     <ScrollableRow
       client:visible
-      className={cn('w-full', { 'order-2 pb-3 md:pb-0': isSimple }, getStaggerPadding(0), 'md:pl-0 md:pr-0')}
+      className={cn('w-full', getStaggerPadding(0), 'md:pl-0 md:pr-0')}
       innerClassName="items-center justify-between gap-4 w-full"
       fadeWidth={20}
     >
@@ -190,7 +172,6 @@ const titleMorph = postTitleMorphName(slug);
     <p
       class={cn(
         'text-muted-foreground line-clamp-3 h-15 text-sm md:h-auto md:max-h-15',
-        { 'line-clamp-2 h-10 md:max-h-10': isSimple },
         getStaggerPadding(2),
         'md:pl-0 md:pr-0',
       )}
@@ -198,7 +179,7 @@ const titleMorph = postTitleMorphName(slug);
       {postDescription}
     </p>
     {
-      showTags && tags?.length && (
+      tags?.length && (
         <ScrollableRow
           client:visible
           className={cn(
@@ -228,13 +209,13 @@ const titleMorph = postTitleMorphName(slug);
       href={href}
       tabindex="-1"
       aria-hidden="true"
-      class={cn('absolute -bottom-1', hideCover ? '-right-1' : leftClip ? '-right-1' : '-left-1', 'md:left-auto md:-right-1')}
+      class={cn('absolute -bottom-1', leftClip ? '-right-1' : '-left-1', 'md:left-auto md:-right-1')}
     >
       <Button
         tabIndex={-1}
         className={cn(
           'post-item-more bg-gradient-shoka-button rounded-2xl transition-[translate,box-shadow] duration-500 ease-out-expo md:h-7 md:px-2 md:py-1 md:text-xs',
-          hideCover || leftClip
+          leftClip
             ? 'rounded-se-none rounded-es-none group-hover:translate-x-1'
             : 'rounded-ss-none rounded-ee-none group-hover:-translate-x-1',
           'md:rounded-ss-2xl md:rounded-se-none md:rounded-ee-2xl md:rounded-es-none md:group-hover:translate-x-1',

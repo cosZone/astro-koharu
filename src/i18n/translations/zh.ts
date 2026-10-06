@@ -357,6 +357,9 @@ export const uiStrings = {
   'series.rss': 'RSS 订阅',
   'series.chromeExtension': 'Chrome 插件',
   'series.docs': '文档',
+  'series.issues': '期',
+  'series.latestIssue': '最新一期',
+  'series.readIssue': '阅读本期',
 
   // ── Home Info ───────────────────────────────────────────────
   'homeInfo.articles': '文章',

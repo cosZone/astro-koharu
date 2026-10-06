@@ -43,7 +43,7 @@
 
   @supports (animation-timeline: scroll()) {
     /* The banner drifts slower than the page and the title lifts away as the cover scrolls off. */
-    html:is([data-motion="lively"], [data-motion="subtle"]) #banner-box > img {
+    html:is([data-motion="lively"], [data-motion="subtle"]) :is(#banner-box, .series-cover-art) > img {
       animation: cover-drift linear both;
       animation-timeline: scroll(root block);
       animation-range: 0 100dvh;
@@ -112,7 +112,34 @@
   font-size: 0.9em;
 }
 
+/* Series links: frosted chips that warm to the accent on hover; no scale, the cover is already busy. */
+.series-cover-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.4375rem 0.875rem;
+  border: 1px solid rgb(255 255 255 / 0.28);
+  border-radius: 999px;
+  background: rgb(255 255 255 / 0.1);
+  font-size: 0.8125rem;
+  backdrop-filter: blur(8px);
+  transition:
+    background-color var(--dur-fast) var(--ease-out-quart),
+    border-color var(--dur-fast) var(--ease-out-quart);
+}
+
+.series-cover-link:is(:hover, :focus-visible) {
+  border-color: rgb(255 255 255 / 0.55);
+  background: color-mix(in oklab, hsl(var(--primary)) 45%, transparent);
+  outline: none;
+}
+
 @media (768px >= width) {
+  .series-cover-link {
+    padding: 0.375rem 0.75rem;
+    font-size: 0.75rem;
+  }
+
   .series-cover-description {
     font-size: 0.875rem;
     line-height: 1.75;

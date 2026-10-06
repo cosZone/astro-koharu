@@ -1,13 +1,15 @@
 ---
 import PageIntro from '@components/common/PageIntro.astro';
 import HomeSider from '@components/layout/HomeSider.astro';
-import PostList from '@components/post/PostList.astro';
+import SeriesIssues from '@components/series/SeriesIssues.astro';
 import SeriesCover from '@components/ui/cover/SeriesCover.astro';
 import { siteConfig } from '@constants/site-config';
 import { Layout, TwoColumnLayout } from '@layouts/index';
+import { siteTimezone } from '@lib/config/site';
 import type { FeaturedSeriesItem } from '@lib/config/types';
 import { getPostsByCategory, translateSeriesField } from '@lib/content';
 import { toPostCardDataList } from '@lib/content/transforms';
+import { formatInTimeZone } from 'date-fns-tz';
 import { t } from '@/i18n';
 import { seriesRoute } from './_shared/routes';
 
@@ -28,6 +30,14 @@ const seriesPosts = series.categoryName
 const seriesFullName = translateSeriesField(series.slug, 'fullName', series.fullName, locale);
 const seriesLabel = translateSeriesField(series.slug, 'label', series.label, locale);
 const pageTitle = `${seriesFullName || seriesLabel || series.categoryName} | ${siteConfig.title}`;
+// Oldest–newest year of the run; one year when the series has not crossed a new year yet.
+const span = [
+  ...new Set([seriesPosts.at(-1), seriesPosts[0]].map((post) => post && formatInTimeZone(post.date, siteTimezone, 'yyyy'))),
+];
+const stats = [
+  { value: seriesPosts.length, label: t(locale, 'series.issues') },
+  ...(span[0] ? [{ value: span.join('–'), label: t(locale, 'index.years') }] : []),
+];
 ---
 
 <Layout articleTools={false} locale={locale} title={pageTitle} description={series.description?.slice(0, 160)}>
@@ -35,8 +45,8 @@ const pageTitle = `${seriesFullName || seriesLabel || series.categoryName} | ${s
     <SeriesCover slot="cover" series={series} />
     <HomeSider slot="sider" />
     <div class="index-surface shadow-box">
-      <PageIntro stats={[{ value: seriesPosts.length, label: t(locale, 'index.posts') }]} />
-      <PostList posts={seriesPosts} showPaginator={false} isSimple={true} />
+      <PageIntro stats={stats} />
+      <SeriesIssues posts={seriesPosts} locale={locale} />
     </div>
   </TwoColumnLayout>
 </Layout>

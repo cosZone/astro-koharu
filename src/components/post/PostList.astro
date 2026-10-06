@@ -14,10 +14,9 @@ interface Props {
   showPaginator?: boolean;
   baseUrl?: string; // 分页基础路径
   isHomePage?: boolean; // 是否是首页
-  isSimple?: boolean; // 是否隐藏封面
 }
 
-const { posts, page, showPaginator = true, baseUrl, isHomePage = false, isSimple = false } = Astro.props;
+const { posts, page, showPaginator = true, baseUrl, isHomePage = false } = Astro.props;
 const locale = getLocaleFromUrl(Astro.url.pathname);
 const covers = shuffle(defaultCoverList);
 
@@ -57,11 +56,8 @@ function getLeftClip(index: number): boolean {
           <PostItemCard
             key={post.slug}
             data={post}
-            showTags={!isSimple}
             leftClip={getLeftClip(index)}
             randomCover={covers[index % covers.length]}
-            hideCover={isSimple}
-            isSimple={isSimple}
             isUniformPosition={isUniformPosition}
           />
         ))}
