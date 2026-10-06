@@ -26,6 +26,7 @@ const issues = posts.map((post) => {
     href,
     ...parseIssueTitle(post.title),
     date: displayDate.date(post.date),
+    // groupPostsByYear reads `data.date`, the shape of collection entries.
     data: { date: post.date },
   };
 });

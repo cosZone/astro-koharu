@@ -131,7 +131,11 @@
 .series-cover-link:is(:hover, :focus-visible) {
   border-color: rgb(255 255 255 / 0.55);
   background: color-mix(in oklab, hsl(var(--primary)) 45%, transparent);
-  outline: none;
+}
+
+.series-cover-link:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 2px;
 }
 
 @media (768px >= width) {

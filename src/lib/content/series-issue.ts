@@ -5,7 +5,7 @@ export interface IssueTitle {
   headline: string;
 }
 
-// `FE Bits Vol.35 | …`, `周刊第 1 期：…`, `Weekly #12 - …`, `No. 3`
+// `Weekly Vol.35 | …`, `周刊第 1 期：…`, `Weekly #12 - …`, `No. 3`
 const ISSUE_TITLE = /^.*?\s*(?:\bvol\.?|\bno\.|#|第)\s*(\d+)\s*期?\s*(?:[|｜:：—–-]\s*(.*))?$/i;
 
 /** Splits a series post title into issue number and headline for the issue index. */
