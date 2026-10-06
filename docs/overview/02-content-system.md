@@ -64,7 +64,7 @@ const blogCollection = defineCollection({
 
     // Hexo 兼容字段
     subtitle: z.string().optional(),     // 副标题（旧 Hexo）
-    catalog: z.boolean().optional(),     // 是否显示目录
+    catalog: z.boolean().optional(),     // 是否计入分类统计
     sticky: z.boolean().optional(),      // 是否置顶
 
     // 分类字段（支持两种格式）
@@ -92,7 +92,7 @@ export const collections = {
 | `tags`        | `string[]` | 否   | 标签数组                   |
 | `categories`  | 见下文     | 否   | 分类（支持多层级）         |
 | `sticky`      | `boolean`  | 否   | 置顶标记                   |
-| `catalog`     | `boolean`  | 否   | 是否生成目录（Hexo 遗留）  |
+| `catalog`     | `boolean`  | 否   | 是否计入分类页的分类树与篇数（默认 true，Hexo 遗留）  |
 | `subtitle`    | `string`   | 否   | 副标题（Hexo 遗留）        |
 
 ---

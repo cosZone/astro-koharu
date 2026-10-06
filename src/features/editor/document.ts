@@ -1,4 +1,4 @@
-import { isMap, parseDocument } from 'yaml';
+import { type Document, isMap, isSeq, parseDocument } from 'yaml';
 
 export interface EditorDocument {
   body: string;
@@ -22,16 +22,48 @@ export function parseEditorDocument(source: string): EditorDocument {
   }
 }
 
-export function updateEditorProperty(source: string, key: string, value: unknown): string {
+function editFrontmatter(source: string, edit: (document: Document) => void): string {
   const match = frontmatterPattern.exec(source);
   const document = parseDocument(match?.[1] ?? '');
   if (document.errors.length) throw new Error('请先修正源码中的 YAML 格式，再编辑文章属性');
-  if (value === undefined || value === '') document.delete(key);
-  else document.set(key, value);
+  edit(document);
   const newline = match?.[0].includes('\r\n') ? '\r\n' : '\n';
   const yaml = document.toString().replace(/\r?\n/g, newline);
   const bom = source.startsWith('\uFEFF') ? '\uFEFF' : '';
   return `${bom}---${newline}${yaml}${yaml.endsWith(newline) ? '' : newline}---${newline}${match ? source.slice(match[0].length) : source.replace(/^\uFEFF/, '')}`;
+}
+
+export function updateEditorProperty(source: string, key: string, value: unknown): string {
+  return editFrontmatter(source, (document) => {
+    if (value === undefined || value === '') document.delete(key);
+    else document.set(key, value);
+  });
+}
+
+export interface ListEdit {
+  /** Indices into the current list, as read from the parsed data. */
+  remove: number[];
+  insert?: { at: number; value: unknown };
+}
+
+/** Edit a list property item by item, so untouched entries keep their YAML style and comments. */
+export function updateEditorList(source: string, key: string, edit: ListEdit): string {
+  return editFrontmatter(source, (document) => {
+    const node = document.get(key, true);
+    const removed = [...new Set(edit.remove)].sort((a, b) => b - a);
+    if (isSeq(node)) {
+      for (const index of removed) node.items.splice(index, 1);
+      if (edit.insert) node.items.splice(edit.insert.at, 0, document.createNode(edit.insert.value));
+      if (!node.items.length) document.delete(key);
+      return;
+    }
+    const current = document.get(key);
+    const items: unknown[] = current === undefined || current === null ? [] : [current];
+    for (const index of removed) items.splice(index, 1);
+    if (edit.insert) items.splice(edit.insert.at, 0, edit.insert.value);
+    if (items.length) document.set(key, items);
+    else document.delete(key);
+  });
 }
 
 export function documentTitle(source: string): string {

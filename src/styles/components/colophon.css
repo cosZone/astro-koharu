@@ -1,0 +1,174 @@
+/* Colophon (落款) marks: cover meta row, pre-article notices, end-of-article seal, archive filter. */
+
+/* ── Cover meta row: quiet like its siblings; details open in a native popover ── */
+.colophon-meta {
+  display: inline-flex;
+  align-items: center;
+}
+.colophon-meta[data-tone="warn"] {
+  color: rgb(253 230 138);
+}
+.colophon-meta[data-tone="accent"] {
+  color: rgb(255 214 224);
+}
+.colophon-meta-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  border-radius: 0.25rem;
+  cursor: pointer;
+  text-decoration: underline dotted;
+  text-decoration-color: color-mix(in srgb, currentColor 55%, transparent);
+  text-underline-offset: 0.3em;
+}
+.colophon-meta > svg {
+  margin-right: 0.25rem;
+}
+.colophon-meta-trigger:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 3px;
+}
+
+.colophon-pop {
+  width: max-content;
+  max-width: min(18rem, calc(100vw - 2rem));
+  margin: 0;
+  padding: 0.625rem 0.75rem;
+  border: 1px solid hsl(var(--border));
+  border-radius: 0.625rem;
+  background: hsl(var(--popover));
+  color: hsl(var(--popover-foreground));
+  box-shadow: 0 0.75rem 2rem -0.75rem rgb(28 8 20 / 0.35);
+  font-size: 0.8125rem;
+  line-height: 1.6;
+  text-align: start;
+  text-shadow: none;
+  white-space: normal;
+}
+.colophon-pop-text,
+.colophon-pop-note {
+  display: block;
+}
+.colophon-pop-title {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  font-weight: 700;
+}
+.colophon-pop-text {
+  margin-top: 0.25rem;
+  color: hsl(var(--muted-foreground));
+}
+.colophon-pop-note {
+  margin-top: 0.375rem;
+  padding-top: 0.375rem;
+  border-top: 1px solid hsl(var(--border) / 0.7);
+}
+
+@supports (anchor-name: --a) {
+  .colophon-pop {
+    inset: auto;
+    /* Inline margin keeps the popover off the viewport edge when the anchor sits near it. */
+    margin: 0.5rem 0.75rem 0;
+    position-area: bottom;
+    position-try-fallbacks:
+      flip-block,
+      bottom span-right,
+      bottom span-left;
+  }
+}
+
+html:is([data-motion="lively"], [data-motion="subtle"]) .colophon-pop {
+  transition:
+    opacity 160ms var(--ease-out-quart),
+    translate 160ms var(--ease-out-quart),
+    overlay 160ms allow-discrete,
+    display 160ms allow-discrete;
+}
+html:is([data-motion="lively"], [data-motion="subtle"]) .colophon-pop:not(:popover-open) {
+  opacity: 0;
+  translate: 0 -0.25rem;
+}
+@starting-style {
+  html:is([data-motion="lively"], [data-motion="subtle"]) .colophon-pop:popover-open {
+    opacity: 0;
+    translate: 0 -0.25rem;
+  }
+}
+
+/* ── Notices before the article body ── */
+.colophon-banner {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  padding: 0.625rem 1rem;
+  border-radius: 0.5rem;
+  background: hsl(var(--muted) / 0.6);
+  color: hsl(var(--muted-foreground));
+  font-size: 0.875rem;
+  line-height: 1.6;
+}
+.colophon-banner-icon {
+  flex-shrink: 0;
+  width: 1rem;
+  height: 1rem;
+  translate: 0 0.2rem;
+}
+.colophon-banner b {
+  margin-right: 0.5rem;
+  color: hsl(var(--foreground) / 0.85);
+}
+.colophon-banner[data-tone="warn"] {
+  background: rgb(245 158 11 / 0.08);
+  color: rgb(180 83 9);
+}
+.dark .colophon-banner[data-tone="warn"] {
+  color: rgb(251 191 36 / 0.9);
+}
+.colophon-banner[data-tone="warn"] b {
+  color: inherit;
+}
+.colophon-banner[data-tone="accent"] {
+  background: hsl(var(--primary) / 0.08);
+}
+.colophon-banner[data-tone="accent"] b {
+  color: var(--index-ink, hsl(var(--badge-primary)));
+}
+
+/* ── End-of-article seal: a small right-aligned inscription between hairlines ── */
+.colophon-seal {
+  align-self: flex-end;
+  max-width: min(100%, 28rem);
+  margin-top: 2rem;
+  padding: 0.75rem 0 0.75rem 1.5rem;
+  border-block: 1px solid hsl(var(--border) / 0.8);
+  color: hsl(var(--muted-foreground) / 0.85);
+  font-size: 0.8125rem;
+  line-height: 1.9;
+  letter-spacing: 0.04em;
+  text-align: end;
+  text-wrap: pretty;
+}
+.colophon-seal-group {
+  margin-right: 0.75em;
+  color: hsl(var(--muted-foreground) / 0.65);
+}
+.colophon-seal-note {
+  color: hsl(var(--muted-foreground) / 0.7);
+}
+.colophon-seal-date {
+  margin-top: 0.125rem;
+  font-variant-numeric: tabular-nums;
+  color: hsl(var(--muted-foreground) / 0.65);
+}
+
+/* ── Archive mark filter ── */
+.colophon-filter > button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+.colophon-filter svg {
+  width: 0.875rem;
+  height: 0.875rem;
+}

@@ -150,7 +150,7 @@ export default function PreviewSurface({ config, author }: Props) {
           </header>
         )}
         <main className="editor-article-grid">
-          {preview.mode === 'article' && data.catalog !== false && preview.headings.length > 0 && (
+          {preview.mode === 'article' && preview.headings.length > 0 && (
             <aside className="editor-article-toc shadow-box" aria-label="文章目录">
               {widePreview ? (
                 <>

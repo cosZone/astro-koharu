@@ -39,5 +39,27 @@
       "logo": "https://github.com/fluidicon.png"
     },
     "timestamp": 1791230574953
+  },
+  "https://t.me/cosine_front_end": {
+    "data": {
+      "originUrl": "https://t.me/cosine_front_end",
+      "url": "https://t.me/cosine_front_end",
+      "title": "cosine - 前端人の日常频道",
+      "description": "呜啦！日常碎碎念，偶尔掉落优质前端博文推荐、学习资源等\t网页：https://tg.cosine.ren\t本频道的搜索Bot 来辣 👉 @cosSearchBot\t私聊直接发消息就可以搜索啦～\t🔖tags\t#优质博文 #资源推荐 #博客更新 #碎碎念 #项目更新 #手工 #书摘 #阮一峰的科技周刊 #新动态 图频：Cosine 🎨 Gallery @CosineGallery\t猫片： @cosine_cat\t联系频道主：@cosine_yu",
+      "image": "https://cdn5.telesco.pe/file/EkwyglH7zajwAcJcbyiI5J2n6NbuIOYDt2kWc46xE8R1-DIuJK--oJHht1AX2JuvN9YTQo8itJk1Afx31YdVfzLWDo5MK12Au-pCGaApvVo4hwlys_PDiQO9mBgw5M8NIlM6ZNql81gY7qWtB4_bxJpXoytogldtL56mVMXc7nGQKCxW5KM5Tatv-gBzDBsbuQgIR30RJzzChOrzk-IAzey5iQ1xSWG_9xC6u8p9nkNielg6vCMvVEL9pXZlw7e7RQ-8Yb6HW181mXWvVUOiWaeYAVwMgVXeSwCdnQP0MkdzsJWli8UwCHOTQ-oJB3SSdVIjR5g9BJcv-_0_oXVFzg.jpg",
+      "logo": "https://telegram.org/img/apple-touch-icon.png"
+    },
+    "timestamp": 1791303372226
+  },
+  "https://book.cosine.ren/": {
+    "data": {
+      "originUrl": "https://book.cosine.ren/",
+      "url": "https://book.cosine.ren/",
+      "title": "前言及目录 | 前端学习记录",
+      "description": "🌸 你好，这里是余弦的学习记录",
+      "image": "https://book.cosine.ren/~gitbook/image?url=https%3A%2F%2F934551782-files.gitbook.io%2F%7E%2Ffiles%2Fv0%2Fb%2Fgitbook-x-prod.appspot.com%2Fo%2Fspaces%252FSKmC7C4KtqVvJxUTVKwQ%252Fsocialpreview%252FbwQcTEjPTCn8otbSJ17b%252F5.jpg%3Falt%3Dmedia%26token%3Da2a5f32e-283c-4b4c-9241-0ca7176af981&width=1200&height=630&sign=fe0c939016b19543bebf8df1010fcb11&sv=3",
+      "logo": "https://book.cosine.ren/~gitbook/image?url=https%3A%2F%2F934551782-files.gitbook.io%2F%7E%2Ffiles%2Fv0%2Fb%2Fgitbook-x-prod.appspot.com%2Fo%2Fspaces%252FSKmC7C4KtqVvJxUTVKwQ%252Ficon%252FWcaoWRW35EESs2lJLWyW%252Ftx.jpg%3Falt%3Dmedia%26token%3Dde2dd12e-60c6-4078-8049-1f37d3c7e3ec&width=48&height=48&sign=f362d5b490eeeab73148e3c4b0c680c3&sv=3"
+    },
+    "timestamp": 1791303373964
   }
 }

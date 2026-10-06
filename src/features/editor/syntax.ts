@@ -361,7 +361,7 @@ export const syntaxEntries: SyntaxEntry[] = [
       '---\ntitle: 我的新文章\ndate: 2026-01-01\ndescription: 一句话介绍文章\ncover: https://example.com/cover.webp\ncategories:\n  - 笔记\ntags:\n  - 写作\ncatalog: true\nmath: true\nquiz: true\n---',
     notes: [
       '这是一份完整属性示例，应放在文档最开头，替换或合并已有属性，不要在正文中重复插入。',
-      'cover 为封面 URL，catalog 控制目录；link 可设置固定文章路径，draft: true 标记草稿，password 可设置整篇加密。复制与下载保留完整属性区。',
+      'cover 为封面 URL，catalog: false 时文章不计入分类页的分类树与篇数；link 可设置固定文章路径，draft: true 标记草稿，password 可设置整篇加密。复制与下载保留完整属性区。',
     ],
   },
 ];

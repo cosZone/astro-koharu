@@ -2,6 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { slugify } from 'transliteration';
 import YAML from 'yaml';
+import { normalizeColophonConfig, type ResolvedColophonConfig } from '../../../src/lib/config/colophon';
 import { normalizeFriendGroups } from '../../../src/lib/config/friends';
 import type { FriendGroup } from '../../../src/lib/config/types';
 import { BLOG_CONTENT_PATH, SITE_CONFIG_PATH } from '../constants/paths';
@@ -41,6 +42,11 @@ export async function getFriendGroups(): Promise<FriendGroup[]> {
   const config = await loadSiteConfig();
   const friends = config.friends as { groups?: unknown } | undefined;
   return normalizeFriendGroups(friends?.groups);
+}
+
+export async function getColophonConfig(): Promise<ResolvedColophonConfig> {
+  const config = await loadSiteConfig();
+  return normalizeColophonConfig(config.colophon);
 }
 
 /**
@@ -186,6 +192,13 @@ export function generatePostFrontmatter(data: PostData): string {
     // Single category
     const cat = Array.isArray(data.categories) ? data.categories[0] : data.categories;
     lines.push(`  - ${yamlQuote(cat)}`);
+  }
+
+  if (data.colophon?.length) {
+    lines.push('colophon:');
+    for (const id of data.colophon) {
+      lines.push(`  - ${yamlQuote(id)}`);
+    }
   }
 
   if (data.draft) {

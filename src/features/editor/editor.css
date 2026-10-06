@@ -663,6 +663,86 @@
   font-size: 11.5px;
 }
 
+.editor-colophon {
+  min-inline-size: 0;
+  margin: 18px 0 0;
+  padding: 0;
+  border: 0;
+}
+.editor-colophon > legend {
+  padding: 0;
+  color: hsl(var(--muted-foreground));
+  font-size: 12px;
+  font-weight: 500;
+}
+.editor-colophon-group {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  margin-top: 10px;
+}
+.editor-colophon-group > span {
+  font-size: 12.5px;
+  font-weight: 500;
+}
+.editor-colophon-group > small {
+  color: hsl(var(--muted-foreground));
+  font-size: 11.5px;
+  line-height: 1.6;
+}
+.editor-colophon .editor-switch {
+  flex-shrink: 1;
+  max-width: 100%;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.editor-colophon .editor-switch-item {
+  flex-shrink: 0;
+  min-height: 28px;
+}
+.editor-chips.editor-colophon-chips {
+  flex-wrap: wrap;
+  margin: 0;
+  padding: 0;
+  overflow: visible;
+}
+.editor-colophon-chips button {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+.editor-colophon-icon {
+  width: 15px;
+  height: 15px;
+  flex-shrink: 0;
+}
+.editor-colophon .editor-muted {
+  margin-top: 10px;
+  font-size: 11.5px;
+}
+.editor-import-draft {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 3px;
+  margin: 14px 0 0;
+  padding: 10px 12px;
+  background: var(--editor-control);
+  box-shadow: inset 0 0 0 1px var(--editor-hairline);
+}
+.editor-import-draft strong {
+  max-width: 100%;
+}
+.editor-error > .editor-button {
+  align-self: center;
+  min-height: 28px;
+  padding-inline: 10px;
+  border-radius: 999px;
+  box-shadow: inset 0 0 0 1px hsl(var(--destructive) / 0.3);
+  color: inherit;
+  font-size: 12px;
+}
+
 .editor-draft-actions {
   flex-wrap: wrap;
   gap: 8px;
@@ -1307,6 +1387,17 @@
   .editor-chips {
     padding-block: 8px;
     margin-block: 2px -8px;
+  }
+  .editor-chips.editor-colophon-chips {
+    gap: 8px;
+    padding-block: 0;
+    margin-block: 0;
+  }
+  .editor-colophon-chips button {
+    min-height: 34px;
+  }
+  .editor-colophon .editor-switch-item {
+    min-height: 34px;
   }
   .editor-syntax-toggle {
     min-height: 44px;

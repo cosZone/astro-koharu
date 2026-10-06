@@ -1,10 +1,14 @@
 ---
 import BootScripts from '@layouts/BootScripts.astro';
+import { colophonConfig } from '@lib/config/site';
+import { buildEditorColophon } from '../colophon-dictionary';
 import Editor from '../Editor';
 import '@styles/index.css';
 import '../editor.css';
 
 const ogEndpoint = import.meta.env.PUBLIC_EDITOR_OG_ENDPOINT || '/api/editor/og';
+// Serialized into the island props at build time; only the marks' own icons ship, not the icon sets.
+const colophon = buildEditorColophon(colophonConfig);
 ---
 <!doctype html>
 <html lang="zh">
@@ -17,7 +21,7 @@ const ogEndpoint = import.meta.env.PUBLIC_EDITOR_OG_ENDPOINT || '/api/editor/og'
     <BootScripts />
   </head>
   <body class="editor-page">
-    <Editor client:only="react" ogEndpoint={ogEndpoint} />
+    <Editor client:only="react" ogEndpoint={ogEndpoint} colophon={colophon} />
     <noscript>写作室需要 JavaScript 才能编辑和实时预览。</noscript>
   </body>
 </html>

@@ -144,7 +144,7 @@ astro-koharu/
 ├── tsconfig.json               # TypeScript 配置
 ├── package.json                # 依赖和脚本
 ├── _config.yml                 # Hexo 分类映射（遗留）
-└── CLAUDE.md                   # AI 助手指南
+└── AGENTS.md                   # AI 助手指南
 ```
 
 ---

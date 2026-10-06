@@ -26,6 +26,7 @@ import { momentsRoutes } from './src/features/moments/integration/momentsRoutes.
 import { normalizeContentConfig } from './src/lib/config/content.ts';
 import { normalizeEditorConfig } from './src/lib/config/editor.ts';
 import { enabledFeaturedSeriesSlugs, normalizeFeaturedSeries } from './src/lib/config/featured-series.ts';
+import { BUNDLED_ICON_SETS } from './src/lib/config/icon-sets.ts';
 import { normalizeMomentsConfig } from './src/lib/config/moments.ts';
 import { RESERVED_ROUTES } from './src/lib/config/reserved-routes.ts';
 import { mermaidThemeCSS } from './src/lib/markdown/mermaid-theme.ts';
@@ -245,12 +246,7 @@ export default defineConfig({
     react(),
     sitemap(),
     icon({
-      include: {
-        gg: ['*'],
-        'fa6-regular': ['*'],
-        'fa6-solid': ['*'],
-        ri: ['*'],
-      },
+      include: Object.fromEntries(BUNDLED_ICON_SETS.map((set) => [set, ['*']])),
     }),
     pagefind(),
     mermaid({

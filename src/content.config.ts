@@ -1,4 +1,5 @@
 import { defineCollection } from 'astro:content';
+import { COLOPHON_PLACEMENTS, COLOPHON_TONES } from '@lib/config/colophon';
 import { BLOG_CONTENT_GLOB_PATTERN } from '@lib/content/glob';
 import { parseDateInSiteTimezone, reinterpretUtcAsTimezone } from '@lib/date';
 import { glob } from 'astro/loaders';
@@ -26,6 +27,20 @@ const dateInSiteTimezone = z
     }
     return parseDateInSiteTimezone(val);
   });
+
+const colophonPlacementSchema = z.enum(COLOPHON_PLACEMENTS);
+const colophonEntrySchema = z.union([
+  z.string(),
+  z.object({ id: z.string(), note: z.string().optional() }),
+  z.object({
+    icon: z.string(),
+    label: z.string(),
+    description: z.string().optional(),
+    note: z.string().optional(),
+    tone: z.enum(COLOPHON_TONES).optional(),
+    placement: colophonPlacementSchema.or(z.array(colophonPlacementSchema)).optional(),
+  }),
+]);
 
 const blogCollection = defineCollection({
   loader: glob({ pattern: BLOG_CONTENT_GLOB_PATTERN, base: './src/content/blog' }),
@@ -56,6 +71,8 @@ const blogCollection = defineCollection({
     password: z.string().optional(),
     /** Keywords for SEO */
     keywords: z.array(z.string()).optional(),
+    // Colophon marks; ids resolve against `colophon.marks` in config/site.yaml.
+    colophon: z.array(colophonEntrySchema).optional(),
   }) satisfies z.ZodType<BlogSchema, BlogSchemaInput>,
 });
 

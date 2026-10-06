@@ -701,6 +701,10 @@ export interface SiteYamlConfig {
   moments?: MomentsConfig;
   /** Optional public Markdown writing room. */
   editor?: WritingRoomConfig;
+  /** Post marks dictionary (落款); validated by normalizeColophonConfig. */
+  colophon?: unknown;
+  /** Markdown copy / download / open-in-writing-room actions on post pages. */
+  postActions?: unknown;
   navigation?: RouterItem[];
   comment?: CommentConfig;
   analytics?: AnalyticsConfig;

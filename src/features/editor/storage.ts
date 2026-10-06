@@ -4,6 +4,8 @@ export interface EditorDraft {
   source: string;
   updated: number;
   filename?: string;
+  /** Same-origin `.md` path the draft was copied from, used to offer the existing copy on re-import. */
+  importedFrom?: string;
 }
 
 export type DraftSummary = Omit<EditorDraft, 'source'>;
