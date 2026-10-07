@@ -1,5 +1,7 @@
 import { type CDPSession, expect, type Locator, type Page, test } from '@playwright/test';
 
+const imageViewerModule = /\/ImageLightbox(?:\.[^/]+\.js|\.tsx)(?:\?.*)?$/;
+
 const images = [
   { src: '/lightbox-fixture/first.svg', alt: '第一张测试图片' },
   { src: '/lightbox-fixture/second.svg', alt: '第二张测试图片' },
@@ -52,7 +54,7 @@ async function ready(page: Page) {
   const response = await page.goto('/post/markdown-features', { waitUntil: 'domcontentloaded' });
   expect(response?.status(), 'The article route must compile before testing lightbox behavior').toBe(200);
   await page.waitForFunction(() => {
-    const island = document.querySelector('astro-island[component-url*="ImageLightbox"]');
+    const island = document.querySelector('astro-island[component-url*="ArticleViewers"]');
     return island && !island.hasAttribute('ssr');
   });
 }
@@ -130,7 +132,7 @@ test('article fullscreen opener loads its image and restores focus after Escape'
   await page.route('**/img/cover/3.webp', (route) => route.fulfill({ contentType: 'image/svg+xml', body: fixture }));
   await page.reload({ waitUntil: 'domcontentloaded' });
   await page.waitForFunction(() => {
-    const island = document.querySelector('astro-island[component-url*="ImageLightbox"]');
+    const island = document.querySelector('astro-island[component-url*="ArticleViewers"]');
     return island && !island.hasAttribute('ssr');
   });
   const articleImage = page.locator('.custom-content img.markdown-image').first();
@@ -146,6 +148,54 @@ test('article fullscreen opener loads its image and restores focus after Escape'
   await expect(dialog(page)).toHaveCount(0);
   await expect(opener).toBeFocused();
   expect(await page.evaluate(() => document.body.style.overflow)).not.toBe('hidden');
+});
+
+test('the image viewer is fetched on first use and a slow load can be cancelled', async ({ page }) => {
+  const viewerStatus = page.locator('[data-article-viewers]').getByRole('status');
+  expect(
+    await page.evaluate(() =>
+      performance
+        .getEntriesByType('resource')
+        .some((entry) => /\/ImageLightbox(?:\.[^/]+\.js|\.tsx)(?:\?.*)?$/.test(entry.name)),
+    ),
+  ).toBe(false);
+  let release: (() => void) | undefined;
+  const pending = new Promise<void>((resolve) => {
+    release = resolve;
+  });
+  await page.route(imageViewerModule, async (route) => {
+    await pending;
+    await route.continue();
+  });
+  await page.evaluate((images) => {
+    window.dispatchEvent(new CustomEvent('open-image-lightbox', { detail: { ...images[0], images, currentIndex: 0 } }));
+  }, images);
+  await expect(viewerStatus).toHaveText('加载中...');
+  await page.keyboard.press('Escape');
+  await expect(viewerStatus).toHaveCount(0);
+  expect(await page.evaluate(() => document.body.style.overflow)).not.toBe('hidden');
+  const response = page.waitForResponse(imageViewerModule);
+  release?.();
+  await response;
+  await expect(dialog(page)).toHaveCount(0);
+  await open(page);
+});
+
+test('a failed image viewer can be dismissed without blocking the code viewer', async ({ page }) => {
+  const viewers = page.locator('[data-article-viewers]');
+  await page.route(imageViewerModule, (route) => route.abort('failed'));
+  await page.evaluate((images) => {
+    window.dispatchEvent(new CustomEvent('open-image-lightbox', { detail: { ...images[0], images, currentIndex: 0 } }));
+  }, images);
+  await expect(viewers.getByRole('status')).toHaveText('查看器加载失败，请刷新页面重试。');
+  await viewers.getByRole('button', { name: '关闭', exact: true }).click();
+  await expect(viewers.getByRole('status')).toHaveCount(0);
+  expect(await page.evaluate(() => document.body.style.overflow)).not.toBe('hidden');
+  const block = page.locator('.code-block-wrapper').first();
+  await block.getByRole('button', { name: '全屏查看', exact: true }).last().click();
+  await expect(page.locator('[role="dialog"]:has(pre.astro-code)')).toBeVisible();
+  await page.keyboard.press('Escape');
+  await expect(page.locator('[role="dialog"]:has(pre.astro-code)')).toHaveCount(0);
 });
 
 test('image clicks stay open, genuine empty-space clicks close, and dragging never dismisses', async ({ page }) => {
@@ -216,6 +266,11 @@ test('reduced motion still supports zoom, navigation, and immediate dismissal', 
   await dialog(page).getByRole('button', { name: '下一张', exact: true }).click();
   await expect(image(page)).toHaveAttribute('alt', images[1].alt);
   await expect(reset(page)).toHaveText('100%');
+  await expect
+    .poll(() =>
+      image(page).evaluate((element) => element instanceof HTMLImageElement && element.complete && element.naturalWidth > 0),
+    )
+    .toBe(true);
   expect(
     await dialog(page).evaluate(
       (element) => element.getAnimations({ subtree: true }).filter((animation) => animation.playState === 'running').length,

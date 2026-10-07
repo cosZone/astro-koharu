@@ -307,7 +307,8 @@ export default defineConfig({
   }),
   prefetch: {
     prefetchAll: true,
-    defaultStrategy: 'viewport',
+    // Visible-link prefetch competes with the current page's cold load.
+    defaultStrategy: 'hover',
   },
   trailingSlash: 'ignore',
 });

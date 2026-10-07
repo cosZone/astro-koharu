@@ -50,6 +50,7 @@
     "test:drawer": "tsx --test src/lib/drawer-gesture.test.ts src/lib/series-rail.test.ts",
     "test:diagram": "tsx --test src/lib/diagram-sizing.test.ts src/lib/mermaid-source.test.ts src/lib/zoom-pan.test.ts",
     "test:diagram:browser": "node tests/diagram/mermaid.browser.mjs",
+    "test:search:browser": "node tests/search/portal.browser.mjs",
     "test:migrate": "tsx --test scripts/koharu/utils/*.test.ts",
     "test:moments": "tsx --test src/lib/config/moments.test.ts tests/moments/*.test.ts",
     "test:moments:smoke": "bash tests/moments/smoke.sh",

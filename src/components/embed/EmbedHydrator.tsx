@@ -5,9 +5,10 @@
  */
 
 import { ErrorBoundary, ErrorFallback } from '@components/common';
-import { type RefObject, useEffect, useState } from 'react';
+import { lazy, type RefObject, Suspense, useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
-import TweetEmbed from './TweetEmbed';
+
+const TweetEmbed = lazy(() => import('./TweetEmbed'));
 
 interface TweetPlaceholder {
   element: Element;
@@ -46,9 +47,24 @@ export function EmbedHydrator({ containerRef }: { containerRef?: RefObject<HTMLE
       {tweetPlaceholders.map(({ element, sourceUrl, tweetId }) =>
         createPortal(
           <ErrorBoundary
-            fallbackRender={(props) => <ErrorFallback {...props} title="TweetEmbed Error" sourceUrl={sourceUrl} />}
+            fallbackRender={(props) => (
+              <ErrorFallback
+                {...props}
+                resetErrorBoundary={() => window.location.reload()}
+                title="TweetEmbed Error"
+                sourceUrl={sourceUrl}
+              />
+            )}
           >
-            <TweetEmbed sourceUrl={sourceUrl} tweetId={tweetId} />
+            <Suspense
+              fallback={
+                <a href={sourceUrl} target="_blank" rel="noopener noreferrer">
+                  {sourceUrl}
+                </a>
+              }
+            >
+              <TweetEmbed sourceUrl={sourceUrl} tweetId={tweetId} />
+            </Suspense>
           </ErrorBoundary>,
           element,
         ),

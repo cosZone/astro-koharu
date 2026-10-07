@@ -3,9 +3,10 @@
  * Adds loaded/error states, fullscreen button, and portrait image grouping.
  *
  * Lightbox functionality has been migrated to React (ImageLightbox.tsx).
- * This module dispatches 'open-image-lightbox' custom events instead.
+ * Its lightweight modal store preserves clicks while the viewer is still loading.
  */
 
+import { openModal } from '@store/modal';
 import { containBox, type LightboxOrigin } from './lightbox-flip';
 
 type LightboxImage = { src: string; alt: string; origin?: LightboxOrigin };
@@ -60,14 +61,10 @@ function measureOrigin(img: HTMLImageElement): LightboxOrigin {
 }
 
 /**
- * Open image in React lightbox via custom event
+ * Open image in the on-demand React lightbox.
  */
 function openImageLightbox(src: string, alt: string, images: LightboxImage[], currentIndex: number): void {
-  window.dispatchEvent(
-    new CustomEvent('open-image-lightbox', {
-      detail: { src, alt, images, currentIndex },
-    }),
-  );
+  openModal('imageLightbox', { src, alt, images, currentIndex });
 }
 
 /**

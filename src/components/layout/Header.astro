@@ -58,7 +58,8 @@ const locale = getLocaleFromUrl(Astro.url.pathname);
 
 <!-- 移动端菜单按钮 -->
 <MenuIcon
-  client:only="react"
+  client:media="(max-width: 992px)"
+  locale={locale}
   className="tablet:flex fixed top-0 left-3 z-52 hidden h-14 transition-transform"
   id="mobile-menu-container"
 />

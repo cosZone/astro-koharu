@@ -9,7 +9,7 @@ import { useTranslation } from '@hooks/useTranslation';
 import { Icon } from '@iconify/react';
 import { flipFromOrigin, intersectsViewport } from '@lib/lightbox-flip';
 import { useStore } from '@nanostores/react';
-import { $imageLightboxData, closeModal, type ImageLightboxData, navigateImage, openModal } from '@store/modal';
+import { $imageLightboxData, closeModal, navigateImage } from '@store/modal';
 import { m } from 'motion/react';
 import { useCallback, useEffect, useLayoutEffect, useState } from 'react';
 
@@ -71,12 +71,6 @@ export default function ImageLightbox() {
     observer.observe(fitArea);
     return () => observer.disconnect();
   }, [fitArea]);
-
-  useEffect(() => {
-    const handleOpen = (event: CustomEvent<ImageLightboxData>) => openModal('imageLightbox', event.detail);
-    window.addEventListener('open-image-lightbox', handleOpen as EventListener);
-    return () => window.removeEventListener('open-image-lightbox', handleOpen as EventListener);
-  }, []);
 
   // Reset before paint on open and navigation, but preserve the last pose throughout exit.
   useLayoutEffect(() => {

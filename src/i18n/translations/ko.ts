@@ -43,6 +43,8 @@ export const uiStrings = {
   // ── Common ──────────────────────────────────────────────────
   'common.search': '검색',
   'common.close': '닫기',
+  'viewer.loadError': '뷰어를 불러오지 못했습니다. 페이지를 새로고침해 다시 시도해 주세요.',
+  'search.loadError': '검색을 불러오지 못했습니다. 페이지를 새로고침해 다시 시도해 주세요.',
   'common.copy': '복사',
   'common.copied': '복사 완료',
   'common.copyFailed': '자동 복사 실패, 직접 복사해 주세요',

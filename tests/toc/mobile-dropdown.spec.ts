@@ -6,7 +6,7 @@ const panelSelector = '[data-floating-ui-portal] [role="dialog"]';
 async function articleReady(page: Page) {
   await page.goto('/post/note/shoka-features', { waitUntil: 'domcontentloaded' });
   await page.waitForFunction(() => {
-    const island = document.querySelector('astro-island[component-url*="MobilePostHeader"]');
+    const island = document.querySelector('astro-island[component-export="MobilePostHeader"]');
     return island && !island.hasAttribute('ssr');
   });
   await page

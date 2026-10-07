@@ -1,5 +1,5 @@
 ---
-import Waline from './Waline';
+import DeferredComment from './DeferredComment';
 ---
 
-<Waline client:only="react" />
+<DeferredComment provider="waline" client:visible={{ rootMargin: '400px' }} />

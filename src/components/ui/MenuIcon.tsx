@@ -60,12 +60,13 @@ const lineVariants: Variants = {
 interface MenuIconProps {
   className?: string;
   id?: string;
+  locale?: string;
 }
 
-const MenuIcon = ({ className, id }: MenuIconProps) => {
+const MenuIcon = ({ className, id, locale }: MenuIconProps) => {
   const isOpen = useStore($isDrawerOpen);
   const shouldReduceMotion = useMotionLevel() === 'reduced';
-  const { t } = useTranslation();
+  const { t } = useTranslation(locale);
   const label = isOpen ? t('drawer.close') : t('drawer.openMenu');
 
   return (

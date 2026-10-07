@@ -1,5 +1,5 @@
 ---
-import Giscus from './Giscus';
+import DeferredComment from './DeferredComment';
 ---
 
-<Giscus client:only="react" />
+<DeferredComment provider="giscus" client:visible={{ rootMargin: '400px' }} />

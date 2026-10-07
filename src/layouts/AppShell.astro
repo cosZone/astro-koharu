@@ -20,9 +20,7 @@ import Header from '@components/layout/Header.astro';
 import MobileDrawer from '@components/layout/MobileDrawer.astro';
 import SearchDialog from '@components/layout/SearchDialog';
 import SearchPortal from '@components/layout/SearchPortal.astro';
-import CodeBlockFullscreen from '@components/markdown/CodeBlockFullscreen';
-import DiagramFullscreen from '@components/markdown/DiagramFullscreen';
-import ImageLightbox from '@components/markdown/ImageLightbox';
+import ArticleViewers from '@components/markdown/ArticleViewers';
 import SettingsPanel from '@components/settings/SettingsPanel';
 import { Toaster } from '@components/ui/sonner';
 import { bgmConfig } from '@constants/site-config';
@@ -46,11 +44,7 @@ const { post, siderType, isPostPage, articleTools = true } = Astro.props;
   <MobileDrawer type={siderType} post={post} />
   <SearchDialog client:idle />
   <SearchPortal />
-  {articleTools && <>
-    <CodeBlockFullscreen client:idle />
-    <DiagramFullscreen client:idle />
-    <ImageLightbox client:idle />
-  </>}
+  {articleTools && <div data-article-viewers><ArticleViewers client:idle /></div>}
   <Toaster client:idle />
   <AnnouncementProvider />
   <CodePenEmbed />
@@ -64,6 +58,14 @@ const { post, siderType, isPostPage, articleTools = true } = Astro.props;
   import { setupPetalBurst } from '@lib/sakura/petal-burst';
   import { setupScrollReveal } from '@lib/scroll-reveal';
   import { setupScrollbarActivity } from '@lib/scrollbar-activity';
+  import { openModal, type ImageLightboxData } from '@store/modal';
+
+  // Keep the legacy event bridge independent of React's asynchronous hydration.
+  window.addEventListener('open-image-lightbox', (event) => {
+    if (document.querySelector('[data-article-viewers]')) {
+      openModal('imageLightbox', (event as CustomEvent<ImageLightboxData>).detail);
+    }
+  });
 
   setupMorphTransitions();
   setupHeaderContinuity();

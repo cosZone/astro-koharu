@@ -1,5 +1,4 @@
 ---
-import Search from 'astro-pagefind/components/Search.astro';
 /**
  * SearchPortal Component
  *
@@ -14,24 +13,33 @@ import { getHtmlLang, getLocaleFromUrl, t } from '@/i18n';
 
 const locale = getLocaleFromUrl(Astro.url.pathname);
 const lang = getHtmlLang(locale);
+const bundlePath = `${import.meta.env.BASE_URL}pagefind/`;
 ---
 
+<link rel="stylesheet" href={`${bundlePath}pagefind-component-ui.css`} media="print" onload="this.setAttribute('media','all')" />
 <!-- Search Component - will be portal'd into dialog -->
-<div id="search-component-portal">
+<div id="search-component-portal" data-bundle-path={bundlePath} data-load-error={t(locale, 'search.loadError')}>
   <div id="search-for-dialog">
-    <Search
-      className="pagefind-search"
-      configOptions={{ lang }}
-      searchboxOptions={{
-        placeholder: t(locale, 'search.placeholder'),
-        'hide-shortcut': true,
-        'show-keyboard-hints': 'false',
-      }}
-    />
+    <output data-search-loading class="block px-4 py-5 text-muted-foreground text-sm">{t(locale, 'common.loading')}</output>
+    <pagefind-config lang={lang} bundle-path={bundlePath}></pagefind-config>
+    <pagefind-searchbox class="pagefind-search" placeholder={t(locale, 'search.placeholder')} hide-shortcut show-keyboard-hints="false"></pagefind-searchbox>
   </div>
 </div>
 
 <script>
+  import { $isSearchOpen } from '@store/modal';
+  let searchUI: Promise<unknown> | undefined;
+
+  function loadSearchUI() {
+    const portal = document.getElementById('search-component-portal');
+    const path = `${portal?.dataset.bundlePath ?? '/pagefind/'}pagefind-component-ui.js`;
+    searchUI ??= import(/* @vite-ignore */ path).catch((error) => {
+      searchUI = undefined;
+      throw error;
+    });
+    return searchUI;
+  }
+
   function moveSearchToDialog() {
     const dialogContainer = document.getElementById('search-dialog-container');
     const searchPortal = document.getElementById('search-component-portal');
@@ -58,11 +66,28 @@ const lang = getHtmlLang(locale);
     }
   }
 
-  function handleDialogOpen() {
-    // Small delay to ensure dialog container is rendered
+  async function handleDialogOpen() {
+    const searchComponent = document.getElementById('search-for-dialog');
+    const loading = searchComponent?.querySelector<HTMLOutputElement>('[data-search-loading]');
+    // Move the placeholder immediately; the Pagefind runtime upgrades it on first open.
     requestAnimationFrame(() => {
-      moveSearchToDialog();
+      if ($isSearchOpen.get()) moveSearchToDialog();
     });
+    try {
+      await loadSearchUI();
+      if (!searchComponent?.isConnected) return;
+      loading?.remove();
+      if (!$isSearchOpen.get()) return;
+      moveSearchToDialog();
+      requestAnimationFrame(() => {
+        if ($isSearchOpen.get()) {
+          document.querySelector<HTMLInputElement>('#search-dialog-container .pf-searchbox-input')?.focus();
+        }
+      });
+    } catch (error) {
+      console.error('[Search] Failed to load:', error);
+      if (loading) loading.textContent = document.getElementById('search-component-portal')?.dataset.loadError ?? '';
+    }
   }
 
   function handleDialogClose() {

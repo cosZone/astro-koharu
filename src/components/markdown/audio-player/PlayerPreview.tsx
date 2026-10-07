@@ -72,7 +72,14 @@ export const PlayerPreview = memo(function PlayerPreview({
       <div className="audio-player-disc-wrapper">
         <div className={cn('audio-player-disc', playing && 'spinning')}>
           {track?.pic ? (
-            <img src={track.pic} alt={track.name || ''} className="audio-player-cover" draggable={false} />
+            <img
+              src={track.pic}
+              alt={track.name || ''}
+              className="audio-player-cover"
+              loading="lazy"
+              decoding="async"
+              draggable={false}
+            />
           ) : (
             <div className="audio-player-cover audio-player-cover-placeholder" />
           )}

@@ -6,7 +6,7 @@ const codePanel = '[role="dialog"]:has(pre.astro-code)';
 async function articleReady(page: Page) {
   await page.goto('/post/note/shoka-features', { waitUntil: 'domcontentloaded' });
   await page.waitForFunction(() => {
-    const island = document.querySelector('astro-island[component-url*="CodeBlockFullscreen"]');
+    const island = document.querySelector('astro-island[component-url*="ArticleViewers"]');
     return island && !island.hasAttribute('ssr');
   });
 }
