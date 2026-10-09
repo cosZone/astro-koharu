@@ -126,7 +126,8 @@ for (const name of browsers) {
         const wrapper = page.locator('.mermaid-wrapper').first();
         const pre = wrapper.locator('pre.mermaid');
         const toggle = wrapper.getByRole('button', { name: /查看源码|查看渲染结果/ });
-        await wrapper.scrollIntoViewIfNeeded();
+        // The content enhancer mounts near the viewport, so scroll the server-rendered block before the wrapper exists.
+        await page.locator('pre.mermaid').first().scrollIntoViewIfNeeded();
         await toggle.waitFor();
         await page.waitForFunction(() => document.querySelector('pre.mermaid[data-diagram-sized] > svg'));
         const source = await pre.getAttribute('data-diagram');
@@ -195,7 +196,7 @@ for (const name of browsers) {
         });
         const missingSource = page.locator('.mermaid-wrapper').filter({ has: page.locator('#missing-mermaid-source') });
         const sourceButton = missingSource.getByRole('button', { name: '查看源码' });
-        await missingSource.scrollIntoViewIfNeeded();
+        await page.locator('#missing-mermaid-source').scrollIntoViewIfNeeded();
         await sourceButton.waitFor();
         assert.ok(await sourceButton.isDisabled(), 'SVG style text must never become Mermaid source');
         assert.equal(await missingSource.locator('.mermaid-source').count(), 0);
@@ -217,7 +218,7 @@ for (const name of browsers) {
         });
         await page.goto(`${origin}/post/markdown-features`, { waitUntil: 'domcontentloaded' });
         const wrapper = page.locator('.mermaid-wrapper').first();
-        await wrapper.scrollIntoViewIfNeeded();
+        await page.locator('pre.mermaid').first().scrollIntoViewIfNeeded();
         await wrapper.getByRole('status').waitFor({ timeout: 25000 });
         assert.ok(blockedImports > 0, 'The test must block the actual Mermaid import');
         assert.match(await wrapper.getByRole('status').textContent(), /图表加载时间较长/);

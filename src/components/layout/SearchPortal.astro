@@ -18,7 +18,7 @@ const bundlePath = `${import.meta.env.BASE_URL}pagefind/`;
 
 <link id="pagefind-search-styles" rel="stylesheet" data-href={`${bundlePath}pagefind-component-ui.css`} disabled />
 <!-- Search Component - will be portal'd into dialog -->
-<div id="search-component-portal" data-bundle-path={bundlePath} data-load-error={t(locale, 'search.loadError')}>
+<div id="search-component-portal" data-bundle-path={bundlePath} data-loading={t(locale, 'common.loading')} data-load-error={t(locale, 'search.loadError')}>
   <div id="search-for-dialog">
     <output data-search-loading class="block px-4 py-5 text-muted-foreground text-sm">{t(locale, 'common.loading')}</output>
     <pagefind-config lang={lang} bundle-path={bundlePath}></pagefind-config>
@@ -106,6 +106,9 @@ const bundlePath = `${import.meta.env.BASE_URL}pagefind/`;
   async function handleDialogOpen() {
     const searchComponent = document.getElementById('search-for-dialog');
     const loading = searchComponent?.querySelector<HTMLOutputElement>('[data-search-loading]');
+    const messages = document.getElementById('search-component-portal')?.dataset;
+    // A retry after a failed load reuses the placeholder, which still shows the previous error.
+    if (loading) loading.textContent = messages?.loading ?? '';
     // Pagefind may already be upgraded after SPA navigation, before this page's CSS is ready.
     searchComponent?.setAttribute('data-search-pending', '');
     // Move the placeholder immediately; the Pagefind runtime upgrades it on first open.
@@ -127,7 +130,7 @@ const bundlePath = `${import.meta.env.BASE_URL}pagefind/`;
     } catch (error) {
       if (error instanceof DOMException && error.name === 'AbortError') return;
       console.error('[Search] Failed to load:', error);
-      if (loading) loading.textContent = document.getElementById('search-component-portal')?.dataset.loadError ?? '';
+      if (loading) loading.textContent = messages?.loadError ?? '';
     }
   }
 

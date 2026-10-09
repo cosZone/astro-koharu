@@ -20,6 +20,20 @@ const fonts =
     }
     const cached = new Map();
     const registered = new Set();
+    // Stylesheets registered on an earlier visit are likely in the HTTP cache, so repeat visits skip the deferral.
+    const warmKey = 'koharu-rounded-fonts';
+    const readWarm = () => {
+      try {
+        return JSON.parse(localStorage.getItem(warmKey) || '[]');
+      } catch {
+        return [];
+      }
+    };
+    const rememberWarm = hrefs => {
+      try {
+        localStorage.setItem(warmKey, JSON.stringify([...new Set([...readWarm(), ...hrefs])]));
+      } catch {}
+    };
     const fallback = markers => markers.forEach(marker => {
       const link = document.createElement('link');
       link.rel = 'stylesheet';
@@ -82,22 +96,26 @@ const fonts =
         fallback(links);
         return;
       }
+      const hrefs = links.map(link => new URL(link.content, location.href).href);
+      const warm = hrefs.every(href => readWarm().includes(href));
       try {
-        // Font descriptions should not compete with the cover and page styles before the first content frame.
-        await afterFirstContent();
-        const groups = await Promise.all(links.map(link => readFaces(new URL(link.content, location.href).href)));
+        // On a cold load, font descriptions should not compete with the cover and page styles before the first content frame.
+        if (!warm) await afterFirstContent();
+        const groups = await Promise.all(hrefs.map(readFaces));
         // Register both weights together after the first frame, avoiding two document-wide stylesheet updates.
-        await new Promise(resolve => window.requestIdleCallback
-          ? requestIdleCallback(resolve, { timeout: 200 })
-          : requestAnimationFrame(() => requestAnimationFrame(resolve)));
+        if (!warm) {
+          await new Promise(resolve => window.requestIdleCallback
+            ? requestIdleCallback(resolve, { timeout: 200 })
+            : requestAnimationFrame(() => requestAnimationFrame(resolve)));
+        }
         links.forEach((link, index) => {
-          const href = new URL(link.content, location.href).href;
-          if (!registered.has(href)) {
+          if (!registered.has(hrefs[index])) {
             groups[index].forEach(face => document.fonts.add(face));
-            registered.add(href);
+            registered.add(hrefs[index]);
           }
           link.dataset.fontReady = 'true';
         });
+        rememberWarm(hrefs);
       } catch (error) {
         console.error('[fonts] Loading failed', error);
         fallback(links);

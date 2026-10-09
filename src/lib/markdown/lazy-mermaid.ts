@@ -20,28 +20,35 @@ export function lazyMermaid(options: AstroMermaidOptions): AstroIntegration {
               return;
             }
             const renderMarker = 'const { svg } = await mermaid.render(id, diagramDefinition);';
-            if (!content.includes(renderMarker) || !content.includes("document.querySelectorAll('pre.mermaid')")) {
-              throw new Error('astro-mermaid changed its rendering contract; update lazyMermaid before building.');
-            }
-            const script = content
-              .replaceAll("document.querySelectorAll('pre.mermaid')", `document.querySelectorAll('${visibleSelector}')`)
-              .replace('async function initMermaid() {', 'async function renderVisibleMermaid(renderVersion) {')
-              .replace(
+            const staleGuard = '!diagram.isConnected || renderVersion !== mermaidRenderVersion';
+            const patches: [marker: string, replacement: string][] = [
+              ['async function initMermaid() {', 'async function renderVisibleMermaid(renderVersion) {'],
+              [
                 '// Reset processed state and re-render',
                 'mermaidRenderVersion++;\n        // Reset processed state and re-render',
-              )
-              .replace(
+              ],
+              [
                 "if (diagram.hasAttribute('data-processed')) continue;",
-                "if (!diagram.isConnected || renderVersion !== mermaidRenderVersion || diagram.hasAttribute('data-processed')) continue;",
-              )
-              .replace(
-                renderMarker,
-                `${renderMarker}\n      if (!diagram.isConnected || renderVersion !== mermaidRenderVersion) continue;`,
-              )
-              .replace(
+                `if (${staleGuard} || diagram.hasAttribute('data-processed')) continue;`,
+              ],
+              [renderMarker, `${renderMarker}\n      if (${staleGuard}) continue;`],
+              [
                 "logError('Mermaid rendering error for diagram:', id, error);",
-                "if (!diagram.isConnected || renderVersion !== mermaidRenderVersion) continue;\n      logError('Mermaid rendering error for diagram:', id, error);",
+                `if (${staleGuard}) continue;\n      logError('Mermaid rendering error for diagram:', id, error);`,
+              ],
+            ];
+            const allSelector = "document.querySelectorAll('pre.mermaid')";
+            // Every patch carries a guard; one silently missed would bring back stale renders after page swaps.
+            const missing = [allSelector, ...patches.map(([marker]) => marker)].filter((marker) => !content.includes(marker));
+            if (missing.length > 0) {
+              throw new Error(
+                `astro-mermaid changed its rendering contract (missing: ${missing.join(' | ')}); update lazyMermaid before building.`,
               );
+            }
+            const script = patches.reduce(
+              (source, [marker, replacement]) => source.replace(marker, replacement),
+              content.replaceAll(allSelector, `document.querySelectorAll('${visibleSelector}')`),
+            );
             context.injectScript(stage, `${script}\n${visibilityScript}`);
           },
         });
