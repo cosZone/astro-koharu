@@ -1,5 +1,6 @@
 ---
 import ChristmasHat from '@components/christmas/ChristmasHat.astro';
+import ResponsiveImage from '@components/common/ResponsiveImage.astro';
 import type { Router } from '@constants/router';
 import { RESERVED_ROUTES } from '@constants/router';
 import { christmasConfig, configuredSeriesSlugs, enabledSeriesSlugs, routers, siteConfig } from '@constants/site-config';
@@ -49,7 +50,7 @@ const stats = [
         data-greet-evening={t(locale, 'homeInfo.greetingEvening')}
         data-greet-night={t(locale, 'homeInfo.greetingNight')}
       >
-        <img src={avatar} alt={`${siteConfig.name ?? ''} avatar`} loading="eager" fetchpriority="high" />
+        <ResponsiveImage src={avatar} maxWidth={256} sizes="128px" alt={`${siteConfig.name ?? ''} avatar`} width="128" height="128" loading="lazy" decoding="async" />
         {christmasConfig.enabled && christmasConfig.features.christmasHat && <ChristmasHat />}
         <span class="home-greeting" aria-hidden="true"></span>
       </div>

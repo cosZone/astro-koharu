@@ -285,7 +285,7 @@ test('reduced-motion lightbox navigation, zoom and rotation work without bouncin
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await gotoReady(page);
   await page.waitForFunction(() => {
-    const island = document.querySelector('astro-island[component-url*="ImageLightbox"]');
+    const island = document.querySelector('astro-island[component-url*="ArticleViewers"]');
     return island && !island.hasAttribute('ssr');
   });
   await page.evaluate(async () => {
@@ -528,6 +528,7 @@ test('switching to reduced motion before a new spoiler renders cannot leak a can
     warmup.id = 'first-registration-spoiler';
     warmup.textContent = 'Register spoiler component';
     document.body.prepend(warmup);
+    warmup.scrollIntoView({ block: 'center' });
     spoiler.enhanceSpoilers(document);
     await Promise.race([
       customElements.whenDefined('spoiler-span'),

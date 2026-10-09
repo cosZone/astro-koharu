@@ -179,7 +179,7 @@ import {
 <noscript>
   <style is:inline>
     /* Long code blocks ship pre-collapsed; without JS the toolbar never hydrates, so force them open. */
-    html .prose .code-block-wrapper.code-collapsed > pre {
+    html .prose .code-block-wrapper > pre {
       grid-template-rows: 1fr;
       border-width: 1px;
       border-radius: 0.75rem;
@@ -187,12 +187,15 @@ import {
     }
     html .prose .code-block-wrapper.code-collapsed > pre > code {
       height: auto;
+      content-visibility: visible;
+      contain-intrinsic-height: none;
       mask-image: none;
       overflow-x: auto;
       overflow-y: visible;
       padding-block: 1rem;
     }
-    html .prose .code-block-wrapper.code-collapsed > .code-block-wrapper-toolbar-mount {
+    html .prose .code-block-wrapper > .code-block-wrapper-toolbar-mount,
+    html .prose .code-block-wrapper > .code-block-title-placeholder {
       display: none;
     }
   </style>

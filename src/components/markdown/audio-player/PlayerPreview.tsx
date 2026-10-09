@@ -4,6 +4,7 @@
 
 import { usePlaybackLrcIndex } from '@hooks/usePlaybackTime';
 import type { MetingSong } from '@lib/meting';
+import { resolveMusicCover } from '@lib/music-cover';
 import type { PlaybackTimeStore } from '@lib/playback-time-store';
 import { cn } from '@lib/utils';
 import { memo, useEffect, useMemo, useState } from 'react';
@@ -60,6 +61,16 @@ export const PlayerPreview = memo(function PlayerPreview({
   lrcContainerHeight = DEFAULT_LRC_CONTAINER_HEIGHT,
   reserveLyrics = false,
 }: PlayerPreviewProps) {
+  const source = track?.pic ?? '';
+  const [cover, setCover] = useState({ source: '', url: '' });
+  useEffect(() => {
+    if (!source) return;
+    const controller = new AbortController();
+    void resolveMusicCover(source, controller.signal).then((url) => {
+      if (!controller.signal.aborted) setCover({ source, url });
+    });
+    return () => controller.abort();
+  }, [source]);
   const lrcText = useLrcText(track?.lrc);
   const lrcLines = useMemo(() => parseLrc(lrcText), [lrcText]);
   const currentLrcIndex = usePlaybackLrcIndex(timeStore, lrcLines);
@@ -71,8 +82,17 @@ export const PlayerPreview = memo(function PlayerPreview({
       {/* Disc wrapper: vinyl disc + tonearm */}
       <div className="audio-player-disc-wrapper">
         <div className={cn('audio-player-disc', playing && 'spinning')}>
-          {track?.pic ? (
-            <img src={track.pic} alt={track.name || ''} className="audio-player-cover" draggable={false} />
+          {cover.source === source && cover.url ? (
+            <img
+              src={cover.url}
+              alt={track?.name || ''}
+              width={200}
+              height={200}
+              className="audio-player-cover"
+              loading="lazy"
+              decoding="async"
+              draggable={false}
+            />
           ) : (
             <div className="audio-player-cover audio-player-cover-placeholder" />
           )}

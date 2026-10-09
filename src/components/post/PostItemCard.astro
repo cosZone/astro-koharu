@@ -1,5 +1,6 @@
 ---
 // 导入所需的库和类型
+import ResponsiveImage from '@components/common/ResponsiveImage.astro';
 import { Badge } from '@components/ui/badge';
 import { Button } from '@components/ui/button';
 import { ScrollableRow } from '@components/ui/ScrollableRow';
@@ -81,7 +82,7 @@ const titleMorph = postTitleMorphName(slug);
       lqipProps.class,
     )}
   >
-    <img src={finalCover} loading="lazy" alt="" class="h-full w-full cursor-pointer object-cover" />
+    <ResponsiveImage src={finalCover} maxWidth={800} sizes="(max-width: 767px) calc(100vw - 48px), (max-width: 992px) 40vw, 400px" loading="lazy" decoding="async" alt="" class="h-full w-full cursor-pointer object-cover" />
   </a>
   <div
     class={cn(
@@ -241,6 +242,8 @@ const titleMorph = postTitleMorphName(slug);
 
 <style>
   .post-item-card {
+    content-visibility: auto;
+    contain-intrinsic-size: auto 220px;
     transition:
       transform var(--dur-slow) var(--ease-out-quart),
       box-shadow var(--dur-slow) var(--ease-out-quart);

@@ -190,12 +190,13 @@ if (post.data.description) {
   post={post}
   canonical={canonicalUrl}
   keywords={keywords}
+  heroPortrait
 >
   <script is:inline slot="head" type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
   <script is:inline slot="head" type="application/ld+json" set:html={JSON.stringify(breadcrumbJsonLd)} />
   {hasMath && <link slot="head" rel="stylesheet" href="/katex/katex.min.css" />}
   <TwoColumnLayout post={post}>
-    <Cover slot="cover" data={post} />
+    <Cover slot="cover" data={post} portrait />
     <HomeSider slot="sider" type={HomeSiderType.POST} post={post} />
     <div
       class={`shadow-box bg-gradient-start flex min-w-0 w-full max-w-full flex-col gap-2 overflow-x-clip ${CONTENT_PADDING.standard}`}

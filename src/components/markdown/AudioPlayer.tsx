@@ -6,6 +6,7 @@
  */
 
 import { useAudioPlayer } from '@hooks/useAudioPlayer';
+import { useElementVisibility } from '@hooks/useElementVisibility';
 import { useTranslation } from '@hooks/useTranslation';
 import type { MetingSong } from '@lib/meting';
 import { resolvePlaylist } from '@lib/meting';
@@ -43,6 +44,7 @@ async function resolveGroupsSequentially(
 
 export function AudioPlayer({ element }: AudioPlayerProps) {
   const { t } = useTranslation();
+  const isVisible = useElementVisibility(element);
   const dataSrc = element.dataset.src || '[]';
   const apiUrl = element.dataset.api;
 
@@ -64,6 +66,7 @@ export function AudioPlayer({ element }: AudioPlayerProps) {
   // Resolve all URLs via Meting API
   // biome-ignore lint/correctness/useExhaustiveDependencies: retryCount is an intentional trigger to re-run the effect
   useEffect(() => {
+    if (!isVisible) return;
     let cancelled = false;
 
     async function resolve() {
@@ -103,7 +106,7 @@ export function AudioPlayer({ element }: AudioPlayerProps) {
     return () => {
       cancelled = true;
     };
-  }, [audioGroups, apiUrl, retryCount]);
+  }, [audioGroups, apiUrl, retryCount, isVisible]);
 
   const player = useAudioPlayer(tracks);
   const currentTrack = tracks[player.state.currentIndex] ?? null;

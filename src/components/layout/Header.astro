@@ -1,5 +1,4 @@
 ---
-import LogoSvg from '@assets/svg/logo.svg?react';
 import logoSrc from '@assets/svg/logo.svg?url';
 import ChristmasLights from '@components/christmas/ChristmasLights.astro';
 import { ChristmasOrnamentToggle } from '@components/christmas/ChristmasOrnamentToggle';
@@ -7,7 +6,7 @@ import { MobilePostHeader } from '@components/layout/MobilePostHeader';
 import { MenuIcon } from '@components/ui/MenuIcon';
 import { MAX_WIDTH } from '@constants/layout';
 import { christmasConfig, siteConfig } from 'constants/site-config';
-import { getLocaleFromUrl } from '@/i18n';
+import { getLocaleFromUrl, localizedPath } from '@/i18n';
 import Navigator from './Navigator';
 
 interface Props {
@@ -24,9 +23,9 @@ const locale = getLocaleFromUrl(Astro.url.pathname);
   id="site-header"
   class={`shadow-text fixed tablet:backdrop-blur inset-x-0 top-0 z-30 gap-4 py-2.5 text-white select-none tablet:py-2 tablet:pl-3 tablet:pr-0 overflow-visible`}
 >
-  <div class={`header-inner mx-auto tablet:w-full px-6 tablet:pl-10 tablet:pr-3 ${MAX_WIDTH.content}`}>
+  <div class={`header-inner mx-auto tablet:w-full px-6 tablet:pl-0 tablet:pr-3 ${MAX_WIDTH.content}`}>
     <div class="header-capsule" aria-hidden="true"></div>
-    <div class="header-content flex items-center justify-between">
+    <div class="header-content tablet:grid tablet:grid-cols-[minmax(3rem,1fr)_auto_1fr] tablet:gap-x-3 flex items-center justify-between">
       <!-- Desktop: Always show logo -->
       <a
         transition:persist="page-header-avatar"
@@ -36,18 +35,25 @@ const locale = getLocaleFromUrl(Astro.url.pathname);
         title={alternate || title}
         aria-label={alternate || title}
       >
-        {showLogo ? <LogoSvg className="h-8" /> : <p class="logo-text">{alternate || title}</p>}
+        {showLogo ? <img src={logoSrc} alt="" class="h-8 w-auto" width="448" height="153" /> : <p class="logo-text">{alternate || title}</p>}
       </a>
       <!-- Mobile: MobilePostHeader (shows heading on post pages, logo otherwise) -->
-      <div class="tablet:flex tablet:grow hidden items-center justify-center">
-        <MobilePostHeader
-          client:only="react"
-          isPostPage={isPostPage}
-          enableNumbering={tocNumbering}
-          logoElement={showLogo ? 'svg' : 'text'}
-          logoText={alternate || title}
-          logoSrc={logoSrc}
-        />
+      <div class="tablet:col-start-2 tablet:flex hidden items-center justify-center">
+        {isPostPage ? (
+          <MobilePostHeader
+            client:media="(max-width: 992px)"
+            isPostPage={isPostPage}
+            enableNumbering={tocNumbering}
+            logoElement={showLogo ? 'svg' : 'text'}
+            logoText={alternate || title}
+            logoSrc={logoSrc}
+            locale={locale}
+          />
+        ) : (
+          <a href={localizedPath('/', locale)} class="flex items-center gap-1">
+            {showLogo ? <img src={logoSrc} alt={alternate || title} class="h-8 w-auto" width="448" height="153" /> : <span class="logo-text">{alternate || title}</span>}
+          </a>
+        )}
       </div>
       <Navigator client:load transition:persist="site-nav" currentPath={Astro.url.pathname} locale={locale} />
     </div>
@@ -58,7 +64,8 @@ const locale = getLocaleFromUrl(Astro.url.pathname);
 
 <!-- 移动端菜单按钮 -->
 <MenuIcon
-  client:only="react"
+  client:media="(max-width: 992px)"
+  locale={locale}
   className="tablet:flex fixed top-0 left-3 z-52 hidden h-14 transition-transform"
   id="mobile-menu-container"
 />

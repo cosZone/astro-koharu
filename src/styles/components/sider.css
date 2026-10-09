@@ -73,14 +73,14 @@
   transition: box-shadow 320ms var(--ease-out-quart);
 }
 
-.home-avatar > img {
+.home-avatar img {
   width: 100%;
   height: 100%;
-  border-radius: inherit;
+  border-radius: 9999px;
   object-fit: cover;
 }
 
-.home-avatar > img {
+.home-avatar img {
   transform-origin: 50% 92%;
 }
 
@@ -116,7 +116,7 @@
 }
 
 @media (hover: hover) and (prefers-reduced-motion: no-preference) {
-  html:is([data-motion="lively"], [data-motion="subtle"]) .home-avatar:hover > img {
+  html:is([data-motion="lively"], [data-motion="subtle"]) .home-avatar:hover img {
     animation: avatar-wave 1.2s var(--ease-in-out-quart);
   }
 }

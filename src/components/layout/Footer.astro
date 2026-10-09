@@ -24,7 +24,7 @@ const startYear = siteConfig?.startYear ?? currentYear;
 <footer class={cn('mt-auto pb-6', className)}>
   <div class={cn('mx-auto flex flex-col items-center gap-3 px-6 md:pb-10 md:px-3', MAX_WIDTH.content)}>
     <!-- Announcements Entry -->
-    <FooterAnnouncementEntry client:load />
+    <FooterAnnouncementEntry client:idle />
 
     <!-- Site Stats -->
     <div class="text-muted-foreground flex flex-wrap items-center justify-center gap-6 text-sm md:gap-4">
@@ -54,7 +54,7 @@ const startYear = siteConfig?.startYear ?? currentYear;
           <div class="bg-muted-foreground/30 h-4 w-px"></div>
           <div class="flex items-center gap-2 opacity-75 transition-opacity duration-300 hover:opacity-100" title={t(locale, 'stats.pageviews')}>
             <Icon name="ri:eye-line" class="h-4 w-4" />
-            <span class="font-medium"><UmamiPVSpan client:load statsConfig={umamiSiteStatsConfig} /></span>
+            <span class="font-medium"><UmamiPVSpan client:visible statsConfig={umamiSiteStatsConfig} /></span>
             <span class="text-xs">{t(locale, 'stats.pageviews')}</span>
           </div>
         </>

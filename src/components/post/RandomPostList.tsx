@@ -1,6 +1,7 @@
+import { useIsMounted } from '@hooks/useIsMounted';
 import { useTranslation } from '@hooks/useTranslation';
 import { translateCategoryName } from '@lib/content/category-translate';
-import { encodeSlug } from '@lib/route';
+import { encodeSlug } from '@lib/url';
 import { shuffleArray } from '@lib/utils';
 import { useMemo } from 'react';
 import { localizedPath } from '@/i18n';
@@ -13,14 +14,16 @@ interface Props {
 }
 
 export default function RandomPostList({ postsPool, count, locale }: Props) {
-  const { t } = useTranslation();
+  const { t } = useTranslation(locale);
+  const isMounted = useIsMounted();
   // Shuffle on client-side for fresh randomization on each page load
   const posts = useMemo(() => {
+    if (!isMounted) return [];
     if (postsPool.length <= count) {
       return shuffleArray(postsPool);
     }
     return shuffleArray(postsPool).slice(0, count);
-  }, [postsPool, count]);
+  }, [postsPool, count, isMounted]);
   return (
     <div className="flex flex-col gap-4">
       <h2 className="font-semibold text-2xl text-foreground/80">{t('post.randomPosts')}</h2>

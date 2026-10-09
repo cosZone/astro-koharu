@@ -88,13 +88,12 @@ function renderFallbackCard(ogData: OGData, domain: string): string {
   // originUrl preserves the original path (metascraper may normalize og:url incorrectly)
   const safeUrl = sanitizeUrlAttribute(originUrl);
   const safeDisplayText = sanitizeText(displayText);
-  const safeDisplayLabel = sanitizeAttribute(displayText);
   const safeSubtitle = subtitle
     ? sanitizeText(subtitle)
     : sanitizeText(originUrl.length > 60 ? `${originUrl.substring(0, 60)}...` : originUrl);
 
   return `<div class="link-preview-block not-prose" data-state="error">
-  <a href="${safeUrl}" target="_blank" class="hover:border-primary/50 group block rounded-lg border border-border bg-card p-4 transition-all hover:shadow-md" aria-label="${safeDisplayLabel}">
+  <a href="${safeUrl}" target="_blank" class="hover:border-primary/50 group block rounded-lg border border-border bg-card p-4 transition-all hover:shadow-md">
     <div class="flex items-center justify-between gap-3">
       <div class="flex items-center gap-3 min-w-0 flex-1">
         <div class="bg-primary/10 text-primary flex h-10 w-10 shrink-0 items-center justify-center rounded-lg">
@@ -127,20 +126,19 @@ export function renderLinkPreview(ogData: OGData): string {
   const safeTitle = sanitizeText(title);
   const safeDescription = description ? sanitizeText(description) : '';
   const safeDomain = sanitizeText(domain);
-  const safeAriaLabel = sanitizeAttribute(`${title} - ${domain}`);
   const safeTitleAttribute = sanitizeAttribute(title);
   const safeLogo = logo ? sanitizeUrlAttribute(logo) : '';
   const safeImage = image ? sanitizeUrlAttribute(image) : '';
   const safeOriginUrl = sanitizeText(originUrl);
   return `<div class="link-preview-block not-prose" data-state="success">
-  <a href="${safeUrl}" target="_blank" class="group block overflow-hidden rounded-lg border border-border transition-all hover:border-primary/50 hover:shadow-md" aria-label="${safeAriaLabel}">
+  <a href="${safeUrl}" target="_blank" class="group block overflow-hidden rounded-lg border border-border transition-all hover:border-primary/50 hover:shadow-md">
     <div class="bg-card flex md:flex-col flex-row">
       <div class="flex-1 p-4">
         <div class="mb-2 flex items-center gap-2">
           ${safeLogo ? `<img src="${safeLogo}" alt="" class="h-4 w-4 shrink-0" loading="lazy" aria-hidden="true" referrerpolicy="no-referrer" />` : ''}
           <span class="text-muted-foreground truncate text-xs font-medium">${safeDomain}</span>
         </div>
-        <h3 class="text-foreground mb-2 line-clamp-2 font-semibold leading-tight">${safeTitle}</h3>
+        <div class="text-foreground mb-2 line-clamp-2 font-semibold leading-tight">${safeTitle}</div>
         ${safeDescription ? `<p class="text-muted-foreground mb-3 line-clamp-2 text-sm">${safeDescription}</p>` : ''}
         <div class="text-primary flex items-center gap-1 text-xs">
           <span class="truncate">${safeOriginUrl}</span>
@@ -165,7 +163,7 @@ export function renderCodePenEmbed(user: string, penId: string, url: string): st
   const safeUrl = sanitizeUrlAttribute(url);
   const safeAuthorUrl = sanitizeUrlAttribute(`https://codepen.io/${user}`);
 
-  return `<p class="codepen" data-height="400" data-default-tab="result" data-slug-hash="${safePenIdAttribute}" data-user="${safeUserAttribute}">
+  return `<p class="codepen-later" data-height="400" data-default-tab="result" data-slug-hash="${safePenIdAttribute}" data-user="${safeUserAttribute}">
   <span>See the Pen <a href="${safeUrl}">${safePenId}</a> by ${safeUser} (<a href="${safeAuthorUrl}">@${safeUser}</a>) on <a href="https://codepen.io">CodePen</a>.</span>
 </p>`;
 }

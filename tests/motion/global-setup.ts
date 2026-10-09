@@ -25,6 +25,7 @@ export default async function globalSetup(config: FullConfig) {
           const spoiler = document.createElement('spoiler-span');
           spoiler.textContent = 'Warm motion fixture';
           document.body.append(spoiler);
+          spoiler.scrollIntoView({ block: 'center' });
           const spoilerPath = '/src/lib/spoiler-enhancer.ts';
           const { enhanceSpoilers } = await import(/* @vite-ignore */ spoilerPath);
           enhanceSpoilers(document);

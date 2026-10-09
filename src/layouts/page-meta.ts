@@ -21,6 +21,10 @@ export interface RssFeedLink {
 
 /** Metadata a page may override. Every field is optional — `HeadMeta` fills the defaults. */
 export interface PageMetaProps {
+  /** Visible hero artwork; null disables its responsive image preload. */
+  heroImage?: string | null;
+  /** Full height Cover with portrait enabled; compact and series covers keep their original artwork. */
+  heroPortrait?: boolean;
   /** Override canonical URL (e.g. fallback pages pointing at the default-locale version). */
   canonical?: string;
   keywords?: string[];

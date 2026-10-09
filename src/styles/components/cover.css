@@ -44,7 +44,7 @@
 
   @supports (animation-timeline: scroll()) {
     /* The banner drifts slower than the page and the title lifts away as the cover scrolls off. */
-    html:is([data-motion="lively"], [data-motion="subtle"]) :is(#banner-box, .series-cover-art) > img {
+    html:is([data-motion="lively"], [data-motion="subtle"]) :is(#banner-box, .series-cover-art) img {
       animation: cover-drift linear both;
       animation-timeline: scroll(root block);
       animation-range: 0 100svh;

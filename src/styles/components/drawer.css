@@ -43,17 +43,21 @@
   /* Past the edge by the shadow's reach, so nothing of it peeks in while closed. */
   translate: calc(-100% - 3rem) 0;
   visibility: hidden;
+  content-visibility: hidden;
   transition:
     translate var(--drawer-dur, 300ms) var(--drawer-ease, var(--ease-in-quart)),
-    visibility 0s linear var(--drawer-dur, 300ms);
+    visibility 0s linear var(--drawer-dur, 300ms),
+    content-visibility var(--drawer-dur, 300ms) allow-discrete;
 }
 
 .drawer-sheet[data-state="open"] {
   translate: 0 0;
   visibility: visible;
+  content-visibility: visible;
   transition:
     translate var(--drawer-dur, 560ms) var(--drawer-ease, var(--ease-out-expo)),
-    visibility 0s;
+    visibility 0s,
+    content-visibility var(--drawer-dur, 560ms) allow-discrete;
 }
 
 /*
@@ -86,14 +90,16 @@ html:is([data-motion="reduced"], .motion-off) .drawer-sheet {
   translate: 0 0;
   transition:
     opacity 160ms linear,
-    visibility 0s linear 160ms;
+    visibility 0s linear 160ms,
+    content-visibility 160ms allow-discrete;
 }
 
 html:is([data-motion="reduced"], .motion-off) .drawer-sheet[data-state="open"] {
   opacity: 1;
   transition:
     opacity 160ms linear,
-    visibility 0s;
+    visibility 0s,
+    content-visibility 160ms allow-discrete;
 }
 
 .drawer-head {

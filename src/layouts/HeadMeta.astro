@@ -5,7 +5,18 @@ interface Props {
   meta: PageMeta;
 }
 
+import { getImage } from 'astro:assets';
+import RoundedFonts from '@components/common/RoundedFonts.astro';
 import { siteConfig } from '@constants/site-config';
+import {
+  defaultHeroImage,
+  defaultHeroSrcset,
+  portraitHeroMedia,
+  portraitHeroTransform,
+  resolveResponsiveImage,
+  responsiveImageQuality,
+  wideHeroMedia,
+} from '@lib/responsive-image';
 import { getOgImageUrl } from '@lib/seo/og-image';
 import { SEO } from 'astro-seo';
 import { defaultLocale, getAlternateUrl, getHtmlLang, isI18nEnabled, localeList, localizedPath } from '@/i18n';
@@ -31,24 +42,32 @@ const alternateUrl = (target: string) => new URL(getAlternateUrl(Astro.url.pathn
 const hreflangLinks = showLocaleAlternates
   ? localeList.map((loc) => ({ lang: getHtmlLang(loc), href: alternateUrl(loc) }))
   : [];
+// Dynamic routes use the existing static variants so their first visitor need not wait for AVIF encoding.
+const runtimeHero = !Astro.isPrerendered && meta.heroImage !== null && (!meta.heroImage || meta.heroImage === defaultHeroImage);
+const hero =
+  meta.heroImage === null || runtimeHero ? undefined : await resolveResponsiveImage(meta.heroImage ?? defaultHeroImage);
+const heroImages = hero
+  ? await Promise.all(
+      hero.widths.map(async (width) => ({
+        width,
+        image: await getImage({ src: hero.src, width, format: 'avif', quality: responsiveImageQuality }),
+      })),
+    )
+  : [];
+const portraitHero =
+  hero && meta.heroPortrait
+    ? await getImage({ src: hero.src, ...portraitHeroTransform, format: 'avif', quality: responsiveImageQuality })
+    : undefined;
 ---
 
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
 <link rel="icon" type="image/svg+xml" href="/favicon.ico" />
 <meta name="generator" content={Astro.generator} />
-{/* Async load rounded fonts — Japanese pages use Gen Jyuu Gothic P, others use ChillRoundF (fix #113) */}
-{locale === 'ja' ? (
-  <>
-    <link rel="stylesheet" href="/fonts/GenJyuuGothic-P-Regular/result.css" media="print" onload="this.setAttribute('media','all')" />
-    <link rel="stylesheet" href="/fonts/GenJyuuGothic-P-Bold/result.css" media="print" onload="this.setAttribute('media','all')" />
-  </>
-) : (
-  <>
-    <link rel="stylesheet" href="/fonts/ChillRoundFRegular/result.css" media="print" onload="this.setAttribute('media','all')" />
-    <link rel="stylesheet" href="/fonts/ChillRoundFBold/result.css" media="print" onload="this.setAttribute('media','all')" />
-  </>
-)}
+{heroImages.length > 0 && <link rel="preload" as="image" type="image/avif" media={portraitHero ? wideHeroMedia : undefined} imagesrcset={heroImages.map(({ width, image }) => `${image.src} ${width}w`).join(', ')} imagesizes="100vw" fetchpriority="high" />}
+{portraitHero && <link rel="preload" as="image" type="image/avif" media={portraitHeroMedia} href={portraitHero.src} imagesrcset={portraitHero.srcSet.attribute} fetchpriority="high" />}
+{runtimeHero && <link rel="preload" as="image" type="image/webp" imagesrcset={defaultHeroSrcset} imagesizes="100vw" fetchpriority="high" />}
+<RoundedFonts locale={locale} />
 
 <!-- SEO 元数据由 astro-seo 管理 -->
 <SEO

@@ -62,7 +62,40 @@ function init() {
   window.addEventListener('hashchange', selectHash, { signal: controller.signal });
   selectHash();
 
-  dispose = () => controller.abort();
+  const pendingAvatars = [...grid.querySelectorAll<HTMLImageElement>('img[data-friend-src]')];
+  const loadAvatar = (image: HTMLImageElement) => {
+    const source = image.dataset.friendSrc;
+    if (!source || controller.signal.aborted) return;
+    image.hidden = false;
+    image.src = source;
+    delete image.dataset.friendSrc;
+  };
+  let avatarObserver: IntersectionObserver | undefined;
+  if ('IntersectionObserver' in window) {
+    // Native lazy loading fetches avatars several screens ahead, competing with visible content.
+    avatarObserver = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (!entry.isIntersecting) continue;
+          const image = entry.target.querySelector<HTMLImageElement>('img[data-friend-src]');
+          if (image) loadAvatar(image);
+          avatarObserver?.unobserve(entry.target);
+        }
+      },
+      { rootMargin: '160px' },
+    );
+    for (const image of pendingAvatars) {
+      // Observe the fixed-size wrapper: pending images stay hidden until their request starts.
+      if (image.parentElement) avatarObserver.observe(image.parentElement);
+    }
+  } else {
+    pendingAvatars.forEach(loadAvatar);
+  }
+
+  dispose = () => {
+    controller.abort();
+    avatarObserver?.disconnect();
+  };
 }
 
 if (document.readyState !== 'loading') init();

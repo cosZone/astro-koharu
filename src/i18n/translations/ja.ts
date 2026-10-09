@@ -45,6 +45,8 @@ export const uiStrings: UIStrings = {
   // ── 一般 ──────────────────────────────────────────────────
   'common.search': '検索',
   'common.close': '閉じる',
+  'viewer.loadError': 'ビューアを読み込めませんでした。ページを再読み込みしてお試しください。',
+  'search.loadError': '検索を読み込めませんでした。ページを再読み込みしてお試しください。',
   'common.copy': 'コピー',
   'common.copied': 'コピーしました',
   'common.copyFailed': '自動コピーに失敗しました。リンクを手動でコピーしてください。',

@@ -16,12 +16,13 @@ const colophon = buildEditorColophon(colophonConfig);
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <meta name="robots" content="noindex" />
+    <meta name="description" content="在浏览器中编辑 Markdown、管理本地草稿，并实时预览 Koharu 博客的文章排版。" />
     <title>写作室 · Koharu</title>
     <link rel="icon" href="/favicon.ico" />
     <BootScripts />
   </head>
   <body class="editor-page">
-    <Editor client:only="react" ogEndpoint={ogEndpoint} colophon={colophon} />
+    <Editor client:load ogEndpoint={ogEndpoint} colophon={colophon} />
     <noscript>写作室需要 JavaScript 才能编辑和实时预览。</noscript>
   </body>
 </html>

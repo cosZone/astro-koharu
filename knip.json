@@ -1,5 +1,10 @@
 {
   "$schema": "https://unpkg.com/knip@5/schema.json",
+  "workspaces": {
+    ".": {
+      "entry": ["src/lib/markdown/client-content.ts", "src/lib/client-panel.ts"]
+    }
+  },
   "ignoreExportsUsedInFile": {
     "interface": true,
     "type": true

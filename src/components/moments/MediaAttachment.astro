@@ -54,6 +54,8 @@ const fallbackHidden =
         <img
           src={imageUrl}
           alt={media.alt || displayName}
+          width={media.width && media.width > 0 ? media.width : undefined}
+          height={media.height && media.height > 0 ? media.height : undefined}
           class="h-full max-h-[36rem] w-full object-contain transition-opacity duration-150 group-hover:opacity-90"
           loading="lazy"
           decoding="async"
@@ -70,6 +72,8 @@ const fallbackHidden =
       <video
         src={media.originalUrl}
         poster={media.thumbnailUrl || undefined}
+        width={media.width && media.width > 0 ? media.width : undefined}
+        height={media.height && media.height > 0 ? media.height : undefined}
         controls
         playsinline
         preload="metadata"

@@ -3,6 +3,9 @@ import { expect, type Page, test } from '@playwright/test';
 const navSelector = 'nav.toc-container:visible';
 
 async function scrollToHeading(page: Page, id: string) {
+  // Position the fixture after the article's initial portals and fonts have laid out.
+  await expect(page.locator('article [data-video-player] .video-player')).toHaveCount(1);
+  await page.evaluate(() => document.fonts.ready);
   await page.evaluate((headingId) => {
     const heading = document.getElementById(headingId);
     if (!heading) throw new Error(`Missing article heading: ${headingId}`);
@@ -91,8 +94,11 @@ test('reduced motion folds immediately and keeps the current marker in its row',
   await expect(child).toBeAttached();
   await scrollToHeading(page, '视频');
   await expect(child).toHaveAttribute('aria-current', 'location');
+  const group = child.locator('xpath=ancestor::div[@class="heading-children silk-heading-children"][1]');
+  await expect(group).toHaveAttribute('data-open');
   await scrollToHeading(page, '练习题');
   await expect(nav.locator('[data-toc-row="练习题"]')).toHaveAttribute('aria-current', 'location');
+  await expect(group).not.toHaveAttribute('data-open');
   const geometry = await nav.evaluate((element) => {
     const child = element.querySelector('[data-toc-row="视频"]');
     const group = child?.closest('.silk-heading-children');

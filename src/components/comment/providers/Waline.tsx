@@ -1,9 +1,9 @@
 import { init, type WalineInstance } from '@waline/client';
-import '@waline/client/style';
-import '@/styles/components/waline.css';
+import walineStyles from '@waline/client/style?inline';
 import { useEffect, useRef } from 'react';
 import { commentConfig } from '@/constants/site-config';
 import { getHtmlLang, getLocaleFromUrl } from '@/i18n/utils';
+import themeStyles from '@/styles/components/waline.css?inline';
 
 // Config is module-level static data parsed from YAML at build time - won't change at runtime
 const config = commentConfig.waline;
@@ -30,6 +30,14 @@ export default function Waline() {
       dark: config.dark ?? 'html.dark',
     });
 
+    // Waline removes its head style during destroy; do this before Astro replaces the head.
+    const destroy = () => {
+      const instance = walineInstanceRef.current;
+      walineInstanceRef.current = null;
+      instance?.destroy();
+    };
+    document.addEventListener('astro:before-swap', destroy);
+
     // Handle Astro page transitions - update path when navigating
     const handlePageLoad = () => {
       const newLocale = getLocaleFromUrl(window.location.pathname);
@@ -41,12 +49,18 @@ export default function Waline() {
     document.addEventListener('astro:page-load', handlePageLoad);
 
     return () => {
-      walineInstanceRef.current?.destroy();
+      destroy();
+      document.removeEventListener('astro:before-swap', destroy);
       document.removeEventListener('astro:page-load', handlePageLoad);
     };
   }, []);
 
   if (!config) return null;
 
-  return <div ref={containerRef} />;
+  return (
+    <>
+      <style>{`${walineStyles}\n${themeStyles}`}</style>
+      <div ref={containerRef} />
+    </>
+  );
 }

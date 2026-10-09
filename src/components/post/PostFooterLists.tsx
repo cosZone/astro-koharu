@@ -1,6 +1,7 @@
+import { useIsMounted } from '@hooks/useIsMounted';
 import { useTranslation } from '@hooks/useTranslation';
 import { translateCategoryName } from '@lib/content/category-translate';
-import { encodeSlug } from '@lib/route';
+import { encodeSlug } from '@lib/url';
 import { cn, shuffleArray } from '@lib/utils';
 import { useMemo } from 'react';
 import { localizedPath } from '@/i18n';
@@ -19,7 +20,8 @@ interface Props {
  * Ensures no duplicate posts between left (random) and right (related/fallback) sides
  */
 export default function PostFooterLists({ allPosts, relatedPosts, leftCount, rightCount, locale }: Props) {
-  const { t } = useTranslation();
+  const { t } = useTranslation(locale);
+  const isMounted = useIsMounted();
   const { leftPosts, rightPosts, hasRelatedPosts } = useMemo(() => {
     const hasRelated = relatedPosts.length > 0;
 
@@ -30,13 +32,13 @@ export default function PostFooterLists({ allPosts, relatedPosts, leftCount, rig
     }
 
     // Shuffle once and split to avoid duplicates
-    const shuffled = shuffleArray(allPosts);
+    const shuffled = isMounted ? shuffleArray(allPosts) : [];
     return {
       leftPosts: shuffled.slice(0, leftCount),
       rightPosts: hasRelated ? relatedPosts : shuffled.slice(leftCount, leftCount + rightCount),
       hasRelatedPosts: hasRelated,
     };
-  }, [allPosts, relatedPosts, leftCount, rightCount]);
+  }, [allPosts, relatedPosts, leftCount, rightCount, isMounted]);
 
   const rightTitle = hasRelatedPosts ? t('post.relatedPosts') : '';
 

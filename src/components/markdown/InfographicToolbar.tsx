@@ -8,9 +8,10 @@ import { DiagramResizeHandle } from '@components/markdown/shared/DiagramResizeHa
 import { MacToolbar } from '@components/markdown/shared/MacToolbar';
 import { ViewSourceToggle } from '@components/markdown/shared/ViewSourceToggle';
 import { useDiagramScale } from '@hooks/useDiagramScale';
+import { useElementVisibility } from '@hooks/useElementVisibility';
 import { useIsDarkTheme } from '@hooks/useIsDarkTheme';
 import { useTranslation } from '@hooks/useTranslation';
-import { Icon } from '@iconify/react';
+import { Icon, loadIcon } from '@iconify/react';
 import { openModal } from '@store/modal';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
@@ -31,8 +32,19 @@ interface InfographicToolbarProps {
   preElement: HTMLElement;
 }
 
+async function loadInfographicIcon({ data }: { data: string }): Promise<SVGSymbolElement | null> {
+  const match = data.match(/^([a-z0-9-]+)[/:]([a-z0-9-]+)$/);
+  if (!match) return null;
+  const icon = await loadIcon(`${match[1]}:${match[2]}`);
+  const symbol = document.createElementNS('http://www.w3.org/2000/svg', 'symbol');
+  symbol.setAttribute('viewBox', `0 0 ${icon.width ?? 24} ${icon.height ?? 24}`);
+  symbol.innerHTML = icon.body;
+  return symbol;
+}
+
 export function InfographicToolbar({ preElement }: InfographicToolbarProps) {
   const { t, locale } = useTranslation();
+  const isVisible = useElementVisibility(preElement);
   const isDark = useIsDarkTheme();
   const [isSourceView, setIsSourceView] = useState(false);
   const [container, setContainer] = useState<HTMLDivElement | null>(null);
@@ -54,6 +66,7 @@ export function InfographicToolbar({ preElement }: InfographicToolbarProps) {
 
   // Create render container on mount
   useEffect(() => {
+    if (!isVisible) return;
     const wrapper = preElement.parentElement;
     if (!wrapper) return;
 
@@ -70,7 +83,7 @@ export function InfographicToolbar({ preElement }: InfographicToolbarProps) {
       element.remove();
       preElement.style.display = '';
     };
-  }, [preElement, destroyInstance]);
+  }, [preElement, destroyInstance, isVisible]);
 
   // Render/re-render when theme changes
   useEffect(() => {
@@ -80,7 +93,8 @@ export function InfographicToolbar({ preElement }: InfographicToolbarProps) {
 
     const render = async () => {
       try {
-        const { Infographic } = await import('@antv/infographic');
+        const { Infographic, registerResourceLoader } = await import('@antv/infographic');
+        registerResourceLoader(loadInfographicIcon);
 
         // Skip if a newer render was requested
         if (currentRender !== renderCountRef.current) return;
@@ -117,6 +131,9 @@ export function InfographicToolbar({ preElement }: InfographicToolbarProps) {
     };
 
     render();
+    return () => {
+      renderCountRef.current++;
+    };
   }, [container, isDark, source, locale, preElement, destroyInstance, measure]);
 
   const handleFullscreen = useCallback(() => {
