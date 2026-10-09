@@ -58,6 +58,7 @@ const { post, siderType, isPostPage, articleTools = true } = Astro.props;
   import { setupPetalBurst } from '@lib/sakura/petal-burst';
   import { setupScrollReveal } from '@lib/scroll-reveal';
   import { setupScrollbarActivity } from '@lib/scrollbar-activity';
+  import { setupTouchPrefetch } from '@lib/touch-prefetch';
   import { openModal, type ImageLightboxData } from '@store/modal';
 
   // Keep the legacy event bridge independent of React's asynchronous hydration.
@@ -72,5 +73,6 @@ const { post, siderType, isPostPage, articleTools = true } = Astro.props;
   setupArrivalRender();
   setupScrollReveal();
   setupScrollbarActivity();
+  setupTouchPrefetch();
   if (motionConfig.clickBurst) setupPetalBurst();
 </script>

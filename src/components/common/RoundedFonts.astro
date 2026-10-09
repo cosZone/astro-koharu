@@ -20,18 +20,25 @@ const fonts =
     }
     const cached = new Map();
     const registered = new Set();
-    // Stylesheets registered on an earlier visit are likely in the HTTP cache, so repeat visits skip the deferral.
-    const warmKey = 'koharu-rounded-fonts';
-    const readWarm = () => {
+    const refreshed = new Set();
+    // A copy of each stylesheet lets repeat visits register the faces before the first paint; the font
+    // files themselves come from the HTTP cache. FontFaceSet entries also survive head swaps on navigation.
+    const storeKey = href => `koharu-rounded-font:${href}`;
+    const readStored = href => {
       try {
-        return JSON.parse(localStorage.getItem(warmKey) || '[]');
+        return localStorage.getItem(storeKey(href));
       } catch {
-        return [];
+        return null;
       }
     };
-    const rememberWarm = hrefs => {
+    const store = (href, text) => {
       try {
-        localStorage.setItem(warmKey, JSON.stringify([...new Set([...readWarm(), ...hrefs])]));
+        localStorage.setItem(storeKey(href), text);
+      } catch {}
+    };
+    const forget = href => {
+      try {
+        localStorage.removeItem(storeKey(href));
       } catch {}
     };
     const fallback = markers => markers.forEach(marker => {
@@ -41,6 +48,9 @@ const fonts =
       link.dataset.roundedFont = '';
       marker.replaceWith(link);
     });
+    const idle = () => new Promise(resolve => window.requestIdleCallback
+      ? requestIdleCallback(resolve, { timeout: 200 })
+      : requestAnimationFrame(() => requestAnimationFrame(resolve)));
 
     async function afterFirstContent() {
       if (performance.getEntriesByName('first-contentful-paint').length) return;
@@ -62,25 +72,11 @@ const fonts =
       });
     }
 
-    async function readFaces(href) {
+    function readText(href) {
       if (!cached.has(href)) {
-        const request = fetch(href).then(async response => {
+        const request = fetch(href).then(response => {
           if (!response.ok) throw new Error(`Font stylesheet: ${response.status}`);
-          const sheet = new CSSStyleSheet();
-          sheet.replaceSync(await response.text());
-          return [...sheet.cssRules].map(rule => {
-            if (!(rule instanceof CSSFontFaceRule)) throw new Error('Expected a font-face stylesheet');
-            const style = rule.style;
-            const family = style.getPropertyValue('font-family').trim().replace(/^(["'])(.*)\1$/, (_, _quote, name) => name);
-            const source = style.getPropertyValue('src').replace(/url\((["']?)(.*?)\1\)/g, (_, _quote, asset) => `url(${JSON.stringify(new URL(asset, href).href)})`);
-            return new FontFace(family, source, {
-              style: style.getPropertyValue('font-style') || 'normal',
-              weight: style.getPropertyValue('font-weight') || 'normal',
-              stretch: style.getPropertyValue('font-stretch') || 'normal',
-              display: style.getPropertyValue('font-display') || 'auto',
-              unicodeRange: style.getPropertyValue('unicode-range') || 'U+0-10FFFF',
-            });
-          });
+          return response.text();
         }).catch(error => {
           cached.delete(href);
           throw error;
@@ -90,6 +86,49 @@ const fonts =
       return cached.get(href);
     }
 
+    function parseFaces(href, text) {
+      const sheet = new CSSStyleSheet();
+      sheet.replaceSync(text);
+      return [...sheet.cssRules].map(rule => {
+        if (!(rule instanceof CSSFontFaceRule)) throw new Error('Expected a font-face stylesheet');
+        const style = rule.style;
+        const family = style.getPropertyValue('font-family').trim().replace(/^(["'])(.*)\1$/, (_, _quote, name) => name);
+        const source = style.getPropertyValue('src').replace(/url\((["']?)(.*?)\1\)/g, (_, _quote, asset) => `url(${JSON.stringify(new URL(asset, href).href)})`);
+        return new FontFace(family, source, {
+          style: style.getPropertyValue('font-style') || 'normal',
+          weight: style.getPropertyValue('font-weight') || 'normal',
+          stretch: style.getPropertyValue('font-stretch') || 'normal',
+          display: style.getPropertyValue('font-display') || 'auto',
+          unicodeRange: style.getPropertyValue('unicode-range') || 'U+0-10FFFF',
+        });
+      });
+    }
+
+    function register(links, hrefs, groups) {
+      links.forEach((link, index) => {
+        if (!registered.has(hrefs[index])) {
+          groups[index].forEach(face => document.fonts.add(face));
+          registered.add(hrefs[index]);
+        }
+        link.dataset.fontReady = 'true';
+      });
+    }
+
+    // Keep the stored copy current for the next visit (e.g. after a deploy) without delaying this one.
+    async function refresh(hrefs, stored) {
+      await idle();
+      for (const [index, href] of hrefs.entries()) {
+        if (refreshed.has(href)) continue;
+        refreshed.add(href);
+        try {
+          const text = await readText(href);
+          if (text !== stored[index]) store(href, text);
+        } catch {
+          refreshed.delete(href);
+        }
+      }
+    }
+
     async function loadFonts() {
       const links = [...document.querySelectorAll('meta[data-rounded-font]')];
       if (!window.FontFace || !window.CSSStyleSheet || !CSSStyleSheet.prototype.replaceSync || !document.fonts) {
@@ -97,25 +136,30 @@ const fonts =
         return;
       }
       const hrefs = links.map(link => new URL(link.content, location.href).href);
-      const warm = hrefs.every(href => readWarm().includes(href));
-      try {
-        // On a cold load, font descriptions should not compete with the cover and page styles before the first content frame.
-        if (!warm) await afterFirstContent();
-        const groups = await Promise.all(hrefs.map(readFaces));
-        // Register both weights together after the first frame, avoiding two document-wide stylesheet updates.
-        if (!warm) {
-          await new Promise(resolve => window.requestIdleCallback
-            ? requestIdleCallback(resolve, { timeout: 200 })
-            : requestAnimationFrame(() => requestAnimationFrame(resolve)));
+      if (hrefs.every(href => registered.has(href))) {
+        register(links, hrefs, []);
+        return;
+      }
+      const stored = hrefs.map(readStored);
+      if (stored.every(Boolean)) {
+        try {
+          register(links, hrefs, hrefs.map((href, index) => parseFaces(href, stored[index])));
+          void refresh(hrefs, stored);
+          return;
+        } catch (error) {
+          console.warn('[fonts] Stored stylesheet is unusable; loading it again', error);
+          hrefs.forEach(forget);
         }
-        links.forEach((link, index) => {
-          if (!registered.has(hrefs[index])) {
-            groups[index].forEach(face => document.fonts.add(face));
-            registered.add(hrefs[index]);
-          }
-          link.dataset.fontReady = 'true';
-        });
-        rememberWarm(hrefs);
+      }
+      try {
+        // Font descriptions should not compete with the cover and page styles before the first content frame.
+        await afterFirstContent();
+        const texts = await Promise.all(hrefs.map(readText));
+        const groups = hrefs.map((href, index) => parseFaces(href, texts[index]));
+        // Register both weights together after the first frame, avoiding two document-wide stylesheet updates.
+        await idle();
+        register(links, hrefs, groups);
+        hrefs.forEach((href, index) => store(href, texts[index]));
       } catch (error) {
         console.error('[fonts] Loading failed', error);
         fallback(links);

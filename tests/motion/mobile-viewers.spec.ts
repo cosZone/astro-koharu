@@ -285,17 +285,22 @@ test('long dark code keeps highlighting, scrolls both axes, and wraps without lo
   expect(await page.evaluate(() => window.scrollY)).toBe(scrollBefore);
 });
 
-type TouchPoint = { id: number; x: number; y: number };
-
-async function diagramTouch(surface: Locator, type: string, points: TouchPoint[]) {
+// useZoomPan tracks fingers as touch pointers; synthetic TouchEvents never produce pointer events.
+async function diagramPointer(surface: Locator, type: string, id: number, x = 0, y = 0) {
   await surface.evaluate(
-    (element, { type, points }) => {
-      const touches = points.map(({ id, x, y }) => new Touch({ identifier: id, target: element, clientX: x, clientY: y }));
+    (element, { type, id, x, y }) => {
       element.dispatchEvent(
-        new TouchEvent(type, { touches, targetTouches: touches, changedTouches: touches, bubbles: true, cancelable: true }),
+        new PointerEvent(type, {
+          pointerId: id,
+          pointerType: 'touch',
+          clientX: x,
+          clientY: y,
+          bubbles: true,
+          cancelable: true,
+        }),
       );
     },
-    { type, points },
+    { type, id, x, y },
   );
 }
 
@@ -321,28 +326,25 @@ test('diagram pinch continues as a single-finger pan and touchcancel ends the ge
   await expect(diagram).toBeVisible();
   const surface = diagram.locator('..');
   await expect(surface).toHaveCSS('touch-action', 'none');
-  await diagramTouch(surface, 'touchstart', [{ id: 1, x: 110, y: 210 }]);
-  await diagramTouch(surface, 'touchmove', [{ id: 1, x: 140, y: 230 }]);
-  await expect.poll(async () => (await diagramTransform(diagram)).x).toBeCloseTo(30, 0);
-  await diagramTouch(surface, 'touchstart', [
-    { id: 1, x: 140, y: 230 },
-    { id: 2, x: 240, y: 230 },
-  ]);
-  await diagramTouch(surface, 'touchmove', [
-    { id: 1, x: 120, y: 230 },
-    { id: 2, x: 260, y: 230 },
-  ]);
+  await diagramPointer(surface, 'pointerdown', 1, 140, 230);
+  await diagramPointer(surface, 'pointerdown', 2, 240, 230);
+  await diagramPointer(surface, 'pointermove', 1, 120, 230);
+  await diagramPointer(surface, 'pointermove', 2, 260, 230);
   await expect.poll(async () => (await diagramTransform(diagram)).scale).toBeCloseTo(1.4, 1);
   const beforePan = await diagramTransform(diagram);
-  await diagramTouch(surface, 'touchend', [{ id: 1, x: 120, y: 230 }]);
-  await diagramTouch(surface, 'touchmove', [{ id: 1, x: 135, y: 240 }]);
+  // Lifting one finger hands the pinch over to a drag with the other.
+  await diagramPointer(surface, 'pointerup', 2, 260, 230);
+  await diagramPointer(surface, 'pointermove', 1, 135, 240);
   await expect.poll(async () => (await diagramTransform(diagram)).x).toBeCloseTo(beforePan.x + 15, 0);
   await expect.poll(async () => (await diagramTransform(diagram)).y).toBeCloseTo(beforePan.y + 10, 0);
-  const beforeCancel = await diagramTransform(diagram);
-  await diagramTouch(surface, 'touchcancel', []);
-  await diagramTouch(surface, 'touchmove', [{ id: 1, x: 220, y: 280 }]);
+  await diagramPointer(surface, 'pointercancel', 1, 135, 240);
+  await expect(surface).not.toHaveAttribute('data-dragging');
+  // A cancelled gesture settles back inside bounds; once it rests, a stray move must not drag.
+  await page.waitForTimeout(600);
+  const afterCancel = await diagramTransform(diagram);
+  await diagramPointer(surface, 'pointermove', 1, 220, 280);
   await page.waitForTimeout(150);
-  expect(await diagramTransform(diagram)).toEqual(beforeCancel);
+  expect(await diagramTransform(diagram)).toEqual(afterCancel);
   await page.getByRole('dialog').getByRole('button', { name: '关闭', exact: true }).tap();
   await expect(diagram).toHaveCount(0);
 });
