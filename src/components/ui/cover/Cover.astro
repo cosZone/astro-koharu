@@ -1,5 +1,4 @@
 ---
-import ResponsiveImage from '@components/common/ResponsiveImage.astro';
 import ColophonMeta from '@components/post/colophon/ColophonMeta.astro';
 import { Routes } from '@constants/router';
 import { createArticleStatsConfig, motionConfig, siteConfig } from '@constants/site-config';
@@ -26,11 +25,9 @@ export interface CoverProps {
   title?: string;
   /** Utility pages can opt into a shorter cover with a neutral loading surface. */
   compact?: boolean;
-  /** Pair with Layout's heroPortrait metadata to preload the matching mobile image. */
-  portrait?: boolean;
 }
 
-const { data, title, compact = false, portrait = false } = Astro.props as CoverProps;
+const { data, title, compact = false } = Astro.props as CoverProps;
 
 const { date, updated, title: dataTitle, draft } = data?.data ?? {};
 
@@ -150,23 +147,13 @@ const copyFailedLabel = t(locale, 'common.copyFailed');
   </div>
   <div
     class:list={['relative -z-10 h-full min-h-60 w-full', compact && 'bg-card']}
-    transition:persist={`page-cover-banner-${!Astro.isPrerendered ? 'runtime' : portrait && !compact ? 'portrait' : 'wide'}`}
+    transition:persist={Astro.isPrerendered ? 'page-cover-banner' : 'page-cover-banner-runtime'}
     id="banner-box"
     style={bannerLqipStyle}
   >
-    {Astro.isPrerendered && portrait && !compact ? <HeroImage
+    {Astro.isPrerendered ? <HeroImage
       alt=""
       class="h-full w-full object-cover"
-      sizes="100vw"
-      loading="eager"
-      fetchpriority="high"
-      decoding="async"
-    /> : Astro.isPrerendered ? <ResponsiveImage
-      src={defaultHeroImage}
-      alt=""
-      class="h-full w-full object-cover"
-      width="1928"
-      height="1080"
       sizes="100vw"
       loading="eager"
       fetchpriority="high"
