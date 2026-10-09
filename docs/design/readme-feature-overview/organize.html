@@ -1,0 +1,71 @@
+<!doctype html>
+<!-- README 功能卡片：整理与个性化。截图来自示例站点的归档、周刊、友链、搜索与设置面板。 -->
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <title>astro-koharu · 整理与个性化</title>
+    <link rel="stylesheet" href="card.css" />
+    <style>
+      main { grid-template-columns: 38fr 33fr 29fr; height: 704px; }
+      .tile.dark { background: #1d1823; }
+      .tile.dark .label { background: rgb(255 255 255 / 0.1); color: hsl(351 77% 76%); }
+      .tile.dark img { border-radius: 10px; }
+      .settings img { width: 78%; margin: 0 auto; border-radius: 12px; box-shadow: 0 8px 24px rgb(61 52 57 / 0.12); }
+    </style>
+  </head>
+  <body>
+    <svg class="petal" style="left: 1430px; top: 52px; transform: rotate(-24deg)" viewBox="0 0 22 16"><path d="M1 8C5 1 15 0 21 5c-3 1-4 2-4 3s1 2 4 3C15 16 5 15 1 8Z" /></svg>
+    <svg class="petal" style="left: 1500px; top: 96px; width: 15px; transform: rotate(32deg)" viewBox="0 0 22 16"><path d="M1 8C5 1 15 0 21 5c-3 1-4 2-4 3s1 2 4 3C15 16 5 15 1 8Z" /></svg>
+    <svg class="petal" style="left: 28px; top: 864px; width: 16px; opacity: 0.8; transform: rotate(140deg)" viewBox="0 0 22 16"><path d="M1 8C5 1 15 0 21 5c-3 1-4 2-4 3s1 2 4 3C15 16 5 15 1 8Z" /></svg>
+
+    <header>
+      <div>
+        <div class="brand">astro-koharu</div>
+        <h1>
+          整理与个性化
+          <svg viewBox="0 0 400 16" preserveAspectRatio="none"><path d="M4 10C80 4 160 13 240 7s110-2 152 2" fill="none" stroke="hsl(351 77% 62% / 0.55)" stroke-width="4" stroke-linecap="round" /></svg>
+        </h1>
+      </div>
+      <p>归档、系列和友链各有归处，读者也能调成自己喜欢的样子</p>
+    </header>
+
+    <main>
+      <div class="col">
+        <div class="tile">
+          <span class="label">写作日历</span>
+          <img src="shots/calendar.webp" alt="" />
+        </div>
+        <div class="tile">
+          <span class="label">归档</span>
+          <img src="shots/archive.webp" alt="" />
+        </div>
+        <div class="tile">
+          <span class="label">系列周刊</span>
+          <img src="shots/weekly.webp" alt="" />
+        </div>
+      </div>
+
+      <div class="col">
+        <div class="tile">
+          <span class="label">全站搜索</span>
+          <img src="shots/search.webp" alt="" />
+        </div>
+        <div class="tile">
+          <span class="label">友链分组</span>
+          <img src="shots/friends.webp" alt="" />
+        </div>
+      </div>
+
+      <div class="col">
+        <div class="tile dark">
+          <span class="label">夜樱深色</span>
+          <img src="shots/dark.webp" alt="" />
+        </div>
+        <div class="tile settings">
+          <span class="label">阅读设置与动效强度</span>
+          <img src="shots/settings.webp" alt="" />
+        </div>
+      </div>
+    </main>
+  </body>
+</html>

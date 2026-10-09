@@ -62,6 +62,10 @@
 
 ![功能概览：写作室边写边预览，文章页带目录与落款，文章操作可复制、下载 Markdown 并切换语言](./docs/assets/readme-feature-overview.zh.webp)
 
+![写丰富的正文：提醒块、标签卡、信息图、Mermaid、折叠、练习题与公式](./docs/assets/readme-feature-markdown.zh.webp)
+
+![整理与个性化：写作日历、归档、系列周刊、全站搜索、友链分组、夜樱深色与设置面板](./docs/assets/readme-feature-organize.zh.webp)
+
 ## 写作与管理
 
 安装后，在仓库根目录创建第一篇文章：

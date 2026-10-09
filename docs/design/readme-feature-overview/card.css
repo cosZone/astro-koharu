@@ -1,0 +1,50 @@
+/* Shared look of the README feature cards (1600 × 900, rendered at 2×). */
+:root {
+  --primary: hsl(351 77% 62%);
+  --ink: #3d3439;
+  --muted: #8a7f85;
+  --paper: #fdf9f7;
+  --pink: #fdeef1;
+  --blue: #edf3fb;
+  --line: rgb(61 52 57 / 0.08);
+}
+* { box-sizing: border-box; margin: 0; }
+body {
+  position: relative;
+  width: 1600px;
+  height: 900px;
+  overflow: hidden;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: 'PingFang SC', 'Hiragino Sans GB', 'Noto Sans SC', sans-serif;
+}
+header { display: flex; align-items: flex-end; gap: 28px; padding: 44px 64px 0; }
+.brand { color: var(--primary); font-size: 20px; font-weight: 600; letter-spacing: 0.02em; }
+h1 { position: relative; display: inline-block; margin-top: 6px; font-size: 44px; font-weight: 600; }
+h1 svg { position: absolute; left: 0; bottom: -14px; width: 100%; height: 16px; }
+header p { padding-bottom: 6px; color: var(--muted); font-size: 20px; }
+
+main { display: grid; gap: 24px; padding: 36px 64px 0; }
+.card { display: flex; flex-direction: column; gap: 14px; height: 680px; padding: 22px; border-radius: 24px; background: var(--pink); }
+.card.blue { background: var(--blue); }
+.card h2 { font-size: 28px; font-weight: 600; }
+.card h2 span { margin-left: 10px; color: var(--muted); font-size: 20px; font-weight: 400; }
+.note { margin-top: auto; padding-top: 14px; border-top: 1px dashed rgb(61 52 57 / 0.16); }
+.note b { display: block; font-size: 20px; font-weight: 600; }
+.note p { margin-top: 6px; color: var(--muted); font-size: 16px; line-height: 1.5; }
+
+.shot { position: relative; }
+.shot > img, .tile img, .float img { display: block; width: 100%; }
+.shot > img { border: 1px solid var(--line); border-radius: 12px; box-shadow: 0 6px 20px rgb(61 52 57 / 0.08); }
+.float { position: absolute; }
+.float img { border: 1px solid var(--line); border-radius: 12px; box-shadow: 0 14px 36px rgb(61 52 57 / 0.18); }
+
+/* A captioned snippet: white paper, pink label chip. */
+.col { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+.tile { padding: 14px 16px 16px; border-radius: 16px; background: #fff; box-shadow: 0 6px 20px rgb(61 52 57 / 0.06); }
+.label { display: inline-block; margin-bottom: 10px; padding: 2px 10px; border-radius: 999px; background: var(--pink); color: var(--primary); font-size: 15px; font-weight: 600; }
+.stack { display: flex; flex-direction: column; gap: 8px; }
+/* Prose snippets are left-aligned; cut the empty right side and fade the cut. */
+.fade img { mask-image: linear-gradient(to right, #000 82%, transparent); }
+
+.petal { position: absolute; width: 22px; height: 16px; fill: hsl(351 77% 80%); }
