@@ -54,9 +54,9 @@ const page: Page<BlogPost> = {
 };
 ---
 
-<Layout locale={locale} title={seoConfig.title} heroPortrait>
+<Layout locale={locale} title={seoConfig.title}>
   <TwoColumnLayout>
-    <Cover slot="cover" portrait />
+    <Cover slot="cover" />
     <HomeSider slot="sider" />
     <div
       class={`bg-gradient-start shadow-box tablet:shadow-none flex flex-col gap-4 overflow-clip ${CONTENT_PADDING.standard}`}

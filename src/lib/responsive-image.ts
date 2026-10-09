@@ -4,7 +4,7 @@ const images = import.meta.glob<{ default: ImageMetadata }>('/public/img/**/*.{a
 
 export const responsiveImageQuality = 50;
 export const defaultHeroImage = '/img/site_header_1920.webp';
-// At this viewport ratio the 60svh cover only exposes the central portrait region.
+// On tall phones every cover shows the same central portrait crop, so the banner can persist across pages.
 export const portraitHeroMedia = '(max-width: 440px) and (max-aspect-ratio: 8/15)';
 export const wideHeroMedia = `not all and ${portraitHeroMedia}`;
 export const portraitHeroTransform = {
