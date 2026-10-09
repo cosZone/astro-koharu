@@ -182,7 +182,6 @@ pnpm docker:up
 - スタイル付き RSS フィードページ - [サンプル](https://blog.cosine.ren/rss.xml)
   ![RSS フィード](https://r2.cosine.ren/i/2026/01/4476f67d1acea2e0991cc70d1d3cf6a1.webp)
 - お知らせシステム
-  ![お知らせ](https://r2.cosine.ren/i/2026/01/a4660955f52438b3cc2d21bdc931bbd4.gif)
 - Shoka 互換 Markdown 構文 - 注意ブロック、折りたたみブロック、タブカード、テキストエフェクト、スポイラーテキスト、ルビ注釈、クイズなど
 - オーディオ/ビデオプレーヤー - 音楽プレイリストと動画再生に対応。[Meting](https://github.com/metowolf/meting) API を利用でき、セルフホストを推奨
 

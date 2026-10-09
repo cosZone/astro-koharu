@@ -182,7 +182,6 @@ The original demo images are preserved below; some predate the current release.
 - Styled RSS feed page - [Example](https://blog.cosine.ren/rss.xml)
   ![RSS Feed](https://r2.cosine.ren/i/2026/01/4476f67d1acea2e0991cc70d1d3cf6a1.webp)
 - Announcement system
-  ![Announcements](https://r2.cosine.ren/i/2026/01/a4660955f52438b3cc2d21bdc931bbd4.gif)
 - Shoka-compatible Markdown syntax - Admonition blocks, collapsible blocks, tab cards, text effects, spoiler text, ruby annotations, quizzes, and more
 - Audio/video player - Supports music playlists and video playback through [Meting](https://github.com/metowolf/meting); self-hosting the API is recommended
 

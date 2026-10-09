@@ -186,7 +186,6 @@ pnpm docker:up
 - 有样式的 RSS 订阅源链接 - [示例](https://blog.cosine.ren/rss.xml)
   ![RSS 订阅源链接](https://r2.cosine.ren/i/2026/01/4476f67d1acea2e0991cc70d1d3cf6a1.webp)
 - 公告系统
-  ![公告系统](https://r2.cosine.ren/i/2026/01/a4660955f52438b3cc2d21bdc931bbd4.gif)
 - Shoka 兼容 Markdown 语法 - 提醒块、折叠块、标签卡、文字特效、隐藏文字、注音标注、练习题等
 - 音视频播放器 - 支持音乐歌单和视频播放，通过 [Meting](https://github.com/metowolf/meting) API 解析，推荐自部署
 
