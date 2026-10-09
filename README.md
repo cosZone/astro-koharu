@@ -66,6 +66,8 @@
 
 ![整理与个性化：写作日历、归档、系列周刊、全站搜索、友链分组、夜樱深色与设置面板](./docs/assets/readme-feature-organize.zh.webp)
 
+![追番与歌单：Bangumi 收藏海报墙与网易云歌单播放器](./docs/assets/readme-feature-media.zh.webp)
+
 ## 写作与管理
 
 安装后，在仓库根目录创建第一篇文章：

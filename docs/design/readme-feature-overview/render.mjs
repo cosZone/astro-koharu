@@ -18,12 +18,16 @@ const cards = {
   'index.html': 'readme-feature-overview.zh.webp',
   'markdown.html': 'readme-feature-markdown.zh.webp',
   'organize.html': 'readme-feature-organize.zh.webp',
+  'media.html': 'readme-feature-media.zh.webp',
 };
 
 const browser = await chromium.launch();
 const page = await browser.newPage({ viewport: { width: 1600, height: 900 }, deviceScaleFactor: 2 });
 for (const [source, target] of Object.entries(cards)) {
+  await page.setViewportSize({ width: 1600, height: 900 });
   await page.goto(pathToFileURL(path.join(here, source)).href);
+  // Cards may set their own body height.
+  await page.setViewportSize({ width: 1600, height: await page.evaluate(() => document.body.offsetHeight) });
   await page.evaluate(() => Promise.all([...document.images].map((img) => img.decode().catch(() => {}))));
   const png = path.join(os.tmpdir(), `${path.parse(source).name}.png`);
   await page.screenshot({ path: png });
