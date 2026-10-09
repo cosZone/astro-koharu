@@ -28,7 +28,7 @@
 | 生成内容资产 | [Koharu CLI](./docs/guides/koharu-cli.md)管理新建、备份、还原、更新和迁移；可生成 LQIP、语义相似度推荐与 AI 摘要 |
 | 扩展博客 | 整篇或局部 AES-256-GCM 加密；可选[碎碎念](./docs/features/moments.md)接入 koharu-suite 公开频道，提供详情、搜索、分页与 RSS |
 
-<!-- 新功能概览图预留：设计说明见 docs/design/readme-visual-brief.md；成图后放入仓库，保留现有截图。 -->
+![功能概览：写作室边写边预览，文章页带目录与落款，文章操作可复制、下载 Markdown 并切换语言](./docs/assets/readme-feature-overview.zh.webp)
 
 ## 写作与管理
 

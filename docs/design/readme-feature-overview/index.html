@@ -1,0 +1,116 @@
+<!doctype html>
+<!--
+  README 功能概览图源文件（1600 × 900）。
+  截图来自演示文章《春日散步手记》，见 ../readme-visual-brief.md。
+  导出：用浏览器以 1600 × 900 视口截图，再转为 docs/assets/readme-feature-overview.zh.webp。
+-->
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <title>astro-koharu README 功能概览</title>
+    <style>
+      :root {
+        --primary: hsl(351 77% 62%);
+        --ink: #3d3439;
+        --muted: #8a7f85;
+        --paper: #fdf9f7;
+        --pink: #fdeef1;
+        --blue: #edf3fb;
+        --line: rgb(61 52 57 / 0.08);
+      }
+      * { box-sizing: border-box; margin: 0; }
+      body {
+        position: relative;
+        width: 1600px;
+        height: 900px;
+        overflow: hidden;
+        background: var(--paper);
+        color: var(--ink);
+        font-family: 'PingFang SC', 'Hiragino Sans GB', 'Noto Sans SC', sans-serif;
+      }
+      header { padding: 48px 64px 0; }
+      .brand { color: var(--primary); font-size: 20px; font-weight: 600; letter-spacing: 0.02em; }
+      h1 { position: relative; display: inline-block; margin-top: 6px; font-size: 44px; font-weight: 600; }
+      h1 svg { position: absolute; left: 0; bottom: -14px; width: 100%; height: 16px; }
+
+      main { display: grid; grid-template-columns: 45fr 35fr 20fr; gap: 24px; padding: 40px 64px 0; }
+      .card { display: flex; flex-direction: column; border-radius: 24px; padding: 22px 22px 24px; height: 660px; }
+      .write, .share { background: var(--pink); }
+      .read { background: var(--blue); }
+      .card h2 { font-size: 28px; font-weight: 600; }
+      .card h2 span { margin-left: 10px; color: var(--muted); font-size: 20px; font-weight: 400; }
+      .shot { position: relative; margin-top: 18px; }
+      .shot img { display: block; width: 100%; border: 1px solid var(--line); border-radius: 12px; box-shadow: 0 6px 20px rgb(61 52 57 / 0.08); }
+      .note { margin-top: auto; padding-top: 16px; border-top: 1px dashed rgb(61 52 57 / 0.16); }
+      .note b { display: block; font-size: 20px; font-weight: 600; }
+      .note p { margin-top: 6px; color: var(--muted); font-size: 16px; line-height: 1.5; }
+
+      .ring { position: absolute; left: 310px; top: 22px; width: 76px; height: 36px; overflow: visible; }
+      .tag {
+        position: absolute; color: var(--primary); font-size: 16px; font-weight: 600; white-space: nowrap;
+      }
+      .write .tag { left: 394px; top: 30px; }
+      .read .shot + .shot { margin-top: 10px; }
+      .seal { position: absolute; right: -10px; bottom: -14px; width: 132px; }
+      .seal img { border-radius: 10px; box-shadow: 0 8px 24px rgb(61 52 57 / 0.14); }
+      .read .tag { right: 14px; bottom: 98px; padding: 2px 10px; border-radius: 999px; background: #fff; font-size: 15px; }
+      .share .shot + .shot { margin-top: 14px; }
+      .share .lang { width: 70%; margin-left: auto; }
+
+      .petal { position: absolute; width: 22px; height: 16px; fill: hsl(351 77% 80%); }
+    </style>
+  </head>
+  <body>
+    <svg class="petal" style="left: 1430px; top: 52px; transform: rotate(-24deg)" viewBox="0 0 22 16"><path d="M1 8C5 1 15 0 21 5c-3 1-4 2-4 3s1 2 4 3C15 16 5 15 1 8Z" /></svg>
+    <svg class="petal" style="left: 1500px; top: 96px; width: 15px; transform: rotate(32deg)" viewBox="0 0 22 16"><path d="M1 8C5 1 15 0 21 5c-3 1-4 2-4 3s1 2 4 3C15 16 5 15 1 8Z" /></svg>
+    <svg class="petal" style="left: 1360px; top: 112px; width: 12px; opacity: 0.7; transform: rotate(80deg)" viewBox="0 0 22 16"><path d="M1 8C5 1 15 0 21 5c-3 1-4 2-4 3s1 2 4 3C15 16 5 15 1 8Z" /></svg>
+    <svg class="petal" style="left: 28px; top: 860px; width: 16px; opacity: 0.8; transform: rotate(140deg)" viewBox="0 0 22 16"><path d="M1 8C5 1 15 0 21 5c-3 1-4 2-4 3s1 2 4 3C15 16 5 15 1 8Z" /></svg>
+
+    <header>
+      <div class="brand">astro-koharu</div>
+      <h1>
+        写下日常，也写下热爱
+        <svg viewBox="0 0 400 16" preserveAspectRatio="none"><path d="M4 10C80 4 160 13 240 7s110-2 152 2" fill="none" stroke="hsl(351 77% 62% / 0.55)" stroke-width="4" stroke-linecap="round" /></svg>
+      </h1>
+    </header>
+
+    <main>
+      <section class="card write">
+        <h2>写作室<span>边写边预览</span></h2>
+        <div class="shot">
+          <img src="shots/editor.webp" alt="" />
+          <svg class="ring" viewBox="0 0 60 28"><path d="M8 4C26-1 56 1 57 13S30 28 10 25 0 9 14 3" fill="none" stroke="hsl(351 77% 62%)" stroke-width="2.5" stroke-linecap="round" /></svg>
+          <span class="tag">语法手册</span>
+        </div>
+        <div class="note">
+          <b>浏览器草稿</b>
+          <p>源码与博客效果并排，草稿保存在这台设备的浏览器里，可导入导出 .md。</p>
+        </div>
+      </section>
+
+      <section class="card read">
+        <h2>阅读<span>让长文也好读</span></h2>
+        <div class="shot"><img src="shots/hero.webp" alt="" /></div>
+        <div class="shot">
+          <img src="shots/body.webp" alt="" />
+          <span class="tag">文末落款 ↓</span>
+          <div class="seal"><img src="shots/seal.webp" alt="" /></div>
+        </div>
+        <div class="note">
+          <b>文章落款</b>
+          <p>目录跟随章节，「手写」「含剧透」写进标题与文末。</p>
+        </div>
+      </section>
+
+      <section class="card share">
+        <h2>分享<span>带走 Markdown</span></h2>
+        <div class="shot"><img src="shots/menu.webp" alt="" /></div>
+        <div class="shot lang"><img src="shots/lang.webp" alt="" /></div>
+        <div class="note">
+          <b>复制与下载</b>
+          <p>一键带走完整原文，<br />多语言随时切换。</p>
+        </div>
+      </section>
+    </main>
+  </body>
+</html>
