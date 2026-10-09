@@ -1,0 +1,70 @@
+<!doctype html>
+<!-- README 功能卡片：写作 · 阅读 · 分享。截图来自演示文章《春日散步手记》，见 ../readme-visual-brief.md。 -->
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <title>astro-koharu · 写作、阅读与分享</title>
+    <link rel="stylesheet" href="card.css" />
+    <style>
+      main { grid-template-columns: 45fr 35fr 20fr; }
+      .editor { height: 540px; }
+      .editor .float { top: 132px; right: -10px; width: 196px; }
+      .seal { right: -12px; bottom: -18px; width: 136px; }
+      .lang { width: 78%; margin-left: auto; }
+      .seal .label { margin: 0 0 6px 4px; background: #fff; box-shadow: 0 4px 12px rgb(61 52 57 / 0.1); }
+    </style>
+  </head>
+  <body>
+    <svg class="petal" style="left: 1430px; top: 52px; transform: rotate(-24deg)" viewBox="0 0 22 16"><path d="M1 8C5 1 15 0 21 5c-3 1-4 2-4 3s1 2 4 3C15 16 5 15 1 8Z" /></svg>
+    <svg class="petal" style="left: 1500px; top: 96px; width: 15px; transform: rotate(32deg)" viewBox="0 0 22 16"><path d="M1 8C5 1 15 0 21 5c-3 1-4 2-4 3s1 2 4 3C15 16 5 15 1 8Z" /></svg>
+    <svg class="petal" style="left: 28px; top: 864px; width: 16px; opacity: 0.8; transform: rotate(140deg)" viewBox="0 0 22 16"><path d="M1 8C5 1 15 0 21 5c-3 1-4 2-4 3s1 2 4 3C15 16 5 15 1 8Z" /></svg>
+
+    <header>
+      <div>
+        <div class="brand">astro-koharu</div>
+        <h1>
+          写下日常，也写下热爱
+          <svg viewBox="0 0 400 16" preserveAspectRatio="none"><path d="M4 10C80 4 160 13 240 7s110-2 152 2" fill="none" stroke="hsl(351 77% 62% / 0.55)" stroke-width="4" stroke-linecap="round" /></svg>
+        </h1>
+      </div>
+      <p>写作 → 阅读 → 分享</p>
+    </header>
+
+    <main>
+      <section class="card">
+        <h2>写作室<span>边写边预览</span></h2>
+        <div class="shot editor">
+          <img src="shots/editor-wide.webp" alt="" />
+          <div class="float"><img src="shots/handbook.webp" alt="" /></div>
+        </div>
+        <div class="note">
+          <b>浏览器草稿</b>
+          <p>源码与博客效果并排，语法手册随手查；草稿留在本机浏览器，可导入导出 .md。</p>
+        </div>
+      </section>
+
+      <section class="card blue">
+        <h2>阅读<span>让长文也好读</span></h2>
+        <div class="shot"><img src="shots/hero.webp" alt="" /></div>
+        <div class="shot">
+          <img src="shots/body.webp" alt="" />
+          <div class="float seal"><span class="label">文末落款</span><img src="shots/seal.webp" alt="" /></div>
+        </div>
+        <div class="note">
+          <b>文章落款</b>
+          <p>目录跟随章节；「手写」「含剧透」标在标题下与文末。</p>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>分享<span>带走 Markdown</span></h2>
+        <div class="shot"><img src="shots/menu.webp" alt="" /></div>
+        <div class="shot lang"><img src="shots/lang.webp" alt="" /></div>
+        <div class="note">
+          <b>复制与下载</b>
+          <p>一键带走原文，<br />多语言随时切换。</p>
+        </div>
+      </section>
+    </main>
+  </body>
+</html>

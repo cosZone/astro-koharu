@@ -1,8 +1,8 @@
 # astro-koharu
 
-**Language:** [中文](../README.md) | **English** | [日本語](../docs/README.ja.md)
+**Language:** [中文](../README.md) | **English** | [日本語](./README.ja.md)
 
-![](https://r2.cosine.ren/i/2026/01/94383107ba4586f773938ed4dae34ff1.webp)
+![astro-koharu blog with a pink-and-blue palette](https://r2.cosine.ren/i/2026/01/94383107ba4586f773938ed4dae34ff1.webp)
 
 A cute / anime-style / pink-blue themed blog, perfect for ACG, frontend dev, and journaling personal sites with excellent performance.
 
@@ -11,6 +11,10 @@ A cute / anime-style / pink-blue themed blog, perfect for ACG, frontend dev, and
 The overall design is inspired by the Hexo [Shoka](https://shoka.lostyu.me/computer-science/note/theme-shoka-doc/) theme, rebuilt with a modern tech stack for your personal blog.
 
 This repository has been cleaned up as a demo repository. Visit the theme developer's blog at https://blog.cosine.ren/ — give it a star if you like it!
+
+[Getting started](../GETTING-STARTED.md) · [Full guide](../src/content/blog/tools/astro-koharu-guide.md) · [Feedback](https://github.com/cosZone/astro-koharu/issues)
+
+> **License: AGPL-3.0.** Read [LICENSE](../LICENSE) before using, modifying, or deploying the theme.
 
 Under active development
 
@@ -21,314 +25,148 @@ Under active development
 - Serverless full-site search powered by Pagefind
 - LQIP (Low Quality Image Placeholders) — gradient placeholders shown before images load
 
-![Demo](https://r2.cosine.ren/i/2025/12/417b098dffce2ced9c0ff6009e5213df.gif)
+## A look around
 
-[Excellent Performance](https://pagespeed.web.dev/analysis/https-blog-cosine-ren/w6qzrwbp9b?hl=en&form_factor=desktop): Aiming for all-green on desktop, though continuous checking is needed as features evolve!
+Recorded on this repository’s demo site (Chinese UI).
 
-![Performance](https://r2.cosine.ren/i/2025/12/e93f40c340a626c4ab72212a84cf6d5d.webp)
+<table>
+  <tr>
+    <td width="50%"><img src="../docs/assets/showcase/home.webp" alt="Sakura petals drift over the cover; the header floats as a capsule once you scroll" /><br /><sub>Sakura petals drift over the cover; the header floats as a capsule once you scroll</sub></td>
+    <td width="50%"><img src="../docs/assets/showcase/theme.webp" alt="A circular reveal into the night-sakura dark theme" /><br /><sub>A circular reveal into the night-sakura dark theme</sub></td>
+  </tr>
+  <tr>
+    <td width="50%"><img src="../docs/assets/showcase/pages.webp" alt="Petal bursts, a gliding nav pill and smooth transitions across archives, categories, friends and series" /><br /><sub>Petal bursts, a gliding nav pill and smooth transitions across archives, categories, friends and series</sub></td>
+    <td width="50%"><img src="../docs/assets/showcase/toc.webp" alt="A silk-thread table of contents follows your reading" /><br /><sub>A silk-thread table of contents follows your reading</sub></td>
+  </tr>
+</table>
+<table>
+  <tr>
+    <td width="76%"><img src="../docs/assets/showcase/editor.webp" alt="The writing room previews as you type" /><br /><sub>The writing room previews as you type</sub></td>
+    <td width="24%"><img src="../docs/assets/showcase/mobile.webp" alt="A mobile drawer you can drag to close" /><br /><sub>A mobile drawer you can drag to close</sub></td>
+  </tr>
+</table>
 
-You can provide [feedback](https://cos.featurebase.app/) and check the Roadmap here. Issues are also welcome — but since this is a personal project, feel free to fork and customize!
+## What you can do
 
-![](https://r2.cosine.ren/i/2026/01/f1c239b4adf7771f10b954c389d87a74.webp)
-![](https://r2.cosine.ren/i/2026/01/c962f82503abf68eb1f21b835873f241.webp)
+| Use case | Features and guides |
+| --- | --- |
+| Write posts | [Writing room](./features/editor.md): Markdown source and live blog preview, searchable syntax handbook, post properties, browser drafts, import and export; the local CMS uses the same editor to save files |
+| Write rich Markdown | GFM, syntax highlighting, math, Mermaid, Infographic, link cards; toggleable Shoka admonitions, collapsible blocks, tabs, text effects, spoilers, ruby, quizzes, and media; see the [syntax guide](../src/content/blog/tools/astro-koharu-guide.md#markdown-增强) |
+| Mark and share posts | [Colophon marks](../src/content/blog/tools/astro-koharu-guide.md#文章落款) for authorship, spoilers, and outdated content, with archive filtering; [post actions](../src/content/blog/tools/astro-koharu-guide.md#文章操作复制-markdown-与在写作室打开) to copy, download, or import full Markdown into the writing room |
+| Organize content | Nested categories, tags, archives, drafts, pinned posts; [featured series](../src/content/blog/tools/astro-koharu-guide.md#系列文章系统) with dedicated pages and homepage highlights; custom pages under `src/pages/` |
+| Read comfortably | Light/dark themes, mobile section header and TOC, reading progress and time; Pagefind search, LQIP image placeholders; three `motion` levels and sakura effects that respect reduced-motion preferences |
+| Publish in multiple languages | Chinese, English, Japanese, and Korean UI dictionaries; content translations, language switcher, hreflang, and locale-specific RSS; see [i18n setup](../src/content/blog/tools/astro-koharu-guide.md#多语言支持i18n) |
+| Connect with readers | Waline / Giscus / Remark42 / Twikoo comments, [friend-link groups](./features/friend-link-groups.md), announcements, and Umami; optional BGM, Bangumi collections, and Christmas effects |
+| Generate content assets | [Koharu CLI](./guides/koharu-cli.md) for creation, backup, restore, updates, and migration; optional LQIP, semantic recommendations, and AI summaries |
+| Extend your blog | AES-256-GCM encryption for posts or blocks; optional [Moments](./features/moments.en.md) from public koharu-suite channels, with detail pages, search, pagination, and RSS |
+
+<!-- Future feature overview image: see design/readme-visual-brief.md. Store the new image in the repo and keep existing screenshots. -->
+
+## Writing and managing posts
+
+After installation, create your first post from the repository root:
+
+```bash
+pnpm koharu new post
+```
+
+Follow the prompts for a title, category, and tags. The file goes into `src/content/blog/`. You can also create a Markdown file directly:
+
+```markdown
+---
+title: My first post
+date: 2026-10-09
+link: hello-koharu
+tags: [Life]
+---
+
+A place to keep the things I want to remember.
+```
+
+With `pnpm dev` running, open `http://localhost:4321/post/hello-koharu`.
+
+To write in your browser, ensure `editor.enabled: true` in `config/site.yaml`, restart the dev server, and open `http://localhost:4321/editor/`. The public writing room keeps drafts in the current browser. To save to blog files, run this in another terminal:
+
+```bash
+pnpm cms
+```
+
+Open `http://localhost:4322`, select a post in the CMS, and edit and save it in the same writing room. See the [writing room guide](./features/editor.md) for the public editor and local CMS boundaries.
+
+## Local setup
+
+Requires **Node.js ≥ 22.20.0** and **pnpm 10.28.2**; [package.json](../package.json) is the source of truth.
+
+```bash
+git clone https://github.com/cosZone/astro-koharu.git
+cd astro-koharu
+pnpm install
+pnpm dev
+```
+
+Open `http://localhost:4321`. The root workspace installs site and CMS dependencies with one lockfile. For the site alone, use `pnpm --filter astro-koharu install`; for the CMS alone, use `pnpm cms:install`.
+
+Edit [config/site.yaml](../config/site.yaml) to set your site name, author, domain, avatar, and navigation, then replace the example posts. Restart the dev server or rebuild after configuration changes. Follow [getting started](../GETTING-STARTED.md) for the steps.
 
 ## Deployment
 
-Uses Astro's static output by default. **Vercel** and **Netlify** can publish the generated `dist/` directory directly; for self-hosting, serve `dist/` with a static server. The included Docker setup uses nginx.
+```bash
+pnpm build
+pnpm preview
+```
 
-### One-Click Deploy
+| Mode | Deployment | Requirements |
+| --- | --- | --- |
+| Static blog (default) | Publish `dist/` on Vercel, Netlify, or a static file server; Docker uses nginx | No blog backend |
+| Moments (optional) | Astro Node standalone; Docker uses `pnpm docker:up:dynamic` | `moments.enabled: true`, a public `KOHARU_SUITE_URL`, and a running koharu-suite service |
 
 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/cosZone/astro-koharu&project-name=astro-koharu&repository-name=astro-koharu)
 [![Deploy to Netlify](https://www.netlify.com/img/deploy/button.svg)](https://app.netlify.com/start/deploy?repository=https://github.com/cosZone/astro-koharu)
 
-### Docker Deployment
-
-You can also run a container with Nginx via docker / docker-compose:
-
-1. Edit `config/site.yaml` to configure the `comment.remark42` and `analytics.umami` sections.
-2. Run `./docker/rebuild.sh` — the script will automatically stop old containers and rebuild/restart.
-
-> To customize the env file path or skip `docker compose down`, set `ENV_FILE=/path/to/.env` or `SKIP_DOWN=true` when running the script.
-
-To run Compose manually from the repository root:
+Default Docker deployment:
 
 ```bash
-docker compose --env-file ./.env -f docker/docker-compose.yml up -d --build
+cp .env.example .env
+pnpm docker:up
 ```
 
-When Moments is enabled, use `pnpm docker:up:dynamic` instead. The feature is off by default; see the
-[Moments guide](./features/moments.en.md) and [deployment architecture](./overview/11-deployment-adapters.md).
+See the [deployment guide](./overview/11-deployment-adapters.md) for static/dynamic modes, ports, environment variables, and rebuilds. The writing room can be hosted statically. Vercel includes a link-preview fetch function; other static hosts need a separate [link-preview service](./features/editor-link-service.md) to fetch new link cards.
 
-### Local Development
+## Configuration and documentation
 
-Before you begin, install Node.js 22.20.0 or later and pnpm 10.28.2.
+| What to configure | Reference |
+| --- | --- |
+| Site details, navigation, comments, music, motion, and optional features | [Site configuration](../config/site.yaml) and [full guide](../src/content/blog/tools/astro-koharu-guide.md) |
+| Translated category, series, and colophon labels | [Content translations](../config/i18n-content.yaml); translated posts go in `src/content/blog/<locale>/` |
+| Writing room, post properties, and CMS source-file saving | [Writing room guide](./features/editor.md) |
+| Backup, restore, updates, legacy link migration, and asset generation | [Koharu CLI guide](./guides/koharu-cli.md) |
+| Moments channels and dynamic deployment | [Moments guide](./features/moments.en.md) and [deployment guide](./overview/11-deployment-adapters.md) |
+| Contributing to the theme | [Contributing guide](../CONTRIBUTING.md) |
 
-1. Clone the project
+Most configuration and development guides are currently in Chinese; Moments also has English and Japanese guides.
 
-```bash
-git clone https://github.com/cosZone/astro-koharu
-```
+## Before you start
 
-2. Enter the project directory and install dependencies
+- **Upgrading old content:** Legacy `slug` fields must migrate to `link`. After the update process exits, run `pnpm koharu migrate --dry-run` and `pnpm koharu migrate` before starting or building; see [migration details](./guides/koharu-cli.md#历史内容迁移).
+- **Writing room and CMS:** The public editor does not publish to your repository. Download drafts for backup; the local CMS manages files on your machine. The writing room UI and handbook are currently in Chinese, and images are inserted by URL.
+- **Source and encryption:** When post actions are enabled, public Markdown includes frontmatter. Encrypted posts and posts with encrypted blocks do not expose source files. AES-256-GCM uses passwords at build time for encryption without shipping them to the client; readers enter passwords themselves.
+- **External services:** Comments, music APIs, Bangumi, Umami, and link fetching depend on their respective services. AI summaries and semantic vectors are optional generation steps.
+- **Performance:** The screenshots below are historical examples. Results depend on content, configuration, and hosting; measure your own site.
 
-```bash
-cd astro-koharu
-pnpm i
-```
+## Interface preview
 
-3. Start the dev server
+The original demo images are preserved below; some predate the current release.
 
-```bash
-pnpm dev
-```
+![Blog interaction demo](https://r2.cosine.ren/i/2025/12/417b098dffce2ced9c0ff6009e5213df.gif)
 
-The site and CMS share the root `pnpm-workspace.yaml` and `pnpm-lock.yaml`; `pnpm i` installs dependencies for both.
-Run `pnpm cms` to start the CMS, or `pnpm cms:install` to install only CMS dependencies using the root configuration.
-To install only the site, run `pnpm --filter astro-koharu install`.
+[Excellent Performance](https://pagespeed.web.dev/analysis/https-blog-cosine-ren/w6qzrwbp9b?hl=en&form_factor=desktop): Aiming for all-green on desktop, though continuous checking is needed as features evolve!
 
-## Features
+![Historical performance report (December 2025)](https://r2.cosine.ren/i/2025/12/e93f40c340a626c4ab72212a84cf6d5d.webp)
 
-- Built on Astro 7.x with static site generation and excellent performance
-- Elegant dark/light theme toggle
-- Serverless full-site search powered by Pagefind
-- **Swappable comment systems**: Supports Waline (recommended), Giscus, Remark42, and Twikoo — one-click switch in config, theme auto-follows
-- Full Markdown enhancements (GFM, syntax highlighting, auto TOC, Mermaid diagrams, Infographic charts)
-- **Shoka-compatible Markdown syntax**: Text effects (underline/highlight/superscript & subscript/color), spoiler text, ruby annotations, admonition blocks, collapsible blocks, tab cards, friend link cards, audio/video players, quiz system (single choice/multiple choice/true-false/fill-in-the-blank), math formulas (KaTeX), code block enhancements (title/mark/command) — all features can be individually toggled
-- [Toggleable] **Content encryption**: Supports partial encryption (encrypted blocks) and full article encryption, using AES-256-GCM client-side decryption. Passwords are only used during build and not passed to the client
-- Flexible multi-level category and tag system
-- [Toggleable] Multi-series article support (weekly digest, book notes, etc. with custom URL slugs)
-  > **Note**: featuredSeries is designed for categories with many articles, separating them from the homepage main list to avoid clutter. Only the latest article in a series is highlighted on the homepage; the rest are accessed through the series' dedicated page, while still appearing normally in archive, category, and tag pages.
-- [Toggleable] **Bangumi Page**: Integrates [Bangumi API](https://bgm.tv) to display anime/book/music/game collections with category tabs, status filters, and pagination — data fetched in real-time
-- [Toggleable] **Moments archive**: Reads public channel messages from koharu-suite with channel/detail pages, search, cursor pagination, and branded RSS. The default static deployment remains unchanged; see the [Moments guide](./features/moments.en.md)
-- **Standalone page system**: Create `.md` files under `src/pages/` to add custom pages (about, playlists, etc.) with custom cover titles and comment toggles
-- Responsive design
-- Draft and pinned post support
-- Reading progress bar and estimated reading time
-- Smart TOC navigation with CSS counter auto-numbering (can be disabled per post)
-- Mobile article reading header (shows current section title, circular reading progress, expandable TOC)
-- Friend links system and archive page
-- **Internationalization (i18n)**: Built-in Chinese/English UI translations, custom language packs, content-level translations (category/series names), language switcher, hreflang SEO tags, and locale-aware RSS feeds. Default locale URLs have no prefix; other locales are prefixed (e.g., `/en/post/xxx`)
-- RSS feed support
-- LQIP support: Gradient placeholders before images load for better visual experience
-- [Toggleable] Semantic similarity-based smart article recommendation system using [transformers.js](https://huggingface.co/docs/transformers.js) to generate local article embedding vectors
-- [Toggleable] AI-powered automatic summary generation
-- [Toggleable] Christmas special: snowfall, Christmas colors, Santa hats, string lights, and other festive effects
-- Serverless site announcement system: Manage announcements via config file with time controls, stacking, custom colors, and hover-to-read
-- Styled [RSS](https://blog.cosine.ren/rss.xml) feed page
-- **Koharu CLI**: Interactive command-line tool for backup/restore, content generation, and backup management
-- **Local lightweight CMS app**: Run `pnpm cms` to launch a standalone CMS interface with article management, in-browser editing, and Markdown preview. The edit button on article pages supports one-click jump to local editors (VS Code / Cursor / Zed), configured in the `dev` section of `config/site.yaml`. (A backend version may be considered later; this version is static)
+[Issues](https://github.com/cosZone/astro-koharu/issues) are welcome — but since this is a personal project, feel free to fork and customize!
 
-## Koharu CLI
-
-The blog comes with an interactive CLI tool for managing blog content:
-
-```bash
-pnpm koharu              # Interactive main menu
-pnpm koharu new          # Create new content (post/friend link)
-pnpm koharu backup       # Backup blog content and config
-pnpm koharu restore      # Restore from backup
-pnpm koharu update       # Update theme
-pnpm koharu migrate      # Migrate legacy post data in one step
-pnpm koharu generate     # Generate content assets (LQIP, similarity, AI summaries)
-pnpm koharu clean        # Clean old backups
-pnpm koharu list         # List all backups
-```
-
-### Creating Content
-
-Quickly create blog posts and friend links:
-
-```bash
-# Interactive type selection
-pnpm koharu new
-
-# Or specify the type directly
-pnpm koharu new post     # Create a new blog post (interactive title, category, tags, etc.)
-pnpm koharu new friend   # Create a new friend link (auto-appended to config/site.yaml)
-```
-
-**New Post features**:
-
-- Auto-generated pinyin slug
-- Select from existing categories
-- Multi-tag support
-- Duplicate file detection
-- Auto-generated frontmatter
-
-**New Friend Link features**:
-
-- Interactive friend site info input
-- Auto-appended to config file
-- Preserves YAML format and comments
-
-### Backup & Restore
-
-Before updating the theme, use the CLI to backup your personal content:
-
-```bash
-# Basic backup (blog posts, config, avatar, .env)
-pnpm koharu backup
-
-# Full backup (includes all images and generated assets)
-pnpm koharu backup --full
-
-# Restore latest backup
-pnpm koharu restore --latest
-
-# Preview files to be restored (dry run)
-pnpm koharu restore --dry-run
-```
-
-### Migrating Legacy Content
-
-After upgrading to Astro 6 or restoring an old backup, migrate post links before running `pnpm dev` or `pnpm build`.
-When upgrading from an older release, wait for the old `pnpm koharu update` process to exit completely, then run:
-
-```bash
-pnpm koharu migrate --dry-run
-pnpm koharu migrate
-```
-
-The command creates a basic backup first, preserves existing `link` values, safely converts legacy `slug` fields to
-`link`, and adds a stable link when both fields are missing. It is idempotent and stops without modifying files when it
-finds duplicate links or unsafe frontmatter. Restoring an old backup through the Koharu CLI runs the same migration
-automatically.
-`pnpm dev` and `pnpm build` also run a read-only check first, stopping with these instructions when migration is pending.
-
-### Updating the Theme
-
-Use the CLI to automatically update the theme (auto backup → pull → merge → install dependencies):
-
-```bash
-# Full update flow (backs up first by default)
-pnpm koharu update
-
-# Check for updates only
-pnpm koharu update --check
-
-# Skip backup and update directly
-pnpm koharu update --skip-backup
-
-# Update to a specific version
-pnpm koharu update --tag v2.1.0
-
-# Clean mode (zero conflicts, forced backup, ideal for first migration or heavy conflicts)
-pnpm koharu update --clean
-
-# Rebase mode (rewrites history, forced backup, for git-savvy users)
-pnpm koharu update --rebase
-
-# Preview operations (dry run)
-pnpm koharu update --dry-run
-```
-
-> **Update Mode Details:**
->
-> - **Default mode**: Uses `git merge --no-ff` to merge upstream updates, preserving merge-base info. User content conflicts (blog posts, config, etc.) are automatically resolved in favor of the local version; only theme file conflicts require manual resolution.
-> - **Clean mode** (`--clean`): Replaces all theme files with the latest upstream version, then restores user content from backup for zero-conflict updates. Ideal for first-time migration or heavy conflicts. **Note: Custom modifications to theme files will not be preserved.**
-> - **Rebase mode** (`--rebase`): Replays local commits on top of upstream, rewriting commit history. Suitable for git-savvy users.
->
-> The CLI update command wraps git operations. Users familiar with git can also use `git merge`/`git rebase` manually.
-
-### Content Generation
-
-```bash
-# Interactive type selection
-pnpm koharu generate
-
-# Or specify the type directly
-pnpm koharu generate lqips        # Generate LQIP image placeholders
-pnpm koharu generate similarities # Generate similarity vectors
-pnpm koharu generate summaries    # Generate AI summaries
-pnpm koharu generate all          # Generate all
-```
-
-## Configuration
-
-All blog configuration is managed through **`config/site.yaml`**, including:
-
-- Site information (title, subtitle, author, etc.)
-- Social media links
-- Navigation menu
-- Featured categories and series configuration
-- Category mapping (display name → URL slug)
-- Friend links list
-- Announcement system
-- **Bangumi page**: Set `bangumi.userId` to enable, comment out to disable
-- **Comment system** (Waline / Giscus / Remark42 / Twikoo, Waline recommended)
-- Analytics (Umami)
-- **Internationalization (i18n)**
-- **Background music (BGM)**: Configure `bgm.audio` to add playlists, and `bgm.metingApi` to customize the [Meting](https://github.com/metowolf/meting) API address (default: `https://163.hyc.moe/`, self-hosting recommended)
-- Christmas special toggle
-- Development tools (the `dev` section in `config/site.yaml` for local editor jump)
-
-See the documentation for detailed configuration instructions.
-
-### Multi-language Configuration (i18n)
-
-Configure supported languages in the `i18n` section of `config/site.yaml`:
-
-```yaml
-i18n:
-  defaultLocale: zh        # Default locale (no URL prefix)
-  locales:
-    - code: zh
-      label: 中文
-    - code: en
-      label: English
-```
-
-**Content translations**: Configure translations for category names, series names, and other content-level strings in `config/i18n-content.yaml`:
-
-```yaml
-en:
-  categories:
-    life: Life
-    note: Notes
-    tools: Tools
-  series:
-    weekly:
-      label: My Weekly
-      fullName: My Tech Weekly
-```
-
-**Adding translated posts**: Place translated posts under `src/content/blog/<locale>/`, mirroring the default locale's directory structure:
-
-```plain
-src/content/blog/
-├── tools/getting-started.md        # Default locale (zh)
-├── en/tools/getting-started.md     # English translation
-└── en/life/hello-world.md          # English translation
-```
-
-Posts without a translation will automatically fall back to the default locale content, with a notice displayed.
-
-**Adding a new language**:
-
-1. Add the new locale to `i18n.locales` in `config/site.yaml`
-2. Create `src/i18n/translations/<code>.ts` — translate UI strings as needed (missing keys fall back to the default locale)
-3. Register the new locale in `src/i18n/translations/index.ts`
-4. Add content translations in `config/i18n-content.yaml` (optional)
-
-### Switching Comment Systems
-
-Switch comment systems via the `comment.provider` field in `config/site.yaml`:
-
-```yaml
-comment:
-  provider: waline # 'waline' | 'giscus' | 'remark42' | 'twikoo' | 'none'
-  waline:
-    serverURL: https://your-waline-server.vercel.app
-    # ... other config
-```
-
-**Waline is recommended**: Easy self-deployment, feature-rich (Markdown, emoji, email notifications), with built-in pageview stats. See the [full usage guide](/src/content/blog/tools/astro-koharu-guide.md#如何添加评论功能) for detailed configuration.
-
-## Documentation
-
-- **[Getting Started](../GETTING-STARTED.md)** - Launch your blog
-- **[Updating the Theme](../GETTING-STARTED.md#7-更新主题)** - How to safely update to a new version
-- **[Full Usage Guide](../src/content/blog/tools/astro-koharu-guide.md)** - Detailed configuration and usage for all features
+![Blog page preview one](https://r2.cosine.ren/i/2026/01/f1c239b4adf7771f10b954c389d87a74.webp)
+![Blog page preview two](https://r2.cosine.ren/i/2026/01/c962f82503abf68eb1f21b835873f241.webp)
 
 ## Feature Showcase
 
@@ -344,9 +182,8 @@ comment:
 - Styled RSS feed page - [Example](https://blog.cosine.ren/rss.xml)
   ![RSS Feed](https://r2.cosine.ren/i/2026/01/4476f67d1acea2e0991cc70d1d3cf6a1.webp)
 - Announcement system
-  ![Announcements](https://r2.cosine.ren/i/2026/01/a4660955f52438b3cc2d21bdc931bbd4.gif)
 - Shoka-compatible Markdown syntax - Admonition blocks, collapsible blocks, tab cards, text effects, spoiler text, ruby annotations, quizzes, and more
-- Audio/video player - Supports NetEase Cloud Music playlists and video playback
+- Audio/video player - Supports music playlists and video playback through [Meting](https://github.com/metowolf/meting); self-hosting the API is recommended
 
 ## Blogs Using This Theme
 
@@ -372,12 +209,10 @@ Thanks to the following projects for providing inspiration and reference for ast
 - [4ark.me](https://github.com/gd4Ark/gd4Ark.github.io)
 - [Zhilu's Blog](https://blog.zhilu.site/)
 
-...
-
 ## Star History
 
 [![Star History Chart](https://api.star-history.com/svg?repos=cosZone/astro-koharu&type=date&legend=top-left)](https://www.star-history.com/#cosZone/astro-koharu&type=date&legend=top-left)
 
 ## License
 
-GNU Affero General Public License version 3 (AGPL-3.0)
+[GNU Affero General Public License version 3 (AGPL-3.0)](../LICENSE)
