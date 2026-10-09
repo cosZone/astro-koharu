@@ -33,7 +33,7 @@ pnpm koharu new friend   # 新建友情链接（自动追加到 config/site.yaml
 
 **新建文章功能**：
 
-- 自动生成拼音链接（frontmatter 的 `link`）
+- 默认填入拼音链接（frontmatter 的 `link`），可修改，留空则不写
 - 选择已有分类
 - 支持多标签
 - 检查文件重复
@@ -61,6 +61,12 @@ pnpm koharu restore --latest
 
 # 预览将要还原的文件（不实际还原）
 pnpm koharu restore --dry-run
+
+# 跳过确认提示
+pnpm koharu restore --latest --force
+
+# 清理旧备份，只保留最近 5 个
+pnpm koharu clean --keep 5
 ```
 
 ## 历史内容迁移
@@ -71,6 +77,12 @@ pnpm koharu restore --dry-run
 ```bash
 pnpm koharu migrate --dry-run
 pnpm koharu migrate
+
+# 仅检查，需要迁移时返回非零状态（适合 CI）
+pnpm koharu migrate --check
+
+# 跳过确认提示（仍会自动备份）
+pnpm koharu migrate --force
 ```
 
 迁移会先自动创建基础备份，保留已有 `link`，将旧 `slug` 安全转换为 `link`，并为缺少两者的文章补充稳定链接。
@@ -90,6 +102,9 @@ pnpm koharu update --check
 
 # 跳过备份直接更新
 pnpm koharu update --skip-backup
+
+# 跳过确认提示
+pnpm koharu update --force
 
 # 更新到指定版本（示例标签，请替换为你的目标版本）
 pnpm koharu update --tag v7.7.4
@@ -123,4 +138,8 @@ pnpm koharu generate lqips        # 生成 LQIP 图片占位符
 pnpm koharu generate similarities # 生成相似度向量
 pnpm koharu generate summaries    # 生成 AI 摘要
 pnpm koharu generate all          # 生成全部
+
+# AI 摘要可指定模型，或忽略缓存重新生成
+pnpm koharu generate summaries --model <name>
+pnpm koharu generate summaries --force
 ```

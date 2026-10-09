@@ -1,4 +1,6 @@
 // Scenes for record.mjs: optional viewport / encode options, setup() before capture, run() while recording.
+// Selectors assume the demo site as shipped: default locale zh (labels like 「切换主题」「打开菜单」), the demo
+// nav (周刊 / 文章 / 友链 …) and demo posts such as astro-koharu-guide. Update them if the demo config changes.
 const wheel = async (page, dy, ms) => {
   const steps = Math.max(1, Math.round(ms / 16));
   for (let i = 0; i < steps; i++) {
@@ -43,7 +45,7 @@ export const scenes = {
       await page.mouse.wheel(0, -100);
       await page.waitForTimeout(900);
     },
-    async run(page, base, sleep) {
+    async run(page, _base, sleep) {
       const t = page.locator('[aria-label="切换主题"]').first();
       const b = await t.boundingBox();
       await page.mouse.move(b.x + b.width / 2, b.y + b.height / 2, { steps: 15 });
@@ -66,7 +68,7 @@ export const scenes = {
       await page.mouse.wheel(0, 640);
       await page.waitForTimeout(1200);
     },
-    async run(page, base, sleep) {
+    async run(page, _base, sleep) {
       await page.mouse.move(800, 500);
       await sleep(400);
       for (let i = 0; i < 6; i++) {
@@ -92,7 +94,7 @@ export const scenes = {
     async setup(page, base) {
       await ready(page, base + '/');
     },
-    async run(page, base, sleep) {
+    async run(page, _base, sleep) {
       const clickNav = async (text) => {
         const b = await page
           .locator('nav a, nav button', { hasText: text })
@@ -138,7 +140,7 @@ export const scenes = {
     async setup(page, base) {
       await ready(page, base + '/editor');
     },
-    async run(page, base, sleep) {
+    async run(page, _base, sleep) {
       const cm = page.locator('.cm-content').first();
       await cm.click();
       await page.keyboard.press('Meta+End');
@@ -170,7 +172,7 @@ export const scenes = {
       await ready(page, base + '/');
       await page.mouse.wheel(0, 0);
     },
-    async run(page, base, sleep) {
+    async run(page, _base, sleep) {
       await sleep(600);
       await page.locator('[aria-label="打开菜单"]').first().click();
       await sleep(1500);

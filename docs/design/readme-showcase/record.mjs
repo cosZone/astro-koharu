@@ -50,6 +50,9 @@ async function captureFrames(browser, name, scene) {
   await cdp.send('Page.stopScreencast');
   await sleep(200);
   await ctx.close();
+  if (!frames.length) throw new Error('no frames captured');
+  // Map the wall-clock end into CDP frame time before any frame is dropped.
+  const last = end + (frames[0].t - start);
   // Skip the white frames painted before the first load.
   while (frames.length > 1) {
     const mean = Number(
@@ -58,8 +61,6 @@ async function captureFrames(browser, name, scene) {
     if (mean < 0.97) break;
     frames.shift();
   }
-  if (!frames.length) throw new Error('no frames captured');
-  const last = end + (frames[0].t - start);
   const list = frames.flatMap(({ file, t }, i) => [
     `file '${file}'`,
     `duration ${Math.max(0.001, (frames[i + 1]?.t ?? last) - t).toFixed(4)}`,
