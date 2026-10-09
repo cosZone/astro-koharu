@@ -24,6 +24,10 @@ const fonts =
     // A copy of each stylesheet lets repeat visits register the faces before the first paint; the font
     // files themselves come from the HTTP cache. FontFaceSet entries also survive head swaps on navigation.
     const storeKey = href => `koharu-rounded-font:${href}`;
+    // v7.7.3 kept a list of warm stylesheets under this key; the stored copies replace it.
+    try {
+      localStorage.removeItem('koharu-rounded-fonts');
+    } catch {}
     const readStored = href => {
       try {
         return localStorage.getItem(storeKey(href));
