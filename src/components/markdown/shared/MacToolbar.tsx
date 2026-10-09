@@ -30,7 +30,7 @@ export function MacToolbar({ language, title, url, linkText, className, children
         className,
       )}
     >
-      <div className="flex min-w-0 items-center justify-between pr-2 pl-4 tablet:pl-3">
+      <div className="flex min-h-13 min-w-0 items-center justify-between pr-2 pl-4 tablet:pl-3">
         <div className="flex min-w-0 items-center gap-3 py-2">
           <div className="tablet:hidden shrink-0">
             <TrafficLights onFullscreen={onFullscreen} />

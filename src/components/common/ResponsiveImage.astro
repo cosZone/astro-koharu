@@ -1,0 +1,29 @@
+---
+import { Picture } from 'astro:assets';
+import { resolveResponsiveImage, responsiveImageQuality } from '@lib/responsive-image';
+import type { HTMLAttributes } from 'astro/types';
+
+interface Props extends HTMLAttributes<'img'> {
+  src: string;
+  alt: string;
+  maxWidth?: number;
+}
+
+const { src, alt, maxWidth = 1600, ...attributes } = Astro.props;
+const image = await resolveResponsiveImage(src, maxWidth);
+---
+
+{image ? (
+  <Picture
+    {...attributes}
+    src={image.src}
+    alt={alt}
+    width={image.width}
+    height={undefined}
+    widths={image.widths}
+    formats={['avif']}
+    fallbackFormat="webp"
+    quality={responsiveImageQuality}
+    pictureAttributes={{ class: 'contents' }}
+  />
+) : <img {...attributes} src={src} alt={alt} />}

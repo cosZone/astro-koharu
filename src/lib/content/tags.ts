@@ -3,7 +3,7 @@
  */
 
 import type { BlogPost } from 'types/blog';
-import { encodeSlug } from '../route';
+import { encodeSlug } from '../url';
 
 /**
  * Normalize a tag to lowercase for case-insensitive comparison

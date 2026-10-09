@@ -7,6 +7,14 @@ import { atom } from 'nanostores';
  */
 export const $bgmPanelOpen = atom(false);
 
+if (typeof window !== 'undefined') {
+  const notifyPanel = () => {
+    if ($bgmPanelOpen.get()) window.dispatchEvent(new Event('koharu:bgm-open'));
+  };
+  $bgmPanelOpen.listen(notifyPanel);
+  window.addEventListener('koharu:bgm-ready', notifyPanel);
+}
+
 export function toggleBgmPanel() {
   $bgmPanelOpen.set(!$bgmPanelOpen.get());
 }

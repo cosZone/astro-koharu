@@ -200,14 +200,14 @@ html.theme-transition .header-content {
   }
 }
 
-.site-logo svg {
+.site-logo img {
   transition:
     scale 420ms var(--ease-out-expo),
     rotate 420ms var(--ease-out-expo);
 }
 
 @media (hover: hover) {
-  .site-logo:hover svg {
+  .site-logo:hover img {
     scale: 1.06;
     rotate: -3deg;
   }

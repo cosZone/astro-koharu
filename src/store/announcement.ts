@@ -28,6 +28,14 @@ export const announcementInitialized = atom<boolean>(false);
  */
 export const announcementListOpen = atom<boolean>(false);
 
+if (typeof window !== 'undefined') {
+  const notifyPanel = () => {
+    if (announcementListOpen.get()) window.dispatchEvent(new Event('koharu:announcement-open'));
+  };
+  announcementListOpen.listen(notifyPanel);
+  window.addEventListener('koharu:announcement-ready', notifyPanel);
+}
+
 /**
  * Check if an announcement is currently active based on dates
  */
@@ -114,7 +122,11 @@ export function markAsRead(id: string): void {
  * Open announcement list popup
  */
 export function openAnnouncementList(): void {
+  const wasOpen = announcementListOpen.get();
   announcementListOpen.set(true);
+  // A previous import may have failed while the store remained open. Every
+  // explicit click must still reach the lazy owner so Astro can retry it.
+  if (wasOpen && typeof window !== 'undefined') window.dispatchEvent(new Event('koharu:announcement-open'));
 }
 
 /**

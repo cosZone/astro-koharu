@@ -1,3 +1,4 @@
+import { useMediaQuery } from '@hooks/useMediaQuery';
 import { useRetainedValue } from '@hooks/useRetainedValue';
 import { type CSSProperties, type MouseEvent, useEffect, useMemo, useRef, useState } from 'react';
 import { copyMarkdown } from './clipboard';
@@ -66,6 +67,8 @@ export default function Editor({ ogEndpoint = '/api/editor/og', colophon = [] }:
   const shownPanel = useRetainedValue(panel);
   const [panelSession, setPanelSession] = useState(0);
   const [tab, setTab] = useState<'edit' | 'preview'>('edit');
+  const isDesktop = useMediaQuery('(width > 800px)');
+  const [previewMounted, setPreviewMounted] = useState(false);
   const [mode, setMode] = useState<'body' | 'article'>('body');
   const [focus, setFocus] = useState(false);
   const [split, setSplit] = useState(50);
@@ -90,6 +93,10 @@ export default function Editor({ ogEndpoint = '/api/editor/og', colophon = [] }:
   const starterDraft = useRef(draft);
   const parsed = useMemo(() => parseEditorDocument(draft.source), [draft.source]);
   const articleTitle = typeof parsed.data.title === 'string' && parsed.data.title.trim() ? parsed.data.title : '未命名文章';
+
+  useEffect(() => {
+    if (isDesktop || tab === 'preview') setPreviewMounted(true);
+  }, [isDesktop, tab]);
 
   useEffect(() => {
     try {
@@ -600,7 +607,7 @@ export default function Editor({ ogEndpoint = '/api/editor/og', colophon = [] }:
               ]}
             />
           </div>
-          <PreviewFrame source={draft.source} mode={mode} ogEndpoint={previewEndpoint} />
+          {previewMounted && <PreviewFrame source={draft.source} mode={mode} ogEndpoint={previewEndpoint} />}
         </section>
       </div>
       <footer className="editor-status">

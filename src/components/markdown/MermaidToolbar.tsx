@@ -10,6 +10,7 @@ import { DiagramResizeHandle } from '@components/markdown/shared/DiagramResizeHa
 import { MacToolbar } from '@components/markdown/shared/MacToolbar';
 import { ViewSourceToggle } from '@components/markdown/shared/ViewSourceToggle';
 import { useDiagramScale } from '@hooks/useDiagramScale';
+import { useElementVisibility } from '@hooks/useElementVisibility';
 import { useTranslation } from '@hooks/useTranslation';
 import { Icon } from '@iconify/react';
 import { readMermaidSource } from '@lib/mermaid-source';
@@ -29,7 +30,13 @@ function getRenderState(preElement: HTMLElement): RenderState {
   return svg && !svg.querySelector('.error-icon, .error-text') ? 'ready' : 'error';
 }
 
-export function MermaidToolbar({ preElement }: MermaidToolbarProps) {
+export function MermaidToolbar(props: MermaidToolbarProps) {
+  // Match the renderer's target so the loading timeout cannot start before rendering is eligible.
+  const isVisible = useElementVisibility(props.preElement);
+  return isVisible ? <RenderedMermaidToolbar {...props} /> : null;
+}
+
+function RenderedMermaidToolbar({ preElement }: MermaidToolbarProps) {
   const { t } = useTranslation();
   const [renderState, setRenderState] = useState<RenderState>(() => getRenderState(preElement));
   const [isSourceView, setIsSourceView] = useState(false);

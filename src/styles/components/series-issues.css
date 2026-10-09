@@ -173,7 +173,7 @@
   font-size: 1rem;
   font-weight: 700;
   font-variant-numeric: tabular-nums;
-  color: hsl(var(--foreground) / 0.3);
+  color: hsl(var(--muted-foreground));
   transition: color 200ms var(--ease-out-quart);
 }
 .issue-no-bloom {

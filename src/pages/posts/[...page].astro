@@ -24,9 +24,9 @@ const { page, locale } = Astro.props;
 const postCardData = toPostCardDataList(page.data, locale);
 ---
 
-<Layout locale={locale} title={seoConfig.title}>
+<Layout locale={locale} title={seoConfig.title} heroPortrait>
   <TwoColumnLayout>
-    <Cover slot="cover" />
+    <Cover slot="cover" portrait />
     <HomeSider slot="sider" />
     <div
       class={`shadow-box bg-gradient-start tablet:shadow-none flex flex-col gap-4 overflow-clip ${CONTENT_PADDING.standard}`}

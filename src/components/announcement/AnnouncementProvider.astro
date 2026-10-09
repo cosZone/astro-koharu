@@ -11,7 +11,7 @@ import AnnouncementToaster from './AnnouncementToaster';
 
 <!-- React components for Toast and Popup -->
 <AnnouncementToaster client:load />
-<AnnouncementListPopup client:load />
+<AnnouncementListPopup client:panel="announcement" />
 
 <script>
   import { initAnnouncementState } from '@store/announcement';

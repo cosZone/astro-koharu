@@ -1,4 +1,5 @@
 ---
+import ResponsiveImage from '@components/common/ResponsiveImage.astro';
 import ColophonMeta from '@components/post/colophon/ColophonMeta.astro';
 import { Routes } from '@constants/router';
 import { createArticleStatsConfig, motionConfig, siteConfig } from '@constants/site-config';
@@ -9,12 +10,14 @@ import { getPostReadingTime } from '@lib/content/posts';
 import { displayDate } from '@lib/date';
 import { getLqipStyle } from '@lib/lqip';
 import { postTitleMorphName } from '@lib/morph-transitions';
+import { defaultHeroImage, defaultHeroSrcset } from '@lib/responsive-image';
 import { routeBuilder } from '@lib/route';
 import { Icon } from 'astro-icon/components';
 import type { BlogPost } from 'types/blog';
 import UmamiPVSpan from '@/components/umami/UmamiPVSpan';
 import { MAX_WIDTH } from '@/constants/layout';
 import { getLocaleFromUrl, localizedPath, t } from '@/i18n';
+import HeroImage from './HeroImage.astro';
 import SakuraPetals from './SakuraPetals.astro';
 import WaveSvg from './wave';
 
@@ -23,9 +26,11 @@ export interface CoverProps {
   title?: string;
   /** Utility pages can opt into a shorter cover with a neutral loading surface. */
   compact?: boolean;
+  /** Pair with Layout's heroPortrait metadata to preload the matching mobile image. */
+  portrait?: boolean;
 }
 
-const { data, title, compact = false } = Astro.props as CoverProps;
+const { data, title, compact = false, portrait = false } = Astro.props as CoverProps;
 
 const { date, updated, title: dataTitle, draft } = data?.data ?? {};
 
@@ -145,20 +150,28 @@ const copyFailedLabel = t(locale, 'common.copyFailed');
   </div>
   <div
     class:list={['relative -z-10 h-full min-h-60 w-full', compact && 'bg-card']}
-    transition:persist="page-cover-banner"
+    transition:persist={`page-cover-banner-${!Astro.isPrerendered ? 'runtime' : portrait && !compact ? 'portrait' : 'wide'}`}
     id="banner-box"
     style={bannerLqipStyle}
   >
-    <img
-      src="/img/site_header_1920.webp"
-      alt="cover"
+    {Astro.isPrerendered && portrait && !compact ? <HeroImage
+      alt=""
       class="h-full w-full object-cover"
-      sizes="50vw"
-      srcset="/img/site_header_800.webp 800w,/img/site_header_1920.webp 1200w"
+      sizes="100vw"
       loading="eager"
       fetchpriority="high"
       decoding="async"
-    />
+    /> : Astro.isPrerendered ? <ResponsiveImage
+      src={defaultHeroImage}
+      alt=""
+      class="h-full w-full object-cover"
+      width="1928"
+      height="1080"
+      sizes="100vw"
+      loading="eager"
+      fetchpriority="high"
+      decoding="async"
+    /> : <img src={defaultHeroImage} srcset={defaultHeroSrcset} alt="" class="h-full w-full object-cover" width="1928" height="1080" sizes="100vw" loading="eager" fetchpriority="high" decoding="async" />}
   </div>
   <WaveSvg />
 </div>
@@ -167,11 +180,11 @@ const copyFailedLabel = t(locale, 'common.copyFailed');
   import { readMotionLevel, subscribeMotionLevel } from '@lib/motion-level';
 
   /**
-   * First visit only: the banner fades up from its LQIP and settles from a slight zoom.
+   * First visit only: the banner settles from a slight zoom without hiding its first paint.
    * A cached banner is painted before this module runs, so animating it would visibly jump.
    */
   function settleBanner() {
-    const image = document.querySelector<HTMLImageElement>('#banner-box > img');
+    const image = document.querySelector<HTMLImageElement>('#banner-box img');
     if (!image || image.complete || readMotionLevel() === 'reduced') return;
     image.addEventListener(
       'load',
@@ -179,7 +192,6 @@ const copyFailedLabel = t(locale, 'common.copyFailed');
         if (readMotionLevel() === 'reduced') return;
         const easing = 'cubic-bezier(0.25, 1, 0.5, 1)';
         const animations = [
-          image.animate({ opacity: [0, 1] }, { duration: 700, easing }),
           image.animate({ scale: [1.08, 1] }, { duration: 1800, easing }),
         ];
         const unsubscribe = subscribeMotionLevel(() => {

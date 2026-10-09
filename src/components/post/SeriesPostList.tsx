@@ -2,9 +2,8 @@
  * SeriesPostList - 显示系列文章列表
  */
 
-import { Routes } from '@constants/router';
 import { useTranslation } from '@hooks/useTranslation';
-import { routeBuilder } from '@lib/route';
+import { encodeSlug } from '@lib/url';
 import { cn } from '@lib/utils';
 import { localizedPath } from '@/i18n';
 import type { PostRef } from '@/types/blog';
@@ -25,7 +24,7 @@ export function SeriesPostList({ posts, currentPostSlug, className, locale }: Se
   return (
     <div className={cn('series-thread', className)} data-series-list>
       {posts.map((post) => {
-        const href = localizedPath(routeBuilder(Routes.Post, post), locale);
+        const href = localizedPath(`/post/${encodeSlug(post.link ?? post.slug)}`, locale);
         const isActive = post.slug === currentPostSlug;
 
         return (

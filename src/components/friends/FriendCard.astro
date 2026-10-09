@@ -30,7 +30,12 @@ const { friend } = Astro.props;
         <circle cx="80" cy="55" r="6" />
       </g>
     </svg>
-    {friend.image && <img src={friend.image} alt="" width="56" height="56" loading="lazy" decoding="async" class="relative size-full object-cover" data-friend-avatar />}
+    {friend.image && (
+      <>
+        <img data-friend-src={friend.image} alt="" width="56" height="56" loading="lazy" decoding="async" class="relative size-full object-cover" data-friend-avatar hidden />
+        <noscript><img src={friend.image} alt="" width="56" height="56" loading="lazy" decoding="async" class="relative size-full object-cover" /></noscript>
+      </>
+    )}
   </span>
   <span class="friend-copy">
     <span class="friend-heading">

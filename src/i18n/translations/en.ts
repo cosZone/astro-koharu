@@ -41,6 +41,8 @@ export const uiStrings: UIStrings = {
   // ── Common ──────────────────────────────────────────────────
   'common.search': 'Search',
   'common.close': 'Close',
+  'viewer.loadError': 'The viewer could not load. Refresh the page to try again.',
+  'search.loadError': 'Search could not load. Refresh the page to try again.',
   'common.copy': 'Copy',
   'common.copied': 'Copied',
   'common.copyFailed': 'Automatic copy failed. Copy the link manually.',

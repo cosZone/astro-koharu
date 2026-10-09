@@ -39,11 +39,11 @@ const relatedPosts = hasData && post ? getRelatedPosts(post, allPosts, 5).map(to
 
 <div class="tablet:grid-cols-1 grid grid-cols-2 gap-4 px-10 md:px-6">
   {totalPosts <= 10 ? (
-    <PostFooterLists client:only="react" allPosts={allPostItems} relatedPosts={relatedPosts} leftCount={leftCount} rightCount={rightCount} locale={locale} />
+    <PostFooterLists client:visible allPosts={allPostItems} relatedPosts={relatedPosts} leftCount={leftCount} rightCount={rightCount} locale={locale} />
   ) : (
     <>
-      <RandomPostList client:only="react" postsPool={leftPool} count={leftCount} locale={locale} />
-      {(hasData || totalPosts <= 10) && <RelatedPostList client:only="react" posts={relatedPosts} fallbackPool={rightPool} fallbackCount={rightCount} startIndex={leftCount + 1} locale={locale} />}
+      <RandomPostList client:visible postsPool={leftPool} count={leftCount} locale={locale} />
+      {(hasData || totalPosts <= 10) && <RelatedPostList client:idle posts={relatedPosts} fallbackPool={relatedPosts.length > 0 ? [] : rightPool} fallbackCount={rightCount} startIndex={leftCount + 1} locale={locale} />}
     </>
   )}
 </div>

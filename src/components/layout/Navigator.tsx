@@ -18,7 +18,7 @@ import { flushSync } from 'react-dom';
 import { defaultLocale, localizedPath, resolveNavName, stripLocaleFromPath } from '@/i18n';
 import DropdownNav from './DropdownNav';
 import LanguageSwitcher from './LanguageSwitcher';
-import { SearchTrigger } from './SearchDialog';
+import { SearchTrigger } from './SearchTrigger';
 
 interface NavigatorProps {
   currentPath: string;

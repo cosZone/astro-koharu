@@ -36,6 +36,10 @@
 }
 
 /* CodePen embed styling */
+.codepen-later {
+  @apply my-6 grid min-h-100 place-items-center;
+}
+
 .cp_embed_wrapper {
   @apply my-6;
 }

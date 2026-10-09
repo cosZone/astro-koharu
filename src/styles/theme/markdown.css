@@ -426,6 +426,8 @@
   /* Keep an eight-line preview so collapsed blocks still reveal useful context. */
   .code-block-wrapper.code-collapsed > pre > code {
     height: calc(13.6em + 2rem);
+    content-visibility: auto;
+    contain-intrinsic-height: auto calc(13.6em + 2rem);
     overflow-x: auto;
     overflow-y: hidden;
     /* Fade the tail out instead of laying a card-colored gradient over it. */
@@ -433,12 +435,12 @@
   }
 
   /* Reserve the toolbar row before the idle-hydrated controls mount. */
-  .code-block-wrapper.code-collapsed > .code-block-wrapper-toolbar-mount {
+  .code-block-wrapper > .code-block-wrapper-toolbar-mount {
     min-height: 3.3125rem;
   }
 
   /* Toolbar-shaped skeleton until hydration fills the mount (mirrors MacToolbar chrome). */
-  .code-block-wrapper.code-collapsed > .code-block-wrapper-toolbar-mount:empty {
+  .code-block-wrapper > .code-block-wrapper-toolbar-mount:empty {
     border: 1px solid var(--code-border);
     border-bottom: 0;
     border-radius: 0.75rem 0.75rem 0 0;
@@ -757,6 +759,11 @@
 
 /* ========== Mermaid layout styles ========== */
 
+/* Screens outside the viewport should not keep the loading skeleton animating. */
+.custom-content pre.mermaid:not([data-mermaid-visible]) {
+  animation: none;
+}
+
 .mermaid-wrapper {
   position: relative;
   margin-bottom: 1.25rem;
@@ -929,13 +936,24 @@
   border-top: 1px dashed var(--code-border);
 }
 
-.code-block-title a {
+.code-block-title a,
+.code-block-title-link {
   color: hsl(var(--shoka-info));
   text-decoration: none;
   font-size: 0.85em;
 }
 .code-block-title a:hover {
   text-decoration: underline;
+}
+
+/* Match the hydrated title row, including wrapping, until its portal takes over. */
+.code-block-title-placeholder {
+  border-inline: 1px solid var(--code-border);
+  background-color: var(--code-toolbar);
+}
+
+.code-block-wrapper-toolbar-mount:not(:empty) + .code-block-title-placeholder {
+  display: none;
 }
 
 /* Line highlighting (mark) */

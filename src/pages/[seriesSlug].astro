@@ -40,7 +40,7 @@ const stats = [
 ];
 ---
 
-<Layout articleTools={false} locale={locale} title={pageTitle} description={series.description?.slice(0, 160)}>
+<Layout articleTools={false} locale={locale} title={pageTitle} description={series.description?.slice(0, 160)} heroImage={series.cover ?? null}>
   <TwoColumnLayout showPostFooter={false}>
     <SeriesCover slot="cover" series={series} />
     <HomeSider slot="sider" />

@@ -3,6 +3,7 @@
  * Delegates to shared MediaControls with fullscreen button.
  */
 
+import { useTranslation } from '@hooks/useTranslation';
 import { Icon } from '@iconify/react';
 import type { PlaybackTimeStore } from '@lib/playback-time-store';
 import type { RefObject } from 'react';
@@ -28,6 +29,7 @@ interface VideoControlsProps {
 }
 
 export function VideoControls({ showTrackButtons, videoRef, ...controlProps }: VideoControlsProps) {
+  const { t } = useTranslation();
   const handleFullscreen = () => {
     const video = videoRef.current;
     if (!video) return;
@@ -44,7 +46,13 @@ export function VideoControls({ showTrackButtons, videoRef, ...controlProps }: V
       showModeButton={showTrackButtons}
       showTrackButtons={showTrackButtons}
       extraButtons={
-        <button type="button" className="audio-player-btn" onClick={handleFullscreen} title="全屏">
+        <button
+          type="button"
+          className="audio-player-btn"
+          onClick={handleFullscreen}
+          title={t('media.fullscreen')}
+          aria-label={t('media.fullscreen')}
+        >
           <Icon icon="ri:fullscreen-line" />
         </button>
       }

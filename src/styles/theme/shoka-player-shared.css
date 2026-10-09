@@ -91,7 +91,7 @@
   text-overflow: ellipsis;
   white-space: nowrap;
   text-align: left;
-  opacity: 0.6;
+  opacity: 1;
   transform: scale(0.95);
   transform-origin: left center;
   transition: all 0.4s ease;
@@ -326,6 +326,8 @@
 
 .audio-player-song-item {
   all: unset;
+  content-visibility: auto;
+  contain-intrinsic-size: auto 40px;
   box-sizing: border-box;
   width: 100%;
   display: flex;

@@ -5,7 +5,7 @@
 import { categoryMap } from '@lib/config/site';
 import { getContentFeaturedCategoryField, getContentSeriesField } from '@/i18n/content';
 import type { Locale } from '@/i18n/types';
-import { encodeSlug } from '../route';
+import { encodeSlug } from '../url';
 import { memoize } from './cache';
 import { getSortedPosts } from './posts';
 import type { Category, CategoryListResult } from './types';

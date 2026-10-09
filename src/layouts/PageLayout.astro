@@ -21,9 +21,9 @@ const { frontmatter } = Astro.props;
 const showComments = frontmatter.comments ?? true;
 ---
 
-<Layout title={`${frontmatter.title} | ${seoConfig.title}`}>
+<Layout title={`${frontmatter.title} | ${seoConfig.title}`} heroPortrait>
   <TwoColumnLayout>
-    <Cover slot="cover" title={frontmatter.coverTitle ?? frontmatter.title} />
+    <Cover slot="cover" title={frontmatter.coverTitle ?? frontmatter.title} portrait />
     <HomeSider slot="sider" />
     <div
       class={`shadow-box bg-gradient-start mx-0 flex min-w-0 w-full max-w-full flex-col gap-8 overflow-x-clip ${CONTENT_PADDING.standard}`}

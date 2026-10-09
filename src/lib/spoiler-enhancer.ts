@@ -13,12 +13,58 @@ interface SpoilerEnhancerDependencies {
   queryDocumentSpoilers(): HTMLElement[];
   requestFrame(callback: FrameRequestCallback): number;
   reportLoadError(error: unknown): void;
+  observeVisibility(spoiler: HTMLElement, onVisible: () => void): () => void;
 }
 
 /** @internal Test seam for exercising the lazy custom-element lifecycle without a browser dependency. */
 export function __createSpoilerEnhancer(dependencies: SpoilerEnhancerDependencies) {
   const fallbackCleanup = new WeakMap<HTMLElement, () => void>();
+  const waitingSpoilers = new Map<HTMLElement, () => void>();
   let spoilerJsPromise: Promise<unknown> | null = null;
+
+  function stopWaiting() {
+    for (const cleanup of waitingSpoilers.values()) cleanup();
+  }
+
+  function loadComponent() {
+    if (spoilerJsPromise) return;
+    stopWaiting();
+    spoilerJsPromise = dependencies
+      .loadComponent()
+      .then(() => {
+        const activeSpoilers = dependencies.queryDocumentSpoilers();
+        for (const spoiler of activeSpoilers) clearSpoilerFallback(spoiler);
+        enhanceDefinedSpoilers(activeSpoilers);
+      })
+      .catch((error) => {
+        spoilerJsPromise = null;
+        dependencies.reportLoadError(error);
+        // Keep the usable fallback; retry on intent rather than repeatedly
+        // requesting a broken module while the element remains visible.
+        for (const spoiler of dependencies.queryDocumentSpoilers()) watchSpoiler(spoiler, false);
+      });
+  }
+
+  function watchSpoiler(spoiler: HTMLElement, observe = true) {
+    if (waitingSpoilers.has(spoiler) || spoilerJsPromise) return;
+    let stopObserving = () => {};
+    const events = ['focus', 'pointerenter', 'pointerdown', 'click'];
+    const start = () => {
+      if (spoiler.isConnected) loadComponent();
+    };
+    const cleanup = () => {
+      stopObserving();
+      for (const event of events) spoiler.removeEventListener(event, start);
+      waitingSpoilers.delete(spoiler);
+    };
+    waitingSpoilers.set(spoiler, cleanup);
+    for (const event of events) spoiler.addEventListener(event, start);
+    if (observe) {
+      stopObserving = dependencies.observeVisibility(spoiler, start);
+      // The no-IntersectionObserver fallback may start loading synchronously.
+      if (!waitingSpoilers.has(spoiler)) stopObserving();
+    }
+  }
 
   function revealLabelFor(spoiler: HTMLElement): string {
     return spoiler.closest<HTMLElement>('[data-spoiler-reveal-label]')?.dataset.spoilerRevealLabel ?? 'Reveal spoiler';
@@ -119,7 +165,10 @@ export function __createSpoilerEnhancer(dependencies: SpoilerEnhancerDependencie
     for (const spoiler of spoilers) installDefinedSpoilerEnhancement(spoiler);
   }
 
-  return function enhanceSpoilers(root: ParentNode) {
+  function enhanceSpoilers(root: ParentNode) {
+    for (const [spoiler, cleanup] of waitingSpoilers) {
+      if (!spoiler.isConnected) cleanup();
+    }
     const spoilers: HTMLElement[] = [];
     for (const spoiler of root.querySelectorAll<HTMLElement>('spoiler-span, [data-static-spoiler]')) {
       if (spoiler.hasAttribute('data-static-spoiler')) {
@@ -131,27 +180,21 @@ export function __createSpoilerEnhancer(dependencies: SpoilerEnhancerDependencie
     if (spoilers.length === 0) return;
 
     if (dependencies.componentIsDefined()) {
+      stopWaiting();
       enhanceDefinedSpoilers(spoilers);
       return;
     }
 
     for (const spoiler of spoilers) installSpoilerFallback(spoiler);
 
-    if (!spoilerJsPromise) {
-      spoilerJsPromise = dependencies
-        .loadComponent()
-        .then(() => {
-          const activeSpoilers = dependencies.queryDocumentSpoilers();
-          for (const spoiler of activeSpoilers) clearSpoilerFallback(spoiler);
-          enhanceDefinedSpoilers(activeSpoilers);
-        })
-        .catch((error) => {
-          spoilerJsPromise = null;
-          dependencies.reportLoadError(error);
-        });
-    }
-  };
+    for (const spoiler of spoilers) watchSpoiler(spoiler);
+  }
+
+  return Object.assign(enhanceSpoilers, { cleanup: stopWaiting });
 }
+
+const visibilityCallbacks = new Map<Element, () => void>();
+let visibilityObserver: IntersectionObserver | null = null;
 
 const enhanceSpoilersInBrowser = __createSpoilerEnhancer({
   componentIsDefined: () => Boolean(customElements.get('spoiler-span')),
@@ -159,6 +202,30 @@ const enhanceSpoilersInBrowser = __createSpoilerEnhancer({
   queryDocumentSpoilers: () => Array.from(document.querySelectorAll<HTMLElement>('spoiler-span')),
   requestFrame: (callback) => requestAnimationFrame(callback),
   reportLoadError: (error) => console.error('[content] Failed to load spoilerjs:', error),
+  observeVisibility: (spoiler, onVisible) => {
+    if (typeof IntersectionObserver === 'undefined') {
+      onVisible();
+      return () => {};
+    }
+    visibilityObserver ??= new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (entry.isIntersecting) visibilityCallbacks.get(entry.target)?.();
+        }
+      },
+      { rootMargin: '300px 0px' },
+    );
+    visibilityCallbacks.set(spoiler, onVisible);
+    visibilityObserver.observe(spoiler);
+    return () => {
+      visibilityCallbacks.delete(spoiler);
+      visibilityObserver?.unobserve(spoiler);
+      if (visibilityCallbacks.size === 0) {
+        visibilityObserver?.disconnect();
+        visibilityObserver = null;
+      }
+    };
+  },
 });
 
 let observingMotion = false;
@@ -250,6 +317,7 @@ export function enhanceSpoilers(root: ParentNode = document) {
     observingMotion = true;
     subscribeMotionLevel(() => enhanceSpoilers(document));
     document.addEventListener('visibilitychange', () => enhanceSpoilers(document));
+    document.addEventListener('astro:before-swap', enhanceSpoilersInBrowser.cleanup);
   }
   const replacements = syncSpoilerMotion(root);
   enhanceSpoilersInBrowser(root);

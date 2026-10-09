@@ -40,6 +40,8 @@ export const uiStrings = {
   // ── Common ──────────────────────────────────────────────────
   'common.search': '搜索',
   'common.close': '关闭',
+  'viewer.loadError': '查看器加载失败，请刷新页面重试。',
+  'search.loadError': '搜索加载失败，请刷新页面重试。',
   'common.copy': '复制',
   'common.copied': '已复制',
   'common.copyFailed': '自动复制失败，请手动复制',

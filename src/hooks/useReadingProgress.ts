@@ -144,7 +144,8 @@ export function useReadingProgress(headings: Heading[], offsetTop: number, enabl
       schedule();
     };
 
-    update();
+    // Coalesce initial, font and resize measurements after the header commits its DOM.
+    schedule();
     window.addEventListener('scroll', schedule, { passive: true });
     // The heading scroll lock releases on `scrollend`; re-read once it has
     window.addEventListener('scrollend', schedule);
