@@ -2,17 +2,28 @@
 
 **Language:** [中文](../README.md) | **English** | [日本語](./README.ja.md)
 
-An Astro personal blog theme with a pink-and-blue palette, Shoka-style Markdown, a browser writing room, and a local CMS.
+![astro-koharu blog with a pink-and-blue palette](https://r2.cosine.ren/i/2026/01/94383107ba4586f773938ed4dae34ff1.webp)
 
-[Author's blog](https://blog.cosine.ren/) · [Getting started](../GETTING-STARTED.md) · [Full guide](../src/content/blog/tools/astro-koharu-guide.md) · [Feedback & roadmap](https://cos.featurebase.app/)
+A cute / anime-style / pink-blue themed blog, perfect for ACG, frontend dev, and journaling personal sites with excellent performance.
+
+> The name is inspired by "Koharu-biyori" (こはるびより), which refers to the period from late autumn to early winter when there's a stretch of warm, spring-like sunny days — known as "Indian summer" in English.
+
+The overall design is inspired by the Hexo [Shoka](https://shoka.lostyu.me/computer-science/note/theme-shoka-doc/) theme, rebuilt with a modern tech stack for your personal blog.
+
+This repository has been cleaned up as a demo repository. Visit the theme developer's blog at https://blog.cosine.ren/ — give it a star if you like it!
+
+[Getting started](../GETTING-STARTED.md) · [Full guide](../src/content/blog/tools/astro-koharu-guide.md) · [Feedback & roadmap](https://cos.featurebase.app/)
 
 > **License: AGPL-3.0.** Read [LICENSE](../LICENSE) before using, modifying, or deploying the theme.
 
-![astro-koharu blog with a pink-and-blue palette](https://r2.cosine.ren/i/2026/01/94383107ba4586f773938ed4dae34ff1.webp)
+Under active development
 
-Use it for technical notes, anime and games, journals, or ongoing series. Markdown/MDX posts live in Git, and the blog builds to a static site by default, with search that needs no backend. Comments, music, Bangumi, and Moments are configurable; Moments requires an additional dynamic service.
-
-> The name comes from *koharu-biyori* (こはるびより), a spell of spring-like sunshine in late autumn or early winter. The design draws on the Hexo [Shoka](https://shoka.lostyu.me/computer-science/note/theme-shoka-doc/) theme.
+- Built on **Astro**, static output, fast loading
+- Cute / anime-style / pink-blue color scheme, ideal for ACG, frontend, and journaling sites
+- Multi-category and multi-tag support without forcing complex information architecture
+- Minimal performance overhead
+- Serverless full-site search powered by Pagefind
+- LQIP (Low Quality Image Placeholders) — gradient placeholders shown before images load
 
 ## What you can do
 
@@ -127,9 +138,11 @@ The original demo images are preserved below; some predate the current release.
 
 ![Blog interaction demo](https://r2.cosine.ren/i/2025/12/417b098dffce2ced9c0ff6009e5213df.gif)
 
+[Excellent Performance](https://pagespeed.web.dev/analysis/https-blog-cosine-ren/w6qzrwbp9b?hl=en&form_factor=desktop): Aiming for all-green on desktop, though continuous checking is needed as features evolve!
+
 ![Historical performance report (December 2025)](https://r2.cosine.ren/i/2025/12/e93f40c340a626c4ab72212a84cf6d5d.webp)
 
-[Historical PageSpeed report](https://pagespeed.web.dev/analysis/https-blog-cosine-ren/w6qzrwbp9b?hl=en&form_factor=desktop)
+You can provide [feedback](https://cos.featurebase.app/) and check the Roadmap here. Issues are also welcome — but since this is a personal project, feel free to fork and customize!
 
 ![Blog page preview one](https://r2.cosine.ren/i/2026/01/f1c239b4adf7771f10b954c389d87a74.webp)
 ![Blog page preview two](https://r2.cosine.ren/i/2026/01/c962f82503abf68eb1f21b835873f241.webp)

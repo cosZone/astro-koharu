@@ -2,17 +2,28 @@
 
 **Language:** [中文](../README.md) | [English](./README.en.md) | **日本語**
 
-ピンクとブルーを基調にした Astro 製の個人ブログテーマ。Shoka 風 Markdown、ブラウザの執筆ルーム、ローカル CMS を備えています。
+![astro-koharu のピンクとブルーのブログ画面](https://r2.cosine.ren/i/2026/01/94383107ba4586f773938ed4dae34ff1.webp)
 
-[作者のブログ](https://blog.cosine.ren/) · [クイックスタート](../GETTING-STARTED.md) · [使い方ガイド](../src/content/blog/tools/astro-koharu-guide.md) · [フィードバック・ロードマップ](https://cos.featurebase.app/)
+かわいい / アニメ風 / ピンクブルー配色のブログテーマ。ACG、フロントエンド、手帳系の個人サイトに最適で、優れたパフォーマンスを実現します。
+
+> 名前は「小春日和（こはるびより）」に由来しています。晩秋から初冬にかけての、春のように暖かく晴れた日が続く時期のことです。
+
+デザインは Hexo の [Shoka](https://shoka.lostyu.me/computer-science/note/theme-shoka-doc/) テーマにインスピレーションを受け、モダンな技術スタックであなただけのブログを構築します。
+
+このリポジトリはデモ用に整理されています。テーマ開発者のブログは https://blog.cosine.ren/ をご覧ください。気に入ったらスターをお願いします！
+
+[クイックスタート](../GETTING-STARTED.md) · [使い方ガイド](../src/content/blog/tools/astro-koharu-guide.md) · [フィードバック・ロードマップ](https://cos.featurebase.app/)
 
 > **ライセンス：AGPL-3.0。** 利用・改変・デプロイの前に [LICENSE](../LICENSE) を確認してください。
 
-![astro-koharu のピンクとブルーのブログ画面](https://r2.cosine.ren/i/2026/01/94383107ba4586f773938ed4dae34ff1.webp)
+開発継続中
 
-技術メモ、アニメやゲーム、日記、連載記事に使えます。Markdown/MDX の記事を Git で管理し、標準では静的サイトとして出力します。サイト内検索にバックエンドは不要です。コメント、音楽、Bangumi、ひとことなどは必要に応じて設定でき、ひとことには別途動的サービスが必要です。
-
-> 名前は、晩秋から初冬に訪れる春のような暖かい晴天「小春日和」に由来します。デザインは Hexo の [Shoka](https://shoka.lostyu.me/computer-science/note/theme-shoka-doc/) テーマから着想を得ています。
+- **Astro** ベース、静的出力、高速ロード
+- かわいい / アニメ風 / ピンクブルー配色、ACG・フロントエンド・手帳系サイトに最適
+- マルチカテゴリー・マルチタグ対応、複雑な情報構造を強制しない
+- パフォーマンスオーバーヘッドを最小限に
+- Pagefind によるサーバーレス全文検索
+- LQIP（低品質画像プレースホルダー）— 画像読み込み前にグラデーションプレースホルダーを表示
 
 ## できること
 
@@ -127,9 +138,11 @@ pnpm docker:up
 
 ![ブログ操作のデモ](https://r2.cosine.ren/i/2025/12/417b098dffce2ced9c0ff6009e5213df.gif)
 
+[優れたパフォーマンス](https://pagespeed.web.dev/analysis/https-blog-cosine-ren/w6qzrwbp9b?hl=ja&form_factor=desktop)：デスクトップでオールグリーンを目指していますが、機能追加に伴い継続的なチェックが必要です！
+
 ![過去のパフォーマンスレポート（2025 年 12 月）](https://r2.cosine.ren/i/2025/12/e93f40c340a626c4ab72212a84cf6d5d.webp)
 
-[過去の PageSpeed レポート](https://pagespeed.web.dev/analysis/https-blog-cosine-ren/w6qzrwbp9b?hl=ja&form_factor=desktop)
+[フィードバック](https://cos.featurebase.app/)やロードマップはこちらからご確認いただけます。Issue も歓迎しますが、個人プロジェクトですので、フォークしてカスタマイズも自由にどうぞ！
 
 ![ブログ画面のプレビュー 1](https://r2.cosine.ren/i/2026/01/f1c239b4adf7771f10b954c389d87a74.webp)
 ![ブログ画面のプレビュー 2](https://r2.cosine.ren/i/2026/01/c962f82503abf68eb1f21b835873f241.webp)

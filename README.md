@@ -2,17 +2,28 @@
 
 **Language:** **中文** | [English](./docs/README.en.md) | [日本語](./docs/README.ja.md)
 
-一个基于 Astro 的萌系个人博客主题：粉蓝配色、Shoka 风格 Markdown，配有浏览器写作室和本地 CMS。
+![astro-koharu 粉蓝配色博客预览](https://r2.cosine.ren/i/2026/01/94383107ba4586f773938ed4dae34ff1.webp)
 
-[作者博客](https://blog.cosine.ren/) · [快速开始](./GETTING-STARTED.md) · [完整使用指南](./src/content/blog/tools/astro-koharu-guide.md) · [反馈与 Roadmap](https://cos.featurebase.app/)
+一个萌系 / 二次元 / 粉蓝配色的博客主题，适合 ACG、前端、手账向个人站，性能优异。
+
+> 命名灵感来源于 “小春日和”（こはるびより）指的是晚秋到初冬这段时期，持续的一段似春天般温暖的晴天。也就是中文中的"小阳春"。
+
+博客整体设计灵感来自 Hexo 的 [Shoka](https://shoka.lostyu.me/computer-science/note/theme-shoka-doc/) 主题，用更现代的技术栈打造属于你的个人博客。
+
+本仓库已清理为示例仓库，主题开发者的博客可查看 https://blog.cosine.ren/ 喜欢的话欢迎 star ～
+
+[快速开始](./GETTING-STARTED.md) · [完整使用指南](./src/content/blog/tools/astro-koharu-guide.md) · [反馈与 Roadmap](https://cos.featurebase.app/)
 
 > **许可证：AGPL-3.0。** 使用、修改和部署前请阅读 [LICENSE](./LICENSE)。
 
-![astro-koharu 粉蓝配色博客预览](https://r2.cosine.ren/i/2026/01/94383107ba4586f773938ed4dae34ff1.webp)
+持续迭代中
 
-适合写技术笔记、ACG、生活记录和长期系列。文章用 Markdown/MDX 保存在 Git 仓库，默认构建为静态站；全站搜索无需后端。评论、音乐、追番与碎碎念等按需配置，碎碎念需要额外的动态服务。
-
-> 名字来自「小春日和」（こはるびより）：晚秋到初冬里，像春天一样温暖的晴天。设计灵感来自 Hexo 的 [Shoka](https://shoka.lostyu.me/computer-science/note/theme-shoka-doc/) 主题。
+- 基于 **Astro**，静态输出，加载轻快
+- 萌系 / 二次元 / 粉蓝配色，适合 ACG、前端、手账向个人站
+- 支持多分类、多标签，但不会强迫你用复杂信息架构
+- 尽可能的减少性能开销
+- 使用 pagefind 实现无后端的全站搜索
+- LQIP（低质量图片占位符），图片加载前显示渐变色占位
 
 ## 能用它做什么
 
@@ -125,9 +136,11 @@ pnpm docker:up
 
 ![博客交互演示](https://r2.cosine.ren/i/2025/12/417b098dffce2ced9c0ff6009e5213df.gif)
 
+[性能优异](https://pagespeed.web.dev/analysis/https-blog-cosine-ren/w6qzrwbp9b?hl=zh-cn&form_factor=desktop)：目标是 PC 的全绿，但是随着功能迭代不可避免的需要反复检查！
+
 ![历史性能报告（2025 年 12 月）](https://r2.cosine.ren/i/2025/12/e93f40c340a626c4ab72212a84cf6d5d.webp)
 
-[历史 PageSpeed 报告](https://pagespeed.web.dev/analysis/https-blog-cosine-ren/w6qzrwbp9b?hl=zh-cn&form_factor=desktop)
+可在此进行博客的[反馈](https://cos.featurebase.app/)以及查看 Roadmap，当然更欢迎在 issue 区域提 issue，不过这毕竟是个人项目，喜欢的也欢迎 fork 出去改。
 
 ![博客页面预览一](https://r2.cosine.ren/i/2026/01/f1c239b4adf7771f10b954c389d87a74.webp)
 ![博客页面预览二](https://r2.cosine.ren/i/2026/01/c962f82503abf68eb1f21b835873f241.webp)
