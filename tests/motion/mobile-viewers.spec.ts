@@ -326,7 +326,11 @@ test('diagram pinch continues as a single-finger pan and touchcancel ends the ge
   await expect(diagram).toBeVisible();
   const surface = diagram.locator('..');
   await expect(surface).toHaveCSS('touch-action', 'none');
-  await diagramPointer(surface, 'pointerdown', 1, 140, 230);
+  await diagramPointer(surface, 'pointerdown', 1, 110, 210);
+  await diagramPointer(surface, 'pointermove', 1, 140, 230);
+  // At fit scale a drag moves the diagram, but rubber-banded short of the 30px finger travel.
+  await expect.poll(async () => (await diagramTransform(diagram)).x).toBeGreaterThan(5);
+  expect((await diagramTransform(diagram)).x).toBeLessThan(30);
   await diagramPointer(surface, 'pointerdown', 2, 240, 230);
   await diagramPointer(surface, 'pointermove', 1, 120, 230);
   await diagramPointer(surface, 'pointermove', 2, 260, 230);

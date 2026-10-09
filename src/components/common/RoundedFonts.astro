@@ -19,7 +19,8 @@ const fonts =
       return;
     }
     const cached = new Map();
-    const registered = new Set();
+    // href → its registered FontFaces, so a refreshed stylesheet can replace them in place.
+    const registered = new Map();
     const refreshed = new Set();
     // A copy of each stylesheet lets repeat visits register the faces before the first paint; the font
     // files themselves come from the HTTP cache. FontFaceSet entries also survive head swaps on navigation.
@@ -93,6 +94,8 @@ const fonts =
     function parseFaces(href, text) {
       const sheet = new CSSStyleSheet();
       sheet.replaceSync(text);
+      // replaceSync accepts any text; an empty result means the copy is not a font stylesheet.
+      if (sheet.cssRules.length === 0) throw new Error('Font stylesheet has no rules');
       return [...sheet.cssRules].map(rule => {
         if (!(rule instanceof CSSFontFaceRule)) throw new Error('Expected a font-face stylesheet');
         const style = rule.style;
@@ -112,13 +115,13 @@ const fonts =
       links.forEach((link, index) => {
         if (!registered.has(hrefs[index])) {
           groups[index].forEach(face => document.fonts.add(face));
-          registered.add(hrefs[index]);
+          registered.set(hrefs[index], groups[index]);
         }
         link.dataset.fontReady = 'true';
       });
     }
 
-    // Keep the stored copy current for the next visit (e.g. after a deploy) without delaying this one.
+    // After a deploy the stored copy may name font files that no longer exist; swap in the current faces.
     async function refresh(hrefs, stored) {
       await idle();
       for (const [index, href] of hrefs.entries()) {
@@ -126,14 +129,19 @@ const fonts =
         refreshed.add(href);
         try {
           const text = await readText(href);
-          if (text !== stored[index]) store(href, text);
+          if (text === stored[index]) continue;
+          const faces = parseFaces(href, text);
+          registered.get(href)?.forEach(face => document.fonts.delete(face));
+          faces.forEach(face => document.fonts.add(face));
+          registered.set(href, faces);
+          store(href, text);
         } catch {
           refreshed.delete(href);
         }
       }
     }
 
-    async function loadFonts() {
+    async function load() {
       const links = [...document.querySelectorAll('meta[data-rounded-font]')];
       if (!window.FontFace || !window.CSSStyleSheet || !CSSStyleSheet.prototype.replaceSync || !document.fonts) {
         fallback(links);
@@ -169,6 +177,13 @@ const fonts =
         fallback(links);
       }
     }
+
+    // The first page-load event arrives while the initial load may still be fetching; run loads one at a time.
+    let queue = Promise.resolve();
+    const loadFonts = () => {
+      queue = queue.then(load, load);
+      return queue;
+    };
 
     window.__koharuRoundedFonts = loadFonts;
     document.addEventListener('astro:page-load', loadFonts);
