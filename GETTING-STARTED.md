@@ -6,8 +6,7 @@
 
 确保你的电脑已安装：
 
-- **Node.js** 22.12.0 或更高版本
-- **pnpm** 包管理器
+- **Node.js** 与 **pnpm**，版本要求见 [README](./README.md#本地启动)
 
 如果没有安装 pnpm，运行：
 
@@ -235,7 +234,7 @@ src/content/blog/
 
 没有对应翻译的文章会自动回退显示默认语言内容，并标注提示。
 
-更多详细配置（内容翻译、添加新语言等）请参考 [README 的多语言配置章节](./README.md#多语言配置i18n)。
+更多详细配置（内容翻译、添加新语言等）请参考 [完整使用指南的多语言配置章节](./src/content/blog/tools/astro-koharu-guide.md#多语言支持i18n)。
 
 ### 背景音乐（BGM）
 

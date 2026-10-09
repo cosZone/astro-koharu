@@ -44,7 +44,9 @@ pnpm docker:down
 pnpm docker:rebuild
 ```
 
-`docker/rebuild.sh` 会检查 `.env` 并提示内容资产生成。默认 nginx 配置继续提供 gzip、静态资源长缓存、
+`docker/rebuild.sh` 会检查 `.env` 并提示内容资产生成。脚本默认先停止旧容器，再重建启动；可用
+`ENV_FILE=/path/to/.env` 指定环境文件，或用 `SKIP_DOWN=true` 跳过 `docker compose down`。
+默认 nginx 配置继续提供 gzip、静态资源长缓存、
 HTML 短缓存、安全头、Astro 静态路由和 Pagefind 资源策略。
 
 ## 可选动态部署

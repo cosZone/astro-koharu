@@ -1,333 +1,138 @@
 # astro-koharu
 
-**Language:** [中文](../README.md) | [English](../docs/README.en.md) | **日本語**
+**Language:** [中文](../README.md) | [English](./README.en.md) | **日本語**
 
-![](https://r2.cosine.ren/i/2026/01/94383107ba4586f773938ed4dae34ff1.webp)
+ピンクとブルーを基調にした Astro 製の個人ブログテーマ。Shoka 風 Markdown、ブラウザの執筆ルーム、ローカル CMS を備えています。
 
-かわいい / アニメ風 / ピンクブルー配色のブログテーマ。ACG、フロントエンド、手帳系の個人サイトに最適で、優れたパフォーマンスを実現します。
+[作者のブログ](https://blog.cosine.ren/) · [クイックスタート](../GETTING-STARTED.md) · [使い方ガイド](../src/content/blog/tools/astro-koharu-guide.md) · [フィードバック・ロードマップ](https://cos.featurebase.app/)
 
-> 名前は「小春日和（こはるびより）」に由来しています。晩秋から初冬にかけての、春のように暖かく晴れた日が続く時期のことです。
+> **ライセンス：AGPL-3.0。** 利用・改変・デプロイの前に [LICENSE](../LICENSE) を確認してください。
 
-デザインは Hexo の [Shoka](https://shoka.lostyu.me/computer-science/note/theme-shoka-doc/) テーマにインスピレーションを受け、モダンな技術スタックであなただけのブログを構築します。
+![astro-koharu のピンクとブルーのブログ画面](https://r2.cosine.ren/i/2026/01/94383107ba4586f773938ed4dae34ff1.webp)
 
-このリポジトリはデモ用に整理されています。テーマ開発者のブログは https://blog.cosine.ren/ をご覧ください。気に入ったらスターをお願いします！
+技術メモ、アニメやゲーム、日記、連載記事に使えます。Markdown/MDX の記事を Git で管理し、標準では静的サイトとして出力します。サイト内検索にバックエンドは不要です。コメント、音楽、Bangumi、ひとことなどは必要に応じて設定でき、ひとことには別途動的サービスが必要です。
 
-開発継続中
+> 名前は、晩秋から初冬に訪れる春のような暖かい晴天「小春日和」に由来します。デザインは Hexo の [Shoka](https://shoka.lostyu.me/computer-science/note/theme-shoka-doc/) テーマから着想を得ています。
 
-- **Astro** ベース、静的出力、高速ロード
-- かわいい / アニメ風 / ピンクブルー配色、ACG・フロントエンド・手帳系サイトに最適
-- マルチカテゴリー・マルチタグ対応、複雑な情報構造を強制しない
-- パフォーマンスオーバーヘッドを最小限に
-- Pagefind によるサーバーレス全文検索
-- LQIP（低品質画像プレースホルダー）— 画像読み込み前にグラデーションプレースホルダーを表示
+## できること
 
-![デモ](https://r2.cosine.ren/i/2025/12/417b098dffce2ced9c0ff6009e5213df.gif)
+| 用途 | 機能とガイド |
+| --- | --- |
+| 記事を書く | [執筆ルーム](./features/editor.md)：Markdown とブログ表示のライブプレビュー、検索できる構文ガイド、記事プロパティ、ブラウザ下書き、インポート・エクスポート。ローカル CMS も同じエディターでファイルに保存 |
+| 表現豊かな本文を書く | GFM、コードハイライト、数式、Mermaid、Infographic、リンクカード。Shoka の注意書き、折りたたみ、タブ、文字装飾、ネタバレ隠し、ルビ、クイズ、音声・動画を個別に切り替え可能。[構文ガイド](../src/content/blog/tools/astro-koharu-guide.md#markdown-增强)を参照 |
+| 記事に印を付けて共有する | [落款](../src/content/blog/tools/astro-koharu-guide.md#文章落款)で執筆方法・ネタバレ・古い情報を表示し、アーカイブで絞り込み。[記事操作](../src/content/blog/tools/astro-koharu-guide.md#文章操作复制-markdown-与在写作室打开)で Markdown 全文をコピー・ダウンロード・執筆ルームへ取り込み |
+| 内容を整理する | 階層カテゴリ、タグ、アーカイブ、下書き、固定記事。[シリーズ](../src/content/blog/tools/astro-koharu-guide.md#系列文章系统)には専用ページとホームのハイライトがあり、独立ページは `src/pages/` に追加 |
+| 快適に読む | ライト・ダークテーマ、モバイルの章タイトルと目次、読書進捗と所要時間。Pagefind 検索、LQIP 画像プレースホルダー。`motion` は 3 段階の動きと桜の演出を設定でき、OS の動きを減らす設定に対応 |
+| 多言語で公開する | 中国語・英語・日本語・韓国語の UI 辞書、記事翻訳、言語切り替え、hreflang、言語別 RSS。[i18n 設定](../src/content/blog/tools/astro-koharu-guide.md#多语言支持i18n)を参照 |
+| 読者と交流する | Waline / Giscus / Remark42 / Twikoo コメント、[リンク集のグループ](./features/friend-link-groups.md)、お知らせ、Umami。BGM、Bangumi コレクション、クリスマス演出も設定可能 |
+| コンテンツ用データを生成する | [Koharu CLI](./guides/koharu-cli.md)で新規作成・バックアップ・復元・更新・移行。LQIP、意味的類似度による関連記事、AI 要約も任意で生成 |
+| ブログを拡張する | 記事全体・ブロック単位の AES-256-GCM 暗号化。任意の[ひとこと（Moments）](./features/moments.ja.md)で koharu-suite の公開チャンネルを取り込み、詳細・検索・ページ送り・RSS を提供 |
 
-[優れたパフォーマンス](https://pagespeed.web.dev/analysis/https-blog-cosine-ren/w6qzrwbp9b?hl=ja&form_factor=desktop)：デスクトップでオールグリーンを目指していますが、機能追加に伴い継続的なチェックが必要です！
+<!-- 新機能の紹介画像用：design/readme-visual-brief.md を参照。新しい画像はリポジトリに保存し、既存のスクリーンショットは維持。 -->
 
-![パフォーマンス](https://r2.cosine.ren/i/2025/12/e93f40c340a626c4ab72212a84cf6d5d.webp)
+## 記事の作成と管理
 
-[フィードバック](https://cos.featurebase.app/)やロードマップはこちらからご確認いただけます。Issue も歓迎しますが、個人プロジェクトですので、フォークしてカスタマイズも自由にどうぞ！
+インストール後、リポジトリのルートで最初の記事を作成します。
 
-![](https://r2.cosine.ren/i/2026/01/f1c239b4adf7771f10b954c389d87a74.webp)
-![](https://r2.cosine.ren/i/2026/01/c962f82503abf68eb1f21b835873f241.webp)
+```bash
+pnpm koharu new post
+```
+
+タイトル・カテゴリ・タグを入力すると `src/content/blog/` にファイルが作られます。Markdown ファイルを直接作成することもできます。
+
+```markdown
+---
+title: はじめての記事
+date: 2026-10-09
+link: hello-koharu
+tags: [日常]
+---
+
+覚えておきたいことを、今日から少しずつ。
+```
+
+`pnpm dev` を起動して `http://localhost:4321/post/hello-koharu` を開きます。
+
+ブラウザで執筆する場合は `config/site.yaml` の `editor.enabled: true` を確認し、開発サーバーを再起動して `http://localhost:4321/editor/` を開いてください。公開の執筆ルームは現在のブラウザに下書きを保存します。ブログのファイルへ保存したい場合は、別のターミナルで次を実行します。
+
+```bash
+pnpm cms
+```
+
+`http://localhost:4322` の CMS で記事を選び、同じ執筆ルームで編集・保存します。公開エディターとローカル CMS の使い分けは[執筆ルームガイド](./features/editor.md)を参照してください。
+
+## ローカルで起動
+
+**Node.js ≥ 22.20.0** と **pnpm 10.28.2** が必要です。要件は [package.json](../package.json) に従います。
+
+```bash
+git clone https://github.com/cosZone/astro-koharu.git
+cd astro-koharu
+pnpm install
+pnpm dev
+```
+
+`http://localhost:4321` を開きます。ルートの workspace は共通の lockfile でブログと CMS の依存関係をインストールします。ブログのみなら `pnpm --filter astro-koharu install`、CMS のみなら `pnpm cms:install` を使えます。
+
+[config/site.yaml](../config/site.yaml) でサイト名・作者・ドメイン・アバター・ナビゲーションを変更し、サンプル記事を自分の記事に置き換えてください。設定変更後は開発サーバーの再起動または再ビルドが必要です。手順は[クイックスタート](../GETTING-STARTED.md)を参照してください。
 
 ## デプロイ
 
-既定では純粋な静的サイトを出力し、**Vercel**、**Netlify**、nginx などへ直接デプロイできます。任意の「ひとこと」動的アーカイブを有効にした場合だけ Astro Node standalone が必要です。両方の方式は[デプロイ構成](./overview/11-deployment-adapters.md)を参照してください。
+```bash
+pnpm build
+pnpm preview
+```
 
-### ワンクリックデプロイ
+| モード | デプロイ方法 | 必要なもの |
+| --- | --- | --- |
+| 静的ブログ（標準） | `dist/` を Vercel、Netlify、静的ファイルサーバーで公開。Docker は nginx を使用 | ブログ用バックエンドは不要 |
+| ひとこと（任意） | Astro Node standalone。Docker は `pnpm docker:up:dynamic` を使用 | `moments.enabled: true`、公開 `KOHARU_SUITE_URL`、稼働中の koharu-suite サービス |
 
 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/cosZone/astro-koharu&project-name=astro-koharu&repository-name=astro-koharu)
 [![Deploy to Netlify](https://www.netlify.com/img/deploy/button.svg)](https://app.netlify.com/start/deploy?repository=https://github.com/cosZone/astro-koharu)
 
-### Docker デプロイ
-
-docker / docker-compose で Nginx 付きコンテナを実行することもできます：
-
-1. `config/site.yaml` を編集して `comment.remark42` と `analytics.umami` セクションを設定します。
-2. `./docker/rebuild.sh` を実行 — スクリプトが自動的に古いコンテナを停止し、再ビルド・再起動します。
-
-> env ファイルのパスをカスタマイズしたり、`docker compose down` をスキップするには、スクリプト実行時に `ENV_FILE=/path/to/.env` または `SKIP_DOWN=true` を設定してください。
-
-リポジトリルートから Compose を手動実行するには：
+標準の Docker デプロイ：
 
 ```bash
-docker compose --env-file ./.env -f docker/docker-compose.yml up -d --build
+cp .env.example .env
+pnpm docker:up
 ```
 
-「ひとこと」を有効にした場合は `pnpm docker:up:dynamic` を使用してください。初期状態では無効です。設定と実運用テストは
-[ひとことガイド](./features/moments.ja.md)を参照してください。
+モード・ポート・環境変数・再ビルドは[デプロイガイド](./overview/11-deployment-adapters.md)を参照してください。執筆ルームは静的ホスティングが可能です。Vercel はリンクプレビュー用の取得関数を含みます。それ以外の静的ホストで新しいリンクカードを取得するには、別途[リンクプレビューサービス](./features/editor-link-service.md)を設定します。
 
-### ローカル開発
+## 設定とドキュメント
 
-開始する前に、Node.js 22.20.0 以降と pnpm 10.28.2 をインストールしてください。
+| 設定したいこと | 参照先 |
+| --- | --- |
+| サイト情報・ナビゲーション・コメント・音楽・動き・任意機能 | [サイト設定](../config/site.yaml)と[使い方ガイド](../src/content/blog/tools/astro-koharu-guide.md) |
+| カテゴリ・シリーズ・落款の翻訳 | [コンテンツ翻訳](../config/i18n-content.yaml)。翻訳記事は `src/content/blog/<locale>/` に配置 |
+| 執筆ルーム・記事プロパティ・CMS の原文保存 | [執筆ルームガイド](./features/editor.md) |
+| バックアップ・復元・更新・旧リンクの移行・データ生成 | [Koharu CLI ガイド](./guides/koharu-cli.md) |
+| ひとことのチャンネル・動的デプロイ | [ひとことガイド](./features/moments.ja.md)と[デプロイガイド](./overview/11-deployment-adapters.md) |
+| テーマ開発への参加 | [コントリビューションガイド](../CONTRIBUTING.md) |
 
-1. プロジェクトをクローン
+設定・開発ガイドの多くは現在中国語です。ひとことには英語・日本語のガイドもあります。
 
-```bash
-git clone https://github.com/cosZone/astro-koharu
-```
+## 利用前に知っておくこと
 
-2. プロジェクトディレクトリに移動して依存関係をインストール
+- **旧記事の移行**：旧 `slug` は `link` へ移行が必要です。更新プロセスの終了後、起動・ビルド前に `pnpm koharu migrate --dry-run` と `pnpm koharu migrate` を実行します。[移行手順](./guides/koharu-cli.md#历史内容迁移)を参照してください。
+- **執筆ルームと CMS**：公開エディターはリポジトリへ公開しません。下書きはダウンロードして保管し、ファイル管理にはローカル CMS を使います。執筆ルームの UI と構文ガイドは現在中国語で、画像は URL で挿入します。
+- **原文と暗号化**：記事操作を有効にすると frontmatter を含む Markdown 原文が公開されます。暗号化記事・暗号化ブロックを含む記事の原文は公開しません。AES-256-GCM のパスワードはビルド時の暗号化に使用し、クライアントへ配布せず、読者が入力します。
+- **外部サービス**：コメント、音楽 API、Bangumi、Umami、リンク取得は各サービスに依存します。AI 要約と意味ベクトルは任意の生成処理です。
+- **パフォーマンス**：以下の画像は過去の例です。結果は記事・設定・ホスティングによって変わるため、自分のサイトで計測してください。
 
-```bash
-cd astro-koharu
-pnpm i
-```
+## 画面プレビュー
 
-3. 開発サーバーを起動
+既存のデモ画像を掲載しています。一部は現在のバージョンより前のものです。
 
-```bash
-pnpm dev
-```
+![ブログ操作のデモ](https://r2.cosine.ren/i/2025/12/417b098dffce2ced9c0ff6009e5213df.gif)
 
-サイトと CMS はルートの `pnpm-workspace.yaml` と `pnpm-lock.yaml` を共有し、`pnpm i` で両方の依存関係をインストールします。
-`pnpm cms` で CMS を起動できます。`pnpm cms:install` はルートの設定を使って CMS の依存関係だけをインストールします。
-サイトだけが必要な場合は `pnpm --filter astro-koharu install` を実行してください。
+![過去のパフォーマンスレポート（2025 年 12 月）](https://r2.cosine.ren/i/2025/12/e93f40c340a626c4ab72212a84cf6d5d.webp)
 
-## 機能
+[過去の PageSpeed レポート](https://pagespeed.web.dev/analysis/https-blog-cosine-ren/w6qzrwbp9b?hl=ja&form_factor=desktop)
 
-- Astro 7.x ベースの静的サイト生成、優れたパフォーマンス
-- エレガントなダーク/ライトテーマ切り替え
-- Pagefind によるサーバーレス全文検索
-- **切り替え可能なコメントシステム**：Waline（推奨）、Giscus、Remark42、Twikoo に対応 — 設定ファイルでワンクリック切り替え、テーマ自動追従
-- 完全な Markdown 拡張（GFM、シンタックスハイライト、自動目次、Mermaid 図表、インフォグラフィック）
-- **Shoka 互換 Markdown 構文**：テキストエフェクト（下線/ハイライト/上付き・下付き/色）、スポイラーテキスト、ルビ注釈、注意ブロック、折りたたみブロック、タブカード、フレンドリンクカード、オーディオ/ビデオプレーヤー、クイズシステム（単一選択/複数選択/正誤/穴埋め）、数式（KaTeX）、コードブロック拡張（title/mark/command）— すべての機能を個別に切り替え可能
-- [切り替え可能] **コンテンツ暗号化**：記事の部分暗号化（暗号化ブロック）と記事全体の暗号化に対応し、AES-256-GCM クライアントサイド復号を使用。パスワードはビルド時のみ使用され、クライアントには渡されません
-- 柔軟なマルチレベルカテゴリーとタグシステム
-- [切り替え可能] マルチシリーズ記事対応（週間ダイジェスト、読書ノートなど、カスタム URL slug 付き）
-  > **補足**：featuredSeries は記事数の多いカテゴリー向けで、ホームページのメインリストから分離して見やすくします。シリーズの最新記事のみがホームページでハイライトされ、残りはシリーズ専用ページからアクセスできますが、アーカイブ・カテゴリー・タグページでは通常通り表示されます。
-- [切り替え可能] **Bangumi ページ**：[Bangumi API](https://bgm.tv) と連携し、アニメ/書籍/音楽/ゲームのコレクションをカテゴリータブ、ステータスフィルター、ページネーション付きで表示 — リアルタイムデータ取得
-- [切り替え可能] **ひとこと動的アーカイブ**：koharu-suite の公開チャンネルからメッセージを読み込み、チャンネル・詳細・検索・cursor ページング・branded RSS を提供します。既定の静的デプロイには影響しません。詳細は[ひとことガイド](./features/moments.ja.md)
-- **独立ページシステム**：`src/pages/` に `.md` ファイルを作成してカスタムページ（about、プレイリストなど）を追加、カスタムカバータイトルとコメント切り替えに対応
-- レスポンシブデザイン
-- 下書きとピン留め投稿対応
-- 読書プログレスバーと推定読了時間
-- スマート目次ナビゲーション、CSS カウンターによる自動番号付き（投稿ごとに無効化可能）
-- モバイル記事読了ヘッダー（現在のセクションタイトル、円形読了プログレス、展開可能な目次を表示）
-- フレンドリンクシステムとアーカイブページ
-- **国際化（i18n）**：中国語/英語/日本語 UI 翻訳内蔵、カスタム言語パック、コンテンツレベル翻訳（カテゴリー/シリーズ名）、言語切り替え、hreflang SEO タグ、ロケール対応 RSS フィード。デフォルトロケールの URL にはプレフィックスなし、他のロケールは自動プレフィックス付き（例：`/en/post/xxx`）
-- RSS フィード対応
-- LQIP 対応：画像読み込み前にグラデーションプレースホルダーを表示
-- [切り替え可能] [transformers.js](https://huggingface.co/docs/transformers.js) を使用したセマンティック類似度ベースの記事レコメンドシステム
-- [切り替え可能] AI 自動要約生成
-- [切り替え可能] クリスマス特集：雪降り、クリスマスカラー、サンタ帽、イルミネーションなど季節エフェクト
-- サーバーレスサイトお知らせシステム：設定ファイルで管理、時間制御・複数お知らせスタック・カスタムカラー・ホバーで既読
-- スタイル付き [RSS](https://blog.cosine.ren/rss.xml) フィードページ
-- **Koharu CLI**：バックアップ/リストア、コンテンツ生成、バックアップ管理のためのインタラクティブ CLI ツール
-- **ローカル軽量 CMS アプリ**：`pnpm cms` で独立した CMS インターフェースを起動、記事管理・ブラウザ内編集・Markdown プレビューに対応。記事ページの編集ボタンからローカルエディター（VS Code / Cursor / Zed）へワンクリックジャンプ、`config/site.yaml` の `dev` セクションで設定（バックエンド版は今後検討、現在は静的版）
-
-## Koharu CLI
-
-ブログにはコンテンツ管理用のインタラクティブ CLI ツールが付属しています：
-
-```bash
-pnpm koharu              # インタラクティブメインメニュー
-pnpm koharu new          # 新規コンテンツ作成（投稿/フレンドリンク）
-pnpm koharu backup       # ブログコンテンツと設定のバックアップ
-pnpm koharu restore      # バックアップからリストア
-pnpm koharu update       # テーマの更新
-pnpm koharu migrate      # 履歴記事データをワンステップで移行
-pnpm koharu generate     # コンテンツアセット生成（LQIP、類似度、AI 要約）
-pnpm koharu clean        # 古いバックアップの削除
-pnpm koharu list         # すべてのバックアップを一覧表示
-```
-
-### コンテンツの作成
-
-ブログ投稿とフレンドリンクをすばやく作成：
-
-```bash
-# インタラクティブタイプ選択
-pnpm koharu new
-
-# またはタイプを直接指定
-pnpm koharu new post     # 新規ブログ投稿（インタラクティブにタイトル、カテゴリー、タグなどを入力）
-pnpm koharu new friend   # 新規フレンドリンク（config/site.yaml に自動追加）
-```
-
-**新規投稿機能**：
-
-- ピンイン slug の自動生成
-- 既存カテゴリーからの選択
-- マルチタグ対応
-- ファイル重複検出
-- frontmatter の自動生成
-
-**新規フレンドリンク機能**：
-
-- インタラクティブなサイト情報入力
-- 設定ファイルへの自動追加
-- YAML フォーマットとコメントの保持
-
-### バックアップとリストア
-
-テーマ更新前に CLI でコンテンツをバックアップ：
-
-```bash
-# 基本バックアップ（ブログ投稿、設定、アバター、.env）
-pnpm koharu backup
-
-# 完全バックアップ（すべての画像と生成アセットを含む）
-pnpm koharu backup --full
-
-# 最新バックアップからリストア
-pnpm koharu restore --latest
-
-# リストア対象ファイルのプレビュー（ドライラン）
-pnpm koharu restore --dry-run
-```
-
-### 履歴コンテンツの移行
-
-Astro 6 へのアップグレード後、または古いバックアップのリストア後は、`pnpm dev` または `pnpm build` を実行する前に
-記事リンクを移行してください。旧バージョンから更新する場合は、旧 CLI の `pnpm koharu update` プロセスが完全に終了してから次を実行します：
-
-```bash
-pnpm koharu migrate --dry-run
-pnpm koharu migrate
-```
-
-実行前に基本バックアップを自動作成し、既存の `link` を保持したまま、旧 `slug` を安全に `link` へ変換します。
-両方がない記事には安定したリンクを追加します。何度実行しても安全で、重複リンクや安全に処理できない frontmatter が
-見つかった場合はファイルを変更せず停止します。Koharu CLI で古いバックアップをリストアした場合も同じ移行が自動実行されます。
-`pnpm dev` と `pnpm build` は最初に読み取り専用チェックも実行し、移行が必要な場合は手順を表示して停止します。
-
-### テーマの更新
-
-CLI で自動的にテーマを更新（自動バックアップ → プル → マージ → 依存関係インストール）：
-
-```bash
-# 完全更新フロー（デフォルトで先にバックアップ）
-pnpm koharu update
-
-# 更新のみチェック
-pnpm koharu update --check
-
-# バックアップをスキップして直接更新
-pnpm koharu update --skip-backup
-
-# 特定バージョンに更新
-pnpm koharu update --tag v2.1.0
-
-# クリーンモード（コンフリクトゼロ、強制バックアップ、初回マイグレーションやコンフリクトが多い場合に最適）
-pnpm koharu update --clean
-
-# リベースモード（履歴の書き換え、強制バックアップ、git に詳しいユーザー向け）
-pnpm koharu update --rebase
-
-# プレビュー（ドライラン）
-pnpm koharu update --dry-run
-```
-
-> **更新モードの詳細：**
->
-> - **デフォルトモード**：`git merge --no-ff` でアップストリームの更新をマージし、merge-base 情報を保持します。ユーザーコンテンツ（ブログ投稿、設定など）のコンフリクトはローカル版を自動採用し、テーマファイルのコンフリクトのみ手動解決が必要です。
-> - **クリーンモード** (`--clean`)：すべてのテーマファイルを最新のアップストリーム版に置き換え、バックアップからユーザーコンテンツをリストアしてコンフリクトゼロの更新を実現します。初回マイグレーションやコンフリクトが多い場合に最適です。**注意：テーマファイルへのカスタム変更は保持されません。**
-> - **リベースモード** (`--rebase`)：ローカルコミットをアップストリームの上にリプレイし、コミット履歴を書き換えます。git に詳しいユーザー向けです。
->
-> CLI 更新コマンドは git 操作のラッパーです。git に詳しいユーザーは `git merge`/`git rebase` を直接使用することもできます。
-
-### コンテンツ生成
-
-```bash
-# インタラクティブタイプ選択
-pnpm koharu generate
-
-# またはタイプを直接指定
-pnpm koharu generate lqips        # LQIP 画像プレースホルダーの生成
-pnpm koharu generate similarities # 類似度ベクトルの生成
-pnpm koharu generate summaries    # AI 要約の生成
-pnpm koharu generate all          # すべて生成
-```
-
-## 設定
-
-すべてのブログ設定は **`config/site.yaml`** ファイルで管理されています：
-
-- サイト情報（タイトル、サブタイトル、著者など）
-- ソーシャルメディアリンク
-- ナビゲーションメニュー
-- 注目カテゴリーとシリーズ設定
-- カテゴリーマッピング（表示名 → URL slug）
-- フレンドリンクリスト
-- お知らせシステム
-- **Bangumi ページ**：`bangumi.userId` を設定して有効化、コメントアウトで無効化
-- **コメントシステム**（Waline / Giscus / Remark42 / Twikoo、Waline 推奨）
-- アナリティクス（Umami）
-- **国際化（i18n）**
-- **背景音楽（BGM）**：`bgm.audio` を設定してプレイリストを追加、`bgm.metingApi` で [Meting](https://github.com/metowolf/meting) API アドレスをカスタマイズ可能（デフォルト：`https://163.hyc.moe/`、セルフホスティング推奨）
-- クリスマス特集切り替え
-- 開発ツール（`config/site.yaml` の `dev` セクション、ローカルエディタージャンプ用）
-
-詳しい設定手順はドキュメントをご覧ください。
-
-### 多言語設定（i18n）
-
-`config/site.yaml` の `i18n` セクションで対応言語を設定：
-
-```yaml
-i18n:
-  defaultLocale: zh        # デフォルトロケール（URL プレフィックスなし）
-  locales:
-    - code: zh
-      label: 中文
-    - code: en
-      label: English
-```
-
-**コンテンツ翻訳**：`config/i18n-content.yaml` でカテゴリー名、シリーズ名などのコンテンツレベル文字列の翻訳を設定：
-
-```yaml
-en:
-  categories:
-    life: Life
-    note: Notes
-    tools: Tools
-  series:
-    weekly:
-      label: My Weekly
-      fullName: My Tech Weekly
-```
-
-**翻訳記事の追加**：翻訳記事を `src/content/blog/<locale>/` に配置し、デフォルトロケールのディレクトリ構造を反映：
-
-```plain
-src/content/blog/
-├── tools/getting-started.md        # デフォルトロケール (zh)
-├── en/tools/getting-started.md     # 英語翻訳
-└── en/life/hello-world.md          # 英語翻訳
-```
-
-翻訳がない投稿は自動的にデフォルトロケールのコンテンツにフォールバックし、通知が表示されます。
-
-**新しい言語の追加**：
-
-1. `config/site.yaml` の `i18n.locales` に新しいロケールを追加
-2. `src/i18n/translations/<code>.ts` を作成 — 必要に応じて UI 文字列を翻訳（未翻訳のキーはデフォルトロケールにフォールバック）
-3. `src/i18n/translations/index.ts` に新しいロケールを登録
-4. `config/i18n-content.yaml` にコンテンツ翻訳を追加（任意）
-
-### コメントシステムの切り替え
-
-`config/site.yaml` の `comment.provider` フィールドでコメントシステムを切り替え：
-
-```yaml
-comment:
-  provider: waline # 'waline' | 'giscus' | 'remark42' | 'twikoo' | 'none'
-  waline:
-    serverURL: https://your-waline-server.vercel.app
-    # ... その他の設定
-```
-
-**Waline 推奨**：セルフデプロイが簡単で機能が豊富（Markdown、絵文字、メール通知）、ページビュー統計付き。詳しい設定は[完全使用ガイド](/src/content/blog/tools/astro-koharu-guide.md#如何添加评论功能)をご覧ください。
-
-## ドキュメント
-
-- **[はじめに](../GETTING-STARTED.md)** - ブログを始める
-- **[テーマの更新](../GETTING-STARTED.md#7-更新主题)** - 安全に新バージョンに更新する方法
-- **[完全使用ガイド](../src/content/blog/tools/astro-koharu-guide.md)** - すべての機能の詳しい設定と使い方
+![ブログ画面のプレビュー 1](https://r2.cosine.ren/i/2026/01/f1c239b4adf7771f10b954c389d87a74.webp)
+![ブログ画面のプレビュー 2](https://r2.cosine.ren/i/2026/01/c962f82503abf68eb1f21b835873f241.webp)
 
 ## 機能ショーケース
 
@@ -345,7 +150,7 @@ comment:
 - お知らせシステム
   ![お知らせ](https://r2.cosine.ren/i/2026/01/a4660955f52438b3cc2d21bdc931bbd4.gif)
 - Shoka 互換 Markdown 構文 - 注意ブロック、折りたたみブロック、タブカード、テキストエフェクト、スポイラーテキスト、ルビ注釈、クイズなど
-- オーディオ/ビデオプレーヤー - NetEase Cloud Music プレイリストと動画再生に対応
+- オーディオ/ビデオプレーヤー - 音楽プレイリストと動画再生に対応。[Meting](https://github.com/metowolf/meting) API を利用でき、セルフホストを推奨
 
 ## このテーマを使用しているブログ
 
@@ -371,12 +176,10 @@ astro-koharu の開発にインスピレーションとリファレンスを提�
 - [4ark.me](https://github.com/gd4Ark/gd4Ark.github.io)
 - [Zhilu のブログ](https://blog.zhilu.site/)
 
-...
-
 ## Star History
 
 [![Star History Chart](https://api.star-history.com/svg?repos=cosZone/astro-koharu&type=date&legend=top-left)](https://www.star-history.com/#cosZone/astro-koharu&type=date&legend=top-left)
 
 ## License
 
-GNU Affero General Public License version 3 (AGPL-3.0)
+[GNU Affero General Public License version 3 (AGPL-3.0)](../LICENSE)
