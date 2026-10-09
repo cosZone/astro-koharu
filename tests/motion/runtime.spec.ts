@@ -88,14 +88,18 @@ for (const reduceBeforeLoad of [true, false]) {
     const imageHeld = new Promise<void>((resolve) => {
       releaseImage = resolve;
     });
-    await page.route('**/img/site_header_*.webp', async (route) => {
-      await imageHeld;
-      await route.continue();
-    });
+    // The cover draws optimized variants of site_header_* (/_image in dev, /_astro in builds) inside a <picture>.
+    await page.route(
+      (url) => url.href.includes('site_header_'),
+      async (route) => {
+        await imageHeld;
+        await route.continue();
+      },
+    );
     await page.addInitScript(() => {
       const add = EventTarget.prototype.addEventListener;
       EventTarget.prototype.addEventListener = function (type, listener, options) {
-        if (this instanceof HTMLImageElement && this.parentElement?.id === 'banner-box' && type === 'load') {
+        if (this instanceof HTMLImageElement && this.closest('#banner-box') && type === 'load') {
           this.dataset.motionLoadListenerReady = 'true';
         }
         return add.call(this, type, listener, options);
@@ -103,7 +107,7 @@ for (const reduceBeforeLoad of [true, false]) {
     });
     try {
       await page.goto('/', { waitUntil: 'domcontentloaded' });
-      const banner = page.locator('#banner-box > img');
+      const banner = page.locator('#banner-box img');
       await expect(banner).toHaveAttribute('data-motion-load-listener-ready', 'true');
       if (reduceBeforeLoad) await reduceSystemMotion(page);
       releaseImage();

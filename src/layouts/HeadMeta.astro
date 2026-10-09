@@ -55,7 +55,8 @@ const heroImages = hero
     )
   : [];
 const portraitHero =
-  hero && meta.heroPortrait
+  // Every prerendered Cover draws the default artwork through HeroImage, portrait crop included.
+  hero && (meta.heroImage ?? defaultHeroImage) === defaultHeroImage
     ? await getImage({ src: hero.src, ...portraitHeroTransform, format: 'avif', quality: responsiveImageQuality })
     : undefined;
 ---

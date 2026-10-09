@@ -59,6 +59,8 @@ for (const theme of ['light', 'dark']) {
     for (const index of [0, 1, 3, 0]) {
       const block = page.locator('.code-block-wrapper').nth(index);
       const button = block.getByRole('button', { name: '全屏查看', exact: true }).last();
+      // Code toolbars hydrate near the viewport.
+      await block.scrollIntoViewIfNeeded();
       await page.evaluate(() => {
         window.fullscreenFades = [];
       });
@@ -87,7 +89,9 @@ for (const theme of ['light', 'dark']) {
 test('code fullscreen remains operable with reduced motion', async ({ page }) => {
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await page.goto('/post/markdown-features', { waitUntil: 'domcontentloaded' });
-  const button = page.locator('.code-block-wrapper').first().getByRole('button', { name: '全屏查看', exact: true }).last();
+  const block = page.locator('.code-block-wrapper').first();
+  const button = block.getByRole('button', { name: '全屏查看', exact: true }).last();
+  await block.scrollIntoViewIfNeeded();
   await button.click();
   const panel = page.locator(panelSelector);
   await expect(panel).toBeVisible();
