@@ -1,6 +1,6 @@
 # 贡献指南
 
-感谢你参与 astro-koharu。功能问题与建议可以提交到 [Issues](https://github.com/cosZone/astro-koharu/issues)，也可以在[反馈与 Roadmap](https://cos.featurebase.app/)中讨论。
+感谢你参与 astro-koharu。功能问题与建议可以提交到 [Issues](https://github.com/cosZone/astro-koharu/issues)。
 
 ## 开始开发
 

@@ -12,7 +12,7 @@
 
 このリポジトリはデモ用に整理されています。テーマ開発者のブログは https://blog.cosine.ren/ をご覧ください。気に入ったらスターをお願いします！
 
-[クイックスタート](../GETTING-STARTED.md) · [使い方ガイド](../src/content/blog/tools/astro-koharu-guide.md) · [フィードバック・ロードマップ](https://cos.featurebase.app/)
+[クイックスタート](../GETTING-STARTED.md) · [使い方ガイド](../src/content/blog/tools/astro-koharu-guide.md) · [フィードバック](https://github.com/cosZone/astro-koharu/issues)
 
 > **ライセンス：AGPL-3.0。** 利用・改変・デプロイの前に [LICENSE](../LICENSE) を確認してください。
 
@@ -24,6 +24,27 @@
 - パフォーマンスオーバーヘッドを最小限に
 - Pagefind によるサーバーレス全文検索
 - LQIP（低品質画像プレースホルダー）— 画像読み込み前にグラデーションプレースホルダーを表示
+
+## 画面と動き
+
+このリポジトリのデモサイト（中国語 UI）で録画しています。
+
+<table>
+  <tr>
+    <td width="50%"><img src="../docs/assets/showcase/home.webp" alt="カバーに桜が舞い、スクロールするとヘッダーがカプセル型に浮かぶ" /><br /><sub>カバーに桜が舞い、スクロールするとヘッダーがカプセル型に浮かぶ</sub></td>
+    <td width="50%"><img src="../docs/assets/showcase/theme.webp" alt="円形に広がって夜桜のダークテーマへ切り替え" /><br /><sub>円形に広がって夜桜のダークテーマへ切り替え</sub></td>
+  </tr>
+  <tr>
+    <td width="50%"><img src="../docs/assets/showcase/pages.webp" alt="クリックで花びらが弾け、ナビのハイライトが滑り、アーカイブ・カテゴリー・友達リンク・連載を滑らかに遷移" /><br /><sub>クリックで花びらが弾け、ナビのハイライトが滑り、アーカイブ・カテゴリー・友達リンク・連載を滑らかに遷移</sub></td>
+    <td width="50%"><img src="../docs/assets/showcase/toc.webp" alt="糸のような目次が読み進める位置を追う" /><br /><sub>糸のような目次が読み進める位置を追う</sub></td>
+  </tr>
+</table>
+<table>
+  <tr>
+    <td width="76%"><img src="../docs/assets/showcase/editor.webp" alt="書きながらプレビューできる執筆ルーム" /><br /><sub>書きながらプレビューできる執筆ルーム</sub></td>
+    <td width="24%"><img src="../docs/assets/showcase/mobile.webp" alt="ドラッグで閉じられるモバイルドロワー" /><br /><sub>ドラッグで閉じられるモバイルドロワー</sub></td>
+  </tr>
+</table>
 
 ## できること
 
@@ -142,7 +163,7 @@ pnpm docker:up
 
 ![過去のパフォーマンスレポート（2025 年 12 月）](https://r2.cosine.ren/i/2025/12/e93f40c340a626c4ab72212a84cf6d5d.webp)
 
-[フィードバック](https://cos.featurebase.app/)やロードマップはこちらからご確認いただけます。Issue も歓迎しますが、個人プロジェクトですので、フォークしてカスタマイズも自由にどうぞ！
+[Issue](https://github.com/cosZone/astro-koharu/issues) も歓迎しますが、個人プロジェクトですので、フォークしてカスタマイズも自由にどうぞ！
 
 ![ブログ画面のプレビュー 1](https://r2.cosine.ren/i/2026/01/f1c239b4adf7771f10b954c389d87a74.webp)
 ![ブログ画面のプレビュー 2](https://r2.cosine.ren/i/2026/01/c962f82503abf68eb1f21b835873f241.webp)

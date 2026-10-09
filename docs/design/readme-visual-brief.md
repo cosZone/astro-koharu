@@ -33,3 +33,7 @@
 ## 给设计 agent 的提示词
 
 > 为 astro-koharu README 制作一张 1600 × 900 横版功能概览图，沿用现有萌系粉蓝博客风格。暖白底、淡粉淡蓝圆角卡片、轻阴影和少量花瓣。以公开示例界面呈现「写作室：边写边预览」「阅读：让长文也好读」「分享：带走 Markdown」，突出源码与预览双栏、语法手册、文章落款、复制与下载。内容统一使用虚构文章《春日散步手记》，文字简短清楚。新图补充原有品牌图，不替换旧截图，不添加性能成绩、云端发布或其他未实现能力。请输出可在 GitHub 正文宽度阅读的 WebP/PNG，并提供可编辑源文件。
+
+## 动图
+
+README「页面与动效」一节的动图在 `docs/assets/showcase/`，由 `docs/design/readme-showcase/` 的脚本录制：先 `pnpm build`，再运行 `node docs/design/readme-showcase/record.mjs [场景名]`。需要本机 ffmpeg 支持 `libwebp_anim`，以及 ImageMagick。录制会改写 `.cache/og-data.json`，提交前请还原。

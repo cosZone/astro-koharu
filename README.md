@@ -12,7 +12,7 @@
 
 本仓库已清理为示例仓库，主题开发者的博客可查看 https://blog.cosine.ren/ 喜欢的话欢迎 star ～
 
-[快速开始](./GETTING-STARTED.md) · [完整使用指南](./src/content/blog/tools/astro-koharu-guide.md) · [反馈与 Roadmap](https://cos.featurebase.app/)
+[快速开始](./GETTING-STARTED.md) · [完整使用指南](./src/content/blog/tools/astro-koharu-guide.md) · [反馈与建议](https://github.com/cosZone/astro-koharu/issues)
 
 > **许可证：AGPL-3.0。** 使用、修改和部署前请阅读 [LICENSE](./LICENSE)。
 
@@ -24,6 +24,27 @@
 - 尽可能的减少性能开销
 - 使用 pagefind 实现无后端的全站搜索
 - LQIP（低质量图片占位符），图片加载前显示渐变色占位
+
+## 页面与动效
+
+以下动图录自本仓库的示例站点。
+
+<table>
+  <tr>
+    <td width="50%"><img src="./docs/assets/showcase/home.webp" alt="封面樱花飘落，下滑后头部收成浮动胶囊" /><br /><sub>封面樱花飘落，下滑后头部收成浮动胶囊</sub></td>
+    <td width="50%"><img src="./docs/assets/showcase/theme.webp" alt="圆形扩散，切换到夜樱深色主题" /><br /><sub>圆形扩散，切换到夜樱深色主题</sub></td>
+  </tr>
+  <tr>
+    <td width="50%"><img src="./docs/assets/showcase/pages.webp" alt="点击导航时花瓣迸发、指示条滑动，归档、分类、友链与周刊之间平滑过渡" /><br /><sub>点击导航时花瓣迸发、指示条滑动，归档、分类、友链与周刊之间平滑过渡</sub></td>
+    <td width="50%"><img src="./docs/assets/showcase/toc.webp" alt="丝线目录跟随阅读进度" /><br /><sub>丝线目录跟随阅读进度</sub></td>
+  </tr>
+</table>
+<table>
+  <tr>
+    <td width="76%"><img src="./docs/assets/showcase/editor.webp" alt="写作室：边写边预览" /><br /><sub>写作室：边写边预览</sub></td>
+    <td width="24%"><img src="./docs/assets/showcase/mobile.webp" alt="移动端抽屉，可拖拽关闭" /><br /><sub>移动端抽屉，可拖拽关闭</sub></td>
+  </tr>
+</table>
 
 ## 能用它做什么
 
@@ -140,7 +161,7 @@ pnpm docker:up
 
 ![历史性能报告（2025 年 12 月）](https://r2.cosine.ren/i/2025/12/e93f40c340a626c4ab72212a84cf6d5d.webp)
 
-可在此进行博客的[反馈](https://cos.featurebase.app/)以及查看 Roadmap，当然更欢迎在 issue 区域提 issue，不过这毕竟是个人项目，喜欢的也欢迎 fork 出去改。
+欢迎在 [issue 区域](https://github.com/cosZone/astro-koharu/issues)提 issue，不过这毕竟是个人项目，喜欢的也欢迎 fork 出去改。
 
 ![博客页面预览一](https://r2.cosine.ren/i/2026/01/f1c239b4adf7771f10b954c389d87a74.webp)
 ![博客页面预览二](https://r2.cosine.ren/i/2026/01/c962f82503abf68eb1f21b835873f241.webp)

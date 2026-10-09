@@ -12,7 +12,7 @@ The overall design is inspired by the Hexo [Shoka](https://shoka.lostyu.me/compu
 
 This repository has been cleaned up as a demo repository. Visit the theme developer's blog at https://blog.cosine.ren/ — give it a star if you like it!
 
-[Getting started](../GETTING-STARTED.md) · [Full guide](../src/content/blog/tools/astro-koharu-guide.md) · [Feedback & roadmap](https://cos.featurebase.app/)
+[Getting started](../GETTING-STARTED.md) · [Full guide](../src/content/blog/tools/astro-koharu-guide.md) · [Feedback](https://github.com/cosZone/astro-koharu/issues)
 
 > **License: AGPL-3.0.** Read [LICENSE](../LICENSE) before using, modifying, or deploying the theme.
 
@@ -24,6 +24,27 @@ Under active development
 - Minimal performance overhead
 - Serverless full-site search powered by Pagefind
 - LQIP (Low Quality Image Placeholders) — gradient placeholders shown before images load
+
+## A look around
+
+Recorded on this repository’s demo site (Chinese UI).
+
+<table>
+  <tr>
+    <td width="50%"><img src="../docs/assets/showcase/home.webp" alt="Sakura petals drift over the cover; the header floats as a capsule once you scroll" /><br /><sub>Sakura petals drift over the cover; the header floats as a capsule once you scroll</sub></td>
+    <td width="50%"><img src="../docs/assets/showcase/theme.webp" alt="A circular reveal into the night-sakura dark theme" /><br /><sub>A circular reveal into the night-sakura dark theme</sub></td>
+  </tr>
+  <tr>
+    <td width="50%"><img src="../docs/assets/showcase/pages.webp" alt="Petal bursts, a gliding nav pill and smooth transitions across archives, categories, friends and series" /><br /><sub>Petal bursts, a gliding nav pill and smooth transitions across archives, categories, friends and series</sub></td>
+    <td width="50%"><img src="../docs/assets/showcase/toc.webp" alt="A silk-thread table of contents follows your reading" /><br /><sub>A silk-thread table of contents follows your reading</sub></td>
+  </tr>
+</table>
+<table>
+  <tr>
+    <td width="76%"><img src="../docs/assets/showcase/editor.webp" alt="The writing room previews as you type" /><br /><sub>The writing room previews as you type</sub></td>
+    <td width="24%"><img src="../docs/assets/showcase/mobile.webp" alt="A mobile drawer you can drag to close" /><br /><sub>A mobile drawer you can drag to close</sub></td>
+  </tr>
+</table>
 
 ## What you can do
 
@@ -142,7 +163,7 @@ The original demo images are preserved below; some predate the current release.
 
 ![Historical performance report (December 2025)](https://r2.cosine.ren/i/2025/12/e93f40c340a626c4ab72212a84cf6d5d.webp)
 
-You can provide [feedback](https://cos.featurebase.app/) and check the Roadmap here. Issues are also welcome — but since this is a personal project, feel free to fork and customize!
+[Issues](https://github.com/cosZone/astro-koharu/issues) are welcome — but since this is a personal project, feel free to fork and customize!
 
 ![Blog page preview one](https://r2.cosine.ren/i/2026/01/f1c239b4adf7771f10b954c389d87a74.webp)
 ![Blog page preview two](https://r2.cosine.ren/i/2026/01/c962f82503abf68eb1f21b835873f241.webp)
