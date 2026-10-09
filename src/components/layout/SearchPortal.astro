@@ -16,9 +16,9 @@ const lang = getHtmlLang(locale);
 const bundlePath = `${import.meta.env.BASE_URL}pagefind/`;
 ---
 
-<link rel="stylesheet" href={`${bundlePath}pagefind-component-ui.css`} media="print" onload="this.setAttribute('media','all')" />
+<link id="pagefind-search-styles" rel="stylesheet" data-href={`${bundlePath}pagefind-component-ui.css`} disabled />
 <!-- Search Component - will be portal'd into dialog -->
-<div id="search-component-portal" data-bundle-path={bundlePath} data-load-error={t(locale, 'search.loadError')}>
+<div id="search-component-portal" data-bundle-path={bundlePath} data-loading={t(locale, 'common.loading')} data-load-error={t(locale, 'search.loadError')}>
   <div id="search-for-dialog">
     <output data-search-loading class="block px-4 py-5 text-muted-foreground text-sm">{t(locale, 'common.loading')}</output>
     <pagefind-config lang={lang} bundle-path={bundlePath}></pagefind-config>
@@ -30,7 +30,44 @@ const bundlePath = `${import.meta.env.BASE_URL}pagefind/`;
   import { $isSearchOpen } from '@store/modal';
   let searchUI: Promise<unknown> | undefined;
 
-  function loadSearchUI() {
+  function loadSearchStyles() {
+    const link = document.getElementById('pagefind-search-styles') as HTMLLinkElement | null;
+    if (!link) return Promise.reject(new Error('Search stylesheet is missing'));
+    const path = link.dataset.href;
+    if (!path) return Promise.reject(new Error('Search stylesheet URL is missing'));
+    if (link.sheet && !link.disabled) return Promise.resolve();
+
+    return new Promise<void>((resolve, reject) => {
+      const cleanup = () => {
+        link.removeEventListener('load', onLoad);
+        link.removeEventListener('error', onError);
+        document.removeEventListener('astro:before-swap', onSwap);
+      };
+      const onLoad = () => {
+        cleanup();
+        resolve();
+      };
+      const onError = () => {
+        cleanup();
+        link.disabled = true;
+        link.removeAttribute('href');
+        reject(new Error('Search stylesheet failed to load'));
+      };
+      const onSwap = () => {
+        cleanup();
+        reject(new DOMException('Search stylesheet loading was cancelled', 'AbortError'));
+      };
+      link.addEventListener('load', onLoad);
+      link.addEventListener('error', onError);
+      document.addEventListener('astro:before-swap', onSwap, { once: true });
+      link.disabled = false;
+      link.href = path;
+    });
+  }
+
+  async function loadSearchUI() {
+    // The body stylesheet is replaced on navigation; check the current link on every open.
+    await loadSearchStyles();
     const portal = document.getElementById('search-component-portal');
     const path = `${portal?.dataset.bundlePath ?? '/pagefind/'}pagefind-component-ui.js`;
     searchUI ??= import(/* @vite-ignore */ path).catch((error) => {
@@ -69,6 +106,11 @@ const bundlePath = `${import.meta.env.BASE_URL}pagefind/`;
   async function handleDialogOpen() {
     const searchComponent = document.getElementById('search-for-dialog');
     const loading = searchComponent?.querySelector<HTMLOutputElement>('[data-search-loading]');
+    const messages = document.getElementById('search-component-portal')?.dataset;
+    // A retry after a failed load reuses the placeholder, which still shows the previous error.
+    if (loading) loading.textContent = messages?.loading ?? '';
+    // Pagefind may already be upgraded after SPA navigation, before this page's CSS is ready.
+    searchComponent?.setAttribute('data-search-pending', '');
     // Move the placeholder immediately; the Pagefind runtime upgrades it on first open.
     requestAnimationFrame(() => {
       if ($isSearchOpen.get()) moveSearchToDialog();
@@ -76,6 +118,7 @@ const bundlePath = `${import.meta.env.BASE_URL}pagefind/`;
     try {
       await loadSearchUI();
       if (!searchComponent?.isConnected) return;
+      searchComponent.removeAttribute('data-search-pending');
       loading?.remove();
       if (!$isSearchOpen.get()) return;
       moveSearchToDialog();
@@ -85,8 +128,9 @@ const bundlePath = `${import.meta.env.BASE_URL}pagefind/`;
         }
       });
     } catch (error) {
+      if (error instanceof DOMException && error.name === 'AbortError') return;
       console.error('[Search] Failed to load:', error);
-      if (loading) loading.textContent = document.getElementById('search-component-portal')?.dataset.loadError ?? '';
+      if (loading) loading.textContent = messages?.loadError ?? '';
     }
   }
 
@@ -132,6 +176,10 @@ const bundlePath = `${import.meta.env.BASE_URL}pagefind/`;
   }
 </style>
 <style is:global>
+  #search-for-dialog[data-search-pending] pagefind-searchbox {
+    display: none !important;
+  }
+
   /* Ensure search is visible when in dialog */
   #search-dialog-container #search-for-dialog {
     display: block !important;

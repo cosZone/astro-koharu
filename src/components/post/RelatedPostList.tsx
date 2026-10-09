@@ -1,6 +1,8 @@
+import { useIsMounted } from '@hooks/useIsMounted';
 import { useTranslation } from '@hooks/useTranslation';
 import { translateCategoryName } from '@lib/content/category-translate';
-import { encodeSlug } from '@lib/route';
+import { encodeSlug } from '@lib/url';
+import { useMemo } from 'react';
 import { localizedPath } from '@/i18n';
 import { cn, shuffleArray } from '@/lib/utils';
 import type { PostRefWithCategory } from '@/types/blog';
@@ -14,12 +16,15 @@ interface Props {
 }
 
 export default function RelatedPostList({ posts, fallbackPool, fallbackCount, startIndex = 6, locale }: Props) {
-  const { t } = useTranslation();
+  const { t } = useTranslation(locale);
+  const isMounted = useIsMounted();
   const hasRelatedPosts = posts.length > 0;
 
   // Shuffle fallback posts on client-side for fresh randomization
-  const fallbackPosts =
-    fallbackPool.length <= fallbackCount ? shuffleArray(fallbackPool) : shuffleArray(fallbackPool).slice(0, fallbackCount);
+  const fallbackPosts = useMemo(
+    () => (isMounted ? shuffleArray(fallbackPool).slice(0, fallbackCount) : []),
+    [isMounted, fallbackPool, fallbackCount],
+  );
 
   const displayPosts = hasRelatedPosts ? posts : fallbackPosts;
   const title = hasRelatedPosts ? t('post.relatedPosts') : '';

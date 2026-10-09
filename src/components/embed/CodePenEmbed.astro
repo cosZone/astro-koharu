@@ -8,50 +8,73 @@
 <script>
   declare global {
     interface Window {
-      __CPEmbed?: () => void;
+      __CPEmbed?: (selector?: string) => void;
     }
   }
 
-  let codepenScriptLoaded = false;
+  let scriptPromise: Promise<void> | undefined;
+  let observer: IntersectionObserver | undefined;
 
   function loadCodePenScript() {
-    return new Promise<void>((resolve, reject) => {
-      // Check if already loaded
-      if (codepenScriptLoaded || window.__CPEmbed) {
-        resolve();
-        return;
-      }
+    if (window.__CPEmbed) return Promise.resolve();
+    if (scriptPromise) return scriptPromise;
+    scriptPromise = new Promise<void>((resolve, reject) => {
 
       const script = document.createElement('script');
       script.src = 'https://cpwebassets.codepen.io/assets/embed/ei.js';
       script.async = true;
       script.onload = () => {
-        codepenScriptLoaded = true;
         resolve();
       };
-      script.onerror = reject;
+      script.onerror = () => {
+        scriptPromise = undefined;
+        script.remove();
+        reject(new Error('CodePen embed script could not be loaded'));
+      };
       document.head.appendChild(script);
     });
+    return scriptPromise;
   }
 
-  async function initializeCodePenEmbeds() {
-    // Check if there are any CodePen embeds on the page
-    const codepenElements = document.querySelectorAll('.codepen');
-    if (codepenElements.length === 0) {
-      return;
-    }
-
+  async function renderEmbed(element: Element) {
+    observer?.unobserve(element);
+    element.setAttribute('data-codepen-ready', 'true');
     try {
-      // Load the CodePen script if not already loaded
       await loadCodePenScript();
-
-      // Initialize all CodePen embeds
-      if (window.__CPEmbed) {
-        window.__CPEmbed();
+      if (element.isConnected) {
+        window.__CPEmbed?.('[data-codepen-ready="true"]');
       }
     } catch (error) {
       console.error('[CodePen Embed] Failed to load CodePen embed script:', error);
     }
+  }
+
+  function cleanup() {
+    observer?.disconnect();
+    observer = undefined;
+  }
+
+  function initializeCodePenEmbeds() {
+    cleanup();
+    const elements = document.querySelectorAll('.codepen, .codepen-later');
+    // The official script processes every .codepen on load; keep pending pens out of that selector.
+    for (const element of elements) {
+      element.classList.remove('codepen');
+      element.classList.add('codepen-later');
+    }
+    if (!('IntersectionObserver' in window)) {
+      for (const element of elements) void renderEmbed(element);
+      return;
+    }
+    observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (entry.isIntersecting) void renderEmbed(entry.target);
+        }
+      },
+      { rootMargin: '800px' },
+    );
+    for (const element of elements) observer.observe(element);
   }
 
   // Initialize on initial page load
@@ -61,4 +84,5 @@
 
   // Re-initialize on Astro page transitions
   document.addEventListener('astro:page-load', initializeCodePenEmbeds);
+  document.addEventListener('astro:before-swap', cleanup);
 </script>

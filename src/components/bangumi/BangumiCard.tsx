@@ -32,7 +32,7 @@ export function BangumiCard({ item, showStatus }: BangumiCardProps) {
     <a href={`https://bgm.tv/subject/${subject.id}`} target="_blank" rel="noopener noreferrer" className="bangumi-card group">
       <div className="bangumi-poster">
         {imageUrl ? (
-          <img src={imageUrl} alt="" loading="lazy" decoding="async" />
+          <img src={imageUrl} alt="" width={200} height={300} loading="lazy" decoding="async" />
         ) : (
           <span className="flex size-full items-center justify-center text-muted-foreground text-xs">
             {t('bangumi.noImage')}
@@ -40,9 +40,9 @@ export function BangumiCard({ item, showStatus }: BangumiCardProps) {
         )}
         {isWatching && showStatus && <span className="bangumi-ribbon">{t('bangumi.watching')}</span>}
       </div>
-      <h3 className="bangumi-title" title={title}>
+      <h2 className="bangumi-title" title={title}>
         {title}
-      </h3>
+      </h2>
       <p className="bangumi-meta">
         {showStatus && !isWatching && <span>{t(COLLECTION_LABEL_KEYS[item.type])}</span>}
         {year && <span>{year}</span>}

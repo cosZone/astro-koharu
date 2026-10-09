@@ -1,9 +1,9 @@
 import { useEffect, useRef, useState } from 'react';
+import twikooStyles from 'twikoo/dist/twikoo.css?inline';
 import { commentConfig } from '@/constants/site-config';
 import { useTranslation } from '@/hooks/useTranslation';
 import { getHtmlLang, getLocaleFromUrl } from '@/i18n/utils';
-import 'twikoo/dist/twikoo.css';
-import '@/styles/components/twikoo.css';
+import themeStyles from '@/styles/components/twikoo.css?inline';
 
 // Config is module-level static data parsed from YAML at build time - won't change at runtime
 const config = commentConfig.twikoo;
@@ -77,21 +77,24 @@ export default function Twikoo() {
   if (!config) return null;
 
   return (
-    <div className="px-4">
-      {status === 'loading' && <TwikooSkeleton />}
-      {status === 'error' && (
-        <div className="flex flex-col items-center gap-3 rounded-lg border border-border p-6 text-center">
-          <p className="text-muted-foreground text-sm">{t('comment.error')}</p>
-          <button
-            type="button"
-            className="rounded-md bg-primary px-4 py-2 text-primary-foreground text-sm transition-opacity hover:opacity-90"
-            onClick={() => window.location.reload()}
-          >
-            {t('comment.retry')}
-          </button>
-        </div>
-      )}
-      <div ref={containerRef} id="tcomment" className={status === 'ready' ? undefined : 'hidden'} />
-    </div>
+    <>
+      <style>{`${twikooStyles}\n${themeStyles}`}</style>
+      <div className="px-4">
+        {status === 'loading' && <TwikooSkeleton />}
+        {status === 'error' && (
+          <div className="flex flex-col items-center gap-3 rounded-lg border border-border p-6 text-center">
+            <p className="text-muted-foreground text-sm">{t('comment.error')}</p>
+            <button
+              type="button"
+              className="rounded-md bg-primary px-4 py-2 text-primary-foreground text-sm transition-opacity hover:opacity-90"
+              onClick={() => window.location.reload()}
+            >
+              {t('comment.retry')}
+            </button>
+          </div>
+        )}
+        <div ref={containerRef} id="tcomment" className={status === 'ready' ? undefined : 'hidden'} />
+      </div>
+    </>
   );
 }

@@ -14,6 +14,7 @@ import { PlayerPreview } from '@components/markdown/audio-player/PlayerPreview';
 import { MediaControls } from '@components/markdown/shared/MediaControls';
 import { FloatingFocusManager, useDismiss, useFloating, useInteractions, useRole } from '@floating-ui/react';
 import { useAudioPlayer } from '@hooks/useAudioPlayer';
+import { useIsMounted } from '@hooks/useIsMounted';
 import { useMediaQuery } from '@hooks/useMediaQuery';
 import { useMotionLevel } from '@hooks/useMotionLevel';
 import { useTranslation } from '@hooks/useTranslation';
@@ -34,6 +35,7 @@ interface GlobalBGMPlayerProps {
 
 export default function GlobalBGMPlayer({ audioGroups, metingApi }: GlobalBGMPlayerProps) {
   const { t } = useTranslation();
+  const isMounted = useIsMounted();
   const panelOpen = useStore($bgmPanelOpen);
   const isDrawerOpen = useStore($isDrawerOpen);
   const isAnyModalOpen = useStore($isAnyModalOpen);
@@ -223,7 +225,7 @@ export default function GlobalBGMPlayer({ audioGroups, metingApi }: GlobalBGMPla
   return (
     <LazyMotionProvider>
       <AnimatePresence>
-        {panelOpen && !isHidden && (
+        {isMounted && panelOpen && !isHidden && (
           <FloatingFocusManager key="bgm-panel" context={context} modal={false}>
             <m.div
               ref={refs.setFloating}

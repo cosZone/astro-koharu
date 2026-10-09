@@ -8,18 +8,25 @@ async function openSearch(page) {
 }
 
 async function softNavigate(page, path) {
-  await page.evaluate((path) => {
+  const timeOrigin = await page.evaluate((path) => {
     const anchor = document.createElement('a');
     anchor.href = path;
     anchor.dataset.testNavigation = '';
     anchor.textContent = 'Navigate';
     document.body.append(anchor);
+    document.documentElement.dataset.searchNavigationComplete = 'false';
+    document.addEventListener(
+      'astro:page-load',
+      () => {
+        document.documentElement.dataset.searchNavigationComplete = 'true';
+      },
+      { once: true },
+    );
+    return performance.timeOrigin;
   }, path);
-  const pageLoad = page.evaluate(
-    () => new Promise((resolve) => document.addEventListener('astro:page-load', () => resolve(true), { once: true })),
-  );
   await page.locator('[data-test-navigation]').click();
-  await pageLoad;
+  await page.waitForFunction(() => document.documentElement.dataset.searchNavigationComplete === 'true');
+  expect(await page.evaluate(() => performance.timeOrigin)).toBe(timeOrigin);
   await expect(page).toHaveURL(`${origin}${path}`);
 }
 
@@ -33,6 +40,10 @@ for (const profile of [
     for (const scenario of ['navigation', 'cancel', 'failure']) {
       const context = await browser.newContext(profile.options);
       const page = await context.newPage();
+      page.setDefaultTimeout(15000);
+      const timer = setTimeout(() => {
+        void context.close();
+      }, 45000);
       const requests = [];
       const errors = [];
       page.on('request', (request) => requests.push(request.url()));
@@ -50,7 +61,7 @@ for (const profile of [
         } else if (scenario === 'failure') {
           await page.route(runtime, (route) => route.abort());
         }
-        await page.goto(origin, { waitUntil: 'load' });
+        await page.goto(origin, { waitUntil: 'domcontentloaded' });
         await expect(page.locator('astro-island[component-url*="SearchDialog"]')).not.toHaveAttribute('ssr');
         expect(requests.filter((url) => url.endsWith('pagefind-component-ui.js'))).toHaveLength(0);
         await openSearch(page);
@@ -97,6 +108,7 @@ for (const profile of [
         if (scenario !== 'failure') expect(errors).toEqual([]);
         console.log(`PASS ${profile.name}: ${scenario}`);
       } finally {
+        clearTimeout(timer);
         release?.();
         await context.close();
       }

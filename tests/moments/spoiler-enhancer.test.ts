@@ -117,6 +117,10 @@ test('fallback spoilers reveal with Enter and Space while the component is unava
     queryDocumentSpoilers: () => spoilers.map(asHtmlElement),
     requestFrame: () => 0,
     reportLoadError: () => undefined,
+    observeVisibility: (_spoiler, onVisible) => {
+      onVisible();
+      return () => {};
+    },
   });
 
   enhance(asParentNode(new FakeRoot(spoilers)));
@@ -142,6 +146,7 @@ test('static spoilers keep keyboard reveal without loading or using the animated
       queryDocumentSpoilers: () => [],
       requestFrame: () => assert.fail('static spoilers must not schedule animation frames'),
       reportLoadError: (error) => assert.fail(String(error)),
+      observeVisibility: () => assert.fail('static spoilers must not be observed'),
     });
     const root = asParentNode(new FakeRoot([spoiler]));
 
@@ -171,6 +176,10 @@ test('upgrades revealed fallback state, localizes the shadow control, and enhanc
     queryDocumentSpoilers: () => activeSpoilers.map(asHtmlElement),
     requestFrame: (callback) => frames.request(callback),
     reportLoadError: (error) => assert.fail(`unexpected load failure: ${String(error)}`),
+    observeVisibility: (_spoiler, onVisible) => {
+      onVisible();
+      return () => {};
+    },
   });
 
   enhance(asParentNode(new FakeRoot([first])));
@@ -197,6 +206,121 @@ test('upgrades revealed fallback state, localizes the shadow control, and enhanc
   assert.equal(appended.dataset.definedEnhancementReady, 'true');
   assert.equal(appendedControl.getAttribute('aria-label'), '显示隐藏内容');
   assert.equal(appendedControl.clickCount, 0);
+});
+
+function deferredEnhancer(spoilers: FakeElement[], loadComponent: () => Promise<unknown>) {
+  const visible = new Map<HTMLElement, () => void>();
+  const errors: unknown[] = [];
+  const frames = frameQueue();
+  const enhance = __createSpoilerEnhancer({
+    componentIsDefined: () => false,
+    loadComponent,
+    queryDocumentSpoilers: () => spoilers.filter((spoiler) => spoiler.isConnected).map(asHtmlElement),
+    requestFrame: (callback) => frames.request(callback),
+    reportLoadError: (error) => errors.push(error),
+    observeVisibility: (spoiler, callback) => {
+      visible.set(spoiler, callback);
+      return () => visible.delete(spoiler);
+    },
+  });
+  return { enhance, visible, errors, frames };
+}
+
+test('offscreen spoilers stay keyboard-accessible and share one load when visible', () => {
+  const spoilers = [new FakeElement('spoiler-span'), new FakeElement('spoiler-span')];
+  let loads = 0;
+  const { enhance, visible } = deferredEnhancer(spoilers, () => {
+    loads += 1;
+    return new Promise(() => undefined);
+  });
+  const root = asParentNode(new FakeRoot(spoilers));
+  enhance(root);
+  enhance(root);
+  assert.equal(loads, 0);
+  assert.equal(visible.size, 2);
+  assert.equal(spoilers[0].getAttribute('tabindex'), '0');
+  const callbacks = [...visible.values()];
+  callbacks[0]();
+  callbacks[1]();
+  assert.equal(loads, 1);
+  assert.equal(visible.size, 0);
+});
+
+test('focus starts loading and an early keyboard reveal survives the deferred upgrade', async () => {
+  const spoiler = new FakeElement('spoiler-span');
+  let loads = 0;
+  let resolve!: () => void;
+  const loaded = new Promise<void>((done) => {
+    resolve = done;
+  });
+  const { enhance, visible, frames } = deferredEnhancer([spoiler], () => {
+    loads += 1;
+    return loaded;
+  });
+  enhance(asParentNode(new FakeRoot([spoiler])));
+  spoiler.dispatchEvent(new Event('focus'));
+  spoiler.dispatchEvent(keyboardEvent('Enter'));
+  assert.equal(loads, 1);
+  assert.equal(visible.size, 0);
+  assert.equal(spoiler.dataset.fallbackRevealed, 'true');
+  const control = attachLocalizedControl(spoiler, '显示隐藏内容');
+  resolve();
+  await loaded;
+  await Promise.resolve();
+  frames.flush();
+  assert.equal(spoiler.dataset.fallbackRevealed, undefined);
+  assert.equal(control.clickCount, 1);
+});
+
+test('navigation cleanup releases visibility and intent listeners on the old page', () => {
+  const old = new FakeElement('spoiler-span');
+  const fresh = new FakeElement('spoiler-span');
+  let loads = 0;
+  const { enhance, visible } = deferredEnhancer([old, fresh], () => {
+    loads += 1;
+    return new Promise(() => undefined);
+  });
+  enhance(asParentNode(new FakeRoot([old])));
+  enhance.cleanup();
+  old.isConnected = false;
+  old.dispatchEvent(new Event('pointerenter'));
+  assert.equal(loads, 0);
+  assert.equal(visible.size, 0);
+  enhance(asParentNode(new FakeRoot([fresh])));
+  visible.get(asHtmlElement(fresh))?.();
+  assert.equal(loads, 1);
+});
+
+test('disconnected spoilers cannot trigger a load after a motion replacement', () => {
+  const spoiler = new FakeElement('spoiler-span');
+  const { enhance, visible } = deferredEnhancer([spoiler], () => assert.fail('detached spoilers must not load'));
+  enhance(asParentNode(new FakeRoot([spoiler])));
+  const callback = visible.get(asHtmlElement(spoiler));
+  spoiler.isConnected = false;
+  callback?.();
+  enhance(asParentNode(new FakeRoot([])));
+  assert.equal(visible.size, 0);
+});
+
+test('a failed visible load keeps the fallback and retries only on reader intent', async () => {
+  const spoiler = new FakeElement('spoiler-span');
+  let loads = 0;
+  const failure = new Error('unavailable');
+  const { enhance, visible, errors } = deferredEnhancer([spoiler], () => {
+    loads += 1;
+    return loads === 1 ? Promise.reject(failure) : new Promise(() => undefined);
+  });
+  enhance(asParentNode(new FakeRoot([spoiler])));
+  visible.get(asHtmlElement(spoiler))?.();
+  await Promise.resolve();
+  await Promise.resolve();
+  assert.deepEqual(errors, [failure]);
+  assert.equal(loads, 1);
+  assert.equal(visible.size, 0);
+  assert.equal(spoiler.getAttribute('role'), 'button');
+  spoiler.click();
+  assert.equal(loads, 2);
+  assert.equal(spoiler.dataset.fallbackRevealed, 'true');
 });
 
 test('the real card interaction selector treats a spoiler as interactive instead of navigating', async () => {

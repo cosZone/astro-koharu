@@ -1,0 +1,129 @@
+---
+interface Props {
+  locale: string;
+}
+
+const fonts =
+  Astro.props.locale === 'ja'
+    ? ['/fonts/GenJyuuGothic-P-Regular/result.css', '/fonts/GenJyuuGothic-P-Bold/result.css']
+    : ['/fonts/ChillRoundFRegular/result.css', '/fonts/ChillRoundFBold/result.css'];
+---
+
+{fonts.map(href => <meta name="koharu-font" content={href} data-rounded-font />)}
+<noscript>{fonts.map(href => <link rel="stylesheet" href={href} />)}</noscript>
+
+<script is:inline>
+  (function () {
+    if (window.__koharuRoundedFonts) {
+      window.__koharuRoundedFonts();
+      return;
+    }
+    const cached = new Map();
+    const registered = new Set();
+    // Stylesheets registered on an earlier visit are likely in the HTTP cache, so repeat visits skip the deferral.
+    const warmKey = 'koharu-rounded-fonts';
+    const readWarm = () => {
+      try {
+        return JSON.parse(localStorage.getItem(warmKey) || '[]');
+      } catch {
+        return [];
+      }
+    };
+    const rememberWarm = hrefs => {
+      try {
+        localStorage.setItem(warmKey, JSON.stringify([...new Set([...readWarm(), ...hrefs])]));
+      } catch {}
+    };
+    const fallback = markers => markers.forEach(marker => {
+      const link = document.createElement('link');
+      link.rel = 'stylesheet';
+      link.href = marker.content;
+      link.dataset.roundedFont = '';
+      marker.replaceWith(link);
+    });
+
+    async function afterFirstContent() {
+      if (performance.getEntriesByName('first-contentful-paint').length) return;
+      if (window.top === window && window.PerformanceObserver && PerformanceObserver.supportedEntryTypes?.includes('paint')) {
+        await new Promise(resolve => {
+          const observer = new PerformanceObserver(list => {
+            if (!list.getEntries().some(entry => entry.name === 'first-contentful-paint')) return;
+            observer.disconnect();
+            resolve();
+          });
+          observer.observe({ type: 'paint', buffered: true });
+        });
+        return;
+      }
+      await new Promise(resolve => {
+        const afterFrame = () => requestAnimationFrame(() => requestAnimationFrame(resolve));
+        if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', afterFrame, { once: true });
+        else afterFrame();
+      });
+    }
+
+    async function readFaces(href) {
+      if (!cached.has(href)) {
+        const request = fetch(href).then(async response => {
+          if (!response.ok) throw new Error(`Font stylesheet: ${response.status}`);
+          const sheet = new CSSStyleSheet();
+          sheet.replaceSync(await response.text());
+          return [...sheet.cssRules].map(rule => {
+            if (!(rule instanceof CSSFontFaceRule)) throw new Error('Expected a font-face stylesheet');
+            const style = rule.style;
+            const family = style.getPropertyValue('font-family').trim().replace(/^(["'])(.*)\1$/, (_, _quote, name) => name);
+            const source = style.getPropertyValue('src').replace(/url\((["']?)(.*?)\1\)/g, (_, _quote, asset) => `url(${JSON.stringify(new URL(asset, href).href)})`);
+            return new FontFace(family, source, {
+              style: style.getPropertyValue('font-style') || 'normal',
+              weight: style.getPropertyValue('font-weight') || 'normal',
+              stretch: style.getPropertyValue('font-stretch') || 'normal',
+              display: style.getPropertyValue('font-display') || 'auto',
+              unicodeRange: style.getPropertyValue('unicode-range') || 'U+0-10FFFF',
+            });
+          });
+        }).catch(error => {
+          cached.delete(href);
+          throw error;
+        });
+        cached.set(href, request);
+      }
+      return cached.get(href);
+    }
+
+    async function loadFonts() {
+      const links = [...document.querySelectorAll('meta[data-rounded-font]')];
+      if (!window.FontFace || !window.CSSStyleSheet || !CSSStyleSheet.prototype.replaceSync || !document.fonts) {
+        fallback(links);
+        return;
+      }
+      const hrefs = links.map(link => new URL(link.content, location.href).href);
+      const warm = hrefs.every(href => readWarm().includes(href));
+      try {
+        // On a cold load, font descriptions should not compete with the cover and page styles before the first content frame.
+        if (!warm) await afterFirstContent();
+        const groups = await Promise.all(hrefs.map(readFaces));
+        // Register both weights together after the first frame, avoiding two document-wide stylesheet updates.
+        if (!warm) {
+          await new Promise(resolve => window.requestIdleCallback
+            ? requestIdleCallback(resolve, { timeout: 200 })
+            : requestAnimationFrame(() => requestAnimationFrame(resolve)));
+        }
+        links.forEach((link, index) => {
+          if (!registered.has(hrefs[index])) {
+            groups[index].forEach(face => document.fonts.add(face));
+            registered.add(hrefs[index]);
+          }
+          link.dataset.fontReady = 'true';
+        });
+        rememberWarm(hrefs);
+      } catch (error) {
+        console.error('[fonts] Loading failed', error);
+        fallback(links);
+      }
+    }
+
+    window.__koharuRoundedFonts = loadFonts;
+    document.addEventListener('astro:page-load', loadFonts);
+    loadFonts();
+  })();
+</script>

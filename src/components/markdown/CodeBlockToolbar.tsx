@@ -5,6 +5,7 @@
 
 import { CopyButton } from '@components/markdown/shared/CopyButton';
 import { MacToolbar } from '@components/markdown/shared/MacToolbar';
+import { useElementVisibility } from '@hooks/useElementVisibility';
 import { useTranslation } from '@hooks/useTranslation';
 import { Icon } from '@iconify/react';
 import { extractCode, extractCodeClassName, extractCodeHTML, extractLanguage } from '@lib/content-enhancer-utils';
@@ -18,7 +19,12 @@ interface CodeBlockToolbarProps {
   enableFullscreen?: boolean;
 }
 
-export function CodeBlockToolbar({ preElement, enableCopy = true, enableFullscreen = true }: CodeBlockToolbarProps) {
+export function CodeBlockToolbar(props: CodeBlockToolbarProps) {
+  const isVisible = useElementVisibility(props.preElement.parentElement ?? props.preElement);
+  return isVisible ? <RenderedCodeBlockToolbar {...props} /> : null;
+}
+
+function RenderedCodeBlockToolbar({ preElement, enableCopy = true, enableFullscreen = true }: CodeBlockToolbarProps) {
   const { t } = useTranslation();
   const info = useMemo(
     () => ({

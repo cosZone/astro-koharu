@@ -63,7 +63,7 @@ export function EmbedHydrator({ containerRef }: { containerRef?: RefObject<HTMLE
                 </a>
               }
             >
-              <TweetEmbed sourceUrl={sourceUrl} tweetId={tweetId} />
+              <TweetEmbed element={element} sourceUrl={sourceUrl} tweetId={tweetId} />
             </Suspense>
           </ErrorBoundary>,
           element,

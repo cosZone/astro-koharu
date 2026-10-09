@@ -11,6 +11,9 @@ export function rehypeImagePlaceholder() {
       if (node.tagName !== 'img') return;
       if (index === undefined || !parent) return;
 
+      // The deployment badge allows CORS; omit credentials so its response cannot set third-party cookies.
+      if (node.properties.src === 'https://vercel.com/button') node.properties.crossOrigin = 'anonymous';
+
       // Skip if already wrapped (e.g., in a figure or custom component)
       if (parent.type === 'element' && parent.tagName === 'figure') return;
 

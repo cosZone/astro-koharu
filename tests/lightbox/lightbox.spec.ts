@@ -192,6 +192,8 @@ test('a failed image viewer can be dismissed without blocking the code viewer', 
   await expect(viewers.getByRole('status')).toHaveCount(0);
   expect(await page.evaluate(() => document.body.style.overflow)).not.toBe('hidden');
   const block = page.locator('.code-block-wrapper').first();
+  // Code toolbars hydrate near the viewport.
+  await block.scrollIntoViewIfNeeded();
   await block.getByRole('button', { name: '全屏查看', exact: true }).last().click();
   await expect(page.locator('[role="dialog"]:has(pre.astro-code)')).toBeVisible();
   await page.keyboard.press('Escape');

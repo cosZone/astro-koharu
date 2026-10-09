@@ -1,5 +1,6 @@
 import { Routes } from '@constants/router';
 import { getPostSlug } from '@lib/content/locale';
+import { encodeSlug } from '@lib/url';
 import type { BlogPost, PostRef } from 'types/blog';
 
 export type RouteParams<T extends Routes> = T extends Routes.Post ? BlogPost | PostRef | undefined : undefined;
@@ -11,7 +12,7 @@ function isBlogPost(param: BlogPost | PostRef): param is BlogPost {
 /**
  * Encode a slug, preserving `/` but escaping other URL-unsafe characters (matches Hexo behavior).
  */
-export const encodeSlug = (slug: string) => slug?.split('/').map(encodeURIComponent).join('/') ?? '';
+export { encodeSlug } from '@lib/url';
 
 export function routeBuilder<T extends Routes>(route: T, param: RouteParams<typeof route>) {
   let href: string = route;

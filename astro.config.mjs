@@ -9,7 +9,6 @@ import yaml from '@rollup/plugin-yaml';
 import tailwindcss from '@tailwindcss/vite';
 import { defineConfig, memoryCache } from 'astro/config';
 import icon from 'astro-icon';
-import mermaid from 'astro-mermaid';
 import pagefind from 'astro-pagefind';
 import robotsTxt from 'astro-robots-txt';
 import rehypeAutolinkHeadings from 'rehype-autolink-headings';
@@ -29,6 +28,7 @@ import { enabledFeaturedSeriesSlugs, normalizeFeaturedSeries } from './src/lib/c
 import { BUNDLED_ICON_SETS } from './src/lib/config/icon-sets.ts';
 import { normalizeMomentsConfig } from './src/lib/config/moments.ts';
 import { RESERVED_ROUTES } from './src/lib/config/reserved-routes.ts';
+import { lazyMermaid } from './src/lib/markdown/lazy-mermaid.ts';
 import { mermaidThemeCSS } from './src/lib/markdown/mermaid-theme.ts';
 import { rehypeEncryptedBlock } from './src/lib/markdown/rehype-encrypted-block.ts';
 import { rehypeEncryptedPost } from './src/lib/markdown/rehype-encrypted-post.ts';
@@ -243,13 +243,22 @@ export default defineConfig({
   },
   integrations: [
     ...(editorConfig.enabled ? [editorIntegration()] : []),
+    {
+      name: 'content-hydration',
+      hooks: {
+        'astro:config:setup': ({ addClientDirective }) => {
+          addClientDirective({ name: 'content', entrypoint: path.resolve('src/lib/markdown/client-content.ts') });
+          addClientDirective({ name: 'panel', entrypoint: path.resolve('src/lib/client-panel.ts') });
+        },
+      },
+    },
     react(),
     sitemap(),
     icon({
       include: Object.fromEntries(BUNDLED_ICON_SETS.map((set) => [set, ['*']])),
     }),
     pagefind(),
-    mermaid({
+    lazyMermaid({
       autoTheme: true,
       mermaidConfig: { themeCSS: mermaidThemeCSS },
     }),
@@ -266,8 +275,33 @@ export default defineConfig({
     enabled: true,
   },
   vite: {
+    environments: {
+      client: {
+        build: {
+          rolldownOptions: {
+            output: {
+              codeSplitting: {
+                // Shared React imports should not add separate network round trips to island hydration.
+                groups: [
+                  { name: 'react-runtime', test: /node_modules[/]\b(?:react|react-dom|scheduler)[/]/ },
+                  {
+                    name: 'motion-runtime',
+                    test: /node_modules[/](?:motion|framer-motion|motion-dom|motion-utils)[/]/,
+                    minShareCount: 2,
+                    entriesAware: true,
+                    entriesAwareMergeThreshold: 8 * 1024,
+                  },
+                ],
+              },
+            },
+          },
+        },
+      },
+    },
     worker: { format: 'es' },
     build: {
+      // Inline small style sheets without changing caching for images or larger assets.
+      assetsInlineLimit: (filePath, content) => (filePath.endsWith('.css') ? content.length < 8192 : undefined),
       // Enable sourcemap for Sonda bundle analysis
       sourcemap: isAnalyze,
       // Astro builds for "esnext", which leaves the CSS minifier (lightningcss) without browser

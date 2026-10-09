@@ -4,14 +4,14 @@ import { renderCodePenEmbed, renderLinkPreview, renderTweetEmbed } from './link-
 
 /** Byte-exact markup: existing pages and CSS depend on it, so changes must be deliberate. */
 const SUCCESS_CARD = `<div class="link-preview-block not-prose" data-state="success">
-  <a href="https://example.com/post/1" target="_blank" class="group block overflow-hidden rounded-lg border border-border transition-all hover:border-primary/50 hover:shadow-md" aria-label="Title - example.com">
+  <a href="https://example.com/post/1" target="_blank" class="group block overflow-hidden rounded-lg border border-border transition-all hover:border-primary/50 hover:shadow-md">
     <div class="bg-card flex md:flex-col flex-row">
       <div class="flex-1 p-4">
         <div class="mb-2 flex items-center gap-2">
           <img src="https://example.com/favicon.ico" alt="" class="h-4 w-4 shrink-0" loading="lazy" aria-hidden="true" referrerpolicy="no-referrer" />
           <span class="text-muted-foreground truncate text-xs font-medium">example.com</span>
         </div>
-        <h3 class="text-foreground mb-2 line-clamp-2 font-semibold leading-tight">Title</h3>
+        <div class="text-foreground mb-2 line-clamp-2 font-semibold leading-tight">Title</div>
         <p class="text-muted-foreground mb-3 line-clamp-2 text-sm">Desc</p>
         <div class="text-primary flex items-center gap-1 text-xs">
           <span class="truncate">https://example.com/post/1</span>
@@ -24,7 +24,7 @@ const SUCCESS_CARD = `<div class="link-preview-block not-prose" data-state="succ
 </div>`;
 
 const ERROR_CARD = `<div class="link-preview-block not-prose" data-state="error">
-  <a href="https://example.com/post/1" target="_blank" class="hover:border-primary/50 group block rounded-lg border border-border bg-card p-4 transition-all hover:shadow-md" aria-label="https://example.com/post/1">
+  <a href="https://example.com/post/1" target="_blank" class="hover:border-primary/50 group block rounded-lg border border-border bg-card p-4 transition-all hover:shadow-md">
     <div class="flex items-center justify-between gap-3">
       <div class="flex items-center gap-3 min-w-0 flex-1">
         <div class="bg-primary/10 text-primary flex h-10 w-10 shrink-0 items-center justify-center rounded-lg">
@@ -100,7 +100,7 @@ test('quotes in attribute values are escaped', () => {
     title: 'a "quoted" \'title\'',
     image: 'https://cdn.example.com/og.png',
   });
-  assert.match(html, /aria-label="a &quot;quoted&quot; &#39;title&#39; - example\.com"/);
+  assert.match(html, /alt="a &quot;quoted&quot; &#39;title&#39;"/);
   assert.equal(html.includes('alt="a "quoted""'), false);
 });
 
@@ -155,7 +155,7 @@ test('an unparseable URL degrades to the raw string instead of throwing', () => 
 test('CodePen embed carries the official data attributes and escapes them', () => {
   assert.equal(
     renderCodePenEmbed('user', 'abc', 'https://codepen.io/user/pen/abc'),
-    `<p class="codepen" data-height="400" data-default-tab="result" data-slug-hash="abc" data-user="user">
+    `<p class="codepen-later" data-height="400" data-default-tab="result" data-slug-hash="abc" data-user="user">
   <span>See the Pen <a href="https://codepen.io/user/pen/abc">abc</a> by user (<a href="https://codepen.io/user">@user</a>) on <a href="https://codepen.io">CodePen</a>.</span>
 </p>`,
   );

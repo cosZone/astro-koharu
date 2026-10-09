@@ -36,7 +36,7 @@ const { post, siderType, isPostPage, articleTools = true } = Astro.props;
   </main>
   {bgmConfig.enabled && bgmConfig.audio.length > 0 && (
     <div transition:persist="global-bgm">
-      <GlobalBGMPlayer client:only="react" audioGroups={bgmConfig.audio} metingApi={bgmConfig.metingApi} />
+      <GlobalBGMPlayer client:panel="bgm" audioGroups={bgmConfig.audio} metingApi={bgmConfig.metingApi} />
     </div>
   )}
   <FloatingGroup client:only="react" />

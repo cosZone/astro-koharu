@@ -28,7 +28,7 @@ const spoilerRevealLabel = t(getLocaleFromUrl(Astro.url.pathname), 'content.reve
 {/* React-based content enhancement (code blocks, mermaid, infographic toolbars) */}
 {finalConfig.enhanceCodeBlock && (
   <ContentEnhancer
-    client:idle
+    client:content
     enableCopy={finalConfig.enableCodeCopy}
     enableFullscreen={finalConfig.enableCodeFullscreen}
     enableQuiz={finalConfig.enableQuiz}

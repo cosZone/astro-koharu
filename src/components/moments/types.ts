@@ -20,6 +20,8 @@ export interface MomentMediaViewModel {
   fileName?: string | null;
   fileSize?: number | null;
   mimeType?: string | null;
+  width?: number | null;
+  height?: number | null;
   alt?: string | null;
   sourceUrl?: string | null;
 }

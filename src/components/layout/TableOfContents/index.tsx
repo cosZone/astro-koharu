@@ -5,6 +5,7 @@
  * Uses custom hooks for state management and sub-components for better organization.
  */
 
+import { useIsMounted } from '@hooks/useIsMounted';
 import { useMediaQuery } from '@hooks/useMediaQuery';
 import { useTocController } from '@hooks/useTocController';
 import { useTranslation } from '@hooks/useTranslation';
@@ -39,6 +40,7 @@ export function TableOfContents({
   enableNumbering = true,
 }: TableOfContentsProps = {}) {
   const { t } = useTranslation();
+  const mounted = useIsMounted();
   const isMobile = useMediaQuery('(max-width: 992px)');
   const drawerOpen = useStore($isDrawerOpen);
   const { headings, toc, subscribeFrame } = useTocController({
@@ -46,6 +48,9 @@ export function TableOfContents({
     defaultExpanded,
     enabled: isDrawer ? isMobile && drawerOpen : !isMobile,
   });
+
+  // A measurable placeholder lets the hidden drawer hydrate when it first opens.
+  if (!mounted) return <div className="min-h-24" aria-hidden="true" />;
 
   // Empty state
   if (headings.length === 0) {

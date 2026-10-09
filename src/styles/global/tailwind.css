@@ -1,6 +1,7 @@
 @import "./reset.css";
-@import "tailwindcss";
+@import "tailwindcss" source("../../");
 @import "./utils.css";
+@source "../../../config";
 @config "../../../tailwind.config.mjs";
 
 @font-face {

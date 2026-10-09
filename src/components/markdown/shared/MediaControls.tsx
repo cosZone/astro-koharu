@@ -96,12 +96,24 @@ export const MediaControls = memo(function MediaControls({
     <div className="audio-player-controls">
       <div className="audio-player-buttons">
         {showModeButton && (
-          <button type="button" className="audio-player-btn" onClick={cycleMode} title={t(MODE_LABEL_KEYS[mode])}>
+          <button
+            type="button"
+            className="audio-player-btn"
+            onClick={cycleMode}
+            title={t(MODE_LABEL_KEYS[mode])}
+            aria-label={t(MODE_LABEL_KEYS[mode])}
+          >
             <Icon icon={MODE_ICONS[mode]} />
           </button>
         )}
         {showTrackButtons && (
-          <button type="button" className="audio-player-btn" onClick={onPrev} title={t('media.prevTrack')}>
+          <button
+            type="button"
+            className="audio-player-btn"
+            onClick={onPrev}
+            title={t('media.prevTrack')}
+            aria-label={t('media.prevTrack')}
+          >
             <Icon icon="ri:skip-back-line" />
           </button>
         )}
@@ -110,6 +122,7 @@ export const MediaControls = memo(function MediaControls({
           className={cn('audio-player-btn audio-player-btn-play', loading && 'loading')}
           onClick={onTogglePlay}
           title={playing ? t('media.pause') : t('media.play')}
+          aria-label={playing ? t('media.pause') : t('media.play')}
         >
           {loading ? (
             <Icon icon="ri:loader-4-line" className="animate-spin" />
@@ -120,7 +133,13 @@ export const MediaControls = memo(function MediaControls({
           )}
         </button>
         {showTrackButtons && (
-          <button type="button" className="audio-player-btn" onClick={onNext} title={t('media.nextTrack')}>
+          <button
+            type="button"
+            className="audio-player-btn"
+            onClick={onNext}
+            title={t('media.nextTrack')}
+            aria-label={t('media.nextTrack')}
+          >
             <Icon icon="ri:skip-forward-line" />
           </button>
         )}
@@ -128,7 +147,13 @@ export const MediaControls = memo(function MediaControls({
         {extraButtons}
 
         <div className="audio-player-volume-group">
-          <button type="button" className="audio-player-btn" onClick={onToggleMute} title={t('media.mute')}>
+          <button
+            type="button"
+            className="audio-player-btn"
+            onClick={onToggleMute}
+            title={t('media.mute')}
+            aria-label={t('media.mute')}
+          >
             <Icon icon={getVolumeIcon(volume, muted)} />
           </button>
           <input
@@ -140,6 +165,7 @@ export const MediaControls = memo(function MediaControls({
             value={muted ? 0 : volume}
             onChange={handleVolumeChange}
             title={t('media.volume', { percent: String(Math.round(volume * 100)) })}
+            aria-label={t('media.volume', { percent: String(Math.round(volume * 100)) })}
           />
         </div>
       </div>

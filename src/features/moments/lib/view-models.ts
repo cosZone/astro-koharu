@@ -56,6 +56,8 @@ function toMedia(media: PublicMedia, sourceUrl: string | null): MomentMediaViewM
     fileName: media.fileName,
     fileSize: parseFileSize(media.fileSize),
     mimeType: media.mimeType,
+    width: media.width,
+    height: media.height,
     alt: media.fileName,
     sourceUrl,
   };

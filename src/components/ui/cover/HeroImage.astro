@@ -1,0 +1,53 @@
+---
+import { getImage } from 'astro:assets';
+import {
+  defaultHeroImage,
+  portraitHeroMedia,
+  portraitHeroTransform,
+  resolveResponsiveImage,
+  responsiveImageQuality,
+} from '@lib/responsive-image';
+import type { HTMLAttributes } from 'astro/types';
+
+interface Props extends HTMLAttributes<'img'> {
+  alt: string;
+}
+
+const { alt, ...attributes } = Astro.props;
+const hero = await resolveResponsiveImage(defaultHeroImage);
+const images = hero
+  ? await Promise.all([
+      getImage({
+        ...attributes,
+        src: hero.src,
+        alt,
+        width: hero.width,
+        height: undefined,
+        widths: hero.widths,
+        format: 'avif',
+        quality: responsiveImageQuality,
+      }),
+      getImage({
+        ...attributes,
+        src: hero.src,
+        alt,
+        width: hero.width,
+        height: undefined,
+        widths: hero.widths,
+        format: 'webp',
+        quality: responsiveImageQuality,
+      }),
+      getImage({ src: hero.src, ...portraitHeroTransform, format: 'avif', quality: responsiveImageQuality }),
+      getImage({ src: hero.src, ...portraitHeroTransform, format: 'webp', quality: responsiveImageQuality }),
+    ])
+  : undefined;
+---
+
+{images ? (
+  <picture class="contents">
+    <source media={portraitHeroMedia} srcset={images[2].srcSet.attribute} type="image/avif" />
+    <source media={portraitHeroMedia} srcset={images[3].srcSet.attribute} type="image/webp" />
+    <source srcset={images[0].srcSet.attribute} sizes={attributes.sizes} type="image/avif" />
+    <img src={images[1].src} srcset={images[1].srcSet.attribute} {...images[1].attributes} />
+  </picture>
+) : <img {...attributes} src={defaultHeroImage} alt={alt} />}

@@ -33,16 +33,21 @@ async function openWithoutFlicker(page: Page, trigger: Locator, expectImmediate 
         if (panel) {
           if (!openedAt) openedAt = performance.now();
           const style = getComputedStyle(panel);
+          const box = panel.getBoundingClientRect();
           const insets = style.clipPath
             .match(/^inset\(([^)]+?)(?:\s+round|\))/)?.[1]
             .trim()
             .split(/\s+/)
-            .map(Number.parseFloat);
+            .map((value, index) =>
+              value.endsWith('%')
+                ? Number.parseFloat(value) / 100
+                : Number.parseFloat(value) / (index % 2 === 0 ? box.height : box.width),
+            );
           const [top = 0, right = top, bottom = top, left = right] = insets ?? [];
           samples.push({
             expanded: trigger?.getAttribute('aria-expanded') ?? null,
             opacity: Number(style.opacity),
-            reveal: ((100 - top - bottom) * (100 - left - right)) / 10_000,
+            reveal: Math.max(0, 1 - top - bottom) * Math.max(0, 1 - left - right),
             scrollY: window.scrollY,
           });
         }

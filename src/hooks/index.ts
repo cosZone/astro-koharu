@@ -10,6 +10,7 @@ export { type UseControlledStateOptions, useControlledState } from './useControl
 // Clipboard with feedback
 export { useCopyToClipboard } from './useCopyToClipboard';
 export { type CurrentHeading, type UseCurrentHeadingOptions, useCurrentHeading } from './useCurrentHeading';
+export { useElementVisibility } from './useElementVisibility';
 // Floating UI wrapper
 export { type UseFloatingUIOptions, useFloatingUI } from './useFloatingUI';
 // TOC hooks (useTocController etc.) are imported via direct paths; see src/hooks/useTocController.ts

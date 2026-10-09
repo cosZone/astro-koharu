@@ -528,6 +528,7 @@ test('switching to reduced motion before a new spoiler renders cannot leak a can
     warmup.id = 'first-registration-spoiler';
     warmup.textContent = 'Register spoiler component';
     document.body.prepend(warmup);
+    warmup.scrollIntoView({ block: 'center' });
     spoiler.enhanceSpoilers(document);
     await Promise.race([
       customElements.whenDefined('spoiler-span'),

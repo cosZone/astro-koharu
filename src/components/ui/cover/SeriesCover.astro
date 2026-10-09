@@ -1,4 +1,5 @@
 ---
+import ResponsiveImage from '@components/common/ResponsiveImage.astro';
 import { motionConfig } from '@constants/site-config';
 import type { FeaturedSeriesItem } from '@lib/config/types';
 import { translateSeriesField } from '@lib/content';
@@ -63,7 +64,7 @@ const links = [
   {
     series.cover && (
       <div class="series-cover-art absolute inset-0 -z-10" style={getLqipStyle(series.cover)}>
-        <img src={series.cover} alt="" class="h-full w-full object-cover" loading="eager" fetchpriority="high" decoding="async" />
+        <ResponsiveImage src={series.cover} alt="" sizes="100vw" class="h-full w-full object-cover" loading="eager" fetchpriority="high" decoding="async" />
       </div>
     )
   }

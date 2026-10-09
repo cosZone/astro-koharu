@@ -4,7 +4,7 @@
  */
 
 import { categoryMap } from '@lib/config/site';
-import { encodeSlug } from '../route';
+import { encodeSlug } from '../url';
 
 /**
  * Build category path from category names
