@@ -65,7 +65,7 @@ const portraitHero =
 <link rel="icon" type="image/svg+xml" href="/favicon.ico" />
 <meta name="generator" content={Astro.generator} />
 {heroImages.length > 0 && <link rel="preload" as="image" type="image/avif" media={portraitHero ? wideHeroMedia : undefined} imagesrcset={heroImages.map(({ width, image }) => `${image.src} ${width}w`).join(', ')} imagesizes="100vw" fetchpriority="high" />}
-{portraitHero && <link rel="preload" as="image" type="image/avif" media={portraitHeroMedia} href={portraitHero.src} fetchpriority="high" />}
+{portraitHero && <link rel="preload" as="image" type="image/avif" media={portraitHeroMedia} href={portraitHero.src} imagesrcset={portraitHero.srcSet.attribute} fetchpriority="high" />}
 {runtimeHero && <link rel="preload" as="image" type="image/webp" imagesrcset={defaultHeroSrcset} imagesizes="100vw" fetchpriority="high" />}
 <RoundedFonts locale={locale} />
 

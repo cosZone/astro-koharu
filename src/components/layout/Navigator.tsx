@@ -145,7 +145,7 @@ const Navigator = memo(function Navigator({ currentPath, locale = defaultLocale 
   }, [direction, isPostPageMobile]);
 
   return (
-    <div className="flex grow tablet:grow-0 items-center">
+    <div className="tablet:col-start-3 flex grow tablet:grow-0 items-center tablet:justify-self-end">
       {/* Desktop navigation */}
       <nav
         ref={navRef}

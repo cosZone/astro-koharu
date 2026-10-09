@@ -45,8 +45,8 @@ const images = hero
 
 {images ? (
   <picture class="contents">
-    <source media={portraitHeroMedia} srcset={images[2].src} type="image/avif" />
-    <source media={portraitHeroMedia} srcset={images[3].src} type="image/webp" />
+    <source media={portraitHeroMedia} srcset={images[2].srcSet.attribute} type="image/avif" />
+    <source media={portraitHeroMedia} srcset={images[3].srcSet.attribute} type="image/webp" />
     <source srcset={images[0].srcSet.attribute} sizes={attributes.sizes} type="image/avif" />
     <img src={images[1].src} srcset={images[1].srcSet.attribute} {...images[1].attributes} />
   </picture>

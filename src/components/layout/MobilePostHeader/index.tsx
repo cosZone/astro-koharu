@@ -16,6 +16,7 @@ import { chapterIndexOf, findHeadingById, flattenHeadings } from '@lib/toc';
 import { m } from 'motion/react';
 import { useMemo, useState } from 'react';
 import { siteConfig } from '@/constants/site-config';
+import { localizedPath } from '@/i18n';
 import { HeadingTitle } from './HeadingTitle';
 import { MobileTOCDropdown } from './MobileTOCDropdown';
 import { ProgressCircle } from './ProgressCircle';
@@ -31,14 +32,21 @@ interface MobilePostHeaderProps {
   logoSrc?: string;
   /** Whether to enable CSS counter numbering in TOC (default: true) */
   enableNumbering?: boolean;
+  /** Page locale from the server, so the SSR'd logo link matches hydration */
+  locale?: string;
 }
 
 // Scroll offset for detecting active heading
 const SCROLL_OFFSET_TOP = 80;
 
-function Logo({ logoElement, logoText, logoSrc }: Pick<MobilePostHeaderProps, 'logoElement' | 'logoText' | 'logoSrc'>) {
+function Logo({
+  logoElement,
+  logoText,
+  logoSrc,
+  locale,
+}: Pick<MobilePostHeaderProps, 'logoElement' | 'logoText' | 'logoSrc' | 'locale'>) {
   return (
-    <a href="/" className="flex items-center gap-1">
+    <a href={localizedPath('/', locale)} className="flex items-center gap-1">
       {logoElement === 'svg' && logoSrc ? (
         <img src={logoSrc} alt={siteConfig?.alternate ?? siteConfig?.name} className="h-8 w-auto" width={448} height={153} />
       ) : (
@@ -54,8 +62,9 @@ export function MobilePostHeader({
   logoText,
   logoSrc,
   enableNumbering = true,
+  locale,
 }: MobilePostHeaderProps) {
-  const { t } = useTranslation();
+  const { t } = useTranslation(locale);
   const shouldReduceMotion = useMotionLevel() === 'reduced';
 
   // Check if we're on mobile (tablet breakpoint: max-width 992px)
@@ -85,7 +94,7 @@ export function MobilePostHeader({
     // Keep motion features ready when a breakpoint change enables reading tracking.
     return (
       <LazyMotionProvider>
-        <Logo logoElement={logoElement} logoText={logoText} logoSrc={logoSrc} />
+        <Logo logoElement={logoElement} logoText={logoText} logoSrc={logoSrc} locale={locale} />
       </LazyMotionProvider>
     );
   }
@@ -109,7 +118,7 @@ export function MobilePostHeader({
                 trigger={
                   <button
                     type="button"
-                    className="flex w-[calc(100vw-12rem)] items-center gap-2.5 rounded-full bg-foreground/10 py-1 pr-3 pl-1.5 backdrop-blur-sm transition-colors hover:bg-foreground/20"
+                    className="flex w-[calc(100vw-14rem)] items-center gap-2.5 rounded-full bg-foreground/10 py-1 pr-3 pl-1.5 backdrop-blur-sm transition-colors hover:bg-foreground/20"
                     aria-label={t('toc.expand')}
                   >
                     {/* Progress circle - fixed size container, with the current chapter number inside */}
@@ -139,7 +148,7 @@ export function MobilePostHeader({
             animate={{ opacity: 1 }}
             transition={shouldReduceMotion ? { duration: 0 } : animation.spring.gentle}
           >
-            <Logo logoElement={logoElement} logoText={logoText} logoSrc={logoSrc} />
+            <Logo logoElement={logoElement} logoText={logoText} logoSrc={logoSrc} locale={locale} />
           </m.div>
         )}
       </div>

@@ -23,9 +23,9 @@ const locale = getLocaleFromUrl(Astro.url.pathname);
   id="site-header"
   class={`shadow-text fixed tablet:backdrop-blur inset-x-0 top-0 z-30 gap-4 py-2.5 text-white select-none tablet:py-2 tablet:pl-3 tablet:pr-0 overflow-visible`}
 >
-  <div class={`header-inner mx-auto tablet:w-full px-6 tablet:pl-10 tablet:pr-3 ${MAX_WIDTH.content}`}>
+  <div class={`header-inner mx-auto tablet:w-full px-6 tablet:pl-0 tablet:pr-3 ${MAX_WIDTH.content}`}>
     <div class="header-capsule" aria-hidden="true"></div>
-    <div class="header-content flex items-center justify-between">
+    <div class="header-content tablet:grid tablet:grid-cols-[minmax(3rem,1fr)_auto_1fr] tablet:gap-x-3 flex items-center justify-between">
       <!-- Desktop: Always show logo -->
       <a
         transition:persist="page-header-avatar"
@@ -38,7 +38,7 @@ const locale = getLocaleFromUrl(Astro.url.pathname);
         {showLogo ? <img src={logoSrc} alt="" class="h-8 w-auto" width="448" height="153" /> : <p class="logo-text">{alternate || title}</p>}
       </a>
       <!-- Mobile: MobilePostHeader (shows heading on post pages, logo otherwise) -->
-      <div class="tablet:flex tablet:grow hidden items-center justify-center">
+      <div class="tablet:col-start-2 tablet:flex hidden items-center justify-center">
         {isPostPage ? (
           <MobilePostHeader
             client:media="(max-width: 992px)"
@@ -47,6 +47,7 @@ const locale = getLocaleFromUrl(Astro.url.pathname);
             logoElement={showLogo ? 'svg' : 'text'}
             logoText={alternate || title}
             logoSrc={logoSrc}
+            locale={locale}
           />
         ) : (
           <a href={localizedPath('/', locale)} class="flex items-center gap-1">
