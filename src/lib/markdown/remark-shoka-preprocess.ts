@@ -22,6 +22,7 @@ import remarkMath from 'remark-math';
 import remarkParse from 'remark-parse';
 import { unified } from 'unified';
 import type { VFile } from 'vfile';
+import { remarkLiteralDirectives } from './remark-literal-directives';
 import { preprocessShokaSyntax } from './shoka-preprocessor';
 
 interface RemarkShokaPreprocessOptions {
@@ -40,7 +41,7 @@ export function remarkShokaPreprocess(options?: RemarkShokaPreprocessOptions) {
   }
   if (options?.enableEncryptedBlock) {
     // remarkDirective must be in re-parse pipeline so :::encrypted survives re-parsing
-    pipeline.use(remarkDirective);
+    pipeline.use(remarkDirective).use(remarkLiteralDirectives);
   }
 
   return (tree: Root, file: VFile) => {
@@ -58,6 +59,7 @@ export function remarkShokaPreprocess(options?: RemarkShokaPreprocessOptions) {
 
     // Re-parse the preprocessed text into a new MDAST
     const newTree = pipeline.parse(processed);
+    pipeline.runSync(newTree, { value: processed });
 
     // Replace the tree's children with the newly parsed ones
     tree.children = newTree.children;
