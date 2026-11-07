@@ -19,6 +19,7 @@ import { classifyLink, isStandaloneLinkParagraph } from '../../lib/markdown/link
 import { rehypeImagePlaceholder } from '../../lib/markdown/rehype-image-placeholder';
 import { rehypeShokaAttrs } from '../../lib/markdown/rehype-shoka-attrs';
 import { remarkEncryptedDirective } from '../../lib/markdown/remark-encrypted-directive';
+import { remarkLiteralDirectives } from '../../lib/markdown/remark-literal-directives';
 import { remarkIns, remarkMark } from '../../lib/markdown/remark-shoka-effects';
 import { remarkShokaPreprocess } from '../../lib/markdown/remark-shoka-preprocess';
 import { remarkShokaRuby } from '../../lib/markdown/remark-shoka-ruby';
@@ -240,7 +241,9 @@ export async function renderEditorMarkdown(source: string, options: EditorRender
   if (config.enableShokaSpoiler) processor.use(remarkShokaSpoiler);
   if (config.enableShokaRuby) processor.use(remarkShokaRuby);
   if (config.enableShokaEffects) processor.use(remarkIns).use(remarkMark);
-  if (config.enableEncryptedBlock) processor.use(remarkDirective).use(remarkEncryptedDirective);
+  if (config.enableEncryptedBlock) {
+    processor.use(remarkDirective).use(remarkLiteralDirectives).use(remarkEncryptedDirective);
+  }
   const pipeline = processor
     .use(remarkEditorLinks, options)
     .use(remarkCodeMeta)
