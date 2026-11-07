@@ -240,6 +240,25 @@ test('content switches preserve the configured published behavior', async () => 
   assert.doesNotMatch(html, /<ins>|spoiler-span|data-editor-og-url/);
 });
 
+test('encrypted block parsing preserves ordinary colon text', async () => {
+  const { html } = await renderEditorMarkdown(
+    '正文 :1 内容\n\n速率:1Mbps\n\n时间 12:30\n\n比例 1:1\n\n状态 foo:bar\n\n中文:1\n\n::1\n\n:::1',
+    {
+      contentConfig: { enableEncryptedBlock: true },
+    },
+  );
+
+  assert.match(html, /正文 :1 内容/);
+  assert.match(html, /速率:1Mbps/);
+  assert.match(html, /时间 12:30/);
+  assert.match(html, /比例 1:1/);
+  assert.match(html, /状态 foo:bar/);
+  assert.match(html, /中文:1/);
+  assert.match(html, /::1/);
+  assert.match(html, /:::1/);
+  assert.doesNotMatch(html, /<div><\/div>/);
+});
+
 test('the repository Shoka feature article renders its complete set of documented examples', async () => {
   const article = await readFile(new URL('./shoka-example.md', import.meta.url), 'utf8');
   const body = article.replace(/^---\r?\n[\s\S]*?\r?\n---\r?\n/, '');
