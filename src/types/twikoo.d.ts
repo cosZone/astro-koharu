@@ -1,10 +1,11 @@
-declare module 'twikoo/dist/twikoo.nocss.js' {
+declare module 'twikoo' {
   interface TwikooInitOptions {
     envId: string;
     el: string | HTMLElement;
     region?: string;
     path?: string;
     lang?: string;
+    localeBaseUrl?: string;
     onCommentLoaded?: () => void;
   }
 

@@ -150,6 +150,41 @@ const katexHtmlParser = katexRequire.resolve('hast-util-from-html-isomorphic');
 const markdownRequire = createRequire(configRequire.resolve('remark-parse'));
 const markdownEntities = markdownRequire.resolve('decode-named-character-reference');
 
+// Twikoo 2.x ships non-built-in locales as runtime shards loaded from
+// `${localeBaseUrl}/locales/<lang>.js`. Vite refuses to import JS from public/ in dev,
+// so serve the shards from node_modules in dev and emit them into the build output.
+function twikooLocales() {
+  const localesDir = path.join(path.dirname(configRequire.resolve('twikoo')), 'locales');
+  const urlPrefix = '/twikoo/locales/';
+
+  return {
+    name: 'twikoo-locales',
+    configureServer(server) {
+      server.middlewares.use((req, res, next) => {
+        const pathname = req.url?.split('?')[0];
+        if (!pathname?.startsWith(urlPrefix)) return next();
+        const file = path.basename(pathname);
+        if (!/^[A-Za-z0-9-]+\.js$/.test(file)) return next();
+        const filePath = path.join(localesDir, file);
+        if (!fs.existsSync(filePath)) return next();
+        res.setHeader('Content-Type', 'text/javascript; charset=utf-8');
+        res.end(fs.readFileSync(filePath));
+      });
+    },
+    generateBundle() {
+      if (this.environment?.name !== 'client') return;
+      for (const file of fs.readdirSync(localesDir)) {
+        if (!file.endsWith('.js')) continue;
+        this.emitFile({
+          type: 'asset',
+          fileName: `twikoo/locales/${file}`,
+          source: fs.readFileSync(path.join(localesDir, file)),
+        });
+      }
+    },
+  };
+}
+
 // Remark plugins — order matters
 // remarkShokaPreprocess MUST be first: it re-parses raw text to fix GFM/remark conflicts
 // (+++, ~sub~, {% links %} YAML etc.) before any AST-level plugin runs.
@@ -310,7 +345,7 @@ export default defineConfig({
       // reject, dropping every scroll-driven animation. Minify for Tailwind v4's browser floor.
       cssTarget: ['chrome111', 'edge111', 'firefox128', 'safari16.4'],
     },
-    plugins: [...(isAnalyze ? [Sonda({ open: false })] : []), yaml(), conditionalSnowfall(), svgr(), tailwindcss()],
+    plugins: [...(isAnalyze ? [Sonda({ open: false })] : []), yaml(), conditionalSnowfall(), svgr(), tailwindcss(), twikooLocales()],
     resolve: {
       alias: {
         'hast-util-from-html-isomorphic': katexHtmlParser,

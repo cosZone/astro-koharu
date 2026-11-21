@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState } from 'react';
-import twikooStyles from 'twikoo/dist/twikoo.css?inline';
 import { commentConfig } from '@/constants/site-config';
 import { useTranslation } from '@/hooks/useTranslation';
 import { getHtmlLang, getLocaleFromUrl } from '@/i18n/utils';
@@ -50,9 +49,10 @@ export default function Twikoo() {
       containerRef.current.innerHTML = '';
       const locale = getLocaleFromUrl(window.location.pathname);
       try {
-        // Dynamic import: twikoo is a UMD bundle (~500KB) with no type definitions,
-        // and accesses `document` at module load time — lazy loading is the cleanest approach
-        const { init } = await import('twikoo/dist/twikoo.nocss.js');
+        // Dynamic import: twikoo is a browser-only bundle (~360KB) with no type definitions,
+        // and accesses `document` at module load time — lazy loading is the cleanest approach.
+        // The package's public entry injects its own stylesheet.
+        const { init } = await import('twikoo');
         if (!containerRef.current) return;
         await init({
           envId: config.envId,
@@ -60,6 +60,9 @@ export default function Twikoo() {
           region: config.region,
           path: config.path ?? window.location.pathname,
           lang: config.lang ?? getHtmlLang(locale),
+          // twikoo 2.x lazy-loads non-built-in locales from `${localeBaseUrl}/locales/<lang>.js`;
+          // the shards are served by the twikoo-locales Vite plugin.
+          localeBaseUrl: `${import.meta.env.BASE_URL}twikoo`,
         });
         if (active) setStatus('ready');
       } catch (error) {
@@ -78,7 +81,7 @@ export default function Twikoo() {
 
   return (
     <>
-      <style>{`${twikooStyles}\n${themeStyles}`}</style>
+      <style>{themeStyles}</style>
       <div className="px-4">
         {status === 'loading' && <TwikooSkeleton />}
         {status === 'error' && (

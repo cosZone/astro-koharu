@@ -154,7 +154,7 @@
     "tailwindcss-animate": "^1.0.7",
     "three": "^0.182.0",
     "transliteration": "^2.6.1",
-    "twikoo": "^1.6.44",
+    "twikoo": "^2.0.17",
     "undici": "^7.30.0",
     "unified": "^11.0.5",
     "unist-util-visit": "^5.0.0",
