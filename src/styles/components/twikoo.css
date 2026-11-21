@@ -77,3 +77,15 @@ html.dark .tk-comments-container .tk-extras {
 html.dark .tk-comments-container .tk-action-icon {
   filter: invert(0.7);
 }
+
+
+/* === Loading spinner === */
+.el-loading-spinner {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: unset;
+  width: unset;
+  margin-top: unset;
+}
